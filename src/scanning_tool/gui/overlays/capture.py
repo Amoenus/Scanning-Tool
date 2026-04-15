@@ -5,7 +5,7 @@ from typing import Dict, Optional
 
 from .base import CAPTURE_ANIMATION_INTERVAL_MS, create_overlay_window, safe_tk
 from .geometry import compute_capture_overlay_layout
-from scanning_tool.state import app_state
+from scanning_tool.core.state_manager import config, scan_state, service_state, overlay_state, control_state, save_config
 
 
 class CaptureOverlay:
@@ -127,10 +127,10 @@ class CaptureOverlay:
             tags=("border",),
         )
 
-        app_state.overlay_state.capture_overlay_root = self.root
-        app_state.overlay_state.capture_overlay_canvas = self.canvas
-        app_state.overlay_state.capture_rect_id = self.rect_id
-        app_state.overlay_state.border_canvas = self.border_canvas
+        overlay_state.capture_overlay_root = self.root
+        overlay_state.capture_overlay_canvas = self.canvas
+        overlay_state.capture_rect_id = self.rect_id
+        overlay_state.border_canvas = self.border_canvas
 
         self.start_animation(force=True)
 
@@ -176,10 +176,10 @@ class CaptureOverlay:
         self.border_canvas = None
         self.animation_job = None
 
-        app_state.overlay_state.capture_overlay_root = None
-        app_state.overlay_state.capture_overlay_canvas = None
-        app_state.overlay_state.capture_rect_id = None
-        app_state.overlay_state.border_canvas = None
+        overlay_state.capture_overlay_root = None
+        overlay_state.capture_overlay_canvas = None
+        overlay_state.capture_rect_id = None
+        overlay_state.border_canvas = None
 
 
 _capture_overlay = CaptureOverlay()

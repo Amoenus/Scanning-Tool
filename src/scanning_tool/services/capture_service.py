@@ -7,7 +7,7 @@ from threading import Thread
 import mss
 from PIL import Image
 
-from scanning_tool.state import app_state
+from scanning_tool.core.state_manager import config, scan_state, service_state, overlay_state, control_state, save_config
 from scanning_tool.ocr import ocr_with_ollama
 from scanning_tool.deposits import extract_code_from_text, lookup_deposit
 from scanning_tool.services.alignment_service import alignment_service
@@ -38,19 +38,19 @@ class CaptureService(ICaptureService):
             self._status_callback("Aligning region...")
         
         auto_aligned = alignment_service.align(
-            app_state.scan_state.anchor_tracker,
-            app_state.settings.anchor,
-            app_state.settings.capture,
-            app_state.scan_state.last_alignment_info,
+            scan_state.anchor_tracker,
+            config.anchor,
+            config.capture,
+            scan_state.last_alignment_info,
             sync_capture_sliders,
             update_capture_overlay_region,
         )
         
-        if app_state.settings.anchor.auto_align_enabled:
+        if config.auto_alignment.enabled:
             from loguru import logger
             logger.debug("Auto alignment %s before capture.", "succeeded" if auto_aligned else "did not match")
         
-        cap_region = app_state.settings.capture.cap_region
+        cap_region = config.capture_region
         with mss.mss() as sct:
             monitor = {
                 "left": cap_region["left"],
@@ -71,10 +71,10 @@ class CaptureService(ICaptureService):
             raw_text = ocr_with_ollama(pil_img)
             code, raw = extract_code_from_text(raw_text)
             info = lookup_deposit(code)
-            app_state.scan_state.last_result = LastResult(code=code, code_raw=raw, info=info, raw_text=raw_text)
+            scan_state.last_result = LastResult(code=code, code_raw=raw, info=info, raw_text=raw_text)
             update_overlay_label(info, code=code, raw_text=raw or raw_text)
             
-            result = app_state.scan_state.last_result
+            result = scan_state.last_result
             logger.info(
                 f"Scan result: LastResult("
                 f"code={result.code}, "
@@ -95,22 +95,22 @@ class CaptureService(ICaptureService):
     
     def toggle_continuous(self) -> None:
         """Toggle continuous scanning mode."""
-        from scanning_tool.state import app_state
-        app_state.scan_state.continuous_mode = not app_state.scan_state.continuous_mode
+        from scanning_tool.core.state_manager import config, scan_state, service_state, overlay_state, control_state, save_config
+        scan_state.continuous_mode = not scan_state.continuous_mode
         from loguru import logger
-        logger.info(f"Continuous mode: {app_state.scan_state.continuous_mode}")
+        logger.info(f"Continuous mode: {scan_state.continuous_mode}")
         
-        if app_state.scan_state.continuous_mode:
+        if scan_state.continuous_mode:
             Thread(target=self._continuous_scan_loop, daemon=True).start()
     
     def _continuous_scan_loop(self) -> None:
         """Run scans repeatedly until continuous_mode is turned off."""
         while True:
-            from scanning_tool.state import app_state
-            if not app_state.scan_state.continuous_mode:
+            from scanning_tool.core.state_manager import config, scan_state, service_state, overlay_state, control_state, save_config
+            if not scan_state.continuous_mode:
                 break
             self.capture_once()
-            interval = max(0.1, float(app_state.settings.capture.continuous_capture_interval))
+            interval = max(0.1, float(config.continuous_capture_interval))
             time.sleep(interval)
 
 

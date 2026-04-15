@@ -21,7 +21,7 @@ from scanning_tool.ollama import (
     set_configured_ollama_host,
     set_configured_ollama_model,
 )
-from scanning_tool.state import app_state
+from scanning_tool.core.state_manager import config, scan_state, service_state, overlay_state, control_state, save_config
 from scanning_tool.web import get_local_ip
 
 
@@ -47,8 +47,8 @@ class OllamaSection:
         frame.pack(fill="x", padx=5, pady=8)
 
         self._status = ctx.status
-        self._host_var = tk.StringVar(value=app_state.settings.ollama.configured_ollama_host)
-        self._model_var = tk.StringVar(value=app_state.settings.ollama.ollama_model)
+        self._host_var = tk.StringVar(value=config.ollama_config.host)
+        self._model_var = tk.StringVar(value=config.ollama_config.model)
         self._active_host_var = tk.StringVar()
         self._active_model_var = tk.StringVar()
 

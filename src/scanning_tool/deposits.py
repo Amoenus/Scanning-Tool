@@ -6,7 +6,7 @@ import re
 from typing import Any, Dict, List, Optional
 
 from scanning_tool.config import ROCK_TYPE_FILE
-from scanning_tool.state import app_state
+from scanning_tool.core.state_manager import config, scan_state, service_state, overlay_state, control_state, save_config
 
 
 
@@ -80,11 +80,11 @@ def build_deposit_tables(rock_data: Dict) -> Dict:
 def load_rock_data() -> None:
     """Load RockType.json and build deposit tables into app_state."""
     with open(ROCK_TYPE_FILE, "r") as f:
-        app_state.service_state.rock_data = json.load(f)
+        service_state.rock_data = json.load(f)
 
-    app_state.service_state.deposit_tables = {
+    service_state.deposit_tables = {
         region_name.upper(): build_deposit_tables(region_data)
-        for region_name, region_data in app_state.service_state.rock_data.items()
+        for region_name, region_data in service_state.rock_data.items()
     }
 
 
@@ -118,7 +118,7 @@ def extract_code_from_text(raw_text: str):
     """Extract a deposit code from OCR text."""
     if not raw_text:
         return None, None
-    matches = app_state.service_state.code_re.findall(raw_text)
+    matches = service_state.code_re.findall(raw_text)
     if not matches:
         return None, raw_text
     raw = matches[0].upper()

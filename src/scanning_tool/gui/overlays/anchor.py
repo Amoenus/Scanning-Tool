@@ -5,7 +5,7 @@ from typing import Optional
 
 from .base import ANCHOR_OVERLAY_PAD, create_overlay_window, safe_tk
 from .geometry import compute_anchor_overlay_geometry
-from scanning_tool.state import app_state
+from scanning_tool.core.state_manager import config, scan_state, service_state, overlay_state, control_state, save_config
 
 
 class AnchorOverlay:
@@ -15,7 +15,7 @@ class AnchorOverlay:
         self.rect_id: Optional[int] = None
 
     def show(self) -> None:
-        if not app_state.overlay_state.anchor_overlay_visible:
+        if not overlay_state.anchor_overlay_visible:
             return
 
         if self.root and safe_tk(self.root.winfo_exists, False):
@@ -40,8 +40,8 @@ class AnchorOverlay:
         self.rect_id = self.canvas.create_rectangle(
             ANCHOR_OVERLAY_PAD // 2,
             ANCHOR_OVERLAY_PAD // 2,
-            ANCHOR_OVERLAY_PAD // 2 + int(app_state.settings.anchor.anchor_region["width"]),
-            ANCHOR_OVERLAY_PAD // 2 + int(app_state.settings.anchor.anchor_region["height"]),
+            ANCHOR_OVERLAY_PAD // 2 + int(config.anchor_template.width),
+            ANCHOR_OVERLAY_PAD // 2 + int(config.anchor_template.height),
             outline="#00d4ff",
             width=2,
         )
@@ -55,13 +55,13 @@ class AnchorOverlay:
             anchor="n",
         )
 
-        app_state.overlay_state.anchor_overlay_root = self.root
-        app_state.overlay_state.anchor_overlay_canvas = self.canvas
-        app_state.overlay_state.anchor_rect_id = self.rect_id
+        overlay_state.anchor_overlay_root = self.root
+        overlay_state.anchor_overlay_canvas = self.canvas
+        overlay_state.anchor_rect_id = self.rect_id
 
     def update_region(self) -> None:
         if (
-            not app_state.overlay_state.anchor_overlay_visible
+            not overlay_state.anchor_overlay_visible
             or not self.root
             or not self.canvas
             or not self.rect_id
@@ -74,8 +74,8 @@ class AnchorOverlay:
             self.rect_id,
             ANCHOR_OVERLAY_PAD // 2,
             ANCHOR_OVERLAY_PAD // 2,
-            ANCHOR_OVERLAY_PAD // 2 + int(app_state.settings.anchor.anchor_region["width"]),
-            ANCHOR_OVERLAY_PAD // 2 + int(app_state.settings.anchor.anchor_region["height"]),
+            ANCHOR_OVERLAY_PAD // 2 + int(config.anchor_template.width),
+            ANCHOR_OVERLAY_PAD // 2 + int(config.anchor_template.height),
         ))
         safe_tk(lambda: self.root.geometry(f"{geometry['width']}x{geometry['height']}+{geometry['left']}+{geometry['top']}"))
         safe_tk(lambda: self.root.lift())
@@ -91,9 +91,9 @@ class AnchorOverlay:
         self.canvas = None
         self.rect_id = None
 
-        app_state.overlay_state.anchor_overlay_root = None
-        app_state.overlay_state.anchor_overlay_canvas = None
-        app_state.overlay_state.anchor_rect_id = None
+        overlay_state.anchor_overlay_root = None
+        overlay_state.anchor_overlay_canvas = None
+        overlay_state.anchor_rect_id = None
 
 
 _anchor_overlay = AnchorOverlay()

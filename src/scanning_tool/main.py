@@ -5,7 +5,7 @@ from threading import Thread
 
 from threading import Thread
 
-from scanning_tool.config import load_config
+
 from scanning_tool.deposits import load_rock_data
 from scanning_tool.gui.app import launch_gui
 from scanning_tool.hotkeys import hotkey_listener
@@ -16,7 +16,7 @@ from scanning_tool.ollama import (
 )
 from scanning_tool.services.alignment_service import alignment_service
 from scanning_tool.services.ollama_service import ollama_service
-from scanning_tool.state.context import app_state
+from scanning_tool.core.state_manager import config, scan_state, service_state, overlay_state, control_state, save_config
 from scanning_tool.core.anchor import AnchorRegionTracker
 from scanning_tool.web import create_app, get_local_ip
 
@@ -25,7 +25,7 @@ def main() -> None:
     """Launch the scanning tool."""
     setup_logging()
 
-    load_config(app_state)
+    # config loaded implicitly via state_manager
     load_rock_data()
 
     ensure_ollama_installed()
@@ -34,9 +34,9 @@ def main() -> None:
     ensure_model_installed()
     log_model_running_status()
 
-    app_state.scan_state.anchor_tracker = AnchorRegionTracker(
-        app_state.settings.anchor.anchor_template_dir,
-        app_state.settings.anchor.anchor_threshold,
+    scan_state.anchor_tracker = AnchorRegionTracker(
+        config.anchor_template_dir,
+        config.anchor_threshold,
     )
 
     Thread(target=hotkey_listener, daemon=True).start()

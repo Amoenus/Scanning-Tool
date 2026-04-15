@@ -3,7 +3,7 @@
 from typing import Callable, Dict, Optional
 from scanning_tool.services.base_service import BaseService
 from scanning_tool.core.anchor import AnchorRegionTracker
-from scanning_tool.config.settings import AnchorSettings, CaptureSettings
+from scanning_tool.domain.models import AutoAlignmentConfig, CaptureRegion
 from scanning_tool.runtime.scan_state import AlignmentInfo
 
 SyncCallback = Callable[[], None]

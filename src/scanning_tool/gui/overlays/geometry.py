@@ -11,11 +11,11 @@ from .base import (
     MIN_INFO_OVERLAY_WIDTH,
     SCREEN_MARGIN,
 )
-from scanning_tool.state import app_state
+from scanning_tool.core.state_manager import config, scan_state, service_state, overlay_state, control_state, save_config
 
 
 def compute_info_overlay_geometry(screen_width: int, screen_height: int) -> Tuple[int, int, int, int]:
-    overlay_settings = app_state.settings.overlay
+    overlay_settings = config.overlay
 
     overlay_width = max(
         MIN_INFO_OVERLAY_WIDTH,
@@ -37,7 +37,7 @@ def compute_info_overlay_geometry(screen_width: int, screen_height: int) -> Tupl
 
 
 def compute_capture_overlay_layout() -> Dict[str, int]:
-    cap_region = app_state.settings.capture.cap_region
+    cap_region = config.capture_region
     cap_w = int(cap_region["width"])
     cap_h = int(cap_region["height"])
 
@@ -59,7 +59,7 @@ def compute_capture_overlay_layout() -> Dict[str, int]:
 
 
 def compute_anchor_overlay_geometry() -> Dict[str, int]:
-    anchor_region = app_state.settings.anchor.anchor_region
+    anchor_region = config.anchor_template
     width = int(anchor_region["width"]) + ANCHOR_OVERLAY_PAD
     height = int(anchor_region["height"]) + ANCHOR_OVERLAY_PAD
     left = int(anchor_region["left"]) - (ANCHOR_OVERLAY_PAD // 2)

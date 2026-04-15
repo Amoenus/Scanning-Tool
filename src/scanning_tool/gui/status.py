@@ -4,7 +4,7 @@ import time
 import tkinter as tk
 from typing import Dict, Optional
 
-from scanning_tool.state import app_state
+from scanning_tool.core.state_manager import config, scan_state, service_state, overlay_state, control_state, save_config
 
 
 class StatusBar:
@@ -50,4 +50,4 @@ class StatusBar:
 
     def install_as_scanning_callback(self) -> None:
         """Wire scanning.py's status callback to this status bar."""
-        app_state.service_state.gui_status_callback = self.set_status_async
+        service_state.gui_status_callback = self.set_status_async

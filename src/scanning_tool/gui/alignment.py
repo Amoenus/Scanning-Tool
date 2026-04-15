@@ -7,7 +7,7 @@ from scanning_tool.core.auto_alignment import perform_auto_alignment
 from scanning_tool.gui.overlays import update_capture_overlay_region, sync_capture_sliders
 from scanning_tool.gui.overlays.base import safe_tk
 from scanning_tool.gui.status import StatusBar
-from scanning_tool.state import app_state
+from scanning_tool.core.state_manager import config, scan_state, service_state, overlay_state, control_state, save_config
 
 
 _IDLE_ALIGNMENT_INFO = {
@@ -38,13 +38,13 @@ class AlignmentPoller:
             self.status.push_alignment_message(message)
 
         safe_tk(lambda: self.root.after(
-            max(100, int(app_state.settings.anchor.alignment_poll_interval_ms)),
+            max(100, int(config.anchor.alignment_poll_interval_ms)),
             self._tick,
         ))
 
     def _poll(self) -> Optional[str]:
-        if not app_state.settings.anchor.auto_align_enabled:
-            info = app_state.scan_state.last_alignment_info
+        if not config.auto_alignment.enabled:
+            info = scan_state.last_alignment_info
             info.matched = False
             info.template = None
             info.score = 0.0
@@ -54,9 +54,9 @@ class AlignmentPoller:
             info.capture_top = None
             return "Head sway compensation disabled."
 
-        tracker = app_state.scan_state.anchor_tracker
+        tracker = scan_state.anchor_tracker
         if tracker is None or not getattr(tracker, "templates", None):
-            info = app_state.scan_state.last_alignment_info
+            info = scan_state.last_alignment_info
             info.matched = False
             info.template = None
             info.score = 0.0
@@ -67,16 +67,16 @@ class AlignmentPoller:
             return "Add anchor templates to enable head sway compensation."
 
         match_found = perform_auto_alignment(
-            app_state.scan_state.anchor_tracker,
-            app_state.settings.anchor,
-            app_state.settings.capture,
-            app_state.scan_state.last_alignment_info,
+            scan_state.anchor_tracker,
+            config.anchor,
+            config.capture,
+            scan_state.last_alignment_info,
             sync_capture_sliders,
             update_capture_overlay_region,
         )
-        info = app_state.scan_state.last_alignment_info
+        info = scan_state.last_alignment_info
         if info.matched:
-            capture_msg = f"Auto alignment adjusted CAP_REGION: {app_state.settings.capture.cap_region}"
+            capture_msg = f"Auto alignment adjusted CAP_REGION: {config.capture_region}"
             if self.status.status_var.get() != capture_msg:
                 self.status.set_status(capture_msg)
             return f"Anchor locked using {info.template} (score {info.score:.2f})."

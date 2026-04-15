@@ -5,13 +5,13 @@ import tkinter as tk
 from typing import Dict
 
 from scanning_tool.gui.control_state import ScaleWidget
-from scanning_tool.state import app_state
+from scanning_tool.core.state_manager import config, scan_state, service_state, overlay_state, control_state, save_config
 from .base import safe_tk
 
 
 
 def register_capture_sliders(left: ScaleWidget, top: ScaleWidget, width: ScaleWidget, height: ScaleWidget) -> None:
-    app_state.control_state.gui_control_state["capture"].update({
+    control_state.gui_control_state["capture"].update({
         "left": left, "top": top, "width": width, "height": height,
     })
 
@@ -24,7 +24,7 @@ def register_anchor_sliders(
     offset_x: ScaleWidget,
     offset_y: ScaleWidget,
 ) -> None:
-    app_state.control_state.gui_control_state["anchor"].update({
+    control_state.gui_control_state["anchor"].update({
         "left": left,
         "top": top,
         "width": width,
@@ -35,17 +35,17 @@ def register_anchor_sliders(
 
 
 def register_overlay_sliders(offset_x: ScaleWidget, offset_y: ScaleWidget) -> None:
-    app_state.control_state.gui_control_state["overlay"].update({"offset_x": offset_x, "offset_y": offset_y})
+    control_state.gui_control_state["overlay"].update({"offset_x": offset_x, "offset_y": offset_y})
 
 
 def sync_capture_sliders() -> None:
-    state = app_state.control_state.gui_control_state
+    state = control_state.gui_control_state
     widgets = state["capture"]
     widget = widgets["left"]
     if not widget or state["syncing"]["capture"]:
         return
 
-    capture_region = app_state.settings.capture.cap_region
+    capture_region = config.capture_region
 
     def _apply() -> None:
         if state["syncing"]["capture"]:
@@ -66,14 +66,14 @@ def sync_capture_sliders() -> None:
 
 
 def sync_anchor_sliders() -> None:
-    state = app_state.control_state.gui_control_state
+    state = control_state.gui_control_state
     widgets = state["anchor"]
     widget = widgets["left"]
     if not widget or state["syncing"]["anchor"]:
         return
 
-    anchor_region = app_state.settings.anchor.anchor_region
-    anchor_offset = app_state.settings.anchor.anchor_offset
+    anchor_region = config.anchor_template
+    anchor_offset = config.anchor_offset
 
     def _apply() -> None:
         if state["syncing"]["anchor"]:
@@ -96,13 +96,13 @@ def sync_anchor_sliders() -> None:
 
 
 def sync_overlay_sliders() -> None:
-    state = app_state.control_state.gui_control_state
+    state = control_state.gui_control_state
     widgets = state["overlay"]
     widget = widgets["offset_x"]
     if not widget or state["syncing"]["overlay"]:
         return
 
-    overlay_offset = app_state.settings.overlay.info_overlay_offset
+    overlay_offset = config.overlay_config.info_offset
 
     def _apply() -> None:
         if state["syncing"]["overlay"]:

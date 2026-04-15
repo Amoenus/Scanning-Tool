@@ -8,7 +8,7 @@ from typing import Dict, Optional
 from .base import create_overlay_window, safe_tk
 from .capture import _capture_overlay
 from .geometry import compute_info_overlay_geometry
-from scanning_tool.state import app_state
+from scanning_tool.core.state_manager import config, scan_state, service_state, overlay_state, control_state, save_config
 
 
 class InfoOverlay:
@@ -26,7 +26,7 @@ class InfoOverlay:
         self.last_overlay_time: float = 0.0
 
     def update_label(self, info: dict, *, code: Optional[str] = None, raw_text: Optional[str] = None) -> None:
-        overlay_settings = app_state.settings.overlay
+        overlay_settings = config.overlay
 
         message = ""
         if info:
@@ -40,8 +40,8 @@ class InfoOverlay:
         else:
             self.last_overlay_time = 0
 
-        app_state.overlay_state.overlay_text = self.overlay_text
-        app_state.overlay_state.last_overlay_time = self.last_overlay_time
+        overlay_state.overlay_text = self.overlay_text
+        overlay_state.last_overlay_time = self.last_overlay_time
 
         if self.canvas and self.text_id:
             safe_tk(lambda: self.canvas.itemconfig(
@@ -72,14 +72,14 @@ class InfoOverlay:
             "width": overlay_width,
             "height": overlay_height,
         })
-        app_state.overlay_state.info_overlay_geometry.update(self.info_overlay_geometry)
+        overlay_state.info_overlay_geometry.update(self.info_overlay_geometry)
 
     def start_label_timeout(self) -> None:
         if self.canvas and self.text_id:
             if self.last_overlay_time and (time.time() - self.last_overlay_time > 10):
                 safe_tk(lambda: self.canvas.itemconfig(self.text_id, text=""))
                 self.last_overlay_time = 0
-                app_state.overlay_state.last_overlay_time = 0
+                overlay_state.last_overlay_time = 0
 
         if self.root and safe_tk(self.root.winfo_exists, False):
             safe_tk(lambda: self.root.after(500, self.start_label_timeout))
@@ -109,7 +109,7 @@ class InfoOverlay:
             overlay_width // 2,
             overlay_height // 2,
             text=self.overlay_text,
-            fill=app_state.settings.overlay.label_color,
+            fill=config.overlay_config.label_color,
             font=("Arial", 18, "bold"),
             width=overlay_width - 60,
             justify="center",
@@ -121,10 +121,10 @@ class InfoOverlay:
             "width": overlay_width,
             "height": overlay_height,
         })
-        app_state.overlay_state.info_overlay_root = self.root
-        app_state.overlay_state.info_overlay_canvas = self.canvas
-        app_state.overlay_state.info_text_id = self.text_id
-        app_state.overlay_state.info_overlay_geometry.update(self.info_overlay_geometry)
+        overlay_state.info_overlay_root = self.root
+        overlay_state.info_overlay_canvas = self.canvas
+        overlay_state.info_text_id = self.text_id
+        overlay_state.info_overlay_geometry.update(self.info_overlay_geometry)
 
         self.start_label_timeout()
 
@@ -139,9 +139,9 @@ class InfoOverlay:
         self.canvas = None
         self.text_id = None
 
-        app_state.overlay_state.info_overlay_root = None
-        app_state.overlay_state.info_overlay_canvas = None
-        app_state.overlay_state.info_text_id = None
+        overlay_state.info_overlay_root = None
+        overlay_state.info_overlay_canvas = None
+        overlay_state.info_text_id = None
 
 
 _info_overlay = InfoOverlay()
@@ -160,7 +160,7 @@ def start_label_timeout(window: Optional[tk.Toplevel]) -> None:
 
 
 def choose_label_color() -> None:
-    overlay_settings = app_state.settings.overlay
+    overlay_settings = config.overlay
     color = colorchooser.askcolor(title="Choose Label Color")[1]
     if not color:
         return
@@ -173,7 +173,7 @@ def choose_label_color() -> None:
 
 
 def toggle_border() -> None:
-    overlay_state = app_state.overlay_state
+    overlay_state = overlay_state
     overlay_state.show_border = not overlay_state.show_border
     if _capture_overlay.border_canvas:
         safe_tk(lambda: _capture_overlay.border_canvas.itemconfig(

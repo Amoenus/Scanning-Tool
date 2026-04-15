@@ -9,7 +9,7 @@ from scanning_tool.gui.overlays import (
     reposition_info_overlay,
     sync_overlay_sliders,
 )
-from scanning_tool.state import app_state
+from scanning_tool.core.state_manager import config, scan_state, service_state, overlay_state, control_state, save_config
 
 
 class ResultDisplaySection:
@@ -21,7 +21,7 @@ class ResultDisplaySection:
 
         self._status = ctx.status
 
-        overlay_offset = app_state.settings.overlay.info_overlay_offset
+        overlay_offset = config.overlay_config.info_offset
 
         self._offset_x = self._make_offset_scale(
             frame, "Display offset X", -800, 800, int(overlay_offset.get("x", 0))
@@ -54,9 +54,9 @@ class ResultDisplaySection:
         )
 
     def _on_change(self, *_args: object) -> None:
-        if app_state.control_state.gui_control_state["syncing"].get("overlay"):
+        if control_state.gui_control_state["syncing"].get("overlay"):
             return
-        overlay_offset = app_state.settings.overlay.info_overlay_offset
+        overlay_offset = config.overlay_config.info_offset
         overlay_offset["x"] = int(self._offset_x.get())
         overlay_offset["y"] = int(self._offset_y.get())
         self._status.set_status(
