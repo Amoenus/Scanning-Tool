@@ -44,16 +44,16 @@ def create_app() -> Flask:
         confidence = None
         raw_text = None
         table = None
-        if result and result.extra:
-            info = result.extra.get("info")
-            code_raw = result.extra.get("code_raw")
+        if result:
+            info = result.info
+            code_raw = result.extra.get("code_raw") if result.extra else None
             confidence = result.confidence
-            raw_text = result.extra.get("raw_text")
+            raw_text = result.extra.get("raw_text") if result.extra else None
             if info:
-                deposit_key = (info.get("key") or info.get("name") or "").upper()
+                deposit_key = (info.key or info.name or "").upper()
                 region_tables = service_state.deposit_tables.get(selected_region, {})
                 table = region_tables.get(deposit_key)
-                category = str(info.get("category", "")).lower()
+                category = str(info.category or "").lower()
                 if not table or category not in {"rock deposits", "gems"}:
                     table = None
 
@@ -63,7 +63,7 @@ def create_app() -> Flask:
             "last": asdict(result) if result else None,
             "alignment": asdict(scan_state.last_alignment_info),
             "selected_region": selected_region,
-            "info": info,
+            "info": asdict(info) if info else None,
             "code": result.label if result else None,
             "code_raw": code_raw,
             "confidence": float(confidence) if confidence is not None else None,

@@ -24,14 +24,14 @@
         }
     },
     "anchor_template": {
-        "left": 828,
+        "left": 806,
         "top": 258,
         "width": 320,
         "height": 140
     },
     "anchor_offset": {
         "x": 0,
-        "y": 0
+        "y": -25
     },
     "anchor_threshold": 0.82,
     "anchor_template_dir": "assets/anchor_templates",

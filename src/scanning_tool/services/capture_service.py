@@ -79,19 +79,22 @@ class CaptureService(ICaptureService):
                 ),
             )
             code, raw = extract_code_from_text(raw_text)
-            info = lookup_deposit(code)
+            info_dict = lookup_deposit(code)
+            # Convert info_dict to DepositInfo if present
+            from scanning_tool.domain.models import DepositInfo
+            deposit_info = DepositInfo(**info_dict) if info_dict else None
             # Create ScanResult for structured scan output
             scan_state.last_result = ScanResult(
                 label=code if code else "UNKNOWN",
                 confidence=1.0,  # Placeholder, update if available
                 region=ocr_result.region,
+                info=deposit_info,
                 extra={
                     "code_raw": raw,
-                    "info": info,
                     "raw_text": raw_text,
                 },
             )
-            update_overlay_label(info, code=code, raw_text=raw or raw_text)
+            update_overlay_label(info_dict, code=code, raw_text=raw or raw_text)
 
             result = scan_state.last_result
             logger.info(
