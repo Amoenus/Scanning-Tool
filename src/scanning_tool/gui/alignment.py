@@ -68,8 +68,6 @@ class AlignmentPoller:
 
         match_found = alignment_service.align(
             scan_state.anchor_tracker,
-            config.auto_alignment,
-            config.capture_region,
             scan_state.last_alignment_info,
             sync_capture_sliders,
             update_capture_overlay_region,
