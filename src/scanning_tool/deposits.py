@@ -3,10 +3,19 @@
 import json
 from loguru import logger
 import re
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional
 
 from scanning_tool.config import ROCK_TYPE_FILE
 from scanning_tool.core.state_manager import config, scan_state, service_state, overlay_state, control_state, save_config
+from scanning_tool.domain.models import (
+    DepositLookup,
+    DepositTable,
+    OreTableEntry,
+    OreTier,
+    OreValueInfo,
+    RockDeposit,
+    ScanSignature,
+)
 
 
 
@@ -17,7 +26,7 @@ from pathlib import Path
 # Path to the summary CSV (relative to project root)
 SCAN_SIG_CSV = Path(__file__).parent.parent.parent / "csv" / "scansig" / "scan_signatures_summary.csv"
 
-SCAN_SIGNATURES = {}
+SCAN_SIGNATURES: Dict[int, ScanSignature] = {}
 if SCAN_SIG_CSV.exists():
     try:
         df = pd.read_csv(SCAN_SIG_CSV)
@@ -40,29 +49,31 @@ if SCAN_SIG_CSV.exists():
 else:
     logger.warning(f"Scan signature CSV not found: {SCAN_SIG_CSV}")
 
-ORE_TIERS: Dict[str, Dict[str, Any]] = {
+ORE_TIERS: Dict[OreTier, Dict[str, object]] = {
     "HIGHEST": {"ores": ["QUANTANIUM", "STILERON", "RICCITE"], "color": "#E88AFF"},
     "HIGH": {"ores": ["TARANITE", "BEXALITE", "GOLD"], "color": "#63E64C"},
     "MEDIUM": {"ores": ["LARANITE", "BORASE", "BERYL", "AGRICIUM", "HEPHAESTANITE"], "color": "#E6E14C"},
     "LOW": {"ores": ["TUNGSTEN", "TITANIUM", "SILICON", "IRON", "QUARTZ", "CORUNDUM", "COPPER", "TIN", "ALUMINUM", "ICE"], "color": "#E69E4C"},
 }
 
-ORE_VALUE_MAP: Dict[str, Dict[str, str]] = {}
+ORE_VALUE_MAP: Dict[str, OreValueInfo] = {}
 for _tier, _data in ORE_TIERS.items():
     for _ore in _data["ores"]:
         ORE_VALUE_MAP[_ore.upper()] = {"tier": _tier, "color": _data["color"]}
 
+_TIER_ORDER: List[OreTier] = ["HIGHEST", "HIGH", "MEDIUM", "LOW", "OTHER"]
 
-def build_deposit_tables(rock_data: Dict) -> Dict:
-    """Build per-region deposit tables from rock data."""
-    deposit_tables: Dict[str, List[Dict[str, str]]] = {}
+
+def build_deposit_tables(rock_data: Dict[str, RockDeposit]) -> Dict[str, DepositTable]:
+    """Build per-deposit ore tables for one region's rock data."""
+    deposit_tables: Dict[str, DepositTable] = {}
     for deposit_name, details in rock_data.items():
         ores = details.get("ores", {})
-        table = []
+        table: DepositTable = []
         for ore_name, ore_data in ores.items():
             name_up = ore_name.upper()
-            value_info = ORE_VALUE_MAP.get(name_up, {"tier": "OTHER", "color": "#888"})
-            table.append({
+            value_info: OreValueInfo = ORE_VALUE_MAP.get(name_up, {"tier": "OTHER", "color": "#888"})
+            entry: OreTableEntry = {
                 "name": ore_name.title(),
                 "prob": f"{ore_data.get('prob', 0) * 100:.0f}%",
                 "min": f"{ore_data.get('minPct', 0) * 100:.0f}%",
@@ -70,9 +81,9 @@ def build_deposit_tables(rock_data: Dict) -> Dict:
                 "med": f"{ore_data.get('medPct', 0) * 100:.0f}%",
                 "tier": value_info["tier"],
                 "color": value_info["color"],
-            })
-        tier_order = ["HIGHEST", "HIGH", "MEDIUM", "LOW", "OTHER"]
-        table.sort(key=lambda x: tier_order.index(x["tier"]))
+            }
+            table.append(entry)
+        table.sort(key=lambda x: _TIER_ORDER.index(x["tier"]))
         deposit_tables[deposit_name.upper()] = table
     return deposit_tables
 
@@ -89,7 +100,7 @@ def load_rock_data() -> None:
 
 
 
-def lookup_deposit(code: Optional[str]) -> Optional[Dict[str, Any]]:
+def lookup_deposit(code: Optional[str]) -> Optional[DepositLookup]:
     """Look up a deposit by its numeric code using scraped scan signature data."""
     if not code:
         return None
@@ -98,7 +109,6 @@ def lookup_deposit(code: Optional[str]) -> Optional[Dict[str, Any]]:
         if not m:
             return None
         num_code = int(m.group(1))
-        # Find a matching base_value that divides num_code
         for base_value, info in SCAN_SIGNATURES.items():
             if num_code % base_value == 0:
                 deposits = num_code // base_value

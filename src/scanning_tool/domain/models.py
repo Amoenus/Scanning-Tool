@@ -1,7 +1,77 @@
 """Domain models for the scanning tool configuration and state."""
 
 from dataclasses import dataclass, field
-from typing import Dict, Optional, List, Tuple, Any, Union
+from typing import Dict, Literal, Optional, List, Tuple, Any, TypedDict, Union
+
+# --- Deposit / ore DTOs ---
+
+OreTier = Literal["HIGHEST", "HIGH", "MEDIUM", "LOW", "OTHER"]
+
+
+class OreInfo(TypedDict):
+    """Per-ore stats inside a RockDeposit's `ores` map (loaded from RockType.json)."""
+    prob: float
+    minPct: float
+    maxPct: float
+    medPct: float
+
+
+class RockDeposit(TypedDict, total=False):
+    """A single deposit entry inside a region in RockType.json."""
+    users: int
+    scans: int
+    clusters: int
+    clusterCount: Dict[str, float]
+    mass: Dict[str, float]
+    inst: Dict[str, float]
+    res: Dict[str, float]
+    ores: Dict[str, OreInfo]
+
+
+# Region name -> deposit name -> RockDeposit (raw RockType.json shape).
+RockData = Dict[str, Dict[str, RockDeposit]]
+
+
+class OreValueInfo(TypedDict):
+    """Tier classification + display color for an ore."""
+    tier: OreTier
+    color: str
+
+
+class OreTableEntry(TypedDict):
+    """A row in a per-region deposit table, ready for display/serialization."""
+    name: str
+    prob: str
+    min: str
+    max: str
+    med: str
+    tier: OreTier
+    color: str
+
+
+# Per-deposit ordered list of ore rows.
+DepositTable = List[OreTableEntry]
+# Region (uppercase) -> deposit name (uppercase) -> DepositTable.
+RegionDepositTables = Dict[str, Dict[str, DepositTable]]
+
+
+class ScanSignature(TypedDict):
+    """An entry in SCAN_SIGNATURES, keyed by base_value."""
+    name: str
+    category: str
+    base_value: int
+    max_multiplier: int
+
+
+class DepositLookup(TypedDict):
+    """Result of resolving a numeric scan code against SCAN_SIGNATURES."""
+    name: str
+    base_code: int
+    deposits: int
+    category: str
+    max_multiplier: int
+
+
 # --- New Structured Domain Models ---
 
 @dataclass
@@ -16,7 +86,9 @@ class DepositInfo:
     category: Optional[str] = None
     type: Optional[str] = None
     id: Optional[Union[str, int]] = None
-    extra: Optional[Dict[str, Any]] = None
+    base_code: Optional[int] = None
+    deposits: Optional[int] = None
+    max_multiplier: Optional[int] = None
 
 
 # Placeholder for AnchorTracker structure (to be refined if more details are known)
@@ -105,16 +177,13 @@ class ContinuousCaptureConfig:
 
 @dataclass
 class ScanResult:
-    """
-    Represents a single scan result (e.g., detected deposit or signature).
-    Use the 'info' field for structured metadata (DepositInfo),
-    and 'extra' for legacy/unstructured data if needed.
-    """
+    """A single scan result — the cleaned code (`label`), the raw OCR text it came from, and resolved deposit metadata."""
     label: str
     confidence: float
     region: CaptureRegion
-    info: Optional[DepositInfo] = None  # Structured metadata for the result
-    extra: Optional[Dict[str, Any]] = None  # For extensibility (legacy/unstructured)
+    info: Optional[DepositInfo] = None
+    code_raw: Optional[str] = None
+    raw_text: Optional[str] = None
 
 
 @dataclass

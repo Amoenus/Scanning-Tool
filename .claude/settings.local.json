@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(ls:*)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(PYTHONPATH=src python -c \"from scanning_tool import deposits; from scanning_tool.runtime.service_state import ServiceState; from scanning_tool.domain.models import OreInfo, RockDeposit, OreTableEntry, OreValueInfo, ScanSignature, DepositLookup, RockData, DepositTable, RegionDepositTables; s = ServiceState\\(\\); print\\('ok', type\\(s.rock_data\\).__name__, type\\(s.deposit_tables\\).__name__, 'sigs=', len\\(deposits.SCAN_SIGNATURES\\), 'ores=', len\\(deposits.ORE_VALUE_MAP\\)\\)\")",
+      "Bash(uv run *)"
     ]
   }
 }

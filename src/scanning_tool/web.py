@@ -46,9 +46,9 @@ def create_app() -> Flask:
         table = None
         if result:
             info = result.info
-            code_raw = result.extra.get("code_raw") if result.extra else None
+            code_raw = result.code_raw
             confidence = result.confidence
-            raw_text = result.extra.get("raw_text") if result.extra else None
+            raw_text = result.raw_text
             if info:
                 deposit_key = (info.key or info.name or "").upper()
                 region_tables = service_state.deposit_tables.get(selected_region, {})

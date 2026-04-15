@@ -89,10 +89,8 @@ class CaptureService(ICaptureService):
                 confidence=1.0,  # Placeholder, update if available
                 region=ocr_result.region,
                 info=deposit_info,
-                extra={
-                    "code_raw": raw,
-                    "raw_text": raw_text,
-                },
+                code_raw=raw,
+                raw_text=raw_text,
             )
             update_overlay_label(info_dict, code=code, raw_text=raw or raw_text)
 
@@ -102,7 +100,8 @@ class CaptureService(ICaptureService):
                 f"label={result.label}, "
                 f"confidence={result.confidence}, "
                 f"region={result.region}, "
-                f"extra={result.extra}"
+                f"code_raw={result.code_raw}, "
+                f"raw_text={result.raw_text}"
                 ")"
             )
 

@@ -1,7 +1,9 @@
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, Optional, Pattern
+from typing import Any, Callable, Optional, Pattern
 import re
 import subprocess
+
+from scanning_tool.domain.models import RegionDepositTables, RockData
 
 @dataclass
 class ServiceState:
@@ -13,6 +15,6 @@ class ServiceState:
         re.IGNORECASE,
     ))
     host_scheme_re: Pattern[str] = field(default_factory=lambda: re.compile(r"^[a-zA-Z][a-zA-Z0-9+.-]*://"))
-    rock_data: Dict[str, Any] = field(default_factory=dict)
-    deposit_tables: Dict[str, Any] = field(default_factory=dict)
+    rock_data: RockData = field(default_factory=dict)
+    deposit_tables: RegionDepositTables = field(default_factory=dict)
     gui_status_callback: Optional[Callable[[str], None]] = None
