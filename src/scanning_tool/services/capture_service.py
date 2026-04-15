@@ -10,7 +10,7 @@ from PIL import Image
 from scanning_tool.state import app_state
 from scanning_tool.ocr import ocr_with_ollama
 from scanning_tool.deposits import extract_code_from_text, lookup_deposit
-from scanning_tool.core.auto_alignment import perform_auto_alignment
+from scanning_tool.services.alignment_service import alignment_service
 from scanning_tool.gui.overlays import update_capture_overlay_region, update_overlay_label, sync_capture_sliders
 from scanning_tool.runtime.scan_state import LastResult
 
@@ -37,7 +37,7 @@ class CaptureService(ICaptureService):
         if self._status_callback:
             self._status_callback("Aligning region...")
         
-        auto_aligned = perform_auto_alignment(
+        auto_aligned = alignment_service.align(
             app_state.scan_state.anchor_tracker,
             app_state.settings.anchor,
             app_state.settings.capture,

@@ -4,7 +4,7 @@ from loguru import logger
 
 import keyboard
 
-from scanning_tool.scanning import capture_once, toggle_continuous
+from scanning_tool.services.capture_service import capture_service
 from scanning_tool.gui.overlays import toggle_border
 
 
@@ -12,8 +12,8 @@ from scanning_tool.gui.overlays import toggle_border
 def hotkey_listener() -> None:
     """Set up hotkey listeners with cross-platform error handling."""
     try:
-        keyboard.add_hotkey("7", capture_once)
-        keyboard.add_hotkey("ctrl+7", toggle_continuous)
+        keyboard.add_hotkey("7", capture_service.capture_once)
+        keyboard.add_hotkey("ctrl+7", capture_service.toggle_continuous)
         keyboard.add_hotkey("8", toggle_border)
         logger.info("Hotkeys registered: '7' for single scan, 'Ctrl+7' for continuous toggle, '8' for border toggle")
         keyboard.wait()

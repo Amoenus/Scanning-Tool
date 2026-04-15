@@ -11,7 +11,7 @@ from scanning_tool.gui.overlays import (
     toggle_border,
     update_overlay_region,
 )
-from scanning_tool.scanning import capture_once, toggle_continuous
+from scanning_tool.services.capture_service import capture_service
 from scanning_tool.state import app_state
 
 
@@ -41,8 +41,8 @@ class ControlsSection:
         create_button_row(
             frame,
             [
-                ("Single Scan", capture_once),
-                ("Loop Toggle", toggle_continuous),
+                ("Single Scan", capture_service.capture_once),
+                ("Loop Toggle", capture_service.toggle_continuous),
                 ("Update Overlay", update_overlay_region),
                 ("Set Label Color", choose_label_color),
                 ("Save Config", lambda: save_config(app_state)),

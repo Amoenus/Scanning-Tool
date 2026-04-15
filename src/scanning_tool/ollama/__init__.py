@@ -16,7 +16,6 @@ from .models import (
     is_model_running,
     log_model_running_status,
 )
-from .service import ensure_ollama_running, is_ollama_running, start_local_ollama_service
 
 __all__ = [
     "get_ollama_client",
@@ -33,7 +32,4 @@ __all__ = [
     "list_running_ollama_models",
     "is_model_running",
     "log_model_running_status",
-    "ensure_ollama_running",
-    "is_ollama_running",
-    "start_local_ollama_service",
 ]

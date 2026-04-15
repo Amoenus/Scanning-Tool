@@ -13,9 +13,9 @@ from scanning_tool.logging_setup import setup_logging
 from scanning_tool.ollama import (
     ensure_model_installed,
     ensure_ollama_installed,
-    ensure_ollama_running,
-    log_model_running_status,
 )
+from scanning_tool.services.alignment_service import alignment_service
+from scanning_tool.services.ollama_service import ollama_service
 from scanning_tool.state.context import app_state
 from scanning_tool.core.anchor import AnchorRegionTracker
 from scanning_tool.web import create_app, get_local_ip
@@ -29,7 +29,8 @@ def main() -> None:
     load_rock_data()
 
     ensure_ollama_installed()
-    ensure_ollama_running()
+    ollama_service.start()
+    alignment_service.start()
     ensure_model_installed()
     log_model_running_status()
 
@@ -52,4 +53,8 @@ def main() -> None:
         daemon=True,
     ).start()
 
-    launch_gui()
+    try:
+        launch_gui()
+    finally:
+        ollama_service.stop()
+        alignment_service.stop()
