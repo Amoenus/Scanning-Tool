@@ -22,7 +22,7 @@ _IDLE_ALIGNMENT_INFO = {
 
 
 class AlignmentPoller:
-    """Runs ``perform_auto_alignment`` on a Tk ``after`` cadence."""
+    """Runs ``alignment_service.align`` on a Tk ``after`` cadence."""
 
     def __init__(self, root: tk.Tk, status: StatusBar) -> None:
         self.root = root

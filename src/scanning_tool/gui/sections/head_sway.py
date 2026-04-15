@@ -9,7 +9,7 @@ import tkinter as tk
 from tkinter import ttk
 
 from scanning_tool.core.anchor import AnchorRegionTracker
-from scanning_tool.core.auto_alignment import perform_auto_alignment
+from scanning_tool.services.alignment_service import alignment_service
 from scanning_tool.config import ensure_anchor_directory
 from scanning_tool.gui.sections.base import SectionContext
 from scanning_tool.gui.widgets import (
@@ -61,7 +61,7 @@ class HeadSwaySection:
         return frame
 
     def _build_interval_row(self, parent: ttk.Widget, ctx: SectionContext) -> None:
-        self._interval_var = tk.IntVar(value=int(config.anchor.alignment_poll_interval_ms))
+        self._interval_var = tk.IntVar(value=int(config.alignment_poll_interval_ms))
         create_labeled_spinbox(
             parent,
             text="Alignment interval (ms)",
@@ -187,10 +187,9 @@ class HeadSwaySection:
             self._status.set_anchor("Head sway compensation disabled.")
 
     def _run_auto_alignment(self) -> bool:
-        return perform_auto_alignment(
+        from scanning_tool.gui.overlays import sync_capture_sliders
+        return alignment_service.align(
             scan_state.anchor_tracker,
-            config.anchor,
-            config.capture,
             scan_state.last_alignment_info,
             sync_capture_sliders,
             update_anchor_overlay_region,
@@ -211,9 +210,9 @@ class HeadSwaySection:
         except (tk.TclError, ValueError):
             return
         value = max(100, min(5000, value))
-        config.anchor.alignment_poll_interval_ms = value
+        config.alignment_poll_interval_ms = value
         self._status.set_anchor(
-            f"Alignment interval set to {config.anchor.alignment_poll_interval_ms} ms", hold=2.0
+            f"Alignment interval set to {config.alignment_poll_interval_ms} ms", hold=2.0
         )
 
     def _update_threshold(self, *_args: object) -> None:
@@ -230,15 +229,14 @@ class HeadSwaySection:
         )
 
     def _reload_anchor_templates(self) -> None:
-        anchor_settings = config.anchor
-        ensure_anchor_directory(anchor_settings.anchor_template_dir)
+        ensure_anchor_directory(config.anchor_template_dir)
         if scan_state.anchor_tracker is None:
             scan_state.anchor_tracker = AnchorRegionTracker(
-                anchor_settings.anchor_template_dir, anchor_settings.anchor_threshold
+                config.anchor_template_dir, config.anchor_threshold
             )
-        count = scan_state.anchor_tracker.set_directory(anchor_settings.anchor_template_dir)
+        count = scan_state.anchor_tracker.set_directory(config.anchor_template_dir)
         self._status.set_anchor(
-            f"Loaded {count} anchor template(s) from {anchor_settings.anchor_template_dir}."
+            f"Loaded {count} anchor template(s) from {config.anchor_template_dir}."
         )
 
     def _manual_realign(self) -> None:
