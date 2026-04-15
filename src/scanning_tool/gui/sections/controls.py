@@ -3,7 +3,6 @@
 import tkinter as tk
 from tkinter import ttk
 
-from scanning_tool.config import save_config
 from scanning_tool.gui.sections.base import SectionContext
 from scanning_tool.gui.widgets import create_button_row, create_labeled_spinbox
 from scanning_tool.gui.overlays import (

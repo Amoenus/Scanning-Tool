@@ -8,9 +8,7 @@ from .loader import (
     ROCK_TYPE_FILE,
     ROCK_TYPE_FILENAME,
     ensure_anchor_directory,
-    load_config,
     resource_path,
-    save_config,
 )
 
 __all__ = [
@@ -19,7 +17,5 @@ __all__ = [
     "ROCK_TYPE_FILE",
     "ROCK_TYPE_FILENAME",
     "ensure_anchor_directory",
-    "load_config",
     "resource_path",
-    "save_config",
 ]
