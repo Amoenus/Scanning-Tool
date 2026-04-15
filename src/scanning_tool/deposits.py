@@ -8,7 +8,7 @@ from typing import Dict, List, Optional
 from scanning_tool.config import ROCK_TYPE_FILE
 from scanning_tool.core.state_manager import config, scan_state, service_state, overlay_state, control_state, save_config
 from scanning_tool.domain.models import (
-    DepositLookup,
+    DepositInfo,
     DepositTable,
     OreTableEntry,
     OreTier,
@@ -101,7 +101,7 @@ def load_rock_data() -> None:
 
 
 
-def lookup_deposit(code: Optional[str]) -> Optional[DepositLookup]:
+def lookup_deposit(code: Optional[str]) -> Optional[DepositInfo]:
     """Look up a deposit by its numeric code using scraped scan signature data."""
     if not code:
         return None
@@ -112,14 +112,13 @@ def lookup_deposit(code: Optional[str]) -> Optional[DepositLookup]:
         num_code = int(m.group(1))
         for base_value, info in SCAN_SIGNATURES.items():
             if num_code % base_value == 0:
-                deposits = num_code // base_value
-                return {
-                    "name": info["name"],
-                    "base_code": base_value,
-                    "deposits": deposits,
-                    "category": info["category"],
-                    "max_multiplier": info["max_multiplier"],
-                }
+                return DepositInfo(
+                    name=info["name"],
+                    base_code=base_value,
+                    deposits=num_code // base_value,
+                    category=info["category"],
+                    max_multiplier=info["max_multiplier"],
+                )
     except Exception:
         pass
     return None

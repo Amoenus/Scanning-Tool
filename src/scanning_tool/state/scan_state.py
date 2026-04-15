@@ -3,7 +3,8 @@
 
 from dataclasses import dataclass, field
 from typing import Optional
-from scanning_tool.domain.models import CaptureRegion, ScanResult, AlignmentInfo, AnchorTracker
+from scanning_tool.core.anchor import AnchorRegionTracker
+from scanning_tool.domain.models import AlignmentInfo, ScanResult
 
 @dataclass
 class ScanState:
@@ -11,5 +12,5 @@ class ScanState:
     is_scanning: bool = False
     continuous_mode: bool = False
     last_result: Optional[ScanResult] = None
-    anchor_tracker: AnchorTracker = field(default_factory=AnchorTracker)
+    anchor_tracker: Optional[AnchorRegionTracker] = None
     last_alignment_info: AlignmentInfo = field(default_factory=AlignmentInfo)

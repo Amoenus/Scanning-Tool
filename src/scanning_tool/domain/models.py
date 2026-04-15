@@ -63,15 +63,6 @@ class ScanSignature(TypedDict):
     max_multiplier: int
 
 
-class DepositLookup(TypedDict):
-    """Result of resolving a numeric scan code against SCAN_SIGNATURES."""
-    name: str
-    base_code: int
-    deposits: int
-    category: str
-    max_multiplier: int
-
-
 # --- New Structured Domain Models ---
 
 @dataclass
@@ -91,19 +82,6 @@ class DepositInfo:
     max_multiplier: Optional[int] = None
 
 
-# Placeholder for AnchorTracker structure (to be refined if more details are known)
-@dataclass
-class AnchorTracker:
-    """
-    Represents the anchor tracking state.
-    This is a placeholder; add fields as anchor tracking logic is formalized.
-    """
-    templates: List[Any] = field(default_factory=list)
-    last_loaded_count: int = 0
-    # Add more fields as needed based on actual usage
-
-
-# More explicit AlignmentInfo (moved from runtime/scan_state.py for typing clarity)
 @dataclass
 class AlignmentInfo:
     """
