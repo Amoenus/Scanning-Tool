@@ -12,6 +12,10 @@ def ensure_model_installed(model: Optional[str] = None, exit_on_error: bool = Tr
     if model is None:
         model = get_ollama_model()
 
+    if not model:
+        logger.info("No Ollama model configured. Skipping model installation check.")
+        return False
+
     host = get_ollama_host()
     host_mode = "local" if is_local_ollama_host(host) else "remote"
     logger.info(f"Using {host_mode} Ollama host at {host}.")

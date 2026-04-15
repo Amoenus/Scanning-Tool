@@ -13,6 +13,7 @@ from scanning_tool.logging_setup import setup_logging
 from scanning_tool.ollama import (
     ensure_model_installed,
     ensure_ollama_installed,
+    log_model_running_status,
 )
 from scanning_tool.services.alignment_service import alignment_service
 from scanning_tool.services.ollama_service import ollama_service
