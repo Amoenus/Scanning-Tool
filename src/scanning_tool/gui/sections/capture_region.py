@@ -23,11 +23,11 @@ class CaptureRegionSection:
 
         cap_region = config.capture_region
 
-        self._left = self._make_capture_scale(frame, "Left", 0, 3000, cap_region["left"])
-        self._top = self._make_capture_scale(frame, "Top", 0, 2000, cap_region["top"])
-        self._width = self._make_capture_scale(frame, "Width", 50, 1000, cap_region["width"])
+        self._left = self._make_capture_scale(frame, "Left", 0, 3000, cap_region.left)
+        self._top = self._make_capture_scale(frame, "Top", 0, 2000, cap_region.top)
+        self._width = self._make_capture_scale(frame, "Width", 50, 1000, cap_region.width)
         self._height = self._make_capture_scale(
-            frame, "Height", 20, 500, cap_region["height"], padding=(0, 0)
+            frame, "Height", 20, 500, cap_region.height, padding=(0, 0)
         )
 
         register_capture_sliders(self._left, self._top, self._width, self._height)
@@ -57,9 +57,9 @@ class CaptureRegionSection:
         if control_state.gui_control_state["syncing"]["capture"]:
             return
         cap_region = config.capture_region
-        cap_region["left"] = int(self._left.get())
-        cap_region["top"] = int(self._top.get())
-        cap_region["width"] = int(self._width.get())
-        cap_region["height"] = int(self._height.get())
+        cap_region.left = int(self._left.get())
+        cap_region.top = int(self._top.get())
+        cap_region.width = int(self._width.get())
+        cap_region.height = int(self._height.get())
         self._status.set_status(f"CAP_REGION updated: {cap_region}")
         update_capture_overlay_region()

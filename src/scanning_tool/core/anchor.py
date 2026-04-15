@@ -59,16 +59,29 @@ class AnchorRegionTracker:
             logger.info(f"Loaded {self.last_loaded_count} anchor templates from {directory}")
         return self.last_loaded_count
 
-    def locate_anchor(self, region: Dict[str, int]) -> Optional[Dict[str, float]]:
+
+    def locate_anchor(self, region) -> Optional[Dict[str, float]]:
+        """
+        Accepts either a dict or a dataclass with left, top, width, height attributes.
+        """
         if not self.templates:
             return None
 
-        monitor = {
-            "left": int(region["left"]),
-            "top": int(region["top"]),
-            "width": int(region["width"]),
-            "height": int(region["height"]),
-        }
+        # Support both dict and dataclass
+        if hasattr(region, "__dict__") or hasattr(region, "left"):
+            monitor = {
+                "left": int(getattr(region, "left")),
+                "top": int(getattr(region, "top")),
+                "width": int(getattr(region, "width")),
+                "height": int(getattr(region, "height")),
+            }
+        else:
+            monitor = {
+                "left": int(region["left"]),
+                "top": int(region["top"]),
+                "width": int(region["width"]),
+                "height": int(region["height"]),
+            }
 
         with mss.mss() as sct:
             try:

@@ -11,3 +11,5 @@ class ScanState:
     continuous_mode: bool = False
     last_result: Optional[Any] = None
     anchor_tracker: Any = field(default_factory=dict)
+    from scanning_tool.runtime.scan_state import AlignmentInfo
+    last_alignment_info: AlignmentInfo = field(default_factory=AlignmentInfo)

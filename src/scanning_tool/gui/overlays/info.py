@@ -26,7 +26,7 @@ class InfoOverlay:
         self.last_overlay_time: float = 0.0
 
     def update_label(self, info: dict, *, code: Optional[str] = None, raw_text: Optional[str] = None) -> None:
-        overlay_settings = config.overlay
+        overlay_settings = config.overlay_config
 
         message = ""
         if info:
@@ -109,7 +109,7 @@ class InfoOverlay:
             overlay_width // 2,
             overlay_height // 2,
             text=self.overlay_text,
-            fill=config.overlay_config.label_color,
+                fill=config.overlay_config.label_color,
             font=("Arial", 18, "bold"),
             width=overlay_width - 60,
             justify="center",
@@ -160,7 +160,7 @@ def start_label_timeout(window: Optional[tk.Toplevel]) -> None:
 
 
 def choose_label_color() -> None:
-    overlay_settings = config.overlay
+    overlay_settings = config.overlay_config
     color = colorchooser.askcolor(title="Choose Label Color")[1]
     if not color:
         return

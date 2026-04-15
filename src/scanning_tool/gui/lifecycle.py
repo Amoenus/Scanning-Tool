@@ -14,7 +14,6 @@ def register_close_handler(root: tk.Tk) -> None:
         save_config()
         destroy_all_overlays()
 
-        overlay_state = overlay_state
         overlay_state.capture_overlay_root = None
         overlay_state.capture_overlay_canvas = None
         overlay_state.capture_rect_id = None

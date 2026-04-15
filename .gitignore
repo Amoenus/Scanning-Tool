@@ -51,9 +51,6 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 
-# Config files that might contain sensitive data
-config.json
-
 # OS specific files
 .DS_Store
 .DS_Store?

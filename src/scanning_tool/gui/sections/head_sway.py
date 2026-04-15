@@ -115,16 +115,16 @@ class HeadSwaySection:
         anchor_offset = config.anchor_offset
 
         self._anchor_left = self._make_scale(
-            parent, "Anchor Left", 0, 3840, anchor_region["left"], self._on_region_change
+            parent, "Anchor Left", 0, 3840, anchor_region.left, self._on_region_change
         )
         self._anchor_top = self._make_scale(
-            parent, "Anchor Top", 0, 2160, anchor_region["top"], self._on_region_change
+            parent, "Anchor Top", 0, 2160, anchor_region.top, self._on_region_change
         )
         self._anchor_width = self._make_scale(
-            parent, "Anchor Width", 50, 1200, anchor_region["width"], self._on_region_change
+            parent, "Anchor Width", 50, 1200, anchor_region.width, self._on_region_change
         )
         self._anchor_height = self._make_scale(
-            parent, "Anchor Height", 50, 800, anchor_region["height"], self._on_region_change
+            parent, "Anchor Height", 50, 800, anchor_region.height, self._on_region_change
         )
         self._offset_x = self._make_scale(
             parent, "Offset X", -300, 600, anchor_offset["x"], self._on_offset_change
@@ -154,10 +154,10 @@ class HeadSwaySection:
         if control_state.gui_control_state["syncing"]["anchor"]:
             return
         anchor_region = config.anchor_template
-        anchor_region["left"] = int(self._anchor_left.get())
-        anchor_region["top"] = int(self._anchor_top.get())
-        anchor_region["width"] = int(self._anchor_width.get())
-        anchor_region["height"] = int(self._anchor_height.get())
+        anchor_region.left = int(self._anchor_left.get())
+        anchor_region.top = int(self._anchor_top.get())
+        anchor_region.width = int(self._anchor_width.get())
+        anchor_region.height = int(self._anchor_height.get())
         self._status.set_anchor(
             f"Anchor region updated: {anchor_region}", hold=2.0
         )

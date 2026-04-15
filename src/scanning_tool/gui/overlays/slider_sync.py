@@ -45,6 +45,7 @@ def sync_capture_sliders() -> None:
     if not widget or state["syncing"]["capture"]:
         return
 
+
     capture_region = config.capture_region
 
     def _apply() -> None:
@@ -53,10 +54,10 @@ def sync_capture_sliders() -> None:
         state["syncing"]["capture"] = True
         try:
             try:
-                widgets["left"].set(int(capture_region["left"]))
-                widgets["top"].set(int(capture_region["top"]))
-                widgets["width"].set(int(capture_region["width"]))
-                widgets["height"].set(int(capture_region["height"]))
+                widgets["left"].set(int(capture_region.left))
+                widgets["top"].set(int(capture_region.top))
+                widgets["width"].set(int(capture_region.width))
+                widgets["height"].set(int(capture_region.height))
             except tk.TclError:
                 pass
         finally:
@@ -81,10 +82,10 @@ def sync_anchor_sliders() -> None:
         state["syncing"]["anchor"] = True
         try:
             try:
-                widgets["left"].set(int(anchor_region["left"]))
-                widgets["top"].set(int(anchor_region["top"]))
-                widgets["width"].set(int(anchor_region["width"]))
-                widgets["height"].set(int(anchor_region["height"]))
+                widgets["left"].set(int(anchor_region.left))
+                widgets["top"].set(int(anchor_region.top))
+                widgets["width"].set(int(anchor_region.width))
+                widgets["height"].set(int(anchor_region.height))
                 widgets["offset_x"].set(int(anchor_offset["x"]))
                 widgets["offset_y"].set(int(anchor_offset["y"]))
             except tk.TclError:
