@@ -39,28 +39,35 @@ def create_app() -> Flask:
         """Return the latest scan information for the overlay UI."""
         selected_region = request.args.get("region", "STANTON").upper()
         result = scan_state.last_result
-        info = getattr(result, "info", None)
-
+        info = None
+        code_raw = None
+        confidence = None
+        raw_text = None
         table = None
-        if info:
-            deposit_key = (info.get("key") or info.get("name") or "").upper()
-            region_tables = service_state.deposit_tables.get(selected_region, {})
-            table = region_tables.get(deposit_key)
-            category = str(info.get("category", "")).lower()
-            if not table or category not in {"rock deposits", "gems"}:
-                table = None
+        if result and result.extra:
+            info = result.extra.get("info")
+            code_raw = result.extra.get("code_raw")
+            confidence = result.confidence
+            raw_text = result.extra.get("raw_text")
+            if info:
+                deposit_key = (info.get("key") or info.get("name") or "").upper()
+                region_tables = service_state.deposit_tables.get(selected_region, {})
+                table = region_tables.get(deposit_key)
+                category = str(info.get("category", "")).lower()
+                if not table or category not in {"rock deposits", "gems"}:
+                    table = None
 
         response = {
             "region": config.capture_region,
             "label_color": config.overlay_config.label_color,
-            "last": asdict(result),
+            "last": asdict(result) if result else None,
             "alignment": asdict(scan_state.last_alignment_info),
             "selected_region": selected_region,
             "info": info,
-            "code": result.code,
-            "code_raw": result.code_raw,
-            "confidence": float(result.confidence),
-            "raw_text": result.raw_text,
+            "code": result.label if result else None,
+            "code_raw": code_raw,
+            "confidence": float(confidence) if confidence is not None else None,
+            "raw_text": raw_text,
             "table": table,
         }
 

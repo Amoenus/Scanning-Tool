@@ -1,7 +1,7 @@
 """Domain models for the scanning tool configuration and state."""
 
 from dataclasses import dataclass
-from typing import Dict, Optional
+from typing import Dict, Optional, List, Tuple, Any
 
 
 @dataclass
@@ -55,3 +55,47 @@ class AutoAlignmentConfig:
 class ContinuousCaptureConfig:
     """Represents continuous capture configuration."""
     interval: float
+
+
+# --- Additional Domain Models / DTOs ---
+
+@dataclass
+class ScanResult:
+    """Represents a single scan result (e.g., detected deposit or signature)."""
+    label: str
+    confidence: float
+    region: CaptureRegion
+    extra: Optional[Dict[str, Any]] = None  # For extensibility (e.g., type, id, etc.)
+
+
+@dataclass
+class OCRResult:
+    """Represents the result of an OCR operation."""
+    text: str
+    confidence: float
+    region: CaptureRegion
+
+
+@dataclass
+class HotkeyAction:
+    """Represents a user action/command triggered by a hotkey."""
+    name: str
+    key_combo: str
+    description: Optional[str] = None
+
+
+@dataclass
+class ToolStateSnapshot:
+    """Represents a snapshot of the tool’s state (for saving/loading)."""
+    timestamp: float
+    active_scan: Optional[ScanResult]
+    scan_history: List[ScanResult]
+    config: Dict[str, Any]
+
+
+@dataclass
+class ErrorInfo:
+    """Represents structured error information."""
+    message: str
+    code: Optional[str] = None
+    details: Optional[Any] = None

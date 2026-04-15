@@ -1,13 +1,8 @@
-from dataclasses import dataclass, field
-from typing import Any, Dict
 
-@dataclass
-class LastResult:
-    code: Any = None
-    code_raw: Any = None
-    info: Any = None
-    confidence: float = 0.0
-    raw_text: str = ""
+
+from dataclasses import dataclass, field
+from typing import Any
+# LastResult is now replaced by ScanResult in domain.models
 
 @dataclass
 class AlignmentInfo:
@@ -20,11 +15,3 @@ class AlignmentInfo:
     capture_left: Any = None
     capture_top: Any = None
 
-@dataclass
-class ScanState:
-    last_result: LastResult = field(default_factory=LastResult)
-    last_alignment_info: AlignmentInfo = field(default_factory=AlignmentInfo)
-    continuous_mode: bool = False
-    show_border: bool = True
-    anchor_overlay_visible: bool = True
-    anchor_tracker: Any = None

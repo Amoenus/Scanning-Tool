@@ -12,7 +12,7 @@ from scanning_tool.ocr import ocr_with_ollama
 from scanning_tool.deposits import extract_code_from_text, lookup_deposit
 from scanning_tool.services.alignment_service import alignment_service
 from scanning_tool.gui.overlays import update_capture_overlay_region, update_overlay_label, sync_capture_sliders
-from scanning_tool.runtime.scan_state import LastResult
+from scanning_tool.domain.models import ScanResult, OCRResult, CaptureRegion
 
 from scanning_tool.interfaces.services import ICaptureService
 
@@ -67,19 +67,39 @@ class CaptureService(ICaptureService):
 
         try:
             raw_text = ocr_with_ollama(pil_img)
+            # Create OCRResult for structured OCR output
+            ocr_result = OCRResult(
+                text=raw_text,
+                confidence=1.0,  # Placeholder, update if OCR returns confidence
+                region=CaptureRegion(
+                    left=cap_region.left,
+                    top=cap_region.top,
+                    width=cap_region.width,
+                    height=cap_region.height,
+                ),
+            )
             code, raw = extract_code_from_text(raw_text)
             info = lookup_deposit(code)
-            scan_state.last_result = LastResult(code=code, code_raw=raw, info=info, raw_text=raw_text)
+            # Create ScanResult for structured scan output
+            scan_state.last_result = ScanResult(
+                label=code if code else "UNKNOWN",
+                confidence=1.0,  # Placeholder, update if available
+                region=ocr_result.region,
+                extra={
+                    "code_raw": raw,
+                    "info": info,
+                    "raw_text": raw_text,
+                },
+            )
             update_overlay_label(info, code=code, raw_text=raw or raw_text)
 
             result = scan_state.last_result
             logger.info(
-                f"Scan result: LastResult("
-                f"code={result.code}, "
-                f"code_raw={result.code_raw}, "
-                f"info={result.info}, "
+                f"Scan result: ScanResult("
+                f"label={result.label}, "
                 f"confidence={result.confidence}, "
-                f"raw_text={result.raw_text}"
+                f"region={result.region}, "
+                f"extra={result.extra}"
                 ")"
             )
 
