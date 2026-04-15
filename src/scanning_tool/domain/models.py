@@ -217,3 +217,43 @@ class ErrorInfo:
     message: str
     code: Optional[str] = None
     details: Optional[Any] = None
+
+
+@dataclass
+class AnchorDetection:
+    """Result of an anchor template match on a captured region."""
+    match_left: float
+    match_top: float
+    score: float
+    template: str
+    template_width: float
+    template_height: float
+
+
+@dataclass
+class OreTierInfo:
+    """Ores belonging to a tier plus its display color."""
+    ores: List[str]
+    color: str
+
+
+@dataclass
+class InfoOverlayGeometry:
+    """Geometry snapshot for the info overlay window."""
+    screen_width: Optional[int] = None
+    screen_height: Optional[int] = None
+    width: int = 0
+    height: int = 0
+
+
+@dataclass
+class CaptureOverlayLayout:
+    """Layout values for positioning and sizing the capture overlay."""
+    overlay_width: int
+    overlay_height: int
+    left: int
+    top: int
+    padding_x: int
+    padding_y: int
+    cap_w: int
+    cap_h: int

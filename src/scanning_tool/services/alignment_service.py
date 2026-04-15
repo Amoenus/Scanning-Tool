@@ -1,9 +1,8 @@
 """Auto-alignment background service."""
 
-from typing import Callable, Dict, Optional
+from typing import Callable, Optional
 from scanning_tool.services.base_service import BaseService
 from scanning_tool.core.anchor import AnchorRegionTracker
-from scanning_tool.domain.models import AutoAlignmentConfig, CaptureRegion
 from scanning_tool.runtime.scan_state import AlignmentInfo
 
 SyncCallback = Callable[[], None]
@@ -49,33 +48,31 @@ class AlignmentService(BaseService):
             info.capture_top = None
             return False
     
-        template_w = detection.get("template_width", float(config.capture_region.width))
-        template_h = detection.get("template_height", float(config.capture_region.height))
-        base_left = detection["match_left"] + (template_w / 2.0) - (config.capture_region.width / 2.0)
-        base_top = detection["match_top"] + (template_h / 2.0) - (config.capture_region.height / 2.0)
-    
+        base_left = detection.match_left + (detection.template_width / 2.0) - (config.capture_region.width / 2.0)
+        base_top = detection.match_top + (detection.template_height / 2.0) - (config.capture_region.height / 2.0)
+
         new_left = int(round(base_left + config.anchor_offset.get("x", 0)))
         new_top = int(round(base_top + config.anchor_offset.get("y", 0)))
-    
+
         config.capture_region.left = max(0, new_left)
         config.capture_region.top = max(0, new_top)
-    
+
         info = last_alignment_info
         info.matched = True
-        info.template = detection["template"]
-        info.score = float(detection["score"])
-        info.match_left = detection["match_left"]
-        info.match_top = detection["match_top"]
+        info.template = detection.template
+        info.score = detection.score
+        info.match_left = detection.match_left
+        info.match_top = detection.match_top
         info.capture_left = config.capture_region.left
         info.capture_top = config.capture_region.top
-    
+
         sync_capture_sliders()
         update_capture_overlay_region()
-    
+
         self.logger.debug(
             "Auto alignment applied using %s (score %.3f) => CAP_REGION left/top updated to (%d, %d)",
-            detection["template"],
-            detection["score"],
+            detection.template,
+            detection.score,
             config.capture_region.left,
             config.capture_region.top,
         )

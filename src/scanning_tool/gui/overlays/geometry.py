@@ -12,6 +12,7 @@ from .base import (
     SCREEN_MARGIN,
 )
 from scanning_tool.core.state_manager import config, scan_state, service_state, overlay_state, control_state, save_config
+from scanning_tool.domain.models import CaptureOverlayLayout
 
 
 def compute_info_overlay_geometry(screen_width: int, screen_height: int) -> Tuple[int, int, int, int]:
@@ -36,7 +37,7 @@ def compute_info_overlay_geometry(screen_width: int, screen_height: int) -> Tupl
     return overlay_width, overlay_height, left, top
 
 
-def compute_capture_overlay_layout() -> Dict[str, int]:
+def compute_capture_overlay_layout() -> CaptureOverlayLayout:
     cap_region = config.capture_region
     cap_w = int(cap_region.width)
     cap_h = int(cap_region.height)
@@ -46,16 +47,16 @@ def compute_capture_overlay_layout() -> Dict[str, int]:
     left = int(cap_region.left) - (CAPTURE_OVERLAY_PADDING_X // 2)
     top = int(cap_region.top) - CAPTURE_OVERLAY_PADDING_Y
 
-    return {
-        "overlay_width": overlay_width,
-        "overlay_height": overlay_height,
-        "left": left,
-        "top": top,
-        "padding_x": CAPTURE_OVERLAY_PADDING_X,
-        "padding_y": CAPTURE_OVERLAY_PADDING_Y,
-        "cap_w": cap_w,
-        "cap_h": cap_h,
-    }
+    return CaptureOverlayLayout(
+        overlay_width=overlay_width,
+        overlay_height=overlay_height,
+        left=left,
+        top=top,
+        padding_x=CAPTURE_OVERLAY_PADDING_X,
+        padding_y=CAPTURE_OVERLAY_PADDING_Y,
+        cap_w=cap_w,
+        cap_h=cap_h,
+    )
 
 
 def compute_anchor_overlay_geometry() -> Dict[str, int]:

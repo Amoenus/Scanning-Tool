@@ -1,11 +1,12 @@
 """Capture overlay window lifecycle and animation."""
 
 import tkinter as tk
-from typing import Dict, Optional
+from typing import Optional
 
 from .base import CAPTURE_ANIMATION_INTERVAL_MS, create_overlay_window, safe_tk
 from .geometry import compute_capture_overlay_layout
 from scanning_tool.core.state_manager import config, scan_state, service_state, overlay_state, control_state, save_config
+from scanning_tool.domain.models import CaptureOverlayLayout
 
 
 class CaptureOverlay:
@@ -15,62 +16,40 @@ class CaptureOverlay:
         self.rect_id: Optional[int] = None
         self.border_canvas: Optional[tk.Canvas] = None
         self.animation_job: Optional[str] = None
-        self.last_layout: Dict[str, Optional[int]] = {
-            "overlay_width": None,
-            "overlay_height": None,
-            "left": None,
-            "top": None,
-            "cap_w": None,
-            "cap_h": None,
-        }
+        self.last_layout: Optional[CaptureOverlayLayout] = None
 
     def _apply_layout(self, *, force: bool = False) -> None:
         if not self.canvas or not self.rect_id or not self.root:
             return
 
         layout = compute_capture_overlay_layout()
-        overlay_width = layout["overlay_width"]
-        overlay_height = layout["overlay_height"]
-        left = layout["left"]
-        top = layout["top"]
-        padding_x = layout["padding_x"]
-        padding_y = layout["padding_y"]
-        cap_w = layout["cap_w"]
-        cap_h = layout["cap_h"]
-
         last = self.last_layout
         size_changed = (
             force
-            or last["overlay_width"] != overlay_width
-            or last["overlay_height"] != overlay_height
+            or last is None
+            or last.overlay_width != layout.overlay_width
+            or last.overlay_height != layout.overlay_height
         )
-        pos_changed = force or last["left"] != left or last["top"] != top
-        rect_changed = force or last["cap_w"] != cap_w or last["cap_h"] != cap_h
+        pos_changed = force or last is None or last.left != layout.left or last.top != layout.top
+        rect_changed = force or last is None or last.cap_w != layout.cap_w or last.cap_h != layout.cap_h
 
         if size_changed:
-            safe_tk(lambda: self.canvas.config(width=overlay_width, height=overlay_height))
+            safe_tk(lambda: self.canvas.config(width=layout.overlay_width, height=layout.overlay_height))
 
         if rect_changed:
             safe_tk(lambda: self.canvas.coords(
                 self.rect_id,
-                padding_x // 2,
-                padding_y,
-                padding_x // 2 + cap_w,
-                padding_y + cap_h,
+                layout.padding_x // 2,
+                layout.padding_y,
+                layout.padding_x // 2 + layout.cap_w,
+                layout.padding_y + layout.cap_h,
             ))
 
         if size_changed or pos_changed:
-            safe_tk(lambda: self.root.geometry(f"{overlay_width}x{overlay_height}+{left}+{top}"))
+            safe_tk(lambda: self.root.geometry(f"{layout.overlay_width}x{layout.overlay_height}+{layout.left}+{layout.top}"))
             safe_tk(lambda: self.root.lift())
 
-        last.update({
-            "overlay_width": overlay_width,
-            "overlay_height": overlay_height,
-            "left": left,
-            "top": top,
-            "cap_w": cap_w,
-            "cap_h": cap_h,
-        })
+        self.last_layout = layout
 
     def _schedule_animation(self) -> None:
         if not self.root:
@@ -106,11 +85,11 @@ class CaptureOverlay:
             self.border_canvas = None
 
         layout = compute_capture_overlay_layout()
-        self.root = create_overlay_window(layout["overlay_width"], layout["overlay_height"], layout["left"], layout["top"])
+        self.root = create_overlay_window(layout.overlay_width, layout.overlay_height, layout.left, layout.top)
         self.canvas = tk.Canvas(
             self.root,
-            width=layout["overlay_width"],
-            height=layout["overlay_height"],
+            width=layout.overlay_width,
+            height=layout.overlay_height,
             bg="black",
             highlightthickness=0,
         )
@@ -118,10 +97,10 @@ class CaptureOverlay:
         self.border_canvas = self.canvas
 
         self.rect_id = self.canvas.create_rectangle(
-            layout["padding_x"] // 2,
-            layout["padding_y"],
-            layout["padding_x"] // 2 + layout["cap_w"],
-            layout["padding_y"] + layout["cap_h"],
+            layout.padding_x // 2,
+            layout.padding_y,
+            layout.padding_x // 2 + layout.cap_w,
+            layout.padding_y + layout.cap_h,
             outline="red",
             width=3,
             tags=("border",),
@@ -150,14 +129,7 @@ class CaptureOverlay:
             except (tk.TclError, ValueError):
                 pass
         self.animation_job = None
-        self.last_layout.update({
-            "overlay_width": None,
-            "overlay_height": None,
-            "left": None,
-            "top": None,
-            "cap_w": None,
-            "cap_h": None,
-        })
+        self.last_layout = None
 
     def update_region(self) -> None:
         self.start_animation(force=True)

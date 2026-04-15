@@ -2,13 +2,14 @@
 
 from loguru import logger
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import List, Optional, Tuple
 
 import cv2
 import mss
 import numpy as np
 
 from scanning_tool.config import ensure_anchor_directory
+from scanning_tool.domain.models import AnchorDetection
 
 
 
@@ -60,7 +61,7 @@ class AnchorRegionTracker:
         return self.last_loaded_count
 
 
-    def locate_anchor(self, region) -> Optional[Dict[str, float]]:
+    def locate_anchor(self, region) -> Optional[AnchorDetection]:
         """
         Accepts either a dict or a dataclass with left, top, width, height attributes.
         """
@@ -121,11 +122,11 @@ class AnchorRegionTracker:
 
         match_left = monitor["left"] + best_loc[0]
         match_top = monitor["top"] + best_loc[1]
-        return {
-            "match_left": float(match_left),
-            "match_top": float(match_top),
-            "score": best_score,
-            "template": best_template[0],
-            "template_width": float(best_template[1].shape[1]),
-            "template_height": float(best_template[1].shape[0]),
-        }
+        return AnchorDetection(
+            match_left=float(match_left),
+            match_top=float(match_top),
+            score=best_score,
+            template=best_template[0],
+            template_width=float(best_template[1].shape[1]),
+            template_height=float(best_template[1].shape[0]),
+        )

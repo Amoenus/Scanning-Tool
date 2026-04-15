@@ -1,7 +1,9 @@
 from dataclasses import dataclass, field
-from typing import Any, Dict, Optional
+from typing import Optional
 
 import tkinter as tk
+
+from scanning_tool.domain.models import CaptureOverlayLayout, InfoOverlayGeometry
 
 @dataclass
 class OverlayState:
@@ -10,25 +12,13 @@ class OverlayState:
     capture_overlay_canvas: Optional[tk.Canvas] = None
     capture_rect_id: Optional[int] = None
     capture_overlay_animation_job: Optional[str] = None
-    capture_overlay_last_layout: Dict[str, Any] = field(default_factory=lambda: {
-        "overlay_width": None,
-        "overlay_height": None,
-        "left": None,
-        "top": None,
-        "cap_w": None,
-        "cap_h": None,
-    })
+    capture_overlay_last_layout: Optional[CaptureOverlayLayout] = None
 
     # Info overlay
     info_overlay_root: Optional[tk.Toplevel] = None
     info_overlay_canvas: Optional[tk.Canvas] = None
     info_text_id: Optional[int] = None
-    info_overlay_geometry: Dict[str, Any] = field(default_factory=lambda: {
-        "screen_width": None,
-        "screen_height": None,
-        "width": 0,
-        "height": 0,
-    })
+    info_overlay_geometry: InfoOverlayGeometry = field(default_factory=InfoOverlayGeometry)
     overlay_text: str = ""
     last_overlay_time: float = 0
 

@@ -92,7 +92,7 @@ class CaptureService(ICaptureService):
                 code_raw=raw,
                 raw_text=raw_text,
             )
-            update_overlay_label(info_dict, code=code, raw_text=raw or raw_text)
+            update_overlay_label(deposit_info, code=code, raw_text=raw or raw_text)
 
             result = scan_state.last_result
             logger.info(

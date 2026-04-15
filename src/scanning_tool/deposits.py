@@ -12,6 +12,7 @@ from scanning_tool.domain.models import (
     DepositTable,
     OreTableEntry,
     OreTier,
+    OreTierInfo,
     OreValueInfo,
     RockDeposit,
     ScanSignature,
@@ -49,17 +50,17 @@ if SCAN_SIG_CSV.exists():
 else:
     logger.warning(f"Scan signature CSV not found: {SCAN_SIG_CSV}")
 
-ORE_TIERS: Dict[OreTier, Dict[str, object]] = {
-    "HIGHEST": {"ores": ["QUANTANIUM", "STILERON", "RICCITE"], "color": "#E88AFF"},
-    "HIGH": {"ores": ["TARANITE", "BEXALITE", "GOLD"], "color": "#63E64C"},
-    "MEDIUM": {"ores": ["LARANITE", "BORASE", "BERYL", "AGRICIUM", "HEPHAESTANITE"], "color": "#E6E14C"},
-    "LOW": {"ores": ["TUNGSTEN", "TITANIUM", "SILICON", "IRON", "QUARTZ", "CORUNDUM", "COPPER", "TIN", "ALUMINUM", "ICE"], "color": "#E69E4C"},
+ORE_TIERS: Dict[OreTier, OreTierInfo] = {
+    "HIGHEST": OreTierInfo(ores=["QUANTANIUM", "STILERON", "RICCITE"], color="#E88AFF"),
+    "HIGH": OreTierInfo(ores=["TARANITE", "BEXALITE", "GOLD"], color="#63E64C"),
+    "MEDIUM": OreTierInfo(ores=["LARANITE", "BORASE", "BERYL", "AGRICIUM", "HEPHAESTANITE"], color="#E6E14C"),
+    "LOW": OreTierInfo(ores=["TUNGSTEN", "TITANIUM", "SILICON", "IRON", "QUARTZ", "CORUNDUM", "COPPER", "TIN", "ALUMINUM", "ICE"], color="#E69E4C"),
 }
 
 ORE_VALUE_MAP: Dict[str, OreValueInfo] = {}
 for _tier, _data in ORE_TIERS.items():
-    for _ore in _data["ores"]:
-        ORE_VALUE_MAP[_ore.upper()] = {"tier": _tier, "color": _data["color"]}
+    for _ore in _data.ores:
+        ORE_VALUE_MAP[_ore.upper()] = {"tier": _tier, "color": _data.color}
 
 _TIER_ORDER: List[OreTier] = ["HIGHEST", "HIGH", "MEDIUM", "LOW", "OTHER"]
 
