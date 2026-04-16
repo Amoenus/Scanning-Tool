@@ -1,21 +1,33 @@
-import pandas as pd
+from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import List
 
-def find_signature_matches(signature_value: int, csv_path: str) -> List[Dict[str, Any]]:
-    """
-    Find all rows in the scan_signatures.csv file that match the given value.
-    Returns a list of dicts for each match.
-    """
+import pandas as pd
+
+
+@dataclass
+class SignatureMatch:
+    """A single matching row from scan_signatures.csv."""
+    mineral: str
+    category: str
+    color: str
+    amount: int
+    value: int
+    pill_text: str
+    pill_title: str
+
+
+def find_signature_matches(signature_value: int, csv_path: str) -> List[SignatureMatch]:
+    """Find all rows in scan_signatures.csv where ``value == signature_value``."""
     try:
         df = pd.read_csv(csv_path)
         matches = df[df['value'] == signature_value]
-        return matches.to_dict(orient='records')
+        return [SignatureMatch(**row) for row in matches.to_dict(orient='records')]
     except Exception:
         return []
 
+
 if __name__ == "__main__":
-    # Example usage
     csv_file = Path(__file__).parent.parent.parent / "csv" / "scansig" / "scan_signatures.csv"
     value = int(input("Enter signature value: "))
     results = find_signature_matches(value, str(csv_file))

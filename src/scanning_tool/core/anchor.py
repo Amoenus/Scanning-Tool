@@ -61,28 +61,23 @@ class AnchorRegionTracker:
         return self.last_loaded_count
 
 
-    def locate_anchor(self, region) -> Optional[AnchorDetection]:
-        """
-        Accepts either a dict or a dataclass with left, top, width, height attributes.
+    def locate_anchor(self, region: "CaptureRegion") -> Optional[AnchorDetection]:
+        """Locate the best matching anchor template within *region*.
+
+        Parameters
+        ----------
+        region:
+            A :class:`CaptureRegion` describing the screen area to search.
         """
         if not self.templates:
             return None
 
-        # Support both dict and dataclass
-        if hasattr(region, "__dict__") or hasattr(region, "left"):
-            monitor = {
-                "left": int(getattr(region, "left")),
-                "top": int(getattr(region, "top")),
-                "width": int(getattr(region, "width")),
-                "height": int(getattr(region, "height")),
-            }
-        else:
-            monitor = {
-                "left": int(region["left"]),
-                "top": int(region["top"]),
-                "width": int(region["width"]),
-                "height": int(region["height"]),
-            }
+        monitor = {
+            "left": int(region.left),
+            "top": int(region.top),
+            "width": int(region.width),
+            "height": int(region.height),
+        }
 
         with mss.mss() as sct:
             try:

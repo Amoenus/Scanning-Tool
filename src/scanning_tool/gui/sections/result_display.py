@@ -24,10 +24,10 @@ class ResultDisplaySection:
         overlay_offset = config.overlay_config.info_offset
 
         self._offset_x = self._make_offset_scale(
-            frame, "Display offset X", -800, 800, int(overlay_offset.get("x", 0))
+            frame, "Display offset X", -800, 800, overlay_offset.x
         )
         self._offset_y = self._make_offset_scale(
-            frame, "Display offset Y", -600, 600, int(overlay_offset.get("y", 0)), padding=(0, 0)
+            frame, "Display offset Y", -600, 600, overlay_offset.y, padding=(0, 0)
         )
 
         register_overlay_sliders(self._offset_x, self._offset_y)
@@ -54,13 +54,13 @@ class ResultDisplaySection:
         )
 
     def _on_change(self, *_args: object) -> None:
-        if control_state.gui_control_state["syncing"].get("overlay"):
+        if control_state.syncing.overlay:
             return
         overlay_offset = config.overlay_config.info_offset
-        overlay_offset["x"] = int(self._offset_x.get())
-        overlay_offset["y"] = int(self._offset_y.get())
+        overlay_offset.x = int(self._offset_x.get())
+        overlay_offset.y = int(self._offset_y.get())
         self._status.set_status(
-            f"Display offset updated: x={overlay_offset['x']}, "
-            f"y={overlay_offset['y']}"
+            f"Display offset updated: x={overlay_offset.x}, "
+            f"y={overlay_offset.y}"
         )
         reposition_info_overlay()

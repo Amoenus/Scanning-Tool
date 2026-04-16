@@ -1,7 +1,7 @@
 {
     "capture_region": {
-        "left": 846,
-        "top": 339,
+        "left": 848,
+        "top": 326,
         "width": 185,
         "height": 30
     },
@@ -31,7 +31,7 @@
     },
     "anchor_offset": {
         "x": 0,
-        "y": -25
+        "y": 0
     },
     "anchor_threshold": 0.82,
     "anchor_template_dir": "assets/anchor_templates",

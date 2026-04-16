@@ -127,10 +127,10 @@ class HeadSwaySection:
             parent, "Anchor Height", 50, 800, anchor_region.height, self._on_region_change
         )
         self._offset_x = self._make_scale(
-            parent, "Offset X", -300, 600, anchor_offset["x"], self._on_offset_change
+            parent, "Offset X", -300, 600, anchor_offset.x, self._on_offset_change
         )
         self._offset_y = self._make_scale(
-            parent, "Offset Y", -300, 600, anchor_offset["y"], self._on_offset_change,
+            parent, "Offset Y", -300, 600, anchor_offset.y, self._on_offset_change,
             padding=(0, 0),
         )
 
@@ -151,7 +151,7 @@ class HeadSwaySection:
         )
 
     def _on_region_change(self, *_args: object) -> None:
-        if control_state.gui_control_state["syncing"]["anchor"]:
+        if control_state.syncing.anchor:
             return
         anchor_region = config.anchor_template
         anchor_region.left = int(self._anchor_left.get())
@@ -166,11 +166,11 @@ class HeadSwaySection:
         update_anchor_overlay_region()
 
     def _on_offset_change(self, *_args: object) -> None:
-        if control_state.gui_control_state["syncing"]["anchor"]:
+        if control_state.syncing.anchor:
             return
         anchor_offset = config.anchor_offset
-        anchor_offset["x"] = int(self._offset_x.get())
-        anchor_offset["y"] = int(self._offset_y.get())
+        anchor_offset.x = int(self._offset_x.get())
+        anchor_offset.y = int(self._offset_y.get())
         self._status.set_anchor(
             f"Anchor offset updated: {anchor_offset}", hold=2.0
         )

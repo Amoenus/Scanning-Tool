@@ -27,11 +27,11 @@ class AnchorOverlay:
             self.rect_id = None
 
         geometry = compute_anchor_overlay_geometry()
-        self.root = create_overlay_window(geometry["width"], geometry["height"], geometry["left"], geometry["top"])
+        self.root = create_overlay_window(geometry.width, geometry.height, geometry.left, geometry.top)
         self.canvas = tk.Canvas(
             self.root,
-            width=geometry["width"],
-            height=geometry["height"],
+            width=geometry.width,
+            height=geometry.height,
             bg="black",
             highlightthickness=0,
         )
@@ -47,7 +47,7 @@ class AnchorOverlay:
         )
 
         self.canvas.create_text(
-            geometry["width"] // 2,
+            geometry.width // 2,
             5,
             text="ANCHOR REGION",
             fill="#00d4ff",
@@ -69,7 +69,7 @@ class AnchorOverlay:
             return
 
         geometry = compute_anchor_overlay_geometry()
-        safe_tk(lambda: self.canvas.config(width=geometry["width"], height=geometry["height"]))
+        safe_tk(lambda: self.canvas.config(width=geometry.width, height=geometry.height))
         safe_tk(lambda: self.canvas.coords(
             self.rect_id,
             ANCHOR_OVERLAY_PAD // 2,
@@ -77,7 +77,7 @@ class AnchorOverlay:
             ANCHOR_OVERLAY_PAD // 2 + int(config.anchor_template.width),
             ANCHOR_OVERLAY_PAD // 2 + int(config.anchor_template.height),
         ))
-        safe_tk(lambda: self.root.geometry(f"{geometry['width']}x{geometry['height']}+{geometry['left']}+{geometry['top']}"))
+        safe_tk(lambda: self.root.geometry(f"{geometry.width}x{geometry.height}+{geometry.left}+{geometry.top}"))
         safe_tk(lambda: self.root.lift())
 
     def hide(self) -> None:

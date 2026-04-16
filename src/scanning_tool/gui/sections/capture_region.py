@@ -54,7 +54,7 @@ class CaptureRegionSection:
         )
 
     def _on_change(self, *_args: object) -> None:
-        if control_state.gui_control_state["syncing"]["capture"]:
+        if control_state.syncing.capture:
             return
         cap_region = config.capture_region
         cap_region.left = int(self._left.get())

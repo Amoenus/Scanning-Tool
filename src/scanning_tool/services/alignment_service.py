@@ -51,8 +51,8 @@ class AlignmentService(BaseService):
         base_left = detection.match_left + (detection.template_width / 2.0) - (config.capture_region.width / 2.0)
         base_top = detection.match_top + (detection.template_height / 2.0) - (config.capture_region.height / 2.0)
 
-        new_left = int(round(base_left + config.anchor_offset.get("x", 0)))
-        new_top = int(round(base_top + config.anchor_offset.get("y", 0)))
+        new_left = int(round(base_left + config.anchor_offset.x))
+        new_top = int(round(base_top + config.anchor_offset.y))
 
         config.capture_region.left = max(0, new_left)
         config.capture_region.top = max(0, new_top)

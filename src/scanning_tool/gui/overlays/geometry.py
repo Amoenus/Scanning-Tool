@@ -1,6 +1,6 @@
 """Pure overlay geometry helpers."""
 
-from typing import Dict, Tuple
+from typing import Tuple
 
 from .base import (
     ANCHOR_OVERLAY_PAD,
@@ -12,7 +12,7 @@ from .base import (
     SCREEN_MARGIN,
 )
 from scanning_tool.core.state_manager import config, scan_state, service_state, overlay_state, control_state, save_config
-from scanning_tool.domain.models import CaptureOverlayLayout
+from scanning_tool.domain.models import AnchorOverlayGeometry, CaptureOverlayLayout
 
 
 def compute_info_overlay_geometry(screen_width: int, screen_height: int) -> Tuple[int, int, int, int]:
@@ -26,8 +26,8 @@ def compute_info_overlay_geometry(screen_width: int, screen_height: int) -> Tupl
     base_left = max(0, (screen_width - overlay_width) // 2)
     base_top = max(0, int(screen_height * 0.35) - overlay_height // 2)
 
-    offset_x = int(overlay_settings.info_offset.get("x", 0))
-    offset_y = int(overlay_settings.info_offset.get("y", 0))
+    offset_x = overlay_settings.info_offset.x
+    offset_y = overlay_settings.info_offset.y
 
     max_left = max(0, screen_width - overlay_width)
     max_top = max(0, screen_height - overlay_height)
@@ -59,16 +59,16 @@ def compute_capture_overlay_layout() -> CaptureOverlayLayout:
     )
 
 
-def compute_anchor_overlay_geometry() -> Dict[str, int]:
+def compute_anchor_overlay_geometry() -> AnchorOverlayGeometry:
     anchor_region = config.anchor_template
     width = int(anchor_region.width) + ANCHOR_OVERLAY_PAD
     height = int(anchor_region.height) + ANCHOR_OVERLAY_PAD
     left = int(anchor_region.left) - (ANCHOR_OVERLAY_PAD // 2)
     top = int(anchor_region.top) - (ANCHOR_OVERLAY_PAD // 2)
 
-    return {
-        "width": width,
-        "height": height,
-        "left": left,
-        "top": top,
-    }
+    return AnchorOverlayGeometry(
+        width=width,
+        height=height,
+        left=left,
+        top=top,
+    )

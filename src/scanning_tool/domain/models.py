@@ -1,7 +1,7 @@
 """Domain models for the scanning tool configuration and state."""
 
 from dataclasses import dataclass, field
-from typing import Dict, Literal, Optional, List, Tuple, Any, TypedDict, Union
+from typing import Dict, Literal, Optional, List, Tuple, TypedDict, Union
 
 # --- Deposit / ore DTOs ---
 
@@ -63,6 +63,15 @@ class ScanSignature(TypedDict):
     max_multiplier: int
 
 
+# --- Shared Value Types ---
+
+@dataclass
+class Offset2D:
+    """A 2D offset with x and y components."""
+    x: int = 0
+    y: int = 0
+
+
 # --- New Structured Domain Models ---
 
 @dataclass
@@ -108,17 +117,9 @@ class CaptureRegion:
 
 
 @dataclass
-class AnchorTemplate:
-    """Represents an anchor template configuration."""
-    offset: Dict[str, int]
-    threshold: float
-    template_dir: str
-
-
-@dataclass
 class OverlayConfig:
     """Represents overlay display configuration."""
-    info_offset: Dict[str, int]
+    info_offset: Offset2D
     label_color: str
     show_debug: bool
 
@@ -173,31 +174,6 @@ class OCRResult:
 
 
 @dataclass
-class HotkeyAction:
-    """Represents a user action/command triggered by a hotkey."""
-    name: str
-    key_combo: str
-    description: Optional[str] = None
-
-
-@dataclass
-class ToolStateSnapshot:
-    """Represents a snapshot of the tool’s state (for saving/loading)."""
-    timestamp: float
-    active_scan: Optional[ScanResult]
-    scan_history: List[ScanResult]
-    config: Dict[str, Any]
-
-
-@dataclass
-class ErrorInfo:
-    """Represents structured error information."""
-    message: str
-    code: Optional[str] = None
-    details: Optional[Any] = None
-
-
-@dataclass
 class AnchorDetection:
     """Result of an anchor template match on a captured region."""
     match_left: float
@@ -235,3 +211,12 @@ class CaptureOverlayLayout:
     padding_y: int
     cap_w: int
     cap_h: int
+
+
+@dataclass
+class AnchorOverlayGeometry:
+    """Geometry for the anchor overlay window."""
+    width: int
+    height: int
+    left: int
+    top: int

@@ -3,14 +3,14 @@
 import json
 import os
 from pathlib import Path
-from typing import Optional, Dict
+from typing import Optional
 
 from loguru import logger
 from pydantic import BaseModel, Field, ValidationError
 
 from scanning_tool.domain.models import (
     AutoAlignmentConfig, CaptureRegion, ContinuousCaptureConfig,
-    OllamaConfig, OverlayConfig, ScanConfig
+    OllamaConfig, Offset2D, OverlayConfig, ScanConfig
 )
 
 
@@ -18,14 +18,14 @@ class ConfigData(BaseModel):
     """Pydantic model for configuration data."""
     
     capture_region: CaptureRegion = Field(default_factory=lambda: CaptureRegion(1260, 310, 160, 30))
-    overlay_config: OverlayConfig = Field(default_factory=lambda: OverlayConfig({"x": 0, "y": 0}, "yellow", True))
+    overlay_config: OverlayConfig = Field(default_factory=lambda: OverlayConfig(Offset2D(0, 0), "yellow", True))
     auto_alignment: AutoAlignmentConfig = Field(default_factory=lambda: AutoAlignmentConfig(
         True,
         500,
         CaptureRegion(1100, 240, 320, 140)
     ))
     anchor_template: CaptureRegion = Field(default_factory=lambda: CaptureRegion(1100, 240, 320, 140))
-    anchor_offset: Dict[str, int] = Field(default_factory=lambda: {"x": 36, "y": 56})
+    anchor_offset: Offset2D = Field(default_factory=lambda: Offset2D(36, 56))
     anchor_threshold: float = 0.82
     anchor_template_dir: str = "assets/anchor_templates"
     alignment_poll_interval_ms: int = 500
