@@ -17,7 +17,7 @@ def create_labeled_spinbox(
     to: float,
     increment: float,
     width: int,
-    command: Callable[[object], None] | None,
+    command: Callable[[], object] | str | list[str] | tuple[str, ...] | None,
     colors: GlassPalette,
 ) -> tk.Spinbox:
     """Create a labeled spinbox row with custom glass styling."""
@@ -31,7 +31,7 @@ def create_labeled_spinbox(
         increment=increment,
         textvariable=variable,
         width=width,
-        command=command,
+        command=command if command is not None else "",
     )
     spinbox.pack(side="left", padx=5)
     from scanning_tool.gui.theme import style_spinbox

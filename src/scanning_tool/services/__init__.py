@@ -12,17 +12,12 @@ config_service = ConfigService()
 
 __all__ = [
     "alignment_service",
-    "capture_service",
     "config_service",
     "ollama_service",
 ]
 
 
 def __getattr__(name: str):
-    if name == "capture_service":
-        from .capture_service import capture_service
-
-        return capture_service
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 

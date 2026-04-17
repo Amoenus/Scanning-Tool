@@ -76,10 +76,10 @@ class Deposit:
             users=cls._to_int(data.get("users")),
             scans=cls._to_int(data.get("scans")),
             clusters=cls._to_int(data.get("clusters")),
-            clusterCount=data.get("clusterCount", {}),
-            mass=data.get("mass", {}),
-            inst=data.get("inst", {}),
-            res=data.get("res", {}),
+            clusterCount=dict(data.get("clusterCount", {})),
+            mass=dict(data.get("mass", {})),
+            inst=dict(data.get("inst", {})),
+            res=dict(data.get("res", {})),
             ores=ores,
         )
 

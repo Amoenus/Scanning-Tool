@@ -22,6 +22,11 @@ class CaptureOverlay:
         if not self.canvas or not self.rect_id or not self.root:
             return
 
+        canvas = self.canvas
+        root = self.root
+        rect_id = self.rect_id
+        assert canvas is not None and root is not None and rect_id is not None
+
         layout = compute_capture_overlay_layout()
         last = self.last_layout
         size_changed = (
@@ -42,15 +47,15 @@ class CaptureOverlay:
 
         if size_changed:
             safe_tk(
-                lambda: self.canvas.config(
+                lambda: canvas.config(
                     width=layout.overlay_width, height=layout.overlay_height
                 )
             )
 
         if rect_changed:
             safe_tk(
-                lambda: self.canvas.coords(
-                    self.rect_id,
+                lambda: canvas.coords(
+                    rect_id,
                     layout.padding_x // 2,
                     layout.padding_y,
                     layout.padding_x // 2 + layout.cap_w,
@@ -60,11 +65,11 @@ class CaptureOverlay:
 
         if size_changed or pos_changed:
             safe_tk(
-                lambda: self.root.geometry(
+                lambda: root.geometry(
                     f"{layout.overlay_width}x{layout.overlay_height}+{layout.left}+{layout.top}"
                 )
             )
-            safe_tk(lambda: self.root.lift())
+            safe_tk(lambda: root.lift())
 
         self.last_layout = layout
 

@@ -19,7 +19,7 @@ from scanning_tool.gui.sections import (
     SectionContext,
 )
 from scanning_tool.gui.status import StatusBar
-from scanning_tool.gui.theme import apply_glass_theme
+from scanning_tool.gui.theme import GlassPalette, apply_glass_theme
 from scanning_tool.gui.widgets import ScrollableFrame
 from scanning_tool.gui.overlays import show_overlay
 from scanning_tool.services.capture_service import CaptureService
@@ -86,7 +86,7 @@ def _create_root() -> tk.Tk:
 def _build_section_context(
     *,
     root: tk.Tk,
-    colors: dict[str, str],
+    colors: GlassPalette,
     status: StatusBar,
     config: ConfigData,
     scan_state: ScanState,
@@ -110,7 +110,7 @@ def _build_section_context(
     )
 
 
-def _build_main_panel(root: tk.Tk, colors: dict[str, str], ctx: SectionContext) -> tk.Widget:
+def _build_main_panel(root: tk.Tk, colors: GlassPalette, ctx: SectionContext) -> tk.Widget:
     scroll = ScrollableFrame(root, colors)
     return scroll.inner
 

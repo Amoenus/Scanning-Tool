@@ -70,13 +70,18 @@ class AnchorOverlay:
         ):
             return
 
+        root = self.root
+        canvas = self.canvas
+        rect_id = self.rect_id
+        assert root is not None and canvas is not None and rect_id is not None
+
         geometry = compute_anchor_overlay_geometry()
         safe_tk(
-            lambda: self.canvas.config(width=geometry.width, height=geometry.height)
+            lambda: canvas.config(width=geometry.width, height=geometry.height)
         )
         safe_tk(
-            lambda: self.canvas.coords(
-                self.rect_id,
+            lambda: canvas.coords(
+                rect_id,
                 ANCHOR_OVERLAY_PAD // 2,
                 ANCHOR_OVERLAY_PAD // 2,
                 ANCHOR_OVERLAY_PAD // 2 + int(config.anchor_template.width),
@@ -84,11 +89,11 @@ class AnchorOverlay:
             )
         )
         safe_tk(
-            lambda: self.root.geometry(
+            lambda: root.geometry(
                 f"{geometry.width}x{geometry.height}+{geometry.left}+{geometry.top}"
             )
         )
-        safe_tk(lambda: self.root.lift())
+        safe_tk(lambda: root.lift())
 
     def hide(self) -> None:
         if self.root and safe_tk(self.root.winfo_exists, False):

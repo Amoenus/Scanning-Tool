@@ -3,10 +3,8 @@ import pandas as pd
 from pathlib import Path
 from typing import Dict
 
-from src.scanning_tool.deposits.scan_signatures import (
-    parse_scan_signature_row,
-)
-from src.scanning_tool.domain.models import ScanSignature
+from scanning_tool.deposits.scan_signatures import parse_scan_signature_row
+from scanning_tool.domain.models import ScanSignature
 
 csv_path = Path("csv/scansig/scan_signatures_summary.csv")
 df = pd.read_csv(csv_path)

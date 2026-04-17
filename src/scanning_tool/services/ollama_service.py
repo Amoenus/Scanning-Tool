@@ -75,7 +75,8 @@ class OllamaService(BaseService):
             if self._is_running(host):
                 self.logger.info("Ollama service is now running gracefully.")
                 return
-            if self._daemon_process.poll() is not None:
+            daemon_process = self._daemon_process
+            if daemon_process is not None and daemon_process.poll() is not None:
                 self.logger.error(
                     "'ollama serve' exited before the service became ready."
                 )
