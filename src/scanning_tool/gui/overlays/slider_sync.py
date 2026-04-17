@@ -47,7 +47,11 @@ def register_overlay_sliders(offset_x: ScaleWidget, offset_y: ScaleWidget) -> No
 
 def sync_capture_sliders() -> None:
     widgets = control_state.capture
-    if not widgets.left or control_state.syncing.capture:
+    left = widgets.left
+    top = widgets.top
+    width = widgets.width
+    height = widgets.height
+    if not (left and top and width and height) or control_state.syncing.capture:
         return
 
     capture_region = config.capture_region
@@ -58,21 +62,27 @@ def sync_capture_sliders() -> None:
         control_state.syncing.capture = True
         try:
             try:
-                widgets.left.set(int(capture_region.left))
-                widgets.top.set(int(capture_region.top))
-                widgets.width.set(int(capture_region.width))
-                widgets.height.set(int(capture_region.height))
+                left.set(int(capture_region.left))
+                top.set(int(capture_region.top))
+                width.set(int(capture_region.width))
+                height.set(int(capture_region.height))
             except tk.TclError:
                 pass
         finally:
             control_state.syncing.capture = False
 
-    safe_tk(lambda: widgets.left.after(0, _apply))
+    safe_tk(lambda: left.after(0, _apply))
 
 
 def sync_anchor_sliders() -> None:
     widgets = control_state.anchor
-    if not widgets.left or control_state.syncing.anchor:
+    left = widgets.left
+    top = widgets.top
+    width = widgets.width
+    height = widgets.height
+    offset_x = widgets.offset_x
+    offset_y = widgets.offset_y
+    if not (left and top and width and height and offset_x and offset_y) or control_state.syncing.anchor:
         return
 
     anchor_region = config.anchor_template
@@ -84,23 +94,25 @@ def sync_anchor_sliders() -> None:
         control_state.syncing.anchor = True
         try:
             try:
-                widgets.left.set(int(anchor_region.left))
-                widgets.top.set(int(anchor_region.top))
-                widgets.width.set(int(anchor_region.width))
-                widgets.height.set(int(anchor_region.height))
-                widgets.offset_x.set(int(anchor_offset.x))
-                widgets.offset_y.set(int(anchor_offset.y))
+                left.set(int(anchor_region.left))
+                top.set(int(anchor_region.top))
+                width.set(int(anchor_region.width))
+                height.set(int(anchor_region.height))
+                offset_x.set(int(anchor_offset.x))
+                offset_y.set(int(anchor_offset.y))
             except tk.TclError:
                 pass
         finally:
             control_state.syncing.anchor = False
 
-    safe_tk(lambda: widgets.left.after(0, _apply))
+    safe_tk(lambda: left.after(0, _apply))
 
 
 def sync_overlay_sliders() -> None:
     widgets = control_state.overlay
-    if not widgets.offset_x or control_state.syncing.overlay:
+    offset_x = widgets.offset_x
+    offset_y = widgets.offset_y
+    if not (offset_x and offset_y) or control_state.syncing.overlay:
         return
 
     overlay_offset = config.overlay_config.info_offset
@@ -111,11 +123,11 @@ def sync_overlay_sliders() -> None:
         control_state.syncing.overlay = True
         try:
             try:
-                widgets.offset_x.set(int(overlay_offset.x))
-                widgets.offset_y.set(int(overlay_offset.y))
+                offset_x.set(int(overlay_offset.x))
+                offset_y.set(int(overlay_offset.y))
             except tk.TclError:
                 pass
         finally:
             control_state.syncing.overlay = False
 
-    safe_tk(lambda: widgets.offset_x.after(0, _apply))
+    safe_tk(lambda: offset_x.after(0, _apply))

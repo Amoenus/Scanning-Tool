@@ -32,6 +32,10 @@ packages = ["src/scanning_tool"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 
+[tool.mypy]
+files = ["src"]
+exclude = "^src/"
+
 [dependency-groups]
 dev = [
     "pytest>=9.0.3",
