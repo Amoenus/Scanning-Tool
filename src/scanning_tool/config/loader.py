@@ -12,8 +12,9 @@ ROCK_TYPE_FILE = PROJECT_ROOT / ROCK_TYPE_FILENAME
 
 def resource_path(relative_path: str) -> str:
     """Get absolute path to a resource, works for dev and for PyInstaller bundle."""
-    if hasattr(sys, "_MEIPASS"):
-        return str(Path(sys._MEIPASS) / relative_path)
+    meipass = sys.__dict__.get("_MEIPASS")
+    if meipass is not None:
+        return str(Path(meipass) / relative_path)
     return str(PROJECT_ROOT / relative_path)
 
 

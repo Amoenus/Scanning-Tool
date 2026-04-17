@@ -18,7 +18,10 @@ from scanning_tool.ollama import (
 )
 
 if TYPE_CHECKING:
+    from scanning_tool.config.service import ConfigData
     from scanning_tool.services.capture_service import CaptureService
+    from scanning_tool.state.scan_state import ScanState
+    from scanning_tool.state.service_state import ServiceState
 
 
 def _initialize_services() -> None:
@@ -33,7 +36,7 @@ def _initialize_services() -> None:
     log_model_running_status()
 
 
-def _initialize_anchor_tracking(config, scan_state) -> None:
+def _initialize_anchor_tracking(config: ConfigData, scan_state: ScanState) -> None:
     """Create and register the anchor region tracker."""
     from scanning_tool.core.anchor import AnchorRegionTracker
 
@@ -51,20 +54,16 @@ def _start_hotkey_listener(capture_service: 'CaptureService') -> None:
 
 
 def _start_web_server(
-    config=None,
-    scan_state=None,
-    service_state=None,
+    config: ConfigData,
+    scan_state: ScanState,
+    service_state: ServiceState,
 ) -> None:
-    """Launch the Flask overlay server on a background thread."""
-    should_use_create_app = config is None or scan_state is None or service_state is None
+    """Launch the Flask overlay server on a background thread.
 
-    if should_use_create_app:
-        from importlib import import_module
-
-        runtime_state_manager = import_module("scanning_tool.state.manager")
-        config = config or runtime_state_manager.config
-        scan_state = scan_state or runtime_state_manager.scan_state
-        service_state = service_state or runtime_state_manager.service_state
+    This function requires fully initialized runtime state. Missing state is a
+    fatal startup error because the overlay server cannot operate correctly
+    without the configuration and shared state objects.
+    """
 
     web_config = config.web_server_config
     host = web_config.host
@@ -76,17 +75,14 @@ def _start_web_server(
         msg += f" (this device) | http://{local_ip}:{port} (local network)"
     logger.info(msg)
 
-    if should_use_create_app:
-        flask_app = create_app()
-    else:
-        from scanning_tool.web.app import WebService
+    from scanning_tool.web.app import WebService
 
-        flask_app = WebService(
-            config=config,
-            scan_state=scan_state,
-            service_state=service_state,
-            template_folder=resource_path("templates"),
-        ).create_app()
+    flask_app = WebService(
+        config=config,
+        scan_state=scan_state,
+        service_state=service_state,
+        template_folder=resource_path("templates"),
+    ).create_app()
     Thread(
         target=lambda: flask_app.run(host=host, port=port, debug=False),
         daemon=True,

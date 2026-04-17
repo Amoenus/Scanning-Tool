@@ -1,10 +1,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict
 
-from scanning_tool.domain.dtos import DepositData, OreStatisticsData, RegionData, RockDataJSON
-from scanning_tool.domain.common import OreTier, OreTableEntry
+from scanning_tool.domain.dtos import JsonObject
 
 
 @dataclass
@@ -28,7 +26,7 @@ class OreStatistics:
         return 0.0
 
     @classmethod
-    def from_dict(cls, data: OreStatisticsData) -> "OreStatistics":
+    def from_dict(cls, data: JsonObject) -> "OreStatistics":
         return cls(
             prob=cls._to_float(data.get("prob")),
             minPct=cls._to_float(data.get("minPct")),
@@ -51,7 +49,7 @@ class Deposit:
     ores: dict[str, OreStatistics]
 
     @staticmethod
-    def _to_int(value: int | str | float | None) -> int:
+    def _to_int(value: int | str | float | object | None) -> int:
         if isinstance(value, int):
             return value
         if isinstance(value, float):
@@ -63,8 +61,26 @@ class Deposit:
                 return 0
         return 0
 
+    @staticmethod
+    def _to_float_mapping(value: object | None) -> dict[str, float]:
+        if not isinstance(value, dict):
+            return {}
+
+        converted: dict[str, float] = {}
+        for raw_key, raw_value in value.items():
+            if not isinstance(raw_key, str):
+                continue
+            if isinstance(raw_value, (int, float)):
+                converted[raw_key] = float(raw_value)
+            elif isinstance(raw_value, str):
+                try:
+                    converted[raw_key] = float(raw_value)
+                except ValueError:
+                    continue
+        return converted
+
     @classmethod
-    def from_dict(cls, data: DepositData) -> "Deposit":
+    def from_dict(cls, data: JsonObject) -> "Deposit":
         ores_data = data.get("ores", {})
         ores = {
             ore_name: OreStatistics.from_dict(ore_data)
@@ -76,10 +92,10 @@ class Deposit:
             users=cls._to_int(data.get("users")),
             scans=cls._to_int(data.get("scans")),
             clusters=cls._to_int(data.get("clusters")),
-            clusterCount=dict(data.get("clusterCount", {})),
-            mass=dict(data.get("mass", {})),
-            inst=dict(data.get("inst", {})),
-            res=dict(data.get("res", {})),
+            clusterCount=cls._to_float_mapping(data.get("clusterCount")),
+            mass=cls._to_float_mapping(data.get("mass")),
+            inst=cls._to_float_mapping(data.get("inst")),
+            res=cls._to_float_mapping(data.get("res")),
             ores=ores,
         )
 
@@ -91,7 +107,7 @@ class Region:
     deposits: dict[str, Deposit]
 
     @classmethod
-    def from_dict(cls, data: RegionData) -> "Region":
+    def from_dict(cls, data: JsonObject) -> "Region":
         deposits = {
             deposit_name: Deposit.from_dict(deposit_data)
             for deposit_name, deposit_data in data.items()
@@ -107,7 +123,7 @@ class RockDataCollection:
     regions: dict[str, Region] = field(default_factory=dict)
 
     @classmethod
-    def from_dict(cls, data: RockDataJSON) -> "RockDataCollection":
+    def from_dict(cls, data: JsonObject) -> "RockDataCollection":
         regions = {
             region_name: Region.from_dict(region_data)
             for region_name, region_data in data.items()
