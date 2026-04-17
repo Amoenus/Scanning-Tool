@@ -31,7 +31,7 @@ class ScreenCaptureProvider:
 
     def capture(self, region: CaptureRegion) -> Image.Image:
         with mss.mss() as sct:
-            img = sct.grab(region.to_mss_monitor())
+            img = sct.grab(region.to_monitor())
             return Image.frombytes("RGB", img.size, img.rgb)
 
 

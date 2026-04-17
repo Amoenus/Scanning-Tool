@@ -25,6 +25,12 @@ def test_capture_region_to_mss_monitor_and_tuple_conversion():
         "width": 100,
         "height": 50,
     }
+    assert region.to_monitor() == {
+        "left": 10,
+        "top": 20,
+        "width": 100,
+        "height": 50,
+    }
     assert region.to_tuple() == (10, 20, 100, 50)
 
 

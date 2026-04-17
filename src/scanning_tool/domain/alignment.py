@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Optional
 
+from mss.models import Monitor
+
 from scanning_tool.domain.common import MssMonitor, Offset2D
 
 if TYPE_CHECKING:
@@ -20,6 +22,15 @@ class CaptureRegion:
 
     def to_mss_monitor(self) -> MssMonitor:
         """Return an mss-compatible monitor dict for this region."""
+        return {
+            "left": int(self.left),
+            "top": int(self.top),
+            "width": int(self.width),
+            "height": int(self.height),
+        }
+
+    def to_monitor(self) -> Monitor:
+        """Return an mss Monitor object for this region."""
         return {
             "left": int(self.left),
             "top": int(self.top),
