@@ -58,3 +58,26 @@ def test_flask_app_routes_logs_through_loguru_intercept_handler():
         isinstance(handler, InterceptHandler)
         for handler in logging.getLogger("werkzeug").handlers
     )
+    assert any(
+        isinstance(handler, InterceptHandler)
+        for handler in logging.getLogger("flask").handlers
+    )
+
+
+def test_setup_logging_intercepts_flask_and_werkzeug_loggers():
+    from scanning_tool.logging_setup import setup_logging
+
+    setup_logging()
+
+    assert any(
+        isinstance(handler, InterceptHandler)
+        for handler in logging.getLogger("werkzeug").handlers
+    )
+    assert any(
+        isinstance(handler, InterceptHandler)
+        for handler in logging.getLogger("flask").handlers
+    )
+    assert any(
+        isinstance(handler, InterceptHandler)
+        for handler in logging.getLogger("flask.app").handlers
+    )

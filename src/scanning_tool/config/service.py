@@ -60,7 +60,10 @@ class ConfigService:
     def load(self) -> ConfigData:
         """Load configuration from file."""
         if not self.config_file.exists():
-            logger.info("Configuration file not found, creating default.")
+            logger.info(
+                "Configuration file not found, creating default.",
+                path=str(self.config_file),
+            )
             config = ConfigData()
             self._config = config
             self.save()
@@ -79,7 +82,11 @@ class ConfigService:
             return config
 
         except (json.JSONDecodeError, OSError, ValidationError) as exc:
-            logger.warning(f"Failed to load configuration: {exc}, using defaults.")
+            logger.warning(
+                "Failed to load configuration, using defaults.",
+                path=str(self.config_file),
+                error=exc,
+            )
             self._config = ConfigData()
             self.save()
             return self._config

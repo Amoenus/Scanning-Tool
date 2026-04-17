@@ -36,12 +36,19 @@ def parse_scan_signature_row(
 def load_scan_signatures(path: Path) -> SignatureRegistry:
     registry = SignatureRegistry()
     if not path.exists():
-        logger.warning(f"Scan signature CSV not found: {path}")
+        logger.warning(
+            "Scan signature CSV not found",
+            path=str(path),
+        )
         return registry
     try:
         df = pd.read_csv(path)
     except Exception as exc:
-        logger.warning(f"Failed to load scan signature CSV: {exc}")
+        logger.warning(
+            "Failed to load scan signature CSV",
+            path=str(path),
+            error=exc,
+        )
         return registry
 
     for _, row in df.iterrows():
@@ -49,7 +56,10 @@ def load_scan_signatures(path: Path) -> SignatureRegistry:
         if signature is not None:
             registry.add(signature)
         else:
-            logger.warning(f"Bad scan signature row: {row}")
+            logger.warning(
+                "Bad scan signature row",
+                row=str(row),
+            )
     return registry
 
 

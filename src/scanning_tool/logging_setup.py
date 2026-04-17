@@ -4,11 +4,15 @@ from __future__ import annotations
 
 import logging
 import sys
-from typing import Optional
+from types import FrameType
+from typing import Sequence
 
+import loguru
 from flask import Flask
 from loguru import logger
-from loguru._logger import Logger
+
+LOG_FILE_NAME = "scanning_tool.log"
+INTERCEPT_LOGGERS: Sequence[str] = ("werkzeug", "flask.app", "flask")
 
 
 class InterceptHandler(logging.Handler):
@@ -16,7 +20,7 @@ class InterceptHandler(logging.Handler):
 
     def emit(self, record: logging.LogRecord) -> None:
         try:
-            level = logger.level(record.levelname).name
+            level: int | str = logger.level(record.levelname).name
         except ValueError:
             level = record.levelno
 
@@ -27,7 +31,7 @@ class InterceptHandler(logging.Handler):
 
 
 def _calculate_frame_depth() -> int:
-    frame = logging.currentframe()
+    frame: FrameType | None = logging.currentframe()
     depth = 2
     while frame is not None and frame.f_code.co_filename == __file__:
         frame = frame.f_back
@@ -41,27 +45,38 @@ def _apply_intercept_handler(logger_name: str) -> None:
     intercepted_logger.propagate = False
 
 
-def setup_logging() -> Logger:
+def setup_logging() -> "loguru.Logger":
     """Configure loguru logger with console and file handlers."""
     logger.remove()
+
+    console_format = (
+        "<green>{time:YYYY-MM-DD HH:mm:ss}</green> | "
+        "<level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>"
+        ":<cyan>{line}</cyan> - <level>{message}</level>"
+    )
+    file_format = (
+        "{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | "
+        "{name}:{function}:{line} - {message}"
+    )
+
     logger.add(
         sys.stdout,
         level="INFO",
-        format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>",
+        format=console_format,
         colorize=True,
     )
     logger.add(
-        "scanning_tool.log",
+        LOG_FILE_NAME,
         rotation="10 MB",
         retention=5,
         level="INFO",
         encoding="utf-8",
-        format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {name}:{function}:{line} - {message}",
+        format=file_format,
     )
 
     logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
-    _apply_intercept_handler("werkzeug")
-    _apply_intercept_handler("flask.app")
+    for logger_name in INTERCEPT_LOGGERS:
+        _apply_intercept_handler(logger_name)
     return logger
 
 
@@ -69,4 +84,5 @@ def configure_flask_logging(app: Flask) -> None:
     """Attach Flask and Werkzeug loggers to the loguru handler."""
     app.logger.handlers = [InterceptHandler()]
     app.logger.propagate = False
-    _apply_intercept_handler("werkzeug")
+    for logger_name in INTERCEPT_LOGGERS:
+        _apply_intercept_handler(logger_name)
