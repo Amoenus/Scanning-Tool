@@ -153,6 +153,7 @@ Example:
 
 - Follow existing repository conventions and formatting.
 - Use `ruff`/`mypy` for linting and type checking when available.
+- Use `pyright` for CLI type checking; `pylance` is a VS Code language extension and is not runnable as `python -m pylance`.
 - Use a code formatter or linter as part of development and CI to enforce consistent style.
 - Use `pre-commit` or a similar hook system to run formatting and lint checks before commits.
 - Prefer 4 spaces per indentation level; spaces are preferred over tabs and mixing tabs and spaces is forbidden.

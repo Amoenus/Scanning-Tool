@@ -11,9 +11,12 @@ Use this skill to run repository-level static analysis and linting in the `Scann
 From the repository root, prefer the repo virtual environment commands:
 
 ```bash
+.venv\Scripts\python.exe -m pyright .
 .venv\Scripts\python.exe -m mypy .
 .venv\Scripts\python.exe -m ruff check .
 ```
+
+`pyright` is the CLI type checker; `pylance` is a VS Code language extension and cannot be invoked with `python -m pylance`.
 
 If you need formatting feedback as well:
 

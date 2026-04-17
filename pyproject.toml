@@ -46,4 +46,5 @@ dev = [
     "ruff>=0.15.11",
     "vulture>=2.16",
     "pylance>=4.0.0",
+    "pyright>=1.1.408",
 ]
