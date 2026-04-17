@@ -3,7 +3,7 @@
 import re
 from typing import Optional, Pattern
 
-from scanning_tool.core.state_manager import service_state
+from scanning_tool.state.manager import service_state
 from scanning_tool.domain.models import (
     CodeExtraction,
     DepositInfo,

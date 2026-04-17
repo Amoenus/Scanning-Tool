@@ -5,7 +5,7 @@ from typing import Optional
 
 from .base import ANCHOR_OVERLAY_PAD, create_overlay_window, safe_tk
 from .geometry import compute_anchor_overlay_geometry
-from scanning_tool.core.state_manager import (
+from scanning_tool.state.manager import (
     config,
     scan_state,
     service_state,

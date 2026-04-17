@@ -15,7 +15,7 @@ from scanning_tool.ollama import (
 )
 from scanning_tool.services.alignment_service import alignment_service
 from scanning_tool.services.ollama_service import ollama_service
-from scanning_tool.core.state_manager import config, scan_state
+from scanning_tool.state.manager import config, scan_state
 from scanning_tool.core.anchor import AnchorRegionTracker
 from scanning_tool.web import create_app, get_local_ip
 

@@ -14,7 +14,7 @@ from scanning_tool.gui.overlays import (
 )
 from scanning_tool.gui.overlays.base import safe_tk
 from scanning_tool.gui.status import StatusBar
-from scanning_tool.core.state_manager import config, scan_state
+from scanning_tool.state.manager import config, scan_state
 
 
 class AlignmentPoller:

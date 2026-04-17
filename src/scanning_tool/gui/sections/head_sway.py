@@ -25,7 +25,7 @@ from scanning_tool.gui.overlays import (
     sync_anchor_sliders,
     update_anchor_overlay_region,
 )
-from scanning_tool.core.state_manager import (
+from scanning_tool.state.manager import (
     config,
     scan_state,
     service_state,

@@ -37,7 +37,7 @@ class MockConfig:
 
 mock_state_manager = MagicMock()
 mock_state_manager.config = MockConfig()
-sys.modules["scanning_tool.core.state_manager"] = mock_state_manager
+sys.modules["scanning_tool.state.manager"] = mock_state_manager
 
 
 class TestSecurity(unittest.TestCase):

@@ -2,7 +2,7 @@ import os
 from typing import Tuple
 from urllib.parse import urlparse
 
-from scanning_tool.core.state_manager import (
+from scanning_tool.state.manager import (
     config,
     scan_state,
     service_state,

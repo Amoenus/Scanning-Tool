@@ -6,7 +6,7 @@ from scanning_tool.gui.overlays import (
     destroy_all_overlays,
     stop_capture_overlay_animation,
 )
-from scanning_tool.core.state_manager import (
+from scanning_tool.state.manager import (
     config,
     scan_state,
     service_state,

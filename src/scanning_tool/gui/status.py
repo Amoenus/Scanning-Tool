@@ -4,7 +4,7 @@ import time
 import tkinter as tk
 from typing import Optional
 
-from scanning_tool.core.state_manager import (
+from scanning_tool.state.manager import (
     config,
     scan_state,
     service_state,

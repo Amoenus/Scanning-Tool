@@ -1,4 +1,4 @@
-"""Centralized registry for strongly typed state architectures."""
+"""Runtime state manager for the scanning tool."""
 
 from scanning_tool.state.app_state import AppState
 
@@ -9,7 +9,17 @@ service_state = app_state.service_state
 overlay_state = app_state.overlay_state
 control_state = app_state.control_state
 
+__all__ = [
+    "app_state",
+    "config",
+    "scan_state",
+    "service_state",
+    "overlay_state",
+    "control_state",
+    "save_config",
+]
+
 
 def save_config() -> None:
-    """Helper to save the current configuration."""
+    """Persist the current configuration."""
     app_state.save_config()

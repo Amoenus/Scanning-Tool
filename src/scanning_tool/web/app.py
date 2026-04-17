@@ -1,19 +1,13 @@
 """Flask web server for the mobile/browser overlay."""
 
-from loguru import logger
+from __future__ import annotations
+
 import socket
 from typing import Optional
 
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, Response, jsonify, render_template, request
 
-from scanning_tool.core.state_manager import (
-    config,
-    scan_state,
-    service_state,
-    overlay_state,
-    control_state,
-    save_config,
-)
+from scanning_tool.state.manager import config, scan_state, service_state
 from scanning_tool.config import resource_path
 from scanning_tool.domain.models import (
     DepositInfo,
@@ -31,8 +25,8 @@ def get_local_ip() -> str:
             ip_address = sock.getsockname()[0]
             if ip_address:
                 return ip_address
-    except Exception as exc:
-        logger.debug(f"Unable to determine local IP automatically: {exc}")
+    except Exception:
+        pass
     return "127.0.0.1"
 
 
@@ -76,11 +70,11 @@ def create_app() -> Flask:
     app = Flask(__name__, template_folder=template_folder)
 
     @app.route("/")
-    def index():
+    def index() -> str:
         return render_template("overlay.html")
 
     @app.route("/status")
-    def status():
+    def status() -> Response:
         """Return the latest scan information for the overlay UI."""
         selected_region = request.args.get("region", "STANTON").upper()
         result = scan_state.last_result

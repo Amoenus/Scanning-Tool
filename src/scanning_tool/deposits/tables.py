@@ -4,7 +4,7 @@ import json
 from typing import Dict
 
 from scanning_tool.config import ROCK_TYPE_FILE
-from scanning_tool.core.state_manager import service_state
+from scanning_tool.state.manager import service_state
 from scanning_tool.domain.models import (
     DepositTable,
     OreTableEntry,
