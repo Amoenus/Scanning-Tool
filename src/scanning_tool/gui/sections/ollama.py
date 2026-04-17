@@ -117,7 +117,7 @@ class OllamaSection:
             ensure_model_installed(model_value, exit_on_error=False)
         except Exception as exc:
             self._status.set_status(f"Model install failed: {exc}")
-            logger.error("Failed to install model %s: %s", model_value, exc)
+            logger.error("Failed to install model {}: {}", model_value, exc)
             return
         running = log_model_running_status(model_value)
         self._refresh_active_labels()
@@ -129,7 +129,7 @@ class OllamaSection:
             self._status.set_status(
                 f"Ollama model set to {model_value}. It is not running yet and will start on first scan."
             )
-        logger.info("Ollama model set to %s.", model_value)
+        logger.info("Ollama model set to {}.", model_value)
 
     def _apply_host(self) -> None:
         sanitized = set_configured_ollama_host(self._host_var.get())
@@ -172,7 +172,7 @@ class OllamaSection:
             webbrowser.open_new_tab(url)
         except Exception as exc:
             self._status.set_status(f"Unable to open browser: {exc}")
-            logger.warning("Failed to open mobile overlay URL %s: %s", url, exc)
+            logger.warning("Failed to open mobile overlay URL {}: {}", url, exc)
         else:
             self._status.set_status(f"Opening overlay in browser: {url}")
-            logger.info("Opened mobile overlay URL: %s", url)
+            logger.info("Opened mobile overlay URL: {}", url)

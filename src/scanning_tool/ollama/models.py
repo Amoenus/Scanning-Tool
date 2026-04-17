@@ -61,7 +61,7 @@ def list_running_ollama_models() -> List[str]:
         response = client.ps()
         return [m.model for m in response.models if m.model]
     except Exception as e:
-        logger.warning("Unable to query Ollama process list: %s", e)
+        logger.warning("Unable to query Ollama process list: {}", e)
         return []
 
 
@@ -76,14 +76,14 @@ def log_model_running_status(model: Optional[str] = None) -> bool:
     model = model or get_ollama_model()
     running_models = list_running_ollama_models()
     if model in running_models:
-        logger.info("Ollama model %s is currently running.", model)
+        logger.info("Ollama model {} is currently running.", model)
         return True
     logger.info(
-        "Ollama model %s is not currently running. It will start on first OCR request.",
+        "Ollama model {} is not currently running. It will start on first OCR request.",
         model,
     )
     if running_models:
-        logger.info("Currently running Ollama models: %s", ", ".join(running_models))
+        logger.info("Currently running Ollama models: {}", ", ".join(running_models))
     else:
         logger.info("No Ollama models are currently running.")
     return False
