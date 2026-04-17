@@ -16,6 +16,43 @@ class OreInfo(TypedDict):
     medPct: float
 
 
+@dataclass(frozen=True)
+class OreInfoModel:
+    """Structured ore concentration data extracted from raw RockType JSON."""
+    prob: float = 0.0
+    min_pct: float = 0.0
+    max_pct: float = 0.0
+    med_pct: float = 0.0
+
+    @classmethod
+    def from_raw(cls, raw: OreInfo) -> "OreInfoModel":
+        return cls(
+            prob=raw.get("prob", 0.0),
+            min_pct=raw.get("minPct", 0.0),
+            max_pct=raw.get("maxPct", 0.0),
+            med_pct=raw.get("medPct", 0.0),
+        )
+
+    def format_pct(self, value: float) -> str:
+        return f"{value * 100:.0f}%"
+
+    @property
+    def prob_pct(self) -> str:
+        return self.format_pct(self.prob)
+
+    @property
+    def min_pct_str(self) -> str:
+        return self.format_pct(self.min_pct)
+
+    @property
+    def max_pct_str(self) -> str:
+        return self.format_pct(self.max_pct)
+
+    @property
+    def med_pct_str(self) -> str:
+        return self.format_pct(self.med_pct)
+
+
 class MssMonitor(TypedDict):
     """Monitor dict compatible with the mss library."""
     left: int
