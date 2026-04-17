@@ -16,6 +16,8 @@ from scanning_tool.domain.models import AnchorDetection, MssMonitor
 class AnchorRegionTracker:
     """Manage template loading and anchor matching for auto alignment."""
 
+    SUPPORTED_EXTENSIONS = {".png", ".jpg", ".jpeg", ".bmp"}
+
     def __init__(self, template_dir: str, threshold: float = 0.82) -> None:
         self.template_dir = template_dir
         self.threshold = threshold
@@ -45,10 +47,9 @@ class AnchorRegionTracker:
         return self.last_loaded_count
 
     def _load_image_files(self, directory: Path) -> List[Tuple[str, np.ndarray]]:
-        supported_ext = {".png", ".jpg", ".jpeg", ".bmp"}
         loaded: List[Tuple[str, np.ndarray]] = []
         for path in sorted(directory.glob("**/*")):
-            if path.suffix.lower() not in supported_ext or not path.is_file():
+            if path.suffix.lower() not in self.SUPPORTED_EXTENSIONS or not path.is_file():
                 continue
             image = cv2.imread(str(path), cv2.IMREAD_GRAYSCALE)
             if image is None:
