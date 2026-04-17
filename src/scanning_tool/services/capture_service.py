@@ -3,6 +3,7 @@
 import re
 import time
 from threading import Thread
+from typing import Callable, Optional
 
 import mss
 from loguru import logger
@@ -11,15 +12,11 @@ from PIL import Image
 from scanning_tool.core.state_manager import (
     config,
     scan_state,
-    service_state,
-    overlay_state,
-    control_state,
-    save_config,
 )
 from scanning_tool.ocr import ocr_with_ollama
 from scanning_tool.deposits import extract_code_from_text, lookup_deposit
 from scanning_tool.services.alignment_service import alignment_service
-from scanning_tool.domain.models import AlignmentRequest, ScanResult
+from scanning_tool.domain.models import AlignmentRequest, CaptureRegion, ScanResult
 from scanning_tool.gui.overlays import (
     update_capture_overlay_region,
     update_overlay_label,
@@ -27,13 +24,49 @@ from scanning_tool.gui.overlays import (
 )
 
 
+CaptureStatusCallback = Callable[[str], None]
+
+
+class ScreenCaptureProvider:
+    """Capture a PIL image from a screen region."""
+
+    def capture(self, region: CaptureRegion) -> Image.Image:
+        with mss.mss() as sct:
+            img = sct.grab(region.to_mss_monitor())
+            return Image.frombytes("RGB", img.size, img.rgb)
+
+
+class ScanResultFactory:
+    """Create a ScanResult from OCR output and deposit lookup."""
+
+    def build_from_image(self, pil_img: Image.Image, region: CaptureRegion) -> ScanResult:
+        raw_text = ocr_with_ollama(pil_img)
+        extraction = extract_code_from_text(raw_text)
+        deposit_info = lookup_deposit(extraction.code)
+
+        result = ScanResult(
+            label=extraction.code if extraction.code else "UNKNOWN",
+            region=region,
+            info=deposit_info,
+            code_raw=extraction.raw,
+            raw_text=raw_text,
+        )
+
+        update_overlay_label(
+            deposit_info, code=extraction.code, raw_text=extraction.raw or raw_text
+        )
+        return result
+
+
 class CaptureService:
     """Service for capturing screen regions and processing OCR results."""
 
-    def __init__(self):
-        self._status_callback = None
+    def __init__(self) -> None:
+        self._status_callback: Optional[CaptureStatusCallback] = None
+        self._screen_capture_provider = ScreenCaptureProvider()
+        self._scan_result_factory = ScanResultFactory()
 
-    def capture_once(self, status_callback=None) -> None:
+    def capture_once(self, status_callback: Optional[CaptureStatusCallback] = None) -> None:
         """Capture one scan from the capture region and update overlay."""
         self._status_callback = status_callback
         self._do_capture()
@@ -62,26 +95,12 @@ class CaptureService:
             )
 
     def _capture_screen_region(self) -> Image.Image:
-        cap_region = config.capture_region
-        with mss.mss() as sct:
-            img = sct.grab(cap_region.to_mss_monitor())
-            return Image.frombytes("RGB", img.size, img.rgb)
+        return self._screen_capture_provider.capture(config.capture_region)
 
     def _run_ocr_pipeline(self, pil_img: Image.Image) -> ScanResult:
-        raw_text = ocr_with_ollama(pil_img)
-        extraction = extract_code_from_text(raw_text)
-        deposit_info = lookup_deposit(extraction.code)
-        result = ScanResult(
-            label=extraction.code if extraction.code else "UNKNOWN",
-            region=config.capture_region,
-            info=deposit_info,
-            code_raw=extraction.raw,
-            raw_text=raw_text,
+        return self._scan_result_factory.build_from_image(
+            pil_img, config.capture_region
         )
-        update_overlay_label(
-            deposit_info, code=extraction.code, raw_text=extraction.raw or raw_text
-        )
-        return result
 
     def _log_scan_result(self, result: ScanResult) -> None:
         logger.info(
