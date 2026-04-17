@@ -140,7 +140,17 @@ class OllamaSection:
         logger.info(message)
 
     def _open_mobile_overlay(self) -> None:
-        url = f"http://{get_local_ip()}:5000"
+        web_config = config.web_server_config
+        host = web_config.host
+        port = web_config.port
+
+        display_host = "127.0.0.1"
+        if host == "0.0.0.0":
+            display_host = get_local_ip()
+        elif host:
+            display_host = host
+
+        url = f"http://{display_host}:{port}"
         try:
             webbrowser.open_new_tab(url)
         except Exception as exc:

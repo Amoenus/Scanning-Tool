@@ -44,14 +44,19 @@ def _start_hotkey_listener() -> None:
 
 def _start_web_server() -> None:
     """Launch the Flask overlay server on a background thread."""
-    local_ip = get_local_ip()
-    logger.info(
-        "Starting overlay server: http://127.0.0.1:5000 (this device) | "
-        f"http://{local_ip}:5000 (local network)"
-    )
+    web_config = config.web_server_config
+    host = web_config.host
+    port = web_config.port
+
+    msg = f"Starting overlay server: http://127.0.0.1:{port}"
+    if host == "0.0.0.0":
+        local_ip = get_local_ip()
+        msg += f" (this device) | http://{local_ip}:{port} (local network)"
+    logger.info(msg)
+
     flask_app = create_app()
     Thread(
-        target=lambda: flask_app.run(host="0.0.0.0", port=5000, debug=False),
+        target=lambda: flask_app.run(host=host, port=port, debug=False),
         daemon=True,
     ).start()
 
