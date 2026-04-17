@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Literal, TypedDict
+from typing import Literal, TypedDict, TypeAlias
 
 OreTier = Literal["HIGHEST", "HIGH", "MEDIUM", "LOW", "OTHER"]
 
@@ -45,4 +45,4 @@ class OreTableEntry:
 
 
 DepositTable = list[OreTableEntry]
-RegionDepositTables = dict[str, dict[str, DepositTable]]
+RegionDepositTables: TypeAlias = dict[str, dict[str, DepositTable]]

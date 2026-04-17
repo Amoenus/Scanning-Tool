@@ -9,6 +9,10 @@ from scanning_tool.domain.common import RegionDepositTables
 from scanning_tool.domain.ore import RockData, RockDataCollection
 
 
+def _default_region_deposit_tables() -> RegionDepositTables:
+    return {}
+
+
 @dataclass
 class OllamaClientState:
     client: Optional[ollama.Client] = None
@@ -32,7 +36,7 @@ class CodePatterns:
 @dataclass
 class RockDataCache:
     rock_data: RockData = field(default_factory=RockDataCollection)
-    deposit_tables: RegionDepositTables = field(default_factory=dict)
+    deposit_tables: RegionDepositTables = field(default_factory=_default_region_deposit_tables)
 
 
 @dataclass
