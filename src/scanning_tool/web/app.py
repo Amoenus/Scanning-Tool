@@ -15,6 +15,7 @@ from scanning_tool.domain.models import (
     ScanResult,
     StatusResponse,
 )
+from scanning_tool.logging_setup import configure_flask_logging
 from scanning_tool.state.scan_state import ScanState
 from scanning_tool.state.service_state import ServiceState
 
@@ -83,6 +84,7 @@ class WebService:
     def create_app(self) -> Flask:
         """Create and configure the Flask application."""
         app = Flask(__name__, template_folder=self.template_folder)
+        configure_flask_logging(app)
 
         @app.route("/")
         def index() -> str:

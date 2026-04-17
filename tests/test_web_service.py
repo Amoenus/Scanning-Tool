@@ -1,6 +1,9 @@
+import logging
+
 from scanning_tool.config import resource_path
 from scanning_tool.config.service import ConfigData
 from scanning_tool.domain.models import AlignmentInfo, DepositInfo, ScanResult
+from scanning_tool.logging_setup import InterceptHandler
 from scanning_tool.state.scan_state import ScanState
 from scanning_tool.state.service_state import ServiceState
 from scanning_tool.web.app import WebService
@@ -34,3 +37,24 @@ def test_web_service_status_exposes_latest_scan_result():
     assert response.json["info"]["name"] == "Ore 123"
     assert response.json["code_raw"] == "ORE123"
     assert response.json["selected_region"] == "STANTON"
+
+
+def test_flask_app_routes_logs_through_loguru_intercept_handler():
+    config = ConfigData()
+    scan_state = ScanState()
+    service_state = ServiceState()
+    web_service = WebService(
+        config=config,
+        scan_state=scan_state,
+        service_state=service_state,
+        template_folder=resource_path("templates"),
+    )
+
+    app = web_service.create_app()
+
+    assert any(isinstance(handler, InterceptHandler) for handler in app.logger.handlers)
+    assert app.logger.propagate is False
+    assert any(
+        isinstance(handler, InterceptHandler)
+        for handler in logging.getLogger("werkzeug").handlers
+    )
