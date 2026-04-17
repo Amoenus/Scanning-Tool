@@ -29,7 +29,7 @@ def _lookup_deposit_table(info: Optional[DepositInfo], selected_region: str) -> 
     if not info:
         return None
     deposit_key = (info.key or info.name or "").upper()
-    region_tables = service_state.deposit_tables.get(selected_region, {})
+    region_tables = service_state.rocks.deposit_tables.get(selected_region, {})
     table = region_tables.get(deposit_key)
     category = str(info.category or "").lower()
     if not table or category not in {"rock deposits", "gems"}:

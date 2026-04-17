@@ -70,18 +70,3 @@ class ServiceState:
     def host_scheme_re(self) -> Pattern[str]:
         return self.patterns.host_scheme_re
 
-    @property
-    def rock_data(self) -> RockData:
-        return self.rocks.rock_data
-
-    @rock_data.setter
-    def rock_data(self, value: RockData) -> None:
-        self.rocks.rock_data = value
-
-    @property
-    def deposit_tables(self) -> RegionDepositTables:
-        return self.rocks.deposit_tables
-
-    @deposit_tables.setter
-    def deposit_tables(self, value: RegionDepositTables) -> None:
-        self.rocks.deposit_tables = value
