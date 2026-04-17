@@ -4,6 +4,7 @@ This folder contains architecture guidance and decision records for the Scanning
 
 ## Contents
 - `decision-log/index.md` — documented architectural decisions and rationale.
+- `decision-log/` — a folder of individual dated decision records.
 - `coding-standards.md` — repository coding conventions for naming, types, small methods, and SOLID principles.
 
 ## Purpose
