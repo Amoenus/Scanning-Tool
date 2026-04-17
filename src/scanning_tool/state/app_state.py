@@ -3,7 +3,7 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
-from scanning_tool.services.config_service import ConfigData, ConfigService
+from scanning_tool.config.service import ConfigData, ConfigService
 from scanning_tool.state.scan_state import ScanState
 from scanning_tool.state.service_state import ServiceState
 from scanning_tool.gui.control_state import ControlState

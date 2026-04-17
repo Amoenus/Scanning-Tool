@@ -8,7 +8,7 @@ from scanning_tool.domain.dtos import ScanSignatureCSVRowData
 
 if TYPE_CHECKING:
     import pandas as pd
-    from scanning_tool.services.config_service import ConfigData
+    from scanning_tool.config.service import ConfigData
 
 # --- Raw JSON DTOs for RockType.json ---
 

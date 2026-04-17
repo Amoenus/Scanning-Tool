@@ -96,7 +96,7 @@ Example:
 ## 6. State management
 
 - Treat configuration as static after loading.
-- Avoid broad module-level mutable state except for compatibility shims.
+- Avoid broad module-level mutable state and compatibility shims except as a short-lived migration bridge in this single-user application.
 - Prefer explicit application context or service object state passed through constructors.
 - Keep runtime state local to the pipeline, GUI, or service that owns it.
 - Use `frozen=True` dataclasses for immutable value objects and config if possible.

@@ -6,7 +6,7 @@ from loguru import logger
 
 from scanning_tool.deposits import load_rock_data
 from scanning_tool.gui.app import launch_gui
-from scanning_tool.hotkeys import hotkey_listener
+from scanning_tool.services.hotkeys_service import hotkey_listener
 from scanning_tool.logging_setup import setup_logging
 from scanning_tool.ollama import (
     ensure_model_installed,

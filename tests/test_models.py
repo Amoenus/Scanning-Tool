@@ -10,7 +10,7 @@ from scanning_tool.domain.models import (
     RockDataCollection,
     OreStatistics,
 )
-from scanning_tool.services.config_service import ConfigData
+from scanning_tool.config.service import ConfigData
 
 
 def test_ore_statistics_from_dict():

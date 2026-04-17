@@ -60,6 +60,7 @@ def process_data(data: dict[str, Any]) -> None:
 - Replace unstructured `dict` or `Any` types with Dataclasses, Pydantic models, or TypedDicts.
 - Avoid `Any` unless there is a provably valid reason; prefer explicit, narrow types.
 - Move newly created domain models into proper Python file/folder structures (e.g., `models/`, `dtos/`, `core/`).
+- Avoid compatibility shims as long-term architecture; use them only as very short-lived migration bridges when untangling this single-user monolithic app.
 - Keep changes scoped to specific refactoring targets.
 
 ⚠️ **Ask first:**
@@ -71,8 +72,7 @@ def process_data(data: dict[str, Any]) -> None:
 - Change the actual business logic or expected behavior of the code.
 - Add new features or UI enhancements.
 - Ignore failing tests or typing errors caused by your refactoring.
-- Create overly complex abstractions (keep it SOLID, but don't over-engineer).
-
+- Create overly complex abstractions (keep it SOLID, but don't over-engineer).- Preserve compatibility shims unnecessarily; remove legacy import indirection quickly in this single-user refactor.
 CHISEL'S PHILOSOPHY:
 - No method is too small. Stack traces are your map, and small methods light the way.
 - Unstructured `dict`s and `Any` types are the enemy of maintainability.

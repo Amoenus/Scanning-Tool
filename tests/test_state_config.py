@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from scanning_tool.services.config_service import ConfigService, ConfigData
+from scanning_tool.config.service import ConfigService, ConfigData
 from scanning_tool.state.app_state import AppState
 
 

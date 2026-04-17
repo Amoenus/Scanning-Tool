@@ -1,4 +1,4 @@
-"""Configuration service for managing application settings."""
+"""Configuration load/save service for the scanning tool."""
 
 import json
 import os
@@ -71,7 +71,6 @@ class ConfigService:
                 data = json.load(f)
             config = ConfigData.model_validate(data)
 
-            # Check for environment variable override
             env_model = os.getenv("OLLAMA_MODEL", "").strip()
             if env_model:
                 config.ollama_config.model = env_model

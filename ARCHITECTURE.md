@@ -47,7 +47,7 @@
 - Updated `src/scanning_tool/services/config_service.py` to import config DTOs from `scanning_tool.config.models`.
 - Consolidated runtime service state into `src/scanning_tool/state/service_state.py`.
 - Added `src/scanning_tool/state/__init__.py` to expose state model exports.
-- Added `src/scanning_tool/runtime/__init__.py` as a compatibility shim for existing import paths.
+- Added `src/scanning_tool/runtime/__init__.py` temporarily to preserve existing import paths during migration; do not retain legacy shims as a long-term architecture.
 - Removed config model definitions from `src/scanning_tool/domain/models.py`.
 
 ## Why this helps
@@ -62,7 +62,7 @@
 - Load configuration once at startup and treat it as mostly static.
 - Build a capture pipeline object with injected dependencies and explicit runtime state.
 - Keep capture, alignment, and overlay behavior local to the owning service or pipeline.
-- Reserve global state only for compatibility shims and bootstrap wiring.
+- Reserve global state only for bootstrap wiring; use compatibility shims only as temporary migration helpers, not as long-term structure.
 
 ## Next steps
 - Consider splitting `domain/models.py` further into smaller domain modules (`ore.py`, `scan_signature.py`, `capture.py`, `overlay.py`).

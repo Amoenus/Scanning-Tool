@@ -13,7 +13,7 @@ from scanning_tool.core.state_manager import (
     config,
     scan_state,
 )
-from scanning_tool.ocr import ocr_with_ollama
+from scanning_tool.services.ocr_service import ocr_with_ollama
 from scanning_tool.deposits import extract_code_from_text, lookup_deposit
 from scanning_tool.services.alignment_service import alignment_service
 from scanning_tool.domain.models import AlignmentRequest, CaptureRegion, ScanResult

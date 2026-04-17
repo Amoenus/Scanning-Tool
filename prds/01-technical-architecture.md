@@ -20,7 +20,7 @@ The application is organized into distinct layers:
 - **Single responsibility**: each package owns a focused concern.
 - **Strong typing**: domain models and config models use explicit dataclasses and Pydantic when needed.
 - **Minimal runtime coupling**: avoid broad global mutable state; prefer explicit application context and constructor injection for the capture pipeline.
-- **Backward-compatible refactoring**: `runtime/__init__.py` is retained as a compatibility shim while new import paths are stabilized.
+- **Backward-compatible refactoring**: `runtime/__init__.py` is retained temporarily as a compatibility shim while new import paths are stabilized; avoid shims as enduring architecture in this single-user refactor.
 
 ## Operation model
 The scanner is best understood as two modes:
