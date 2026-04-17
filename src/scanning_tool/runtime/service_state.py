@@ -5,7 +5,7 @@ import subprocess
 
 import ollama
 
-from scanning_tool.domain.models import RegionDepositTables, RockData
+from scanning_tool.domain.models import RegionDepositTables, RockData, RockDataCollection
 
 
 @dataclass
@@ -26,7 +26,7 @@ class CodePatterns:
 
 @dataclass
 class RockDataCache:
-    rock_data: RockData = field(default_factory=dict)
+    rock_data: RockData = field(default_factory=RockDataCollection)
     deposit_tables: RegionDepositTables = field(default_factory=dict)
 
 
