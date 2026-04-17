@@ -9,7 +9,7 @@ from loguru import logger
 import pandas as pd  # type: ignore[import]
 
 from scanning_tool.domain.dtos import ScanSignatureCSVRowData
-from scanning_tool.domain.models import (
+from scanning_tool.domain.scan_signature import (
     ScanSignature,
     ScanSignatureCSVRow,
     SignatureRegistry,
