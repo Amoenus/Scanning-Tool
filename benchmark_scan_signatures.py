@@ -42,6 +42,7 @@ if __name__ == "__main__":
     t_iterrows = timeit.timeit("load_with_iterrows()", globals=globals(), number=n)
     t_itertuples = timeit.timeit("load_with_itertuples()", globals=globals(), number=n)
 
+
     print(f"iterrows: {t_iterrows:.6f} s")
     print(f"itertuples: {t_itertuples:.6f} s")
     print(f"Improvement: {t_iterrows / t_itertuples:.2f}x")
