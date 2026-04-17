@@ -79,27 +79,24 @@ class WebService:
             table=table,
         )
 
+    def _index(self) -> str:
+        return render_template("overlay.html")
+
+    def _status(self) -> Response:
+        """Return the latest scan information for the overlay UI."""
+        selected_region = request.args.get("region", "STANTON").upper()
+        result = self.scan_state.last_result
+        info = result.info if result else None
+        table = self._lookup_deposit_table(info, selected_region)
+        response = self._build_status_response(result, info, selected_region, table)
+        return jsonify(response.to_dict())
+
     def create_app(self) -> Flask:
         """Create and configure the Flask application."""
         app = Flask(__name__, template_folder=self.template_folder)
         configure_flask_logging(app)
-
-        @app.route("/")
-        def index() -> str:
-            return render_template("overlay.html")
-
-        @app.route("/status")
-        def status() -> Response:
-            """Return the latest scan information for the overlay UI."""
-            selected_region = request.args.get("region", "STANTON").upper()
-            result = self.scan_state.last_result
-            info = result.info if result else None
-            table = self._lookup_deposit_table(info, selected_region)
-            response = self._build_status_response(
-                result, info, selected_region, table
-            )
-            return jsonify(response.to_dict())
-
+        app.add_url_rule("/", endpoint="index", view_func=self._index)
+        app.add_url_rule("/status", endpoint="status", view_func=self._status)
         return app
 
 
