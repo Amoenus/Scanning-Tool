@@ -25,15 +25,17 @@ scanning-tool = "scanning_tool.main:main"
 
 [project.optional-dependencies]
 tests = ["pytest"]
-dev = ["pytest", "mypy", "pandas-stubs", "types-keyboard"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/scanning_tool"]
 
-[tool.uv]
-dependencies = []
-dev-dependencies = ["pytest", "mypy", "pandas-stubs", "types-keyboard"]
-tools = ["pytest"]
-
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.3",
+    "mypy>=1.20.1",
+    "pandas-stubs",
+    "types-keyboard",
+]
