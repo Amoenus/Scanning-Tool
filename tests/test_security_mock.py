@@ -3,13 +3,12 @@ from unittest.mock import patch, MagicMock
 import sys
 import os
 
-# Add src to sys.path
-sys.path.append(os.path.abspath("src"))
+# Add src to sys.path so local source packages are importable.
+sys.path.insert(0, os.path.abspath("src"))
 
-# Mock all dependencies that are missing in the environment
+# Mock only external dependencies that may not be installed in the test environment.
 modules_to_mock = [
     "loguru",
-    "numpy",
     "cv2",
     "mss",
     "PIL",
@@ -22,15 +21,6 @@ modules_to_mock = [
     "tkinter",
     "tkinter.ttk",
     "webbrowser",
-    "scanning_tool.deposits",
-    "scanning_tool.gui.app",
-    "scanning_tool.hotkeys",
-    "scanning_tool.logging_setup",
-    "scanning_tool.ollama",
-    "scanning_tool.services.alignment_service",
-    "scanning_tool.services.ollama_service",
-    "scanning_tool.core.anchor",
-    "scanning_tool.web"
 ]
 
 for module_name in modules_to_mock:
