@@ -8,15 +8,14 @@ from typing import Optional
 from loguru import logger
 from pydantic import BaseModel, Field, ValidationError
 
-from scanning_tool.domain.models import (
+from scanning_tool.config.models import (
     AutoAlignmentConfig,
-    CaptureRegion,
     ContinuousCaptureConfig,
     OllamaConfig,
-    Offset2D,
     OverlayConfig,
     WebServerConfig,
 )
+from scanning_tool.domain.models import CaptureRegion, Offset2D
 
 
 class ConfigData(BaseModel):

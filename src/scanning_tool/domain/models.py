@@ -406,48 +406,7 @@ class CaptureRegion:
         return (self.left, self.top, self.width, self.height)
 
 
-@dataclass
-class OverlayConfig:
-    """Represents overlay display configuration."""
-
-    info_offset: Offset2D
-    label_color: str
-    show_debug: bool
-
-
 OLLAMA_DEFAULT_HOST = "http://127.0.0.1:11434"
-
-
-@dataclass
-class OllamaConfig:
-    """Represents Ollama AI service configuration."""
-
-    model: str
-    host: Optional[str]
-
-
-@dataclass
-class AutoAlignmentConfig:
-    """Represents auto-alignment configuration."""
-
-    enabled: bool
-    poll_interval_ms: int
-    anchor_region: CaptureRegion
-
-
-@dataclass
-class ContinuousCaptureConfig:
-    """Represents continuous capture configuration."""
-
-    interval: float
-
-
-@dataclass
-class WebServerConfig:
-    """Represents the Flask web server configuration."""
-
-    host: str = "0.0.0.0"
-    port: int = 5000
 
 
 # --- Additional Domain Models / DTOs ---

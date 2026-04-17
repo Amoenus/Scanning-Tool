@@ -58,4 +58,8 @@
 - File issues or feature requests on [GitHub Issues](https://github.com/FrozenButton/Scanning-Tool/issues).
 - PRs are welcome—please include a short description of your change and testing steps.
 
+## Documentation
+- See `prds/` for Product Requirements Documents.
+- See `architecture/` for architecture guidance and decision records.
+
 Happy mining! 🪨⛏️
