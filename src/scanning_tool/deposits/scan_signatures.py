@@ -22,14 +22,14 @@ def _load_scan_signatures() -> Dict[int, ScanSignature]:
         return {}
 
     signatures: Dict[int, ScanSignature] = {}
-    for _, row in df.iterrows():
+    for row in df.itertuples(index=False):
         try:
-            base_value = int(row["base_value"])
+            base_value = int(row.base_value)
             signatures[base_value] = ScanSignature(
-                name=row["mineral"],
-                category=row["category"],
+                name=row.mineral,
+                category=row.category,
                 base_value=base_value,
-                max_multiplier=int(row["max_multiplier"]),
+                max_multiplier=int(row.max_multiplier),
             )
         except Exception as e:
             logger.warning(f"Bad scan signature row: {row} ({e})")
