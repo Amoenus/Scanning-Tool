@@ -30,5 +30,10 @@ dev = ["pytest", "mypy"]
 [tool.hatch.build.targets.wheel]
 packages = ["src/scanning_tool"]
 
+[tool.uv]
+dependencies = []
+dev-dependencies = ["pytest", "mypy"]
+tools = ["pytest"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
