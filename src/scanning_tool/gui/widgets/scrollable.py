@@ -5,7 +5,7 @@ from typing import Optional
 import tkinter as tk
 from tkinter import ttk
 
-from scanning_tool.gui.theme import GlassPalette
+from scanning_tool.domain.models import GlassPalette
 
 
 class ScrollableFrame:
@@ -20,7 +20,7 @@ class ScrollableFrame:
 
         self.canvas = tk.Canvas(
             self.container,
-            background=colors["background"],
+            background=colors.background,
             highlightthickness=0,
             borderwidth=0,
         )

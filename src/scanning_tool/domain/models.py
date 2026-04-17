@@ -16,6 +16,14 @@ class OreInfo(TypedDict):
     medPct: float
 
 
+class MssMonitor(TypedDict):
+    """Monitor dict compatible with the mss library."""
+    left: int
+    top: int
+    width: int
+    height: int
+
+
 class RockDeposit(TypedDict, total=False):
     """A single deposit entry inside a region in RockType.json."""
     users: int
@@ -118,14 +126,14 @@ class CaptureRegion:
     width: int
     height: int
 
-    def to_mss_monitor(self) -> Dict[str, int]:
+    def to_mss_monitor(self) -> 'MssMonitor':
         """Return an mss-compatible monitor dict for this region."""
-        return {
-            "left": int(self.left),
-            "top": int(self.top),
-            "width": int(self.width),
-            "height": int(self.height),
-        }
+        return MssMonitor(
+            left=int(self.left),
+            top=int(self.top),
+            width=int(self.width),
+            height=int(self.height),
+        )
 
 
 @dataclass
@@ -244,6 +252,23 @@ class InfoOverlayLayout:
     top: int
 
 
+@dataclass(frozen=True)
+class GlassPalette:
+    """Theme color palette — frozen to prevent accidental mutation."""
+    background: str
+    panel: str
+    accent: str
+    text: str
+    muted: str
+    button: str
+    button_hover: str
+    border: str
+    glow: str
+    knob: str
+    knob_active: str
+    knob_outline: str
+
+
 @dataclass
 class CodeExtraction:
     """Output of parsing a deposit code from OCR text."""
@@ -256,12 +281,16 @@ class StatusResponse:
     """Payload returned by the /status web endpoint."""
     region: CaptureRegion
     label_color: str
-    last: Optional[dict]
-    alignment: dict
+    last: Optional['ScanResult']
+    alignment: 'AlignmentInfo'
     selected_region: str
-    info: Optional[dict]
+    info: Optional[DepositInfo]
     code: Optional[str]
     code_raw: Optional[str]
     confidence: Optional[float]
     raw_text: Optional[str]
     table: Optional[DepositTable]
+
+    def to_dict(self) -> dict:
+        from dataclasses import asdict
+        return asdict(self)

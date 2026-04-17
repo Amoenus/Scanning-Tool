@@ -62,7 +62,7 @@ def ocr_with_ollama(pil_img: Image.Image, model: Optional[str] = None) -> str:
                 "images": [img_bytes],
             }],
         )
-        return response["message"]["content"].strip()
+        return response.message.content.strip()
     except Exception as e:
         logger.error(f"Ollama OCR error: {e}")
         return ""

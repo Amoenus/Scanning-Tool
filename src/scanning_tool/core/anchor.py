@@ -9,7 +9,7 @@ import mss
 import numpy as np
 
 from scanning_tool.config import ensure_anchor_directory
-from scanning_tool.domain.models import AnchorDetection
+from scanning_tool.domain.models import AnchorDetection, MssMonitor
 
 
 
@@ -88,7 +88,7 @@ class AnchorRegionTracker:
 
         return self._build_detection(monitor, best_loc, best_template, best_score)
 
-    def _grab_anchor_screenshot(self, monitor: dict) -> Optional[np.ndarray]:
+    def _grab_anchor_screenshot(self, monitor: MssMonitor) -> Optional[np.ndarray]:
         with mss.mss() as sct:
             try:
                 screenshot = sct.grab(monitor)
@@ -122,7 +122,7 @@ class AnchorRegionTracker:
 
     def _build_detection(
         self,
-        monitor: dict,
+        monitor: MssMonitor,
         best_loc: Tuple[int, int],
         best_template: Tuple[str, np.ndarray],
         best_score: float,

@@ -6,7 +6,7 @@ import tkinter as tk
 from tkinter import ttk
 
 from .controls import create_section_row
-from scanning_tool.gui.theme import GlassPalette
+from scanning_tool.domain.models import GlassPalette
 
 
 def create_labeled_spinbox(

@@ -68,7 +68,6 @@ def show_overlay(screen_width: Optional[int] = None, screen_height: Optional[int
     show_capture_overlay()
 
     if screen_width is None or screen_height is None:
-        overlay_state = overlay_state
         if overlay_state.capture_overlay_root and safe_tk(overlay_state.capture_overlay_root.winfo_exists, False):
             screen_width = safe_tk(overlay_state.capture_overlay_root.winfo_screenwidth, 1920) or 1920
             screen_height = safe_tk(overlay_state.capture_overlay_root.winfo_screenheight, 1080) or 1080

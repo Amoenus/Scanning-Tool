@@ -1,10 +1,8 @@
 """Main entry point - startup orchestration."""
 
+from threading import Thread
+
 from loguru import logger
-from threading import Thread
-
-from threading import Thread
-
 
 from scanning_tool.deposits import load_rock_data
 from scanning_tool.gui.app import launch_gui
@@ -17,43 +15,55 @@ from scanning_tool.ollama import (
 )
 from scanning_tool.services.alignment_service import alignment_service
 from scanning_tool.services.ollama_service import ollama_service
-from scanning_tool.core.state_manager import config, scan_state, service_state, overlay_state, control_state, save_config
+from scanning_tool.core.state_manager import config, scan_state
 from scanning_tool.core.anchor import AnchorRegionTracker
 from scanning_tool.web import create_app, get_local_ip
 
 
-def main() -> None:
-    """Launch the scanning tool."""
-    setup_logging()
-
-    # config loaded implicitly via state_manager
-    load_rock_data()
-
+def _initialize_services() -> None:
+    """Start core services and ensure the Ollama model is available."""
     ensure_ollama_installed()
     ollama_service.start()
     alignment_service.start()
     ensure_model_installed()
     log_model_running_status()
 
+
+def _initialize_anchor_tracking() -> None:
+    """Create and register the anchor region tracker."""
     scan_state.anchor_tracker = AnchorRegionTracker(
         config.anchor_template_dir,
         config.anchor_threshold,
     )
 
+
+def _start_hotkey_listener() -> None:
+    """Launch the global hotkey listener on a background thread."""
     Thread(target=hotkey_listener, daemon=True).start()
 
+
+def _start_web_server() -> None:
+    """Launch the Flask overlay server on a background thread."""
     local_ip = get_local_ip()
     logger.info(
         "Starting overlay server: http://127.0.0.1:5000 (this device) | "
         f"http://{local_ip}:5000 (local network)"
     )
-
     flask_app = create_app()
     Thread(
         target=lambda: flask_app.run(host="0.0.0.0", port=5000, debug=False),
         daemon=True,
     ).start()
 
+
+def main() -> None:
+    """Launch the scanning tool."""
+    setup_logging()
+    load_rock_data()
+    _initialize_services()
+    _initialize_anchor_tracking()
+    _start_hotkey_listener()
+    _start_web_server()
     try:
         launch_gui()
     finally:

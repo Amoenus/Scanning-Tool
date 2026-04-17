@@ -1,78 +1,74 @@
 """Glass theme styling for the Tkinter GUI."""
 
-from typing import Dict
-
 import tkinter as tk
 from tkinter import ttk
 
 from PIL import Image, ImageDraw, ImageTk
 
+from scanning_tool.domain.models import GlassPalette
 from .overlays.base import safe_tk
 
 
-GlassPalette = Dict[str, str]
-
-
-_PALETTE: GlassPalette = {
-    "background": "#02050f",
-    "panel": "#071425",
-    "accent": "#67d6ff",
-    "text": "#e3f6ff",
-    "muted": "#7893b5",
-    "button": "#10324c",
-    "button_hover": "#1c4d70",
-    "border": "#164b6f",
-    "glow": "#36a4ff",
-    "knob": "#134064",
-    "knob_active": "#1f6d9c",
-    "knob_outline": "#4fc3ff",
-}
+_PALETTE = GlassPalette(
+    background="#02050f",
+    panel="#071425",
+    accent="#67d6ff",
+    text="#e3f6ff",
+    muted="#7893b5",
+    button="#10324c",
+    button_hover="#1c4d70",
+    border="#164b6f",
+    glow="#36a4ff",
+    knob="#134064",
+    knob_active="#1f6d9c",
+    knob_outline="#4fc3ff",
+)
 
 
 def _configure_frame_styles(style: ttk.Style, colors: GlassPalette) -> None:
-    style.configure("Glass.Main.TFrame", background=colors["background"])
-    style.configure("Glass.Section.TFrame", background=colors["panel"])
+    style.configure("Glass.Main.TFrame", background=colors.background)
+    style.configure("Glass.Section.TFrame", background=colors.panel)
     style.configure(
         "Glass.TLabelframe",
-        background=colors["panel"],
-        foreground=colors["accent"],
+        background=colors.panel,
+        foreground=colors.accent,
         borderwidth=1,
         relief="solid",
         padding=16,
     )
     safe_tk(lambda: style.configure(
         "Glass.TLabelframe",
-        bordercolor=colors["border"],
-        lightcolor=colors["border"],
-        darkcolor=colors["background"],
+        bordercolor=colors.border,
+        lightcolor=colors.border,
+        darkcolor=colors.background,
     ))
     style.configure(
         "Glass.TLabelframe.Label",
-        background=colors["panel"],
-        foreground=colors["accent"],
+        background=colors.panel,
+        foreground=colors.accent,
         font=("Segoe UI", 11, "bold"),
     )
-    style.configure("Glass.TFrame", background=colors["panel"])
+    style.configure("Glass.TFrame", background=colors.panel)
 
 
 def _configure_label_styles(style: ttk.Style, colors: GlassPalette) -> None:
-    style.configure("Glass.TLabel", background=colors["panel"], foreground=colors["text"])
+    style.configure("Glass.TLabel", background=colors.panel, foreground=colors.text)
     style.configure(
         "Glass.Small.TLabel",
-        background=colors["panel"],
-        foreground=colors["muted"],
+        background=colors.panel,
+        foreground=colors.muted,
         font=("Segoe UI", 9),
     )
     style.configure(
         "Glass.Status.TLabel",
-        background=colors["background"],
-        foreground=colors["accent"],
+        background=colors.background,
+        foreground=colors.accent,
         font=("Segoe UI", 10, "bold"),
     )
     style.configure(
         "Glass.Subtle.TLabel",
-        background=colors["background"],
-        foreground=colors["muted"],
+        background=colors.background,
+        foreground=colors.muted,
         font=("Segoe UI", 9),
     )
 
@@ -80,36 +76,36 @@ def _configure_label_styles(style: ttk.Style, colors: GlassPalette) -> None:
 def _configure_button_styles(style: ttk.Style, colors: GlassPalette) -> None:
     style.configure(
         "Glass.TButton",
-        background=colors["button"],
-        foreground=colors["text"],
+        background=colors.button,
+        foreground=colors.text,
         borderwidth=0,
         focusthickness=3,
-        focuscolor=colors["glow"],
+        focuscolor=colors.glow,
         padding=(14, 6),
     )
     style.map(
         "Glass.TButton",
-        background=[("active", colors["button_hover"]), ("pressed", colors["button_hover"])],
-        foreground=[("disabled", colors["muted"])],
+        background=[("active", colors.button_hover), ("pressed", colors.button_hover)],
+        foreground=[("disabled", colors.muted)],
     )
 
 
 def _configure_checkbox_styles(style: ttk.Style, colors: GlassPalette) -> None:
     style.configure(
         "Glass.TCheckbutton",
-        background=colors["panel"],
-        foreground=colors["text"],
-        focuscolor=colors["glow"],
+        background=colors.panel,
+        foreground=colors.text,
+        focuscolor=colors.glow,
     )
     style.map(
         "Glass.TCheckbutton",
-        foreground=[("active", colors["accent"]), ("selected", colors["accent"])],
+        foreground=[("active", colors.accent), ("selected", colors.accent)],
     )
 
 
 def _configure_slider_styles(style: ttk.Style, root: tk.Tk, colors: GlassPalette) -> None:
-    slider_normal = _make_slider_image(colors["knob"], colors["knob_outline"])
-    slider_active = _make_slider_image(colors["knob_active"], colors["accent"])
+    slider_normal = _make_slider_image(colors.knob, colors.knob_outline)
+    slider_active = _make_slider_image(colors.knob_active, colors.accent)
     root._glass_slider_images = (slider_normal, slider_active)  # type: ignore[attr-defined]
 
     safe_tk(lambda: style.element_create(
@@ -134,19 +130,19 @@ def _configure_slider_styles(style: ttk.Style, root: tk.Tk, colors: GlassPalette
     )
     style.configure(
         "Glass.Horizontal.TScale",
-        background=colors["panel"],
-        troughcolor=colors["background"],
+        background=colors.panel,
+        troughcolor=colors.background,
     )
 
 
 def apply_glass_theme(root: tk.Tk) -> GlassPalette:
     """Apply a holographic glass-inspired theme to the Tkinter UI."""
-    colors = dict(_PALETTE)
+    colors = _PALETTE
 
-    root.configure(bg=colors["background"])
+    root.configure(bg=colors.background)
     root.option_add("*Font", "{Segoe UI} 10")
-    root.option_add("*Foreground", colors["text"])
-    root.option_add("*TCombobox*Listbox*Background", colors["panel"])
+    root.option_add("*Foreground", colors.text)
+    root.option_add("*TCombobox*Listbox*Background", colors.panel)
     style = ttk.Style(root)
     safe_tk(lambda: style.theme_use("clam"))
 
@@ -177,12 +173,12 @@ def _make_slider_image(fill: str, outline: str) -> ImageTk.PhotoImage:
 def style_spinbox(spinbox: tk.Spinbox, colors: GlassPalette) -> None:
     """Apply translucent styling to a Tkinter Spinbox widget."""
     if not safe_tk(lambda: spinbox.configure(
-        bg=colors["panel"],
-        fg=colors["text"],
-        insertbackground=colors["accent"],
-        disabledbackground=colors["background"],
+        bg=colors.panel,
+        fg=colors.text,
+        insertbackground=colors.accent,
+        disabledbackground=colors.background,
         highlightthickness=0,
         relief="flat",
-        buttonbackground=colors["button"],
+        buttonbackground=colors.button,
     )):
-        spinbox.configure(bg=colors["panel"], fg=colors["text"])
+        spinbox.configure(bg=colors.panel, fg=colors.text)

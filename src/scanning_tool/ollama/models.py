@@ -1,5 +1,4 @@
 from loguru import logger
-import sys
 from typing import List, Optional
 
 from .client import get_ollama_client
@@ -25,9 +24,9 @@ def ensure_model_installed(model: Optional[str] = None, exit_on_error: bool = Tr
     try:
         response = client.list()
         available_models = {
-            getattr(m, "model")
-            for m in getattr(response, "models", [])
-            if getattr(m, "model", None)
+            m.model
+            for m in response.models
+            if m.model
         }
     except Exception as e:
         logger.error(f"Unable to communicate with Ollama at {host}: {e}")
@@ -47,9 +46,8 @@ def ensure_model_installed(model: Optional[str] = None, exit_on_error: bool = Tr
     logger.info(f"Model {model} not found on Ollama host {host}. Pulling now...")
     try:
         progress = client.pull(model)
-        status = getattr(progress, "status", None)
-        if status:
-            logger.info(f"Ollama pull status: {status}")
+        if progress.status:
+            logger.info(f"Ollama pull status: {progress.status}")
         logger.info(f"Model {model} installed successfully on {host}.")
         return True
     except Exception as e:
@@ -65,9 +63,9 @@ def list_running_ollama_models() -> List[str]:
     try:
         response = client.ps()
         return [
-            getattr(m, "model")
-            for m in getattr(response, "models", [])
-            if getattr(m, "model", None)
+            m.model
+            for m in response.models
+            if m.model
         ]
     except Exception as e:
         logger.warning("Unable to query Ollama process list: %s", e)
