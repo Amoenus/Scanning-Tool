@@ -99,10 +99,12 @@ class ConfigService:
             logger.error(f"Failed to save configuration: {exc}")
 
     def get_config(self) -> ConfigData:
-        """Get the current configuration."""
+        """Get the current configuration.
+
+        The configuration must be loaded explicitly via `load()` before access.
+        """
         if self._config is None:
-            self.load()
-        assert self._config is not None
+            raise ValueError("Configuration has not been loaded")
         return self._config
 
     def get_capture_region(self) -> CaptureRegion:

@@ -59,12 +59,13 @@ _scan_signature_registry_loaded = False
 def bootstrap_scan_signature_registry(
     path: Path | str = SCAN_SIG_CSV,
 ) -> SignatureRegistry:
-    global SCAN_SIGNATURE_REGISTRY, _scan_signature_registry_loaded
+    global _scan_signature_registry_loaded
 
     if isinstance(path, str):
         path = Path(path)
 
-    SCAN_SIGNATURE_REGISTRY = load_scan_signatures(path)
+    loaded_registry = load_scan_signatures(path)
+    SCAN_SIGNATURE_REGISTRY._signatures = loaded_registry.get_all()
     _scan_signature_registry_loaded = True
     return SCAN_SIGNATURE_REGISTRY
 

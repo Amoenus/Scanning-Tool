@@ -1,6 +1,7 @@
 """Application state container for the scanning tool."""
 
 from dataclasses import dataclass, field
+from typing import Optional
 
 from scanning_tool.services.config_service import ConfigData, ConfigService
 from scanning_tool.state.scan_state import ScanState
@@ -14,14 +15,18 @@ class AppState:
     """Typed container for shared runtime state."""
 
     config_service: ConfigService = field(default_factory=ConfigService)
-    config: ConfigData = field(init=False)
+    config: Optional[ConfigData] = field(default=None, init=False)
     scan_state: ScanState = field(default_factory=ScanState)
     service_state: ServiceState = field(default_factory=ServiceState)
     overlay_state: OverlayState = field(default_factory=OverlayState)
     control_state: ControlState = field(default_factory=ControlState)
 
-    def __post_init__(self) -> None:
+    def load_config(self) -> ConfigData:
+        """Explicitly load configuration data from disk."""
         self.config = self.config_service.load()
+        return self.config
 
     def save_config(self) -> None:
+        if self.config is None:
+            raise ValueError("Configuration has not been loaded")
         self.config_service.save()

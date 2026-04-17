@@ -3,7 +3,7 @@
 from scanning_tool.state.app_state import AppState
 
 app_state = AppState()
-config = app_state.config
+config = app_state.load_config()
 scan_state = app_state.scan_state
 service_state = app_state.service_state
 overlay_state = app_state.overlay_state
