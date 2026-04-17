@@ -38,4 +38,5 @@ dev = [
     "mypy>=1.20.1",
     "pandas-stubs",
     "types-keyboard",
+    "ruff>=0.15.11",
 ]
