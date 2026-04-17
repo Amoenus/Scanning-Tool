@@ -1,9 +1,9 @@
 """Logger configuration for the scanning tool using loguru."""
 
-from loguru import logger
+from loguru import Logger, logger
 import sys
 
-def setup_logging() -> None:
+def setup_logging() -> Logger:
     """Configure loguru logger with console and file handlers."""
     logger.remove()
     logger.add(sys.stdout, level="INFO", format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>", colorize=True)

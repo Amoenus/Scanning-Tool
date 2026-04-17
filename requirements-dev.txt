@@ -1,2 +1,4 @@
 pytest
 mypy
+pandas-stubs
+types-keyboard

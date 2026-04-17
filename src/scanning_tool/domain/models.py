@@ -1,6 +1,7 @@
 """Domain models for the scanning tool configuration and state."""
 
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Dict, Literal, Optional, List, TypedDict, Union
 
 # --- Raw JSON DTOs for RockType.json ---
@@ -195,7 +196,7 @@ class SignatureRegistry:
         return self._signatures.copy()
 
     @classmethod
-    def load_from_csv(cls, path: str) -> 'SignatureRegistry':
+    def load_from_csv(cls, path: str | Path) -> 'SignatureRegistry':
         from pathlib import Path
         from scanning_tool.deposits.scan_signatures import _load_scan_signatures
 

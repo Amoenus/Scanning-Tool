@@ -4,7 +4,7 @@ from loguru import logger
 from pathlib import Path
 from typing import Dict
 
-import pandas as pd
+import pandas as pd  # type: ignore[import]
 
 from scanning_tool.domain.models import ScanSignature, SignatureRegistry
 
@@ -37,7 +37,4 @@ def _load_scan_signatures(path: Path) -> SignatureRegistry:
     return registry
 
 
-# Apply the class method
-SignatureRegistry.load_from_csv = classmethod(lambda cls, path: _load_scan_signatures(Path(path)))
-
-SCAN_SIGNATURE_REGISTRY: SignatureRegistry = _load_scan_signatures(SCAN_SIG_CSV)
+SCAN_SIGNATURE_REGISTRY: SignatureRegistry = SignatureRegistry.load_from_csv(SCAN_SIG_CSV)

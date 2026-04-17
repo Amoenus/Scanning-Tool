@@ -38,29 +38,31 @@ class ConfigData(BaseModel):
 class ConfigService:
     """Service for loading, saving, and managing configuration."""
 
-    def __init__(self, config_file: Path = None):
+    def __init__(self, config_file: Optional[Path] = None):
         self.config_file = config_file or Path(__file__).parent.parent.parent / "config.json"
-        self._config = None
+        self._config: Optional[ConfigData] = None
 
     def load(self) -> ConfigData:
         """Load configuration from file."""
         if not self.config_file.exists():
             logger.info("Configuration file not found, creating default.")
-            self._config = ConfigData()
+            config = ConfigData()
+            self._config = config
             self.save()
-            return self._config
+            return config
 
         try:
             with open(self.config_file, "r", encoding="utf-8") as f:
                 data = json.load(f)
-            self._config = ConfigData.model_validate(data)
+            config = ConfigData.model_validate(data)
 
             # Check for environment variable override
             env_model = os.getenv("OLLAMA_MODEL", "").strip()
             if env_model:
-                self._config.ollama_config.model = env_model
+                config.ollama_config.model = env_model
 
-            return self._config
+            self._config = config
+            return config
 
         except (json.JSONDecodeError, OSError, ValidationError) as exc:
             logger.warning(f"Failed to load configuration: {exc}, using defaults.")
@@ -85,6 +87,7 @@ class ConfigService:
         """Get the current configuration."""
         if self._config is None:
             self.load()
+        assert self._config is not None
         return self._config
 
     def get_capture_region(self) -> CaptureRegion:
