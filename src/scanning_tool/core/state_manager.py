@@ -1,20 +1,15 @@
 """Centralized registry for strongly typed state architectures."""
 
-from scanning_tool.services.config_service import ConfigService
-from scanning_tool.state.scan_state import ScanState
-from scanning_tool.state.service_state import ServiceState
-from scanning_tool.gui.overlay_state import OverlayState
-from scanning_tool.gui.control_state import ControlState
+from scanning_tool.state.app_state import AppState
 
-config_service = ConfigService()
-config = config_service.load()
-
-scan_state = ScanState()
-service_state = ServiceState()
-overlay_state = OverlayState()
-control_state = ControlState()
+app_state = AppState()
+config = app_state.config
+scan_state = app_state.scan_state
+service_state = app_state.service_state
+overlay_state = app_state.overlay_state
+control_state = app_state.control_state
 
 
 def save_config() -> None:
     """Helper to save the current configuration."""
-    config_service.save()
+    app_state.save_config()
