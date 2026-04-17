@@ -32,6 +32,7 @@ class ConfigData(BaseModel):
     alignment_poll_interval_ms: int = 500
     continuous_capture_interval: float = 2.0
     ollama_config: OllamaConfig = Field(default_factory=lambda: OllamaConfig("", None))
+    web_server_config: WebServerConfig = Field(default_factory=lambda: WebServerConfig("0.0.0.0", 5000))
 
 
 class ConfigService:
