@@ -2,6 +2,7 @@ import numpy as np
 import cv2
 
 from scanning_tool.core.anchor import AnchorRegionTracker
+from scanning_tool.domain.models import CaptureRegion
 
 
 def test_load_templates_reads_supported_images(tmp_path):
@@ -13,6 +14,18 @@ def test_load_templates_reads_supported_images(tmp_path):
 
     assert tracker.last_loaded_count == 1
     assert tracker.templates[0][0] == "template.png"
+
+
+def test_capture_region_to_mss_monitor_and_tuple_conversion():
+    region = CaptureRegion(left=10, top=20, width=100, height=50)
+
+    assert region.to_mss_monitor() == {
+        "left": 10,
+        "top": 20,
+        "width": 100,
+        "height": 50,
+    }
+    assert region.to_tuple() == (10, 20, 100, 50)
 
 
 def test_load_templates_returns_zero_for_empty_directory(tmp_path):

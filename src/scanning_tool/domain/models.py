@@ -255,7 +255,7 @@ class CaptureRegion:
     width: int
     height: int
 
-    def to_mss_monitor(self) -> 'MssMonitor':
+    def to_mss_monitor(self) -> MssMonitor:
         """Return an mss-compatible monitor dict for this region."""
         return MssMonitor(
             left=int(self.left),
@@ -263,6 +263,10 @@ class CaptureRegion:
             width=int(self.width),
             height=int(self.height),
         )
+
+    def to_tuple(self) -> tuple[int, int, int, int]:
+        """Return an mss-compatible tuple representation for this region."""
+        return (self.left, self.top, self.width, self.height)
 
 
 @dataclass

@@ -7,9 +7,10 @@ from typing import List, Optional, Tuple
 import cv2
 import mss
 import numpy as np
+from mss.models import Monitor
 
 from scanning_tool.config import ensure_anchor_directory
-from scanning_tool.domain.models import AnchorDetection, MssMonitor
+from scanning_tool.domain.models import AnchorDetection, CaptureRegion, MssMonitor
 
 
 
@@ -72,7 +73,8 @@ class AnchorRegionTracker:
         if not self.templates:
             return None
 
-        monitor = region.to_mss_monitor()
+        mss_monitor = region.to_mss_monitor()
+        monitor = self._to_library_monitor(mss_monitor)
         anchor_gray = self._grab_anchor_screenshot(monitor)
         if anchor_gray is None:
             return None
@@ -89,7 +91,7 @@ class AnchorRegionTracker:
 
         return self._build_detection(monitor, best_loc, best_template, best_score)
 
-    def _grab_anchor_screenshot(self, monitor: MssMonitor) -> Optional[np.ndarray]:
+    def _grab_anchor_screenshot(self, monitor: Monitor) -> Optional[np.ndarray]:
         with mss.mss() as sct:
             try:
                 screenshot = sct.grab(monitor)
@@ -101,6 +103,14 @@ class AnchorRegionTracker:
         if anchor_image.ndim == 3 and anchor_image.shape[2] == 4:
             return cv2.cvtColor(anchor_image, cv2.COLOR_BGRA2GRAY)
         return cv2.cvtColor(anchor_image, cv2.COLOR_BGR2GRAY)
+
+    def _to_library_monitor(self, monitor: MssMonitor) -> Monitor:
+        return {
+            "left": monitor["left"],
+            "top": monitor["top"],
+            "width": monitor["width"],
+            "height": monitor["height"],
+        }
 
     def _find_best_template_match(
         self, anchor_gray: np.ndarray
@@ -116,14 +126,14 @@ class AnchorRegionTracker:
             _, max_val, _, max_loc = cv2.minMaxLoc(res)
             if max_val > best_score:
                 best_score = float(max_val)
-                best_loc = max_loc
+                best_loc = (int(max_loc[0]), int(max_loc[1]))
                 best_template = (template_name, template_img)
 
         return best_score, best_loc, best_template
 
     def _build_detection(
         self,
-        monitor: MssMonitor,
+        monitor: Monitor,
         best_loc: Tuple[int, int],
         best_template: Tuple[str, np.ndarray],
         best_score: float,
