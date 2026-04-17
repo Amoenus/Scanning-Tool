@@ -3,8 +3,8 @@
 This package wraps the split Anchor implementation into a stable module boundary.
 """
 
-from .AnchorMatcher import AnchorMatcher
-from .AnchorRegionTracker import AnchorRegionTracker
-from .AnchorTemplateLoader import AnchorTemplateLoader
+from .anchor_matcher import AnchorMatcher
+from .anchor_region_tracker import AnchorRegionTracker
+from .anchor_template_loader import AnchorTemplateLoader
 
 __all__ = ["AnchorMatcher", "AnchorRegionTracker", "AnchorTemplateLoader"]
