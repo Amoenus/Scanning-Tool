@@ -11,7 +11,6 @@ from scanning_tool.gui.sections import (
     HeadSwaySection,
     OllamaSection,
     ResultDisplaySection,
-    Section,
     SectionContext,
 )
 from scanning_tool.gui.status import StatusBar
