@@ -10,7 +10,7 @@ from pydantic import BaseModel, Field, ValidationError
 
 from scanning_tool.domain.models import (
     AutoAlignmentConfig, CaptureRegion, ContinuousCaptureConfig,
-    OllamaConfig, Offset2D, OverlayConfig, ScanConfig
+    OllamaConfig, Offset2D, OverlayConfig
 )
 
 
@@ -32,7 +32,6 @@ class ConfigData(BaseModel):
     alignment_poll_interval_ms: int = 500
     continuous_capture_interval: float = 2.0
     ollama_config: OllamaConfig = Field(default_factory=lambda: OllamaConfig("", None))
-    scan_config: ScanConfig = Field(default_factory=lambda: ScanConfig(0.65))
 
 
 class ConfigService:
@@ -103,6 +102,3 @@ class ConfigService:
         """Get the overlay configuration."""
         return self.get_config().overlay_config
     
-    def get_scan_config(self) -> ScanConfig:
-        """Get the scan configuration."""
-        return self.get_config().scan_config

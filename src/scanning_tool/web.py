@@ -52,7 +52,6 @@ def _build_status_response(
         info=info,
         code=result.label if result else None,
         code_raw=result.code_raw if result else None,
-        confidence=float(result.confidence) if result and result.confidence is not None else None,
         raw_text=result.raw_text if result else None,
         table=table,
     )
