@@ -42,7 +42,10 @@ class AnchorTemplateLoader:
     def _load_image_files(self, directory: Path) -> List[Tuple[str, np.ndarray]]:
         loaded: List[Tuple[str, np.ndarray]] = []
         for path in sorted(directory.glob("**/*")):
-            if path.suffix.lower() not in self.SUPPORTED_EXTENSIONS or not path.is_file():
+            if (
+                path.suffix.lower() not in self.SUPPORTED_EXTENSIONS
+                or not path.is_file()
+            ):
                 continue
             image = cv2.imread(str(path), cv2.IMREAD_GRAYSCALE)
             if image is None:
@@ -57,4 +60,6 @@ class AnchorTemplateLoader:
                 "No anchor templates were loaded. Head sway compensation will remain disabled until templates are added."
             )
         else:
-            logger.info(f"Loaded {self.last_loaded_count} anchor templates from {directory}")
+            logger.info(
+                f"Loaded {self.last_loaded_count} anchor templates from {directory}"
+            )

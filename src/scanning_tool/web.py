@@ -6,10 +6,21 @@ from typing import Optional
 
 from flask import Flask, jsonify, render_template, request
 
-from scanning_tool.core.state_manager import config, scan_state, service_state, overlay_state, control_state, save_config
+from scanning_tool.core.state_manager import (
+    config,
+    scan_state,
+    service_state,
+    overlay_state,
+    control_state,
+    save_config,
+)
 from scanning_tool.config import resource_path
-from scanning_tool.domain.models import DepositInfo, DepositTable, ScanResult, StatusResponse
-
+from scanning_tool.domain.models import (
+    DepositInfo,
+    DepositTable,
+    ScanResult,
+    StatusResponse,
+)
 
 
 def get_local_ip() -> str:
@@ -25,7 +36,9 @@ def get_local_ip() -> str:
     return "127.0.0.1"
 
 
-def _lookup_deposit_table(info: Optional[DepositInfo], selected_region: str) -> Optional[DepositTable]:
+def _lookup_deposit_table(
+    info: Optional[DepositInfo], selected_region: str
+) -> Optional[DepositTable]:
     if not info:
         return None
     deposit_key = (info.key or info.name or "").upper()

@@ -9,7 +9,6 @@ from typing import Optional
 from .host import get_ollama_host, is_local_ollama_host
 
 
-
 def show_installation_message(system_name: str) -> None:
     """Present a final installation message, using a GUI prompt on Windows."""
     import tkinter as tk
@@ -53,9 +52,13 @@ def _install_ollama_windows() -> None:
     try:
         opened = webbrowser.open(download_url)
         if opened:
-            logger.info("Browser opened successfully. Follow the prompts to install Ollama.")
+            logger.info(
+                "Browser opened successfully. Follow the prompts to install Ollama."
+            )
         else:
-            logger.warning("The browser did not report success. Please open the link manually if nothing happens.")
+            logger.warning(
+                "The browser did not report success. Please open the link manually if nothing happens."
+            )
     except Exception as e:
         logger.error(f"Unable to open browser automatically: {e}")
         logger.info("Please open the link manually to download Ollama.")
@@ -71,7 +74,10 @@ def _detect_linux_distro() -> tuple:
         elif "arch" in os_release or "manjaro" in os_release:
             return "Arch/Manjaro", "sudo pacman -S ollama"
         elif "fedora" in os_release or "rhel" in os_release or "centos" in os_release:
-            return "RedHat/Fedora/CentOS", "curl -fsSL https://ollama.com/install.sh | sh"
+            return (
+                "RedHat/Fedora/CentOS",
+                "curl -fsSL https://ollama.com/install.sh | sh",
+            )
         elif "gentoo" in os_release or "funtoo" in os_release:
             return "Gentoo/Funtoo", "sudo emerge --ask ollama"
         elif "suse" in os_release or "opensuse" in os_release:
@@ -108,7 +114,9 @@ def _install_ollama_linux() -> None:
     logger.info("2. Manual installation from website")
     logger.info("")
 
-    choice = input("Would you like to run the installation command? (y/n): ").lower().strip()
+    choice = (
+        input("Would you like to run the installation command? (y/n): ").lower().strip()
+    )
     if choice in ["y", "yes", "1", ""]:
         _run_linux_install_command(package_cmd)
     else:
@@ -136,7 +144,9 @@ def ensure_ollama_installed() -> None:
     """Check whether Ollama is installed locally when required."""
     host = get_ollama_host()
     if not is_local_ollama_host(host):
-        logger.info(f"Using remote Ollama host at {host}; skipping local installation check.")
+        logger.info(
+            f"Using remote Ollama host at {host}; skipping local installation check."
+        )
         return
 
     if shutil.which("ollama"):
@@ -144,6 +154,7 @@ def ensure_ollama_installed() -> None:
         return
 
     import platform
+
     system = platform.system().lower()
 
     logger.info("Ollama not found on your system.")

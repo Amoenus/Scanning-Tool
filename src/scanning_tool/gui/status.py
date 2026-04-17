@@ -4,7 +4,14 @@ import time
 import tkinter as tk
 from typing import Optional
 
-from scanning_tool.core.state_manager import config, scan_state, service_state, overlay_state, control_state, save_config
+from scanning_tool.core.state_manager import (
+    config,
+    scan_state,
+    service_state,
+    overlay_state,
+    control_state,
+    save_config,
+)
 
 
 class StatusBar:
@@ -43,7 +50,10 @@ class StatusBar:
         """Write an alignment-loop message iff it changed and no hold is active."""
         if self.anchor_hold_active():
             return
-        if message == self._last_alignment_message and self.anchor_status_var.get() == message:
+        if (
+            message == self._last_alignment_message
+            and self.anchor_status_var.get() == message
+        ):
             return
         self.anchor_status_var.set(message)
         self._last_alignment_message = message

@@ -22,7 +22,7 @@ from scanning_tool.gui.overlays import show_overlay
 
 class GUIFactory:
     """Factory for building and assembling the main GUI application."""
-    
+
     def __init__(self):
         self._section_classes = (
             CaptureRegionSection,
@@ -31,7 +31,7 @@ class GUIFactory:
             ResultDisplaySection,
             ControlsSection,
         )
-    
+
     def create_gui(self) -> None:
         """Build and run the main Tkinter control panel."""
         root = tk.Tk()
@@ -50,12 +50,18 @@ class GUIFactory:
             section_cls().build(main, ctx)
 
         ttk.Label(
-            main, textvariable=status.status_var,
-            anchor="w", justify="left", style="Glass.Status.TLabel",
+            main,
+            textvariable=status.status_var,
+            anchor="w",
+            justify="left",
+            style="Glass.Status.TLabel",
         ).pack(fill="x", padx=5, pady=(8, 0))
         ttk.Label(
-            main, textvariable=status.anchor_status_var,
-            anchor="w", justify="left", style="Glass.Subtle.TLabel",
+            main,
+            textvariable=status.anchor_status_var,
+            anchor="w",
+            justify="left",
+            style="Glass.Subtle.TLabel",
         ).pack(fill="x", padx=5, pady=(2, 5))
 
         root.update_idletasks()
@@ -66,6 +72,8 @@ class GUIFactory:
 
 # Create a singleton instance for backward compatibility
 gui_factory = GUIFactory()
+
+
 def launch_gui():
     """Backward compatible entry point."""
     gui_factory.create_gui()

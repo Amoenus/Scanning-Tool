@@ -3,6 +3,7 @@ Scrape Scan Signature Identifier data from https://scmdb.net/?page=mine
 Extracts mineral name, scan values, rarity/color, and category from the overlay.
 Outputs JSON and CSV formats.
 """
+
 import asyncio
 import json
 import csv
@@ -15,6 +16,7 @@ OUTPUT_DIR = Path("csv/scansig")
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 TARGET_URL = "https://scmdb.net/?page=mine"
+
 
 def parse_color_to_category(color: str) -> str:
     """Map RGB color to rarity/category string."""
@@ -30,6 +32,7 @@ def parse_color_to_category(color: str) -> str:
     }
     return color_map.get(color, color)
 
+
 async def scrape_scan_signatures():
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
@@ -39,10 +42,10 @@ async def scrape_scan_signatures():
         # Click the Scan Signature Identifier button
         await page.click('button[title^="Scan Signature Identifier"]')
         # Wait for overlay to appear
-        await page.wait_for_selector('.sigchart-overlay', timeout=10000)
+        await page.wait_for_selector(".sigchart-overlay", timeout=10000)
 
         # Extract data from overlay
-        data = await page.evaluate('''() => {
+        data = await page.evaluate("""() => {
             const rows = Array.from(document.querySelectorAll('.sigchart-row'));
             return rows.map(row => {
                 const labelDiv = row.querySelector('.sigchart-label');
@@ -65,7 +68,7 @@ async def scrape_scan_signatures():
                     values,
                 };
             });
-        }''')
+        }""")
 
         # Add rarity/category
         for entry in data:
@@ -74,25 +77,37 @@ async def scrape_scan_signatures():
         await browser.close()
         return data
 
+
 def save_json(data, path):
     with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
+
 
 def save_csv(data, path):
     # Flatten for CSV: one row per mineral per value
     rows = []
     for entry in data:
         for v in entry["values"]:
-            rows.append({
-                "mineral": entry["mineral"],
-                "category": entry["category"],
-                "color": entry["color"],
-                "amount": v["amount"],
-                "value": v["value"],
-                "pill_text": v["text"],
-                "pill_title": v["title"],
-            })
-    fieldnames = ["mineral", "category", "color", "amount", "value", "pill_text", "pill_title"]
+            rows.append(
+                {
+                    "mineral": entry["mineral"],
+                    "category": entry["category"],
+                    "color": entry["color"],
+                    "amount": v["amount"],
+                    "value": v["value"],
+                    "pill_text": v["text"],
+                    "pill_title": v["title"],
+                }
+            )
+    fieldnames = [
+        "mineral",
+        "category",
+        "color",
+        "amount",
+        "value",
+        "pill_text",
+        "pill_title",
+    ]
     with open(path, "w", encoding="utf-8", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
@@ -116,24 +131,30 @@ def save_summary_csv(data, path):
         # Fallback: if no x1, use first value
         if base_value is None and entry["values"]:
             base_value = entry["values"][0]["value"]
-        rows.append({
-            "mineral": entry["mineral"],
-            "category": entry["category"],
-            "base_value": base_value,
-            "max_multiplier": max_multiplier,
-        })
+        rows.append(
+            {
+                "mineral": entry["mineral"],
+                "category": entry["category"],
+                "base_value": base_value,
+                "max_multiplier": max_multiplier,
+            }
+        )
     fieldnames = ["mineral", "category", "base_value", "max_multiplier"]
     with open(path, "w", encoding="utf-8", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(rows)
 
+
 def main():
     data = asyncio.run(scrape_scan_signatures())
     save_json(data, OUTPUT_DIR / "scan_signatures.json")
     save_csv(data, OUTPUT_DIR / "scan_signatures.csv")
     save_summary_csv(data, OUTPUT_DIR / "scan_signatures_summary.csv")
-    print(f"Saved {len(data)} minerals to {OUTPUT_DIR}/scan_signatures.json, .csv, and scan_signatures_summary.csv")
+    print(
+        f"Saved {len(data)} minerals to {OUTPUT_DIR}/scan_signatures.json, .csv, and scan_signatures_summary.csv"
+    )
+
 
 if __name__ == "__main__":
     main()

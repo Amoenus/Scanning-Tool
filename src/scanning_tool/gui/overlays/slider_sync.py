@@ -4,12 +4,20 @@ from loguru import logger
 import tkinter as tk
 
 from scanning_tool.gui.control_state import ScaleWidget
-from scanning_tool.core.state_manager import config, scan_state, service_state, overlay_state, control_state, save_config
+from scanning_tool.core.state_manager import (
+    config,
+    scan_state,
+    service_state,
+    overlay_state,
+    control_state,
+    save_config,
+)
 from .base import safe_tk
 
 
-
-def register_capture_sliders(left: ScaleWidget, top: ScaleWidget, width: ScaleWidget, height: ScaleWidget) -> None:
+def register_capture_sliders(
+    left: ScaleWidget, top: ScaleWidget, width: ScaleWidget, height: ScaleWidget
+) -> None:
     control_state.capture.left = left
     control_state.capture.top = top
     control_state.capture.width = width

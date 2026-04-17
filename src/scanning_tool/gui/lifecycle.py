@@ -2,8 +2,18 @@
 
 import tkinter as tk
 
-from scanning_tool.gui.overlays import destroy_all_overlays, stop_capture_overlay_animation
-from scanning_tool.core.state_manager import config, scan_state, service_state, overlay_state, control_state, save_config
+from scanning_tool.gui.overlays import (
+    destroy_all_overlays,
+    stop_capture_overlay_animation,
+)
+from scanning_tool.core.state_manager import (
+    config,
+    scan_state,
+    service_state,
+    overlay_state,
+    control_state,
+    save_config,
+)
 
 
 def register_close_handler(root: tk.Tk) -> None:

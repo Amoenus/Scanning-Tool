@@ -27,7 +27,9 @@ def safe_tk(func: Callable[[], T], default: Optional[T] = None) -> Optional[T]:
         return default
 
 
-def enforce_topmost(window: tk.Toplevel, interval_ms: int = TOPMOST_INTERVAL_MS) -> None:
+def enforce_topmost(
+    window: tk.Toplevel, interval_ms: int = TOPMOST_INTERVAL_MS
+) -> None:
     if safe_tk(window.winfo_exists, False) is False:
         return
     try:

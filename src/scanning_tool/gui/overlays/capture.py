@@ -5,7 +5,14 @@ from typing import Optional
 
 from .base import CAPTURE_ANIMATION_INTERVAL_MS, create_overlay_window, safe_tk
 from .geometry import compute_capture_overlay_layout
-from scanning_tool.core.state_manager import config, scan_state, service_state, overlay_state, control_state, save_config
+from scanning_tool.core.state_manager import (
+    config,
+    scan_state,
+    service_state,
+    overlay_state,
+    control_state,
+    save_config,
+)
 from scanning_tool.domain.models import CaptureOverlayLayout
 
 
@@ -30,23 +37,40 @@ class CaptureOverlay:
             or last.overlay_width != layout.overlay_width
             or last.overlay_height != layout.overlay_height
         )
-        pos_changed = force or last is None or last.left != layout.left or last.top != layout.top
-        rect_changed = force or last is None or last.cap_w != layout.cap_w or last.cap_h != layout.cap_h
+        pos_changed = (
+            force or last is None or last.left != layout.left or last.top != layout.top
+        )
+        rect_changed = (
+            force
+            or last is None
+            or last.cap_w != layout.cap_w
+            or last.cap_h != layout.cap_h
+        )
 
         if size_changed:
-            safe_tk(lambda: self.canvas.config(width=layout.overlay_width, height=layout.overlay_height))
+            safe_tk(
+                lambda: self.canvas.config(
+                    width=layout.overlay_width, height=layout.overlay_height
+                )
+            )
 
         if rect_changed:
-            safe_tk(lambda: self.canvas.coords(
-                self.rect_id,
-                layout.padding_x // 2,
-                layout.padding_y,
-                layout.padding_x // 2 + layout.cap_w,
-                layout.padding_y + layout.cap_h,
-            ))
+            safe_tk(
+                lambda: self.canvas.coords(
+                    self.rect_id,
+                    layout.padding_x // 2,
+                    layout.padding_y,
+                    layout.padding_x // 2 + layout.cap_w,
+                    layout.padding_y + layout.cap_h,
+                )
+            )
 
         if size_changed or pos_changed:
-            safe_tk(lambda: self.root.geometry(f"{layout.overlay_width}x{layout.overlay_height}+{layout.left}+{layout.top}"))
+            safe_tk(
+                lambda: self.root.geometry(
+                    f"{layout.overlay_width}x{layout.overlay_height}+{layout.left}+{layout.top}"
+                )
+            )
             safe_tk(lambda: self.root.lift())
 
         self.last_layout = layout
@@ -61,7 +85,12 @@ class CaptureOverlay:
         )
 
     def _animate_overlay(self) -> None:
-        if not self.root or not self.canvas or not self.rect_id or safe_tk(self.root.winfo_exists, False) is False:
+        if (
+            not self.root
+            or not self.canvas
+            or not self.rect_id
+            or safe_tk(self.root.winfo_exists, False) is False
+        ):
             self.animation_job = None
             return
 
@@ -85,7 +114,9 @@ class CaptureOverlay:
             self.border_canvas = None
 
         layout = compute_capture_overlay_layout()
-        self.root = create_overlay_window(layout.overlay_width, layout.overlay_height, layout.left, layout.top)
+        self.root = create_overlay_window(
+            layout.overlay_width, layout.overlay_height, layout.left, layout.top
+        )
         self.canvas = tk.Canvas(
             self.root,
             width=layout.overlay_width,

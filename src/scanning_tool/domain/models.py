@@ -2,7 +2,10 @@
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, Literal, Optional, List, TypedDict, Union
+from typing import TYPE_CHECKING, Dict, Literal, Optional, List, TypedDict, Union
+
+if TYPE_CHECKING:
+    from scanning_tool.services.config_service import ConfigData
 
 # --- Raw JSON DTOs for RockType.json ---
 
@@ -33,6 +36,7 @@ RockDataJSON = Dict[str, RegionData]
 
 class MssMonitor(TypedDict):
     """Monitor dict compatible with the mss library."""
+
     left: int
     top: int
     width: int
@@ -42,6 +46,7 @@ class MssMonitor(TypedDict):
 @dataclass
 class OreStatistics:
     """Per-ore stats inside a Deposit's `ores` map (loaded from RockType.json)."""
+
     prob: float
     minPct: float
     maxPct: float
@@ -59,18 +64,19 @@ class OreStatistics:
         return 0.0
 
     @classmethod
-    def from_dict(cls, data: OreStatisticsData) -> 'OreStatistics':
+    def from_dict(cls, data: OreStatisticsData) -> "OreStatistics":
         return cls(
             prob=cls._to_float(data.get("prob")),
             minPct=cls._to_float(data.get("minPct")),
             maxPct=cls._to_float(data.get("maxPct")),
-            medPct=cls._to_float(data.get("medPct"))
+            medPct=cls._to_float(data.get("medPct")),
         )
 
 
 @dataclass
 class Deposit:
     """A single deposit entry inside a region in RockType.json."""
+
     users: int
     scans: int
     clusters: int
@@ -94,7 +100,7 @@ class Deposit:
         return 0
 
     @classmethod
-    def from_dict(cls, data: DepositData) -> 'Deposit':
+    def from_dict(cls, data: DepositData) -> "Deposit":
         ores_data = data.get("ores", {})
         ores = {
             ore_name: OreStatistics.from_dict(ore_data)
@@ -110,17 +116,18 @@ class Deposit:
             mass=data.get("mass", {}),
             inst=data.get("inst", {}),
             res=data.get("res", {}),
-            ores=ores
+            ores=ores,
         )
 
 
 @dataclass
 class Region:
     """A collection of deposits for a given region."""
+
     deposits: Dict[str, Deposit]
 
     @classmethod
-    def from_dict(cls, data: RegionData) -> 'Region':
+    def from_dict(cls, data: RegionData) -> "Region":
         deposits = {
             deposit_name: Deposit.from_dict(deposit_data)
             for deposit_name, deposit_data in data.items()
@@ -132,10 +139,11 @@ class Region:
 @dataclass
 class RockDataCollection:
     """Top-level container for all region data."""
+
     regions: Dict[str, Region] = field(default_factory=dict)
 
     @classmethod
-    def from_dict(cls, data: RockDataJSON) -> 'RockDataCollection':
+    def from_dict(cls, data: RockDataJSON) -> "RockDataCollection":
         regions = {
             region_name: Region.from_dict(region_data)
             for region_name, region_data in data.items()
@@ -143,12 +151,14 @@ class RockDataCollection:
         }
         return cls(regions=regions)
 
+
 RockData = RockDataCollection  # Alias for backward compatibility during refactor
 
 
 @dataclass(frozen=True)
 class OreValueInfo:
     """Tier classification + display color for an ore."""
+
     tier: OreTier
     color: str
 
@@ -156,6 +166,7 @@ class OreValueInfo:
 @dataclass
 class OreTableEntry:
     """A row in a per-region deposit table, ready for display/serialization."""
+
     name: str
     prob: str
     min: str
@@ -174,6 +185,7 @@ RegionDepositTables = Dict[str, Dict[str, DepositTable]]
 @dataclass(frozen=True)
 class ScanSignature:
     """An entry in SCAN_SIGNATURES, keyed by base_value."""
+
     name: str
     category: str
     base_value: int
@@ -196,7 +208,7 @@ class SignatureRegistry:
         return self._signatures.copy()
 
     @classmethod
-    def load_from_csv(cls, path: str | Path) -> 'SignatureRegistry':
+    def load_from_csv(cls, path: str | Path) -> "SignatureRegistry":
         from pathlib import Path
         from scanning_tool.deposits.scan_signatures import _load_scan_signatures
 
@@ -205,14 +217,17 @@ class SignatureRegistry:
 
 # --- Shared Value Types ---
 
+
 @dataclass
 class Offset2D:
     """A 2D offset with x and y components."""
+
     x: int = 0
     y: int = 0
 
 
 # --- New Structured Domain Models ---
+
 
 @dataclass
 class DepositInfo:
@@ -221,6 +236,7 @@ class DepositInfo:
     Fields correspond to common keys found in legacy info dicts (e.g., key, name, category, type, id).
     Use this for type-safe access to scan/deposit metadata instead of unstructured dicts.
     """
+
     key: Optional[str] = None
     name: Optional[str] = None
     category: Optional[str] = None
@@ -237,6 +253,7 @@ class AlignmentInfo:
     Represents the current alignment state for anchor/template matching.
     Use explicit types for all fields to improve reliability and clarity.
     """
+
     enabled: bool = True
     matched: bool = False
     template: Optional[str] = None
@@ -246,23 +263,67 @@ class AlignmentInfo:
     capture_left: Optional[int] = None
     capture_top: Optional[int] = None
 
+    def reset(self) -> None:
+        """Clear the alignment result state for a fresh evaluation."""
+        self.matched = False
+        self.template = None
+        self.score = 0.0
+        self.match_left = None
+        self.match_top = None
+        self.capture_left = None
+        self.capture_top = None
+
+    def update_from_detection(
+        self, detection: "AnchorDetection", capture_region: "CaptureRegion"
+    ) -> None:
+        """Update this alignment state from a successful anchor detection."""
+        self.matched = True
+        self.template = detection.template
+        self.score = detection.score
+        self.match_left = int(round(detection.match_left))
+        self.match_top = int(round(detection.match_top))
+        self.capture_left = capture_region.left
+        self.capture_top = capture_region.top
+
+
+@dataclass(frozen=True)
+class AlignmentRequest:
+    """Request payload containing the inputs required for an alignment run."""
+
+    enabled: bool
+    threshold: float
+    anchor_template: "CaptureRegion"
+    anchor_offset: "Offset2D"
+    capture_region: "CaptureRegion"
+
+    @classmethod
+    def from_config(cls, config: "ConfigData") -> "AlignmentRequest":
+        return cls(
+            enabled=config.auto_alignment.enabled,
+            threshold=float(config.anchor_threshold),
+            anchor_template=config.anchor_template,
+            anchor_offset=config.anchor_offset,
+            capture_region=config.capture_region,
+        )
+
 
 @dataclass
 class CaptureRegion:
     """Represents a capture region on the screen."""
+
     left: int
     top: int
     width: int
     height: int
 
-    def to_mss_monitor(self) -> MssMonitor:
+    def to_mss_monitor(self) -> dict[str, int]:
         """Return an mss-compatible monitor dict for this region."""
-        return MssMonitor(
-            left=int(self.left),
-            top=int(self.top),
-            width=int(self.width),
-            height=int(self.height),
-        )
+        return {
+            "left": int(self.left),
+            "top": int(self.top),
+            "width": int(self.width),
+            "height": int(self.height),
+        }
 
     def to_tuple(self) -> tuple[int, int, int, int]:
         """Return an mss-compatible tuple representation for this region."""
@@ -272,6 +333,7 @@ class CaptureRegion:
 @dataclass
 class OverlayConfig:
     """Represents overlay display configuration."""
+
     info_offset: Offset2D
     label_color: str
     show_debug: bool
@@ -283,14 +345,15 @@ OLLAMA_DEFAULT_HOST = "http://127.0.0.1:11434"
 @dataclass
 class OllamaConfig:
     """Represents Ollama AI service configuration."""
+
     model: str
     host: Optional[str]
-
 
 
 @dataclass
 class AutoAlignmentConfig:
     """Represents auto-alignment configuration."""
+
     enabled: bool
     poll_interval_ms: int
     anchor_region: CaptureRegion
@@ -299,21 +362,25 @@ class AutoAlignmentConfig:
 @dataclass
 class ContinuousCaptureConfig:
     """Represents continuous capture configuration."""
+
     interval: float
 
 
 @dataclass
 class WebServerConfig:
     """Represents the Flask web server configuration."""
+
     host: str = "0.0.0.0"
     port: int = 5000
 
 
 # --- Additional Domain Models / DTOs ---
 
+
 @dataclass
 class ScanResult:
     """A single scan result — the cleaned code (`label`), the raw OCR text it came from, and resolved deposit metadata."""
+
     label: str
     region: CaptureRegion
     info: Optional[DepositInfo] = None
@@ -324,6 +391,7 @@ class ScanResult:
 @dataclass
 class AnchorDetection:
     """Result of an anchor template match on a captured region."""
+
     match_left: float
     match_top: float
     score: float
@@ -335,6 +403,7 @@ class AnchorDetection:
 @dataclass
 class OreTierInfo:
     """Ores belonging to a tier plus its display color."""
+
     ores: List[str]
     color: str
 
@@ -342,6 +411,7 @@ class OreTierInfo:
 @dataclass
 class InfoOverlayGeometry:
     """Geometry snapshot for the info overlay window."""
+
     screen_width: Optional[int] = None
     screen_height: Optional[int] = None
     width: int = 0
@@ -351,6 +421,7 @@ class InfoOverlayGeometry:
 @dataclass
 class CaptureOverlayLayout:
     """Layout values for positioning and sizing the capture overlay."""
+
     overlay_width: int
     overlay_height: int
     left: int
@@ -364,6 +435,7 @@ class CaptureOverlayLayout:
 @dataclass
 class AnchorOverlayGeometry:
     """Geometry for the anchor overlay window."""
+
     width: int
     height: int
     left: int
@@ -373,6 +445,7 @@ class AnchorOverlayGeometry:
 @dataclass(frozen=True)
 class ModelPromptProfile:
     """Maps an Ollama model name prefix to its OCR prompt."""
+
     prefix: str
     prompt: str
 
@@ -380,6 +453,7 @@ class ModelPromptProfile:
 @dataclass
 class InfoOverlayLayout:
     """Computed position and size for the floating info overlay."""
+
     width: int
     height: int
     left: int
@@ -389,6 +463,7 @@ class InfoOverlayLayout:
 @dataclass(frozen=True)
 class GlassPalette:
     """Theme color palette — frozen to prevent accidental mutation."""
+
     background: str
     panel: str
     accent: str
@@ -406,6 +481,7 @@ class GlassPalette:
 @dataclass
 class CodeExtraction:
     """Output of parsing a deposit code from OCR text."""
+
     code: Optional[str]
     raw: Optional[str]
 
@@ -413,10 +489,11 @@ class CodeExtraction:
 @dataclass
 class StatusResponse:
     """Payload returned by the /status web endpoint."""
+
     region: CaptureRegion
     label_color: str
-    last: Optional['ScanResult']
-    alignment: 'AlignmentInfo'
+    last: Optional["ScanResult"]
+    alignment: "AlignmentInfo"
     selected_region: str
     info: Optional[DepositInfo]
     code: Optional[str]
@@ -426,4 +503,5 @@ class StatusResponse:
 
     def to_dict(self) -> dict:
         from dataclasses import asdict
+
         return asdict(self)

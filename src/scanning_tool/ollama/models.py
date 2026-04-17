@@ -5,8 +5,9 @@ from .client import get_ollama_client
 from .host import get_ollama_host, get_ollama_model, is_local_ollama_host
 
 
-
-def ensure_model_installed(model: Optional[str] = None, exit_on_error: bool = True) -> bool:
+def ensure_model_installed(
+    model: Optional[str] = None, exit_on_error: bool = True
+) -> bool:
     """Ensure the Ollama model exists on the configured host."""
     if model is None:
         model = get_ollama_model()
@@ -23,11 +24,7 @@ def ensure_model_installed(model: Optional[str] = None, exit_on_error: bool = Tr
 
     try:
         response = client.list()
-        available_models = {
-            m.model
-            for m in response.models
-            if m.model
-        }
+        available_models = {m.model for m in response.models if m.model}
     except Exception as e:
         logger.error(f"Unable to communicate with Ollama at {host}: {e}")
         guidance = (
@@ -62,11 +59,7 @@ def list_running_ollama_models() -> List[str]:
     client = get_ollama_client()
     try:
         response = client.ps()
-        return [
-            m.model
-            for m in response.models
-            if m.model
-        ]
+        return [m.model for m in response.models if m.model]
     except Exception as e:
         logger.warning("Unable to query Ollama process list: %s", e)
         return []

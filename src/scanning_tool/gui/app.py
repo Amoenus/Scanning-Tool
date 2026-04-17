@@ -48,12 +48,18 @@ def launch_gui() -> None:
         section_cls().build(main, ctx)
 
     ttk.Label(
-        main, textvariable=status.status_var,
-        anchor="w", justify="left", style="Glass.Status.TLabel",
+        main,
+        textvariable=status.status_var,
+        anchor="w",
+        justify="left",
+        style="Glass.Status.TLabel",
     ).pack(fill="x", padx=5, pady=(8, 0))
     ttk.Label(
-        main, textvariable=status.anchor_status_var,
-        anchor="w", justify="left", style="Glass.Subtle.TLabel",
+        main,
+        textvariable=status.anchor_status_var,
+        anchor="w",
+        justify="left",
+        style="Glass.Subtle.TLabel",
     ).pack(fill="x", padx=5, pady=(2, 5))
 
     root.update_idletasks()

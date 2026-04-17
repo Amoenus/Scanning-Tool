@@ -11,7 +11,14 @@ from scanning_tool.gui.overlays import (
     update_overlay_region,
 )
 from scanning_tool.services.capture_service import capture_service
-from scanning_tool.core.state_manager import config, scan_state, service_state, overlay_state, control_state, save_config
+from scanning_tool.core.state_manager import (
+    config,
+    scan_state,
+    service_state,
+    overlay_state,
+    control_state,
+    save_config,
+)
 
 
 class ControlsSection:
@@ -23,7 +30,9 @@ class ControlsSection:
 
         self._status = ctx.status
 
-        self._interval_var = tk.DoubleVar(value=float(config.continuous_capture_interval))
+        self._interval_var = tk.DoubleVar(
+            value=float(config.continuous_capture_interval)
+        )
         create_labeled_spinbox(
             frame,
             text="Continuous capture interval (s)",

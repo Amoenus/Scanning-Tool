@@ -21,9 +21,15 @@ from scanning_tool.ollama import (
     set_configured_ollama_host,
     set_configured_ollama_model,
 )
-from scanning_tool.core.state_manager import config, scan_state, service_state, overlay_state, control_state, save_config
+from scanning_tool.core.state_manager import (
+    config,
+    scan_state,
+    service_state,
+    overlay_state,
+    control_state,
+    save_config,
+)
 from scanning_tool.web import get_local_ip
-
 
 
 SUGGESTED_MODELS = (
@@ -43,7 +49,9 @@ class OllamaSection:
     """Model selector, host entry, and active-status labels for Ollama."""
 
     def build(self, parent: ttk.Widget, ctx: SectionContext) -> ttk.LabelFrame:
-        frame = ttk.LabelFrame(parent, text="Ollama Connection", style="Glass.TLabelframe")
+        frame = ttk.LabelFrame(
+            parent, text="Ollama Connection", style="Glass.TLabelframe"
+        )
         frame.pack(fill="x", padx=5, pady=8)
 
         self._status = ctx.status

@@ -35,6 +35,7 @@ def create_labeled_spinbox(
     )
     spinbox.pack(side="left", padx=5)
     from scanning_tool.gui.theme import style_spinbox
+
     style_spinbox(spinbox, colors)
 
     return spinbox
@@ -57,7 +58,9 @@ def create_labeled_entry(
 def create_status_label(parent: ttk.Widget, variable: tk.Variable) -> ttk.Label:
     """Create a styled status label row for section text feedback."""
     row = create_section_row(parent, pady=(0, 2))
-    label = ttk.Label(row, textvariable=variable, style="Glass.Small.TLabel", justify="left")
+    label = ttk.Label(
+        row, textvariable=variable, style="Glass.Small.TLabel", justify="left"
+    )
     label.pack(fill="x", padx=5)
     return label
 

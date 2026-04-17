@@ -14,6 +14,7 @@ service_state = ServiceState()
 overlay_state = OverlayState()
 control_state = ControlState()
 
+
 def save_config() -> None:
     """Helper to save the current configuration."""
     config_service.save()

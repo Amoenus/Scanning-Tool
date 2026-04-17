@@ -21,15 +21,30 @@ _MODEL_PROMPTS: tuple[ModelPromptProfile, ...] = (
             "If there are no numbers, output nothing."
         ),
     ),
-    ModelPromptProfile(prefix="granite", prompt="Read all numbers in this image. Only return the numbers."),
-    ModelPromptProfile(prefix="deepseek-ocr", prompt="Read all text in this image. Only return the numbers."),
+    ModelPromptProfile(
+        prefix="granite",
+        prompt="Read all numbers in this image. Only return the numbers.",
+    ),
+    ModelPromptProfile(
+        prefix="deepseek-ocr",
+        prompt="Read all text in this image. Only return the numbers.",
+    ),
     ModelPromptProfile(
         prefix="smolvlm",
         prompt="Only output the numbers you see in this image. Do not describe the image. If there are no numbers, output nothing.",
     ),
-    ModelPromptProfile(prefix="bakllava", prompt="Extract all numbers from this image. Only output the numbers."),
-    ModelPromptProfile(prefix="llava", prompt="What numbers are visible in this image? Only output the numbers."),
-    ModelPromptProfile(prefix="qwen2.5vl", prompt="Extract all numbers from this image. Only output the numbers."),
+    ModelPromptProfile(
+        prefix="bakllava",
+        prompt="Extract all numbers from this image. Only output the numbers.",
+    ),
+    ModelPromptProfile(
+        prefix="llava",
+        prompt="What numbers are visible in this image? Only output the numbers.",
+    ),
+    ModelPromptProfile(
+        prefix="qwen2.5vl",
+        prompt="Extract all numbers from this image. Only output the numbers.",
+    ),
 )
 
 
@@ -56,11 +71,13 @@ def ocr_with_ollama(pil_img: Image.Image, model: Optional[str] = None) -> str:
     try:
         response: ollama.ChatResponse = client.chat(
             model=model,
-            messages=[{
-                "role": "user",
-                "content": prompt,
-                "images": [img_bytes],
-            }],
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt,
+                    "images": [img_bytes],
+                }
+            ],
         )
         return response.message.content.strip()
     except Exception as e:

@@ -38,7 +38,9 @@ def create_glass_scale(
         return f"{int(round(value))}"
 
     label_var = tk.StringVar(value=f"{text}: {format_value(initial)}")
-    ttk.Label(container, textvariable=label_var, style="Glass.Small.TLabel").pack(anchor="w", padx=2)
+    ttk.Label(container, textvariable=label_var, style="Glass.Small.TLabel").pack(
+        anchor="w", padx=2
+    )
 
     def on_change(raw_value: str) -> None:
         try:
@@ -99,5 +101,7 @@ def create_button_row(
     """Create a row of buttons with equal spacing."""
     row = create_section_row(parent)
     for label, command in buttons:
-        ttk.Button(row, text=label, command=command, style=style).pack(side="left", padx=5)
+        ttk.Button(row, text=label, command=command, style=style).pack(
+            side="left", padx=5
+        )
     return row

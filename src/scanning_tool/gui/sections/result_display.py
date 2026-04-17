@@ -9,7 +9,14 @@ from scanning_tool.gui.overlays import (
     reposition_info_overlay,
     sync_overlay_sliders,
 )
-from scanning_tool.core.state_manager import config, scan_state, service_state, overlay_state, control_state, save_config
+from scanning_tool.core.state_manager import (
+    config,
+    scan_state,
+    service_state,
+    overlay_state,
+    control_state,
+    save_config,
+)
 
 
 class ResultDisplaySection:
@@ -60,7 +67,6 @@ class ResultDisplaySection:
         overlay_offset.x = int(self._offset_x.get())
         overlay_offset.y = int(self._offset_y.get())
         self._status.set_status(
-            f"Display offset updated: x={overlay_offset.x}, "
-            f"y={overlay_offset.y}"
+            f"Display offset updated: x={overlay_offset.x}, y={overlay_offset.y}"
         )
         reposition_info_overlay()

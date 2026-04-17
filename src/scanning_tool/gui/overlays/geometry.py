@@ -9,11 +9,24 @@ from .base import (
     MIN_INFO_OVERLAY_WIDTH,
     SCREEN_MARGIN,
 )
-from scanning_tool.core.state_manager import config, scan_state, service_state, overlay_state, control_state, save_config
-from scanning_tool.domain.models import AnchorOverlayGeometry, CaptureOverlayLayout, InfoOverlayLayout
+from scanning_tool.core.state_manager import (
+    config,
+    scan_state,
+    service_state,
+    overlay_state,
+    control_state,
+    save_config,
+)
+from scanning_tool.domain.models import (
+    AnchorOverlayGeometry,
+    CaptureOverlayLayout,
+    InfoOverlayLayout,
+)
 
 
-def compute_info_overlay_geometry(screen_width: int, screen_height: int) -> InfoOverlayLayout:
+def compute_info_overlay_geometry(
+    screen_width: int, screen_height: int
+) -> InfoOverlayLayout:
     overlay_settings = config.overlay_config
 
     overlay_width = max(
@@ -32,7 +45,9 @@ def compute_info_overlay_geometry(screen_width: int, screen_height: int) -> Info
 
     left = min(max(0, base_left + offset_x), max_left)
     top = min(max(0, base_top + offset_y), max_top)
-    return InfoOverlayLayout(width=overlay_width, height=overlay_height, left=left, top=top)
+    return InfoOverlayLayout(
+        width=overlay_width, height=overlay_height, left=left, top=top
+    )
 
 
 def compute_capture_overlay_layout() -> CaptureOverlayLayout:

@@ -7,8 +7,25 @@ from scanning_tool.domain.models import OreTier, OreTierInfo, OreValueInfo
 ORE_TIERS: Dict[OreTier, OreTierInfo] = {
     "HIGHEST": OreTierInfo(ores=["QUANTANIUM", "STILERON", "RICCITE"], color="#E88AFF"),
     "HIGH": OreTierInfo(ores=["TARANITE", "BEXALITE", "GOLD"], color="#63E64C"),
-    "MEDIUM": OreTierInfo(ores=["LARANITE", "BORASE", "BERYL", "AGRICIUM", "HEPHAESTANITE"], color="#E6E14C"),
-    "LOW": OreTierInfo(ores=["TUNGSTEN", "TITANIUM", "SILICON", "IRON", "QUARTZ", "CORUNDUM", "COPPER", "TIN", "ALUMINUM", "ICE"], color="#E69E4C"),
+    "MEDIUM": OreTierInfo(
+        ores=["LARANITE", "BORASE", "BERYL", "AGRICIUM", "HEPHAESTANITE"],
+        color="#E6E14C",
+    ),
+    "LOW": OreTierInfo(
+        ores=[
+            "TUNGSTEN",
+            "TITANIUM",
+            "SILICON",
+            "IRON",
+            "QUARTZ",
+            "CORUNDUM",
+            "COPPER",
+            "TIN",
+            "ALUMINUM",
+            "ICE",
+        ],
+        color="#E69E4C",
+    ),
 }
 
 ORE_VALUE_MAP: Dict[str, OreValueInfo] = {}

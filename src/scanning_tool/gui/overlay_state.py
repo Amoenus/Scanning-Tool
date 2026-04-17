@@ -9,6 +9,7 @@ from scanning_tool.domain.models import CaptureOverlayLayout, InfoOverlayGeometr
 @dataclass
 class CaptureOverlayState:
     """State for the capture region overlay."""
+
     root: Optional[tk.Toplevel] = None
     canvas: Optional[tk.Canvas] = None
     rect_id: Optional[int] = None
@@ -25,6 +26,7 @@ class CaptureOverlayState:
 @dataclass
 class InfoOverlayState:
     """State for the info/label overlay."""
+
     root: Optional[tk.Toplevel] = None
     canvas: Optional[tk.Canvas] = None
     text_id: Optional[int] = None
@@ -42,6 +44,7 @@ class InfoOverlayState:
 @dataclass
 class AnchorOverlayState:
     """State for the anchor template overlay."""
+
     root: Optional[tk.Toplevel] = None
     canvas: Optional[tk.Canvas] = None
     rect_id: Optional[int] = None
@@ -103,7 +106,9 @@ class OverlayState:
         return self.capture.last_layout
 
     @capture_overlay_last_layout.setter
-    def capture_overlay_last_layout(self, value: Optional[CaptureOverlayLayout]) -> None:
+    def capture_overlay_last_layout(
+        self, value: Optional[CaptureOverlayLayout]
+    ) -> None:
         self.capture.last_layout = value
 
     @property

@@ -36,12 +36,14 @@ def _configure_frame_styles(style: ttk.Style, colors: GlassPalette) -> None:
         relief="solid",
         padding=16,
     )
-    safe_tk(lambda: style.configure(
-        "Glass.TLabelframe",
-        bordercolor=colors.border,
-        lightcolor=colors.border,
-        darkcolor=colors.background,
-    ))
+    safe_tk(
+        lambda: style.configure(
+            "Glass.TLabelframe",
+            bordercolor=colors.border,
+            lightcolor=colors.border,
+            darkcolor=colors.background,
+        )
+    )
     style.configure(
         "Glass.TLabelframe.Label",
         background=colors.panel,
@@ -103,18 +105,22 @@ def _configure_checkbox_styles(style: ttk.Style, colors: GlassPalette) -> None:
     )
 
 
-def _configure_slider_styles(style: ttk.Style, root: tk.Tk, colors: GlassPalette) -> None:
+def _configure_slider_styles(
+    style: ttk.Style, root: tk.Tk, colors: GlassPalette
+) -> None:
     slider_normal = _make_slider_image(colors.knob, colors.knob_outline)
     slider_active = _make_slider_image(colors.knob_active, colors.accent)
     root._glass_slider_images = (slider_normal, slider_active)  # type: ignore[attr-defined]
 
-    safe_tk(lambda: style.element_create(
-        "Glass.Horizontal.Scale.slider",
-        "image",
-        slider_normal,
-        ("active", slider_active),
-        ("pressed", slider_active),
-    ))
+    safe_tk(
+        lambda: style.element_create(
+            "Glass.Horizontal.Scale.slider",
+            "image",
+            slider_normal,
+            ("active", slider_active),
+            ("pressed", slider_active),
+        )
+    )
 
     style.layout(
         "Glass.Horizontal.TScale",
@@ -123,7 +129,12 @@ def _configure_slider_styles(style: ttk.Style, root: tk.Tk, colors: GlassPalette
                 "Horizontal.Scale.trough",
                 {
                     "sticky": "ew",
-                    "children": [("Glass.Horizontal.Scale.slider", {"side": "left", "sticky": ""})],
+                    "children": [
+                        (
+                            "Glass.Horizontal.Scale.slider",
+                            {"side": "left", "sticky": ""},
+                        )
+                    ],
                 },
             )
         ],
@@ -172,13 +183,15 @@ def _make_slider_image(fill: str, outline: str) -> ImageTk.PhotoImage:
 
 def style_spinbox(spinbox: tk.Spinbox, colors: GlassPalette) -> None:
     """Apply translucent styling to a Tkinter Spinbox widget."""
-    if not safe_tk(lambda: spinbox.configure(
-        bg=colors.panel,
-        fg=colors.text,
-        insertbackground=colors.accent,
-        disabledbackground=colors.background,
-        highlightthickness=0,
-        relief="flat",
-        buttonbackground=colors.button,
-    )):
+    if not safe_tk(
+        lambda: spinbox.configure(
+            bg=colors.panel,
+            fg=colors.text,
+            insertbackground=colors.accent,
+            disabledbackground=colors.background,
+            highlightthickness=0,
+            relief="flat",
+            buttonbackground=colors.button,
+        )
+    ):
         spinbox.configure(bg=colors.panel, fg=colors.text)

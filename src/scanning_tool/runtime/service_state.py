@@ -5,7 +5,11 @@ import subprocess
 
 import ollama
 
-from scanning_tool.domain.models import RegionDepositTables, RockData, RockDataCollection
+from scanning_tool.domain.models import (
+    RegionDepositTables,
+    RockData,
+    RockDataCollection,
+)
 
 
 @dataclass
@@ -17,11 +21,15 @@ class OllamaClientState:
 
 @dataclass
 class CodePatterns:
-    code_re: Pattern[str] = field(default_factory=lambda: re.compile(
-        r"(?:[A-Za-z]?-?\d[\d,\.]{1,10}|\d{2,10})",
-        re.IGNORECASE,
-    ))
-    host_scheme_re: Pattern[str] = field(default_factory=lambda: re.compile(r"^[a-zA-Z][a-zA-Z0-9+.-]*://"))
+    code_re: Pattern[str] = field(
+        default_factory=lambda: re.compile(
+            r"(?:[A-Za-z]?-?\d[\d,\.]{1,10}|\d{2,10})",
+            re.IGNORECASE,
+        )
+    )
+    host_scheme_re: Pattern[str] = field(
+        default_factory=lambda: re.compile(r"^[a-zA-Z][a-zA-Z0-9+.-]*://")
+    )
 
 
 @dataclass
@@ -69,4 +77,3 @@ class ServiceState:
     @property
     def host_scheme_re(self) -> Pattern[str]:
         return self.patterns.host_scheme_re
-

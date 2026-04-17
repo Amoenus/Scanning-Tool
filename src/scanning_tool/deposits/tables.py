@@ -5,7 +5,14 @@ from typing import Dict
 
 from scanning_tool.config import ROCK_TYPE_FILE
 from scanning_tool.core.state_manager import service_state
-from scanning_tool.domain.models import DepositTable, OreTableEntry, Region, OreStatistics, OreValueInfo, RockDataCollection
+from scanning_tool.domain.models import (
+    DepositTable,
+    OreTableEntry,
+    Region,
+    OreStatistics,
+    OreValueInfo,
+    RockDataCollection,
+)
 from scanning_tool.deposits.ore_tiers import ORE_VALUE_MAP, TIER_ORDER
 
 

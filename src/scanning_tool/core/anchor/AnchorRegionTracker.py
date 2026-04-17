@@ -64,7 +64,9 @@ class AnchorRegionTracker:
             )
             return None
 
-        return self.matcher.build_detection(monitor, best_loc, best_template, best_score)
+        return self.matcher.build_detection(
+            monitor, best_loc, best_template, best_score
+        )
 
     def _grab_anchor_screenshot(self, monitor: Monitor) -> Optional[np.ndarray]:
         with mss.mss() as sct:

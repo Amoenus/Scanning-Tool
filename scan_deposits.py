@@ -1,4 +1,5 @@
 """Backward-compatible entry point for launch scripts."""
+
 import sys
 import os
 

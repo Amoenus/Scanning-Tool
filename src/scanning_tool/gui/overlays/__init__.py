@@ -4,7 +4,11 @@ from typing import Optional
 
 import tkinter as tk
 
-from .anchor import hide_anchor_overlay, show_anchor_overlay, update_anchor_overlay_region
+from .anchor import (
+    hide_anchor_overlay,
+    show_anchor_overlay,
+    update_anchor_overlay_region,
+)
 from .base import create_overlay_window, enforce_topmost, safe_tk
 from .capture import (
     hide_capture_overlay,
@@ -31,7 +35,14 @@ from .slider_sync import (
     sync_capture_sliders,
     sync_overlay_sliders,
 )
-from scanning_tool.core.state_manager import config, scan_state, service_state, overlay_state, control_state, save_config
+from scanning_tool.core.state_manager import (
+    config,
+    scan_state,
+    service_state,
+    overlay_state,
+    control_state,
+    save_config,
+)
 
 __all__ = [
     "choose_label_color",
@@ -63,14 +74,24 @@ __all__ = [
 ]
 
 
-def show_overlay(screen_width: Optional[int] = None, screen_height: Optional[int] = None) -> None:
+def show_overlay(
+    screen_width: Optional[int] = None, screen_height: Optional[int] = None
+) -> None:
     show_anchor_overlay()
     show_capture_overlay()
 
     if screen_width is None or screen_height is None:
-        if overlay_state.capture_overlay_root and safe_tk(overlay_state.capture_overlay_root.winfo_exists, False):
-            screen_width = safe_tk(overlay_state.capture_overlay_root.winfo_screenwidth, 1920) or 1920
-            screen_height = safe_tk(overlay_state.capture_overlay_root.winfo_screenheight, 1080) or 1080
+        if overlay_state.capture_overlay_root and safe_tk(
+            overlay_state.capture_overlay_root.winfo_exists, False
+        ):
+            screen_width = (
+                safe_tk(overlay_state.capture_overlay_root.winfo_screenwidth, 1920)
+                or 1920
+            )
+            screen_height = (
+                safe_tk(overlay_state.capture_overlay_root.winfo_screenheight, 1080)
+                or 1080
+            )
 
     if screen_width is not None and screen_height is not None:
         show_info_overlay(screen_width, screen_height)

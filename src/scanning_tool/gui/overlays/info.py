@@ -8,7 +8,14 @@ from typing import Optional
 from .base import create_overlay_window, safe_tk
 from .capture import _capture_overlay
 from .geometry import compute_info_overlay_geometry
-from scanning_tool.core.state_manager import config, scan_state, service_state, overlay_state, control_state, save_config
+from scanning_tool.core.state_manager import (
+    config,
+    scan_state,
+    service_state,
+    overlay_state,
+    control_state,
+    save_config,
+)
 from scanning_tool.domain.models import DepositInfo, InfoOverlayGeometry
 
 
@@ -30,13 +37,21 @@ class InfoOverlay:
 
     def _update_canvas_text(self) -> None:
         if self.canvas and self.text_id:
-            safe_tk(lambda: self.canvas.itemconfig(
-                self.text_id,
-                text=self.overlay_text,
-                fill=config.overlay_config.label_color,
-            ))
+            safe_tk(
+                lambda: self.canvas.itemconfig(
+                    self.text_id,
+                    text=self.overlay_text,
+                    fill=config.overlay_config.label_color,
+                )
+            )
 
-    def update_label(self, info: Optional[DepositInfo], *, code: Optional[str] = None, raw_text: Optional[str] = None) -> None:
+    def update_label(
+        self,
+        info: Optional[DepositInfo],
+        *,
+        code: Optional[str] = None,
+        raw_text: Optional[str] = None,
+    ) -> None:
         self.overlay_text = self._build_deposit_message(info)
         self.last_overlay_time = time.time() if self.overlay_text else 0
 
@@ -56,9 +71,13 @@ class InfoOverlay:
 
         geo = compute_info_overlay_geometry(screen_width, screen_height)
 
-        safe_tk(lambda: self.root.geometry(f"{geo.width}x{geo.height}+{geo.left}+{geo.top}"))
+        safe_tk(
+            lambda: self.root.geometry(f"{geo.width}x{geo.height}+{geo.left}+{geo.top}")
+        )
         safe_tk(lambda: self.canvas.config(width=geo.width, height=geo.height))
-        safe_tk(lambda: self.canvas.coords(self.text_id, geo.width // 2, geo.height // 2))
+        safe_tk(
+            lambda: self.canvas.coords(self.text_id, geo.width // 2, geo.height // 2)
+        )
         safe_tk(lambda: self.canvas.itemconfig(self.text_id, width=geo.width - 60))
 
         self.info_overlay_geometry.screen_width = screen_width
@@ -106,7 +125,9 @@ class InfoOverlay:
             justify="center",
         )
 
-    def _save_geometry_state(self, geo: InfoOverlayGeometry, screen_width: int, screen_height: int) -> None:
+    def _save_geometry_state(
+        self, geo: InfoOverlayGeometry, screen_width: int, screen_height: int
+    ) -> None:
         self.info_overlay_geometry.screen_width = screen_width
         self.info_overlay_geometry.screen_height = screen_height
         self.info_overlay_geometry.width = geo.width
@@ -142,7 +163,12 @@ class InfoOverlay:
 _info_overlay = InfoOverlay()
 
 
-def update_overlay_label(info: Optional[DepositInfo], *, code: Optional[str] = None, raw_text: Optional[str] = None) -> None:
+def update_overlay_label(
+    info: Optional[DepositInfo],
+    *,
+    code: Optional[str] = None,
+    raw_text: Optional[str] = None,
+) -> None:
     _info_overlay.update_label(info, code=code, raw_text=raw_text)
 
 
@@ -161,19 +187,23 @@ def choose_label_color() -> None:
         return
     overlay_settings.label_color = color
     if _info_overlay.canvas and _info_overlay.text_id:
-        safe_tk(lambda: _info_overlay.canvas.itemconfig(
-            _info_overlay.text_id,
-            fill=overlay_settings.label_color,
-        ))
+        safe_tk(
+            lambda: _info_overlay.canvas.itemconfig(
+                _info_overlay.text_id,
+                fill=overlay_settings.label_color,
+            )
+        )
 
 
 def toggle_border() -> None:
     overlay_state = overlay_state
     overlay_state.show_border = not overlay_state.show_border
     if _capture_overlay.border_canvas:
-        safe_tk(lambda: _capture_overlay.border_canvas.itemconfig(
-            "border", state="normal" if overlay_state.show_border else "hidden"
-        ))
+        safe_tk(
+            lambda: _capture_overlay.border_canvas.itemconfig(
+                "border", state="normal" if overlay_state.show_border else "hidden"
+            )
+        )
 
 
 def show_info_overlay(screen_width: int, screen_height: int) -> None:

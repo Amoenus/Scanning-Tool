@@ -8,7 +8,12 @@ import pandas as pd  # type: ignore[import]
 
 from scanning_tool.domain.models import ScanSignature, SignatureRegistry
 
-SCAN_SIG_CSV = Path(__file__).parent.parent.parent.parent / "csv" / "scansig" / "scan_signatures_summary.csv"
+SCAN_SIG_CSV = (
+    Path(__file__).parent.parent.parent.parent
+    / "csv"
+    / "scansig"
+    / "scan_signatures_summary.csv"
+)
 
 
 def _load_scan_signatures(path: Path) -> SignatureRegistry:
@@ -37,4 +42,6 @@ def _load_scan_signatures(path: Path) -> SignatureRegistry:
     return registry
 
 
-SCAN_SIGNATURE_REGISTRY: SignatureRegistry = SignatureRegistry.load_from_csv(SCAN_SIG_CSV)
+SCAN_SIGNATURE_REGISTRY: SignatureRegistry = SignatureRegistry.load_from_csv(
+    SCAN_SIG_CSV
+)

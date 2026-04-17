@@ -26,6 +26,7 @@ modules_to_mock = [
 for module_name in modules_to_mock:
     sys.modules[module_name] = MagicMock()
 
+
 # Mocking state_manager
 class MockConfig:
     def __init__(self):
@@ -33,9 +34,11 @@ class MockConfig:
         self.web_server_config.host = "0.0.0.0"
         self.web_server_config.port = 5000
 
+
 mock_state_manager = MagicMock()
 mock_state_manager.config = MockConfig()
 sys.modules["scanning_tool.core.state_manager"] = mock_state_manager
+
 
 class TestSecurity(unittest.TestCase):
     def setUp(self):
@@ -58,10 +61,12 @@ class TestSecurity(unittest.TestCase):
 
                         self.assertTrue(mock_thread.called)
                         args, kwargs = mock_thread.call_args
-                        target = kwargs.get('target') or args[0]
+                        target = kwargs.get("target") or args[0]
                         target()
 
-                        mock_flask_app.run.assert_called_once_with(host="0.0.0.0", port=5000, debug=False)
+                        mock_flask_app.run.assert_called_once_with(
+                            host="0.0.0.0", port=5000, debug=False
+                        )
 
                         mock_logger.info.assert_called_once()
                         msg = mock_logger.info.call_args[0][0]
@@ -82,17 +87,23 @@ class TestSecurity(unittest.TestCase):
                     _start_web_server()
 
                     args, kwargs = mock_thread.call_args
-                    target = kwargs.get('target') or args[0]
+                    target = kwargs.get("target") or args[0]
                     target()
 
-                    mock_flask_app.run.assert_called_once_with(host="127.0.0.1", port=8080, debug=False)
+                    mock_flask_app.run.assert_called_once_with(
+                        host="127.0.0.1", port=8080, debug=False
+                    )
 
-                    mock_logger.info.assert_called_once_with("Starting overlay server: http://127.0.0.1:8080")
+                    mock_logger.info.assert_called_once_with(
+                        "Starting overlay server: http://127.0.0.1:8080"
+                    )
 
     def test_mobile_overlay_url_default(self):
         # Already set to 0.0.0.0 in setUp
         with patch("scanning_tool.gui.sections.ollama.webbrowser") as mock_webbrowser:
-            with patch("scanning_tool.gui.sections.ollama.get_local_ip") as mock_get_local_ip:
+            with patch(
+                "scanning_tool.gui.sections.ollama.get_local_ip"
+            ) as mock_get_local_ip:
                 mock_get_local_ip.return_value = "192.168.1.100"
                 from scanning_tool.gui.sections.ollama import OllamaSection
 
@@ -100,7 +111,9 @@ class TestSecurity(unittest.TestCase):
                 section._status = MagicMock()
                 section._open_mobile_overlay()
 
-                mock_webbrowser.open_new_tab.assert_called_once_with("http://192.168.1.100:5000")
+                mock_webbrowser.open_new_tab.assert_called_once_with(
+                    "http://192.168.1.100:5000"
+                )
 
     def test_mobile_overlay_url_custom(self):
         mock_state_manager.config.web_server_config.host = "127.0.0.1"
@@ -113,7 +126,10 @@ class TestSecurity(unittest.TestCase):
             section._status = MagicMock()
             section._open_mobile_overlay()
 
-            mock_webbrowser.open_new_tab.assert_called_once_with("http://127.0.0.1:8080")
+            mock_webbrowser.open_new_tab.assert_called_once_with(
+                "http://127.0.0.1:8080"
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

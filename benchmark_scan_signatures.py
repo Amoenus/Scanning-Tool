@@ -7,6 +7,7 @@ from src.scanning_tool.domain.models import ScanSignature
 csv_path = Path("csv/scansig/scan_signatures_summary.csv")
 df = pd.read_csv(csv_path)
 
+
 def load_with_iterrows() -> Dict[int, ScanSignature]:
     signatures: Dict[int, ScanSignature] = {}
     for _, row in df.iterrows():
@@ -22,6 +23,7 @@ def load_with_iterrows() -> Dict[int, ScanSignature]:
             pass
     return signatures
 
+
 def load_with_itertuples() -> Dict[int, ScanSignature]:
     signatures: Dict[int, ScanSignature] = {}
     for row in df.itertuples(index=False):
@@ -36,6 +38,7 @@ def load_with_itertuples() -> Dict[int, ScanSignature]:
         except Exception as e:
             pass
     return signatures
+
 
 if __name__ == "__main__":
     n = 10000

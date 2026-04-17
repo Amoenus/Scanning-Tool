@@ -1,6 +1,11 @@
 import os
 
-from scanning_tool.ollama.host import get_ollama_host, get_ollama_model, is_local_ollama_host, sanitize_ollama_host
+from scanning_tool.ollama.host import (
+    get_ollama_host,
+    get_ollama_model,
+    is_local_ollama_host,
+    sanitize_ollama_host,
+)
 
 
 def test_sanitize_ollama_host_adds_http_when_missing():

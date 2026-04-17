@@ -9,6 +9,7 @@ import tkinter as tk
 from tkinter import ttk
 
 from scanning_tool.core.anchor import AnchorRegionTracker
+from scanning_tool.domain.models import AlignmentRequest
 from scanning_tool.services.alignment_service import alignment_service
 from scanning_tool.config import ensure_anchor_directory
 from scanning_tool.gui.sections.base import SectionContext
@@ -24,8 +25,14 @@ from scanning_tool.gui.overlays import (
     sync_anchor_sliders,
     update_anchor_overlay_region,
 )
-from scanning_tool.core.state_manager import config, scan_state, service_state, overlay_state, control_state, save_config
-
+from scanning_tool.core.state_manager import (
+    config,
+    scan_state,
+    service_state,
+    overlay_state,
+    control_state,
+    save_config,
+)
 
 
 class HeadSwaySection:
@@ -41,15 +48,21 @@ class HeadSwaySection:
 
         self._auto_align_var = tk.BooleanVar(value=config.auto_alignment.enabled)
         ttk.Checkbutton(
-            frame, text="Enable auto alignment",
-            variable=self._auto_align_var, command=self._toggle_auto_align,
+            frame,
+            text="Enable auto alignment",
+            variable=self._auto_align_var,
+            command=self._toggle_auto_align,
             style="Glass.TCheckbutton",
         ).pack(anchor="w", padx=5, pady=(5, 0))
 
-        self._anchor_overlay_var = tk.BooleanVar(value=overlay_state.anchor_overlay_visible)
+        self._anchor_overlay_var = tk.BooleanVar(
+            value=overlay_state.anchor_overlay_visible
+        )
         ttk.Checkbutton(
-            frame, text="Show anchor overlay",
-            variable=self._anchor_overlay_var, command=self._toggle_anchor_overlay_visibility,
+            frame,
+            text="Show anchor overlay",
+            variable=self._anchor_overlay_var,
+            command=self._toggle_anchor_overlay_visibility,
             style="Glass.TCheckbutton",
         ).pack(anchor="w", padx=5, pady=(0, 5))
 
@@ -121,22 +134,41 @@ class HeadSwaySection:
             parent, "Anchor Top", 0, 2160, anchor_region.top, self._on_region_change
         )
         self._anchor_width = self._make_scale(
-            parent, "Anchor Width", 50, 1200, anchor_region.width, self._on_region_change
+            parent,
+            "Anchor Width",
+            50,
+            1200,
+            anchor_region.width,
+            self._on_region_change,
         )
         self._anchor_height = self._make_scale(
-            parent, "Anchor Height", 50, 800, anchor_region.height, self._on_region_change
+            parent,
+            "Anchor Height",
+            50,
+            800,
+            anchor_region.height,
+            self._on_region_change,
         )
         self._offset_x = self._make_scale(
             parent, "Offset X", -300, 600, anchor_offset.x, self._on_offset_change
         )
         self._offset_y = self._make_scale(
-            parent, "Offset Y", -300, 600, anchor_offset.y, self._on_offset_change,
+            parent,
+            "Offset Y",
+            -300,
+            600,
+            anchor_offset.y,
+            self._on_offset_change,
             padding=(0, 0),
         )
 
         register_anchor_sliders(
-            self._anchor_left, self._anchor_top, self._anchor_width, self._anchor_height,
-            self._offset_x, self._offset_y,
+            self._anchor_left,
+            self._anchor_top,
+            self._anchor_width,
+            self._anchor_height,
+            self._offset_x,
+            self._offset_y,
         )
         sync_anchor_sliders()
 
@@ -158,9 +190,7 @@ class HeadSwaySection:
         anchor_region.top = int(self._anchor_top.get())
         anchor_region.width = int(self._anchor_width.get())
         anchor_region.height = int(self._anchor_height.get())
-        self._status.set_anchor(
-            f"Anchor region updated: {anchor_region}", hold=2.0
-        )
+        self._status.set_anchor(f"Anchor region updated: {anchor_region}", hold=2.0)
         if config.auto_alignment.enabled:
             self._run_auto_alignment()
         update_anchor_overlay_region()
@@ -171,9 +201,7 @@ class HeadSwaySection:
         anchor_offset = config.anchor_offset
         anchor_offset.x = int(self._offset_x.get())
         anchor_offset.y = int(self._offset_y.get())
-        self._status.set_anchor(
-            f"Anchor offset updated: {anchor_offset}", hold=2.0
-        )
+        self._status.set_anchor(f"Anchor offset updated: {anchor_offset}", hold=2.0)
         if config.auto_alignment.enabled:
             self._run_auto_alignment()
 
@@ -188,9 +216,11 @@ class HeadSwaySection:
 
     def _run_auto_alignment(self) -> bool:
         from scanning_tool.gui.overlays import sync_capture_sliders
+
         return alignment_service.align(
             scan_state.anchor_tracker,
             scan_state.last_alignment_info,
+            AlignmentRequest.from_config(config),
             sync_capture_sliders,
             update_anchor_overlay_region,
         )
@@ -212,7 +242,8 @@ class HeadSwaySection:
         value = max(100, min(5000, value))
         config.alignment_poll_interval_ms = value
         self._status.set_anchor(
-            f"Alignment interval set to {config.alignment_poll_interval_ms} ms", hold=2.0
+            f"Alignment interval set to {config.alignment_poll_interval_ms} ms",
+            hold=2.0,
         )
 
     def _update_threshold(self, *_args: object) -> None:

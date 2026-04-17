@@ -20,7 +20,10 @@ class AnchorMatcher:
         best_template: Optional[Tuple[str, np.ndarray]] = None
 
         for template_name, template_img in templates:
-            if anchor_gray.shape[0] < template_img.shape[0] or anchor_gray.shape[1] < template_img.shape[1]:
+            if (
+                anchor_gray.shape[0] < template_img.shape[0]
+                or anchor_gray.shape[1] < template_img.shape[1]
+            ):
                 continue
             res = cv2.matchTemplate(anchor_gray, template_img, cv2.TM_CCOEFF_NORMED)
             _, max_val, _, max_loc = cv2.minMaxLoc(res)

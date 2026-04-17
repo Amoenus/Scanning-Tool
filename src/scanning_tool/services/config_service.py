@@ -9,37 +9,53 @@ from loguru import logger
 from pydantic import BaseModel, Field, ValidationError
 
 from scanning_tool.domain.models import (
-    AutoAlignmentConfig, CaptureRegion, ContinuousCaptureConfig,
-    OllamaConfig, Offset2D, OverlayConfig, WebServerConfig
+    AutoAlignmentConfig,
+    CaptureRegion,
+    ContinuousCaptureConfig,
+    OllamaConfig,
+    Offset2D,
+    OverlayConfig,
+    WebServerConfig,
 )
 
 
 class ConfigData(BaseModel):
     """Pydantic model for configuration data."""
+
     model_config = {"arbitrary_types_allowed": True, "extra": "ignore"}
 
-    capture_region: CaptureRegion = Field(default_factory=lambda: CaptureRegion(1260, 310, 160, 30))
-    overlay_config: OverlayConfig = Field(default_factory=lambda: OverlayConfig(Offset2D(0, 0), "yellow", True))
-    auto_alignment: AutoAlignmentConfig = Field(default_factory=lambda: AutoAlignmentConfig(
-        True,
-        500,
-        CaptureRegion(1100, 240, 320, 140)
-    ))
-    anchor_template: CaptureRegion = Field(default_factory=lambda: CaptureRegion(1100, 240, 320, 140))
+    capture_region: CaptureRegion = Field(
+        default_factory=lambda: CaptureRegion(1260, 310, 160, 30)
+    )
+    overlay_config: OverlayConfig = Field(
+        default_factory=lambda: OverlayConfig(Offset2D(0, 0), "yellow", True)
+    )
+    auto_alignment: AutoAlignmentConfig = Field(
+        default_factory=lambda: AutoAlignmentConfig(
+            True, 500, CaptureRegion(1100, 240, 320, 140)
+        )
+    )
+    anchor_template: CaptureRegion = Field(
+        default_factory=lambda: CaptureRegion(1100, 240, 320, 140)
+    )
     anchor_offset: Offset2D = Field(default_factory=lambda: Offset2D(36, 56))
     anchor_threshold: float = 0.82
     anchor_template_dir: str = "assets/anchor_templates"
     alignment_poll_interval_ms: int = 500
     continuous_capture_interval: float = 2.0
     ollama_config: OllamaConfig = Field(default_factory=lambda: OllamaConfig("", None))
-    web_server_config: WebServerConfig = Field(default_factory=lambda: WebServerConfig("0.0.0.0", 5000))
+    web_server_config: WebServerConfig = Field(
+        default_factory=lambda: WebServerConfig("0.0.0.0", 5000)
+    )
 
 
 class ConfigService:
     """Service for loading, saving, and managing configuration."""
 
     def __init__(self, config_file: Optional[Path] = None):
-        self.config_file = config_file or Path(__file__).parent.parent.parent / "config.json"
+        self.config_file = (
+            config_file or Path(__file__).parent.parent.parent / "config.json"
+        )
         self._config: Optional[ConfigData] = None
 
     def load(self) -> ConfigData:
@@ -105,4 +121,3 @@ class ConfigService:
     def get_overlay_config(self) -> OverlayConfig:
         """Get the overlay configuration."""
         return self.get_config().overlay_config
-

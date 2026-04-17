@@ -3,8 +3,15 @@
 import tkinter as tk
 from typing import Optional
 
-from scanning_tool.services.alignment_service import alignment_service, reset_alignment_info
-from scanning_tool.gui.overlays import update_capture_overlay_region, sync_capture_sliders
+from scanning_tool.services.alignment_service import (
+    alignment_service,
+    reset_alignment_info,
+)
+from scanning_tool.domain.models import AlignmentRequest
+from scanning_tool.gui.overlays import (
+    update_capture_overlay_region,
+    sync_capture_sliders,
+)
 from scanning_tool.gui.overlays.base import safe_tk
 from scanning_tool.gui.status import StatusBar
 from scanning_tool.core.state_manager import config, scan_state
@@ -26,10 +33,12 @@ class AlignmentPoller:
         if message:
             self.status.push_alignment_message(message)
 
-        safe_tk(lambda: self.root.after(
-            max(100, int(config.alignment_poll_interval_ms)),
-            self._tick,
-        ))
+        safe_tk(
+            lambda: self.root.after(
+                max(100, int(config.alignment_poll_interval_ms)),
+                self._tick,
+            )
+        )
 
     def _poll(self) -> Optional[str]:
         if not config.auto_alignment.enabled:
@@ -51,6 +60,7 @@ class AlignmentPoller:
         return alignment_service.align(
             scan_state.anchor_tracker,
             scan_state.last_alignment_info,
+            AlignmentRequest.from_config(config),
             sync_capture_sliders,
             update_capture_overlay_region,
         )

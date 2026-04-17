@@ -8,12 +8,23 @@ import mss
 from loguru import logger
 from PIL import Image
 
-from scanning_tool.core.state_manager import config, scan_state, service_state, overlay_state, control_state, save_config
+from scanning_tool.core.state_manager import (
+    config,
+    scan_state,
+    service_state,
+    overlay_state,
+    control_state,
+    save_config,
+)
 from scanning_tool.ocr import ocr_with_ollama
 from scanning_tool.deposits import extract_code_from_text, lookup_deposit
 from scanning_tool.services.alignment_service import alignment_service
-from scanning_tool.gui.overlays import update_capture_overlay_region, update_overlay_label, sync_capture_sliders
-from scanning_tool.domain.models import ScanResult
+from scanning_tool.domain.models import AlignmentRequest, ScanResult
+from scanning_tool.gui.overlays import (
+    update_capture_overlay_region,
+    update_overlay_label,
+    sync_capture_sliders,
+)
 
 
 class CaptureService:
@@ -40,11 +51,15 @@ class CaptureService:
         auto_aligned = alignment_service.align(
             scan_state.anchor_tracker,
             scan_state.last_alignment_info,
+            AlignmentRequest.from_config(config),
             sync_capture_sliders,
             update_capture_overlay_region,
         )
         if config.auto_alignment.enabled:
-            logger.debug("Auto alignment %s before capture.", "succeeded" if auto_aligned else "did not match")
+            logger.debug(
+                "Auto alignment %s before capture.",
+                "succeeded" if auto_aligned else "did not match",
+            )
 
     def _capture_screen_region(self) -> Image.Image:
         cap_region = config.capture_region
@@ -63,7 +78,9 @@ class CaptureService:
             code_raw=extraction.raw,
             raw_text=raw_text,
         )
-        update_overlay_label(deposit_info, code=extraction.code, raw_text=extraction.raw or raw_text)
+        update_overlay_label(
+            deposit_info, code=extraction.code, raw_text=extraction.raw or raw_text
+        )
         return result
 
     def _log_scan_result(self, result: ScanResult) -> None:

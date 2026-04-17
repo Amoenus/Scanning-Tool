@@ -24,13 +24,17 @@ class ScrollableFrame:
             highlightthickness=0,
             borderwidth=0,
         )
-        scrollbar = ttk.Scrollbar(self.container, orient="vertical", command=self.canvas.yview)
+        scrollbar = ttk.Scrollbar(
+            self.container, orient="vertical", command=self.canvas.yview
+        )
         self.canvas.configure(yscrollcommand=scrollbar.set)
         scrollbar.pack(side="right", fill="y")
         self.canvas.pack(side="left", fill="both", expand=True)
 
         self.inner = ttk.Frame(self.canvas, style="Glass.Main.TFrame", padding=20)
-        self._window_id = self.canvas.create_window((15, 15), window=self.inner, anchor="nw")
+        self._window_id = self.canvas.create_window(
+            (15, 15), window=self.inner, anchor="nw"
+        )
 
         self.inner.bind("<Configure>", self._sync_scroll_region)
         self.canvas.bind("<Configure>", self._sync_scroll_region)

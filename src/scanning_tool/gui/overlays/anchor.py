@@ -5,7 +5,14 @@ from typing import Optional
 
 from .base import ANCHOR_OVERLAY_PAD, create_overlay_window, safe_tk
 from .geometry import compute_anchor_overlay_geometry
-from scanning_tool.core.state_manager import config, scan_state, service_state, overlay_state, control_state, save_config
+from scanning_tool.core.state_manager import (
+    config,
+    scan_state,
+    service_state,
+    overlay_state,
+    control_state,
+    save_config,
+)
 
 
 class AnchorOverlay:
@@ -27,7 +34,9 @@ class AnchorOverlay:
             self.rect_id = None
 
         geometry = compute_anchor_overlay_geometry()
-        self.root = create_overlay_window(geometry.width, geometry.height, geometry.left, geometry.top)
+        self.root = create_overlay_window(
+            geometry.width, geometry.height, geometry.left, geometry.top
+        )
         self.canvas = tk.Canvas(
             self.root,
             width=geometry.width,
@@ -69,15 +78,23 @@ class AnchorOverlay:
             return
 
         geometry = compute_anchor_overlay_geometry()
-        safe_tk(lambda: self.canvas.config(width=geometry.width, height=geometry.height))
-        safe_tk(lambda: self.canvas.coords(
-            self.rect_id,
-            ANCHOR_OVERLAY_PAD // 2,
-            ANCHOR_OVERLAY_PAD // 2,
-            ANCHOR_OVERLAY_PAD // 2 + int(config.anchor_template.width),
-            ANCHOR_OVERLAY_PAD // 2 + int(config.anchor_template.height),
-        ))
-        safe_tk(lambda: self.root.geometry(f"{geometry.width}x{geometry.height}+{geometry.left}+{geometry.top}"))
+        safe_tk(
+            lambda: self.canvas.config(width=geometry.width, height=geometry.height)
+        )
+        safe_tk(
+            lambda: self.canvas.coords(
+                self.rect_id,
+                ANCHOR_OVERLAY_PAD // 2,
+                ANCHOR_OVERLAY_PAD // 2,
+                ANCHOR_OVERLAY_PAD // 2 + int(config.anchor_template.width),
+                ANCHOR_OVERLAY_PAD // 2 + int(config.anchor_template.height),
+            )
+        )
+        safe_tk(
+            lambda: self.root.geometry(
+                f"{geometry.width}x{geometry.height}+{geometry.left}+{geometry.top}"
+            )
+        )
         safe_tk(lambda: self.root.lift())
 
     def hide(self) -> None:
