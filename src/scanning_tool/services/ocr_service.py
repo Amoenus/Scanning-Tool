@@ -64,29 +64,39 @@ def _select_prompt(model: Optional[str]) -> str:
     return _DEFAULT_PROMPT
 
 
+def _get_image_bytes(pil_img: Image.Image) -> bytes:
+    buf = io.BytesIO()
+    pil_img.save(buf, format="PNG")
+    return buf.getvalue()
+
+
+def _build_ollama_message(prompt: str, image_bytes: bytes) -> list[dict[str, object]]:
+    return [
+        {
+            "role": "user",
+            "content": prompt,
+            "images": [image_bytes],
+        }
+    ]
+
+
+def _send_ollama_chat(model: str, prompt: str, image_bytes: bytes) -> str:
+    client: ollama.Client = get_ollama_client()
+    messages = _build_ollama_message(prompt, image_bytes)
+    response: ollama.ChatResponse = client.chat(model=model, messages=messages)
+    content = response.message.content
+    return content.strip() if content else ""
+
+
 def ocr_with_ollama(pil_img: Image.Image, model: Optional[str] = None) -> str:
     """Send an image to Ollama for OCR and return the extracted text."""
     if model is None:
         model = get_ollama_model()
-    buf = io.BytesIO()
-    pil_img.save(buf, format="PNG")
-    img_bytes = buf.getvalue()
-    client: ollama.Client = get_ollama_client()
+    image_bytes = _get_image_bytes(pil_img)
     prompt = _select_prompt(model)
     logger.debug(f"Using OCR prompt for model '{model}': {prompt}")
     try:
-        response: ollama.ChatResponse = client.chat(
-            model=model,
-            messages=[
-                {
-                    "role": "user",
-                    "content": prompt,
-                    "images": [img_bytes],
-                }
-            ],
-        )
-        content = response.message.content
-        return content.strip() if content else ""
+        return _send_ollama_chat(model, prompt, image_bytes)
     except Exception as e:
         logger.error(f"Ollama OCR error: {e}")
         return ""
