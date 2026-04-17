@@ -8,7 +8,7 @@ from flask import Flask, jsonify, render_template, request
 
 from scanning_tool.core.state_manager import config, scan_state, service_state, overlay_state, control_state, save_config
 from scanning_tool.config import resource_path
-## Removed import of MULTIPLIER_CODES (now replaced by dynamic scan signature data)
+from scanning_tool.domain.models import StatusResponse
 
 
 
@@ -25,6 +25,34 @@ def get_local_ip() -> str:
     return "127.0.0.1"
 
 
+def _lookup_deposit_table(info, selected_region: str):
+    if not info:
+        return None
+    deposit_key = (info.key or info.name or "").upper()
+    region_tables = service_state.deposit_tables.get(selected_region, {})
+    table = region_tables.get(deposit_key)
+    category = str(info.category or "").lower()
+    if not table or category not in {"rock deposits", "gems"}:
+        return None
+    return table
+
+
+def _build_status_response(result, info, selected_region: str, table) -> StatusResponse:
+    return StatusResponse(
+        region=config.capture_region,
+        label_color=config.overlay_config.label_color,
+        last=asdict(result) if result else None,
+        alignment=asdict(scan_state.last_alignment_info),
+        selected_region=selected_region,
+        info=asdict(info) if info else None,
+        code=result.label if result else None,
+        code_raw=result.code_raw if result else None,
+        confidence=float(result.confidence) if result and result.confidence is not None else None,
+        raw_text=result.raw_text if result else None,
+        table=table,
+    )
+
+
 def create_app() -> Flask:
     """Create and configure the Flask application."""
     template_folder = resource_path("templates")
@@ -39,38 +67,9 @@ def create_app() -> Flask:
         """Return the latest scan information for the overlay UI."""
         selected_region = request.args.get("region", "STANTON").upper()
         result = scan_state.last_result
-        info = None
-        code_raw = None
-        confidence = None
-        raw_text = None
-        table = None
-        if result:
-            info = result.info
-            code_raw = result.code_raw
-            confidence = result.confidence
-            raw_text = result.raw_text
-            if info:
-                deposit_key = (info.key or info.name or "").upper()
-                region_tables = service_state.deposit_tables.get(selected_region, {})
-                table = region_tables.get(deposit_key)
-                category = str(info.category or "").lower()
-                if not table or category not in {"rock deposits", "gems"}:
-                    table = None
-
-        response = {
-            "region": config.capture_region,
-            "label_color": config.overlay_config.label_color,
-            "last": asdict(result) if result else None,
-            "alignment": asdict(scan_state.last_alignment_info),
-            "selected_region": selected_region,
-            "info": asdict(info) if info else None,
-            "code": result.label if result else None,
-            "code_raw": code_raw,
-            "confidence": float(confidence) if confidence is not None else None,
-            "raw_text": raw_text,
-            "table": table,
-        }
-
-        return jsonify(response)
+        info = result.info if result else None
+        table = _lookup_deposit_table(info, selected_region)
+        response = _build_status_response(result, info, selected_region, table)
+        return jsonify(asdict(response))
 
     return app

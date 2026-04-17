@@ -5,6 +5,7 @@ import time
 from threading import Thread
 
 import mss
+from loguru import logger
 from PIL import Image
 
 from scanning_tool.core.state_manager import config, scan_state, service_state, overlay_state, control_state, save_config
@@ -12,7 +13,7 @@ from scanning_tool.ocr import ocr_with_ollama
 from scanning_tool.deposits import extract_code_from_text, lookup_deposit
 from scanning_tool.services.alignment_service import alignment_service
 from scanning_tool.gui.overlays import update_capture_overlay_region, update_overlay_label, sync_capture_sliders
-from scanning_tool.domain.models import ScanResult, OCRResult, CaptureRegion
+from scanning_tool.domain.models import ScanResult
 
 
 class CaptureService:
@@ -30,88 +31,69 @@ class CaptureService:
         """Wrap numbers in <yellow> tags for loguru."""
         return re.sub(r"(\d+)", r"<yellow>\1</yellow>", text)
 
-    def _do_capture(self):
-        """Internal capture logic."""
+    def _set_status(self, message: str) -> None:
         if self._status_callback:
-            self._status_callback("Aligning region...")
+            self._status_callback(message)
 
+    def _align_before_capture(self) -> None:
+        self._set_status("Aligning region...")
         auto_aligned = alignment_service.align(
             scan_state.anchor_tracker,
             scan_state.last_alignment_info,
             sync_capture_sliders,
             update_capture_overlay_region,
         )
-
         if config.auto_alignment.enabled:
-            from loguru import logger
             logger.debug("Auto alignment %s before capture.", "succeeded" if auto_aligned else "did not match")
 
+    def _capture_screen_region(self) -> Image.Image:
         cap_region = config.capture_region
         with mss.mss() as sct:
-            monitor = {
-                "left": cap_region.left,
-                "top": cap_region.top,
-                "width": cap_region.width,
-                "height": cap_region.height,
-            }
-            img = sct.grab(monitor)
-            pil_img = Image.frombytes("RGB", img.size, img.rgb)
+            img = sct.grab(cap_region.to_mss_monitor())
+            return Image.frombytes("RGB", img.size, img.rgb)
 
-        if self._status_callback:
-            self._status_callback("Loading OCR model (may take a moment)...")
+    def _run_ocr_pipeline(self, pil_img: Image.Image) -> ScanResult:
+        raw_text = ocr_with_ollama(pil_img)
+        extraction = extract_code_from_text(raw_text)
+        deposit_info = lookup_deposit(extraction.code)
+        result = ScanResult(
+            label=extraction.code if extraction.code else "UNKNOWN",
+            confidence=1.0,
+            region=config.capture_region,
+            info=deposit_info,
+            code_raw=extraction.raw,
+            raw_text=raw_text,
+        )
+        update_overlay_label(deposit_info, code=extraction.code, raw_text=extraction.raw or raw_text)
+        return result
 
-        from loguru import logger
+    def _log_scan_result(self, result: ScanResult) -> None:
+        logger.info(
+            f"Scan result: ScanResult("
+            f"label={result.label}, "
+            f"confidence={result.confidence}, "
+            f"region={result.region}, "
+            f"code_raw={result.code_raw}, "
+            f"raw_text={result.raw_text}"
+            ")"
+        )
+
+    def _do_capture(self):
+        self._align_before_capture()
+        pil_img = self._capture_screen_region()
+        self._set_status("Loading OCR model (may take a moment)...")
         logger.debug("Loading OCR model for scan...")
-
         try:
-            raw_text = ocr_with_ollama(pil_img)
-            # Create OCRResult for structured OCR output
-            ocr_result = OCRResult(
-                text=raw_text,
-                confidence=1.0,  # Placeholder, update if OCR returns confidence
-                region=CaptureRegion(
-                    left=cap_region.left,
-                    top=cap_region.top,
-                    width=cap_region.width,
-                    height=cap_region.height,
-                ),
-            )
-            code, raw = extract_code_from_text(raw_text)
-            deposit_info = lookup_deposit(code)
-            scan_state.last_result = ScanResult(
-                label=code if code else "UNKNOWN",
-                confidence=1.0,
-                region=ocr_result.region,
-                info=deposit_info,
-                code_raw=raw,
-                raw_text=raw_text,
-            )
-            update_overlay_label(deposit_info, code=code, raw_text=raw or raw_text)
-
-            result = scan_state.last_result
-            logger.info(
-                f"Scan result: ScanResult("
-                f"label={result.label}, "
-                f"confidence={result.confidence}, "
-                f"region={result.region}, "
-                f"code_raw={result.code_raw}, "
-                f"raw_text={result.raw_text}"
-                ")"
-            )
-
-            if self._status_callback:
-                self._status_callback("Scan complete.")
-
+            scan_state.last_result = self._run_ocr_pipeline(pil_img)
+            self._log_scan_result(scan_state.last_result)
+            self._set_status("Scan complete.")
         except Exception as e:
             logger.error(f"OCR/model error: {e}")
-            if self._status_callback:
-                self._status_callback(f"OCR/model error: {e}")
+            self._set_status(f"OCR/model error: {e}")
 
     def toggle_continuous(self) -> None:
         """Toggle continuous scanning mode."""
-        from scanning_tool.core.state_manager import config, scan_state, service_state, overlay_state, control_state, save_config
         scan_state.continuous_mode = not scan_state.continuous_mode
-        from loguru import logger
         logger.info(f"Continuous mode: {scan_state.continuous_mode}")
 
         if scan_state.continuous_mode:
@@ -120,7 +102,6 @@ class CaptureService:
     def _continuous_scan_loop(self) -> None:
         """Run scans repeatedly until continuous_mode is turned off."""
         while True:
-            from scanning_tool.core.state_manager import config, scan_state, service_state, overlay_state, control_state, save_config
             if not scan_state.continuous_mode:
                 break
             self.capture_once()

@@ -32,7 +32,6 @@ class AnchorRegionTracker:
 
     def load_templates(self) -> int:
         ensure_anchor_directory(self.template_dir)
-        loaded: List[Tuple[str, np.ndarray]] = []
         directory = Path(self.template_dir)
         if not directory.exists():
             logger.debug(f"Anchor template directory does not exist: {directory}")
@@ -40,7 +39,14 @@ class AnchorRegionTracker:
             self.last_loaded_count = 0
             return 0
 
+        self.templates = self._load_image_files(directory)
+        self.last_loaded_count = len(self.templates)
+        self._log_template_load_result(directory)
+        return self.last_loaded_count
+
+    def _load_image_files(self, directory: Path) -> List[Tuple[str, np.ndarray]]:
         supported_ext = {".png", ".jpg", ".jpeg", ".bmp"}
+        loaded: List[Tuple[str, np.ndarray]] = []
         for path in sorted(directory.glob("**/*")):
             if path.suffix.lower() not in supported_ext or not path.is_file():
                 continue
@@ -49,36 +55,40 @@ class AnchorRegionTracker:
                 logger.warning(f"Failed to load anchor template: {path}")
                 continue
             loaded.append((path.name, image))
+        return loaded
 
-        self.templates = loaded
-        self.last_loaded_count = len(loaded)
+    def _log_template_load_result(self, directory: Path) -> None:
         if self.last_loaded_count == 0:
             logger.warning(
                 "No anchor templates were loaded. Head sway compensation will remain disabled until templates are added."
             )
         else:
             logger.info(f"Loaded {self.last_loaded_count} anchor templates from {directory}")
-        return self.last_loaded_count
 
 
     def locate_anchor(self, region: "CaptureRegion") -> Optional[AnchorDetection]:
-        """Locate the best matching anchor template within *region*.
-
-        Parameters
-        ----------
-        region:
-            A :class:`CaptureRegion` describing the screen area to search.
-        """
+        """Locate the best matching anchor template within *region*."""
         if not self.templates:
             return None
 
-        monitor = {
-            "left": int(region.left),
-            "top": int(region.top),
-            "width": int(region.width),
-            "height": int(region.height),
-        }
+        monitor = region.to_mss_monitor()
+        anchor_gray = self._grab_anchor_screenshot(monitor)
+        if anchor_gray is None:
+            return None
 
+        best_score, best_loc, best_template = self._find_best_template_match(anchor_gray)
+        if best_loc is None or best_template is None:
+            return None
+
+        if best_score < self.threshold:
+            logger.debug(
+                f"Anchor match below threshold ({best_score:.3f} < {self.threshold:.3f}) using template {best_template[0]}"
+            )
+            return None
+
+        return self._build_detection(monitor, best_loc, best_template, best_score)
+
+    def _grab_anchor_screenshot(self, monitor: dict) -> Optional[np.ndarray]:
         with mss.mss() as sct:
             try:
                 screenshot = sct.grab(monitor)
@@ -88,10 +98,12 @@ class AnchorRegionTracker:
 
         anchor_image = np.array(screenshot)
         if anchor_image.ndim == 3 and anchor_image.shape[2] == 4:
-            anchor_gray = cv2.cvtColor(anchor_image, cv2.COLOR_BGRA2GRAY)
-        else:
-            anchor_gray = cv2.cvtColor(anchor_image, cv2.COLOR_BGR2GRAY)
+            return cv2.cvtColor(anchor_image, cv2.COLOR_BGRA2GRAY)
+        return cv2.cvtColor(anchor_image, cv2.COLOR_BGR2GRAY)
 
+    def _find_best_template_match(
+        self, anchor_gray: np.ndarray
+    ) -> Tuple[float, Optional[Tuple[int, int]], Optional[Tuple[str, np.ndarray]]]:
         best_score = -1.0
         best_loc: Optional[Tuple[int, int]] = None
         best_template: Optional[Tuple[str, np.ndarray]] = None
@@ -106,15 +118,15 @@ class AnchorRegionTracker:
                 best_loc = max_loc
                 best_template = (template_name, template_img)
 
-        if best_loc is None or best_template is None:
-            return None
+        return best_score, best_loc, best_template
 
-        if best_score < self.threshold:
-            logger.debug(
-                f"Anchor match below threshold ({best_score:.3f} < {self.threshold:.3f}) using template {best_template[0]}"
-            )
-            return None
-
+    def _build_detection(
+        self,
+        monitor: dict,
+        best_loc: Tuple[int, int],
+        best_template: Tuple[str, np.ndarray],
+        best_score: float,
+    ) -> AnchorDetection:
         match_left = monitor["left"] + best_loc[0]
         match_top = monitor["top"] + best_loc[1]
         return AnchorDetection(

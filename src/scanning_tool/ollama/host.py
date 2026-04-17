@@ -3,6 +3,7 @@ from typing import Tuple
 from urllib.parse import urlparse
 
 from scanning_tool.core.state_manager import config, scan_state, service_state, overlay_state, control_state, save_config
+from scanning_tool.domain.models import OLLAMA_DEFAULT_HOST
 
 
 def sanitize_ollama_host(value: str) -> str:
@@ -22,7 +23,7 @@ def get_ollama_host() -> str:
         return sanitize_ollama_host(env_host)
     if config.ollama_config.host:
         return config.ollama_config.host
-    return config.ollama_config.default_host
+    return OLLAMA_DEFAULT_HOST
 
 
 def set_configured_ollama_model(value: str) -> str:

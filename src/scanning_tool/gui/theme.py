@@ -29,17 +29,7 @@ _PALETTE: GlassPalette = {
 }
 
 
-def apply_glass_theme(root: tk.Tk) -> GlassPalette:
-    """Apply a holographic glass-inspired theme to the Tkinter UI."""
-    colors = dict(_PALETTE)
-
-    root.configure(bg=colors["background"])
-    root.option_add("*Font", "{Segoe UI} 10")
-    root.option_add("*Foreground", colors["text"])
-    root.option_add("*TCombobox*Listbox*Background", colors["panel"])
-    style = ttk.Style(root)
-    safe_tk(lambda: style.theme_use("clam"))
-
+def _configure_frame_styles(style: ttk.Style, colors: GlassPalette) -> None:
     style.configure("Glass.Main.TFrame", background=colors["background"])
     style.configure("Glass.Section.TFrame", background=colors["panel"])
     style.configure(
@@ -63,6 +53,9 @@ def apply_glass_theme(root: tk.Tk) -> GlassPalette:
         font=("Segoe UI", 11, "bold"),
     )
     style.configure("Glass.TFrame", background=colors["panel"])
+
+
+def _configure_label_styles(style: ttk.Style, colors: GlassPalette) -> None:
     style.configure("Glass.TLabel", background=colors["panel"], foreground=colors["text"])
     style.configure(
         "Glass.Small.TLabel",
@@ -82,6 +75,9 @@ def apply_glass_theme(root: tk.Tk) -> GlassPalette:
         foreground=colors["muted"],
         font=("Segoe UI", 9),
     )
+
+
+def _configure_button_styles(style: ttk.Style, colors: GlassPalette) -> None:
     style.configure(
         "Glass.TButton",
         background=colors["button"],
@@ -96,6 +92,9 @@ def apply_glass_theme(root: tk.Tk) -> GlassPalette:
         background=[("active", colors["button_hover"]), ("pressed", colors["button_hover"])],
         foreground=[("disabled", colors["muted"])],
     )
+
+
+def _configure_checkbox_styles(style: ttk.Style, colors: GlassPalette) -> None:
     style.configure(
         "Glass.TCheckbutton",
         background=colors["panel"],
@@ -107,6 +106,8 @@ def apply_glass_theme(root: tk.Tk) -> GlassPalette:
         foreground=[("active", colors["accent"]), ("selected", colors["accent"])],
     )
 
+
+def _configure_slider_styles(style: ttk.Style, root: tk.Tk, colors: GlassPalette) -> None:
     slider_normal = _make_slider_image(colors["knob"], colors["knob_outline"])
     slider_active = _make_slider_image(colors["knob_active"], colors["accent"])
     root._glass_slider_images = (slider_normal, slider_active)  # type: ignore[attr-defined]
@@ -136,6 +137,24 @@ def apply_glass_theme(root: tk.Tk) -> GlassPalette:
         background=colors["panel"],
         troughcolor=colors["background"],
     )
+
+
+def apply_glass_theme(root: tk.Tk) -> GlassPalette:
+    """Apply a holographic glass-inspired theme to the Tkinter UI."""
+    colors = dict(_PALETTE)
+
+    root.configure(bg=colors["background"])
+    root.option_add("*Font", "{Segoe UI} 10")
+    root.option_add("*Foreground", colors["text"])
+    root.option_add("*TCombobox*Listbox*Background", colors["panel"])
+    style = ttk.Style(root)
+    safe_tk(lambda: style.theme_use("clam"))
+
+    _configure_frame_styles(style, colors)
+    _configure_label_styles(style, colors)
+    _configure_button_styles(style, colors)
+    _configure_checkbox_styles(style, colors)
+    _configure_slider_styles(style, root, colors)
 
     return colors
 

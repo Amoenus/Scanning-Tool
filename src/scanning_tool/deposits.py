@@ -8,6 +8,7 @@ from typing import Dict, List, Optional
 from scanning_tool.config import ROCK_TYPE_FILE
 from scanning_tool.core.state_manager import config, scan_state, service_state, overlay_state, control_state, save_config
 from scanning_tool.domain.models import (
+    CodeExtraction,
     DepositInfo,
     DepositTable,
     OreTableEntry,
@@ -37,12 +38,12 @@ if SCAN_SIG_CSV.exists():
                 max_multiplier = int(row["max_multiplier"])
                 mineral = row["mineral"]
                 category = row["category"]
-                SCAN_SIGNATURES[base_value] = {
-                    "name": mineral,
-                    "category": category,
-                    "base_value": base_value,
-                    "max_multiplier": max_multiplier,
-                }
+                SCAN_SIGNATURES[base_value] = ScanSignature(
+                    name=mineral,
+                    category=category,
+                    base_value=base_value,
+                    max_multiplier=max_multiplier,
+                )
             except Exception as e:
                 logger.warning(f"Bad scan signature row: {row} ({e})")
     except Exception as e:
@@ -60,7 +61,7 @@ ORE_TIERS: Dict[OreTier, OreTierInfo] = {
 ORE_VALUE_MAP: Dict[str, OreValueInfo] = {}
 for _tier, _data in ORE_TIERS.items():
     for _ore in _data.ores:
-        ORE_VALUE_MAP[_ore.upper()] = {"tier": _tier, "color": _data.color}
+        ORE_VALUE_MAP[_ore.upper()] = OreValueInfo(tier=_tier, color=_data.color)
 
 _TIER_ORDER: List[OreTier] = ["HIGHEST", "HIGH", "MEDIUM", "LOW", "OTHER"]
 
@@ -73,18 +74,18 @@ def build_deposit_tables(rock_data: Dict[str, RockDeposit]) -> Dict[str, Deposit
         table: DepositTable = []
         for ore_name, ore_data in ores.items():
             name_up = ore_name.upper()
-            value_info: OreValueInfo = ORE_VALUE_MAP.get(name_up, {"tier": "OTHER", "color": "#888"})
-            entry: OreTableEntry = {
-                "name": ore_name.title(),
-                "prob": f"{ore_data.get('prob', 0) * 100:.0f}%",
-                "min": f"{ore_data.get('minPct', 0) * 100:.0f}%",
-                "max": f"{ore_data.get('maxPct', 0) * 100:.0f}%",
-                "med": f"{ore_data.get('medPct', 0) * 100:.0f}%",
-                "tier": value_info["tier"],
-                "color": value_info["color"],
-            }
+            value_info = ORE_VALUE_MAP.get(name_up, OreValueInfo(tier="OTHER", color="#888"))
+            entry = OreTableEntry(
+                name=ore_name.title(),
+                prob=f"{ore_data.get('prob', 0) * 100:.0f}%",
+                min=f"{ore_data.get('minPct', 0) * 100:.0f}%",
+                max=f"{ore_data.get('maxPct', 0) * 100:.0f}%",
+                med=f"{ore_data.get('medPct', 0) * 100:.0f}%",
+                tier=value_info.tier,
+                color=value_info.color,
+            )
             table.append(entry)
-        table.sort(key=lambda x: _TIER_ORDER.index(x["tier"]))
+        table.sort(key=lambda x: _TIER_ORDER.index(x.tier))
         deposit_tables[deposit_name.upper()] = table
     return deposit_tables
 
@@ -110,36 +111,39 @@ def lookup_deposit(code: Optional[str]) -> Optional[DepositInfo]:
         if not m:
             return None
         num_code = int(m.group(1))
-        for base_value, info in SCAN_SIGNATURES.items():
+        for base_value, sig in SCAN_SIGNATURES.items():
             if num_code % base_value == 0:
                 return DepositInfo(
-                    name=info["name"],
+                    name=sig.name,
                     base_code=base_value,
                     deposits=num_code // base_value,
-                    category=info["category"],
-                    max_multiplier=info["max_multiplier"],
+                    category=sig.category,
+                    max_multiplier=sig.max_multiplier,
                 )
     except Exception:
         pass
     return None
 
 
-def extract_code_from_text(raw_text: str):
+def _parse_alphanumeric_code(raw: str) -> str:
+    m = re.match(r"([A-Za-z]?-?)([\d,\.]+)", raw)
+    if m:
+        prefix, digits = m.groups()
+        digits = digits.replace(",", "").replace(".", "")
+        return prefix + digits
+    return raw.replace(",", "").replace(".", "")
+
+
+def extract_code_from_text(raw_text: str) -> CodeExtraction:
     """Extract a deposit code from OCR text."""
     if not raw_text:
-        return None, None
+        return CodeExtraction(code=None, raw=None)
     matches = service_state.code_re.findall(raw_text)
     if not matches:
-        return None, raw_text
+        return CodeExtraction(code=None, raw=raw_text)
     raw = matches[0].upper()
     if any(ch.isdigit() for ch in raw):
-        m = re.match(r"([A-Za-z]?-?)([\d,\.]+)", raw)
-        if m:
-            prefix, digits = m.groups()
-            digits = digits.replace(",", "").replace(".", "")
-            candidate = prefix + digits
-        else:
-            candidate = raw.replace(",", "").replace(".", "")
+        candidate = _parse_alphanumeric_code(raw)
     else:
         candidate = raw
-    return candidate, raw
+    return CodeExtraction(code=candidate, raw=raw)

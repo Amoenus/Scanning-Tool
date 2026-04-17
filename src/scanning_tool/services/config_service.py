@@ -16,7 +16,8 @@ from scanning_tool.domain.models import (
 
 class ConfigData(BaseModel):
     """Pydantic model for configuration data."""
-    
+    model_config = {"arbitrary_types_allowed": True, "extra": "ignore"}
+
     capture_region: CaptureRegion = Field(default_factory=lambda: CaptureRegion(1260, 310, 160, 30))
     overlay_config: OverlayConfig = Field(default_factory=lambda: OverlayConfig(Offset2D(0, 0), "yellow", True))
     auto_alignment: AutoAlignmentConfig = Field(default_factory=lambda: AutoAlignmentConfig(
@@ -85,17 +86,6 @@ class ConfigService:
         if self._config is None:
             self.load()
         return self._config
-    
-    def update_config(self, **kwargs) -> None:
-        """Update configuration with new values."""
-        if self._config is None:
-            self.load()
-        
-        for key, value in kwargs.items():
-            if hasattr(self._config, key):
-                setattr(self._config, key, value)
-            else:
-                logger.warning(f"Unknown config key: {key}")
     
     def get_capture_region(self) -> CaptureRegion:
         """Get the capture region configuration."""

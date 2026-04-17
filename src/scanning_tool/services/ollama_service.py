@@ -29,19 +29,23 @@ class OllamaService(BaseService):
     def _on_start(self) -> None:
         self.logger.info("Initializing Ollama backend logic...")
         host = get_ollama_host()
-        
+
         if not is_local_ollama_host(host):
             self.logger.info(f"Using remote Ollama host at {host}; assuming it is managed externally.")
             return
-            
+
         if self._is_running(host):
             self.logger.info("Local Ollama service detected.")
             return
-            
+
         if not shutil.which("ollama"):
             self.logger.warning("Cannot start Ollama automatically because it is not installed.")
             sys.exit("Unable to reach a local Ollama service. Please start 'ollama serve' and rerun.")
-        
+
+        self._spawn_ollama_daemon()
+        self._wait_for_readiness(host)
+
+    def _spawn_ollama_daemon(self) -> None:
         self.logger.info("Starting local Ollama service with 'ollama serve'...")
         try:
             self._daemon_process = subprocess.Popen(
@@ -54,7 +58,8 @@ class OllamaService(BaseService):
         except Exception as exc:
             self.logger.error(f"Unable to start Ollama service automatically: {exc}")
             sys.exit("Ollama failed to launch.")
-            
+
+    def _wait_for_readiness(self, host: str) -> None:
         deadline = time.time() + 10.0
         while time.time() < deadline:
             if self._is_running(host):
@@ -64,7 +69,7 @@ class OllamaService(BaseService):
                 self.logger.error("'ollama serve' exited before the service became ready.")
                 sys.exit("Ollama exit crash.")
             time.sleep(0.5)
-            
+
         self.logger.warning("Timed out waiting for Ollama service to start.")
         sys.exit("Ollama daemon timeout.")
 

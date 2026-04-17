@@ -32,13 +32,15 @@ class RockDeposit(TypedDict, total=False):
 RockData = Dict[str, Dict[str, RockDeposit]]
 
 
-class OreValueInfo(TypedDict):
+@dataclass(frozen=True)
+class OreValueInfo:
     """Tier classification + display color for an ore."""
     tier: OreTier
     color: str
 
 
-class OreTableEntry(TypedDict):
+@dataclass
+class OreTableEntry:
     """A row in a per-region deposit table, ready for display/serialization."""
     name: str
     prob: str
@@ -55,7 +57,8 @@ DepositTable = List[OreTableEntry]
 RegionDepositTables = Dict[str, Dict[str, DepositTable]]
 
 
-class ScanSignature(TypedDict):
+@dataclass(frozen=True)
+class ScanSignature:
     """An entry in SCAN_SIGNATURES, keyed by base_value."""
     name: str
     category: str
@@ -115,6 +118,15 @@ class CaptureRegion:
     width: int
     height: int
 
+    def to_mss_monitor(self) -> Dict[str, int]:
+        """Return an mss-compatible monitor dict for this region."""
+        return {
+            "left": int(self.left),
+            "top": int(self.top),
+            "width": int(self.width),
+            "height": int(self.height),
+        }
+
 
 @dataclass
 class OverlayConfig:
@@ -124,12 +136,14 @@ class OverlayConfig:
     show_debug: bool
 
 
+OLLAMA_DEFAULT_HOST = "http://127.0.0.1:11434"
+
+
 @dataclass
 class OllamaConfig:
     """Represents Ollama AI service configuration."""
     model: str
     host: Optional[str]
-    default_host: str = "http://127.0.0.1:11434"
 
 
 @dataclass
@@ -163,14 +177,6 @@ class ScanResult:
     info: Optional[DepositInfo] = None
     code_raw: Optional[str] = None
     raw_text: Optional[str] = None
-
-
-@dataclass
-class OCRResult:
-    """Represents the result of an OCR operation."""
-    text: str
-    confidence: float
-    region: CaptureRegion
 
 
 @dataclass
@@ -220,3 +226,42 @@ class AnchorOverlayGeometry:
     height: int
     left: int
     top: int
+
+
+@dataclass(frozen=True)
+class ModelPromptProfile:
+    """Maps an Ollama model name prefix to its OCR prompt."""
+    prefix: str
+    prompt: str
+
+
+@dataclass
+class InfoOverlayLayout:
+    """Computed position and size for the floating info overlay."""
+    width: int
+    height: int
+    left: int
+    top: int
+
+
+@dataclass
+class CodeExtraction:
+    """Output of parsing a deposit code from OCR text."""
+    code: Optional[str]
+    raw: Optional[str]
+
+
+@dataclass
+class StatusResponse:
+    """Payload returned by the /status web endpoint."""
+    region: CaptureRegion
+    label_color: str
+    last: Optional[dict]
+    alignment: dict
+    selected_region: str
+    info: Optional[dict]
+    code: Optional[str]
+    code_raw: Optional[str]
+    confidence: Optional[float]
+    raw_text: Optional[str]
+    table: Optional[DepositTable]

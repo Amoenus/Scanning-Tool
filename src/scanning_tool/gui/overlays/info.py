@@ -21,30 +21,29 @@ class InfoOverlay:
         self.overlay_text: str = ""
         self.last_overlay_time: float = 0.0
 
-    def update_label(self, info: Optional[DepositInfo], *, code: Optional[str] = None, raw_text: Optional[str] = None) -> None:
-        overlay_settings = config.overlay_config
+    def _build_deposit_message(self, info: Optional[DepositInfo]) -> str:
+        if not info:
+            return ""
+        name = info.name or ""
+        deposits = info.deposits
+        return f"{name} x{deposits}" if deposits is not None else name
 
-        message = ""
-        if info:
-            name = info.name or ""
-            deposits = info.deposits
-            message = f"{name} x{deposits}" if deposits is not None else name
-
-        self.overlay_text = message
-        if message:
-            self.last_overlay_time = time.time()
-        else:
-            self.last_overlay_time = 0
-
-        overlay_state.overlay_text = self.overlay_text
-        overlay_state.last_overlay_time = self.last_overlay_time
-
+    def _update_canvas_text(self) -> None:
         if self.canvas and self.text_id:
             safe_tk(lambda: self.canvas.itemconfig(
                 self.text_id,
                 text=self.overlay_text,
-                fill=overlay_settings.label_color,
+                fill=config.overlay_config.label_color,
             ))
+
+    def update_label(self, info: Optional[DepositInfo], *, code: Optional[str] = None, raw_text: Optional[str] = None) -> None:
+        self.overlay_text = self._build_deposit_message(info)
+        self.last_overlay_time = time.time() if self.overlay_text else 0
+
+        overlay_state.overlay_text = self.overlay_text
+        overlay_state.last_overlay_time = self.last_overlay_time
+
+        self._update_canvas_text()
 
     def reposition(self) -> None:
         if not self.root or not self.canvas or not self.text_id:
@@ -55,17 +54,17 @@ class InfoOverlay:
         screen_width = safe_tk(self.root.winfo_screenwidth, 1920) or 1920
         screen_height = safe_tk(self.root.winfo_screenheight, 1080) or 1080
 
-        overlay_width, overlay_height, left, top = compute_info_overlay_geometry(screen_width, screen_height)
+        geo = compute_info_overlay_geometry(screen_width, screen_height)
 
-        safe_tk(lambda: self.root.geometry(f"{overlay_width}x{overlay_height}+{left}+{top}"))
-        safe_tk(lambda: self.canvas.config(width=overlay_width, height=overlay_height))
-        safe_tk(lambda: self.canvas.coords(self.text_id, overlay_width // 2, overlay_height // 2))
-        safe_tk(lambda: self.canvas.itemconfig(self.text_id, width=overlay_width - 60))
+        safe_tk(lambda: self.root.geometry(f"{geo.width}x{geo.height}+{geo.left}+{geo.top}"))
+        safe_tk(lambda: self.canvas.config(width=geo.width, height=geo.height))
+        safe_tk(lambda: self.canvas.coords(self.text_id, geo.width // 2, geo.height // 2))
+        safe_tk(lambda: self.canvas.itemconfig(self.text_id, width=geo.width - 60))
 
         self.info_overlay_geometry.screen_width = screen_width
         self.info_overlay_geometry.screen_height = screen_height
-        self.info_overlay_geometry.width = overlay_width
-        self.info_overlay_geometry.height = overlay_height
+        self.info_overlay_geometry.width = geo.width
+        self.info_overlay_geometry.height = geo.height
         overlay_state.info_overlay_geometry = self.info_overlay_geometry
 
     def start_label_timeout(self) -> None:
@@ -78,7 +77,7 @@ class InfoOverlay:
         if self.root and safe_tk(self.root.winfo_exists, False):
             safe_tk(lambda: self.root.after(500, self.start_label_timeout))
 
-    def show(self, screen_width: int, screen_height: int) -> None:
+    def _destroy_existing(self) -> None:
         if self.root and safe_tk(self.root.winfo_exists, False):
             try:
                 self.root.destroy()
@@ -87,37 +86,41 @@ class InfoOverlay:
             self.canvas = None
             self.text_id = None
 
-        overlay_width, overlay_height, left, top = compute_info_overlay_geometry(screen_width, screen_height)
-
-        self.root = create_overlay_window(overlay_width, overlay_height, left, top)
+    def _create_overlay_canvas(self, geo: InfoOverlayGeometry) -> None:
+        self.root = create_overlay_window(geo.width, geo.height, geo.left, geo.top)
         self.canvas = tk.Canvas(
             self.root,
-            width=overlay_width,
-            height=overlay_height,
+            width=geo.width,
+            height=geo.height,
             bg="black",
             highlightthickness=0,
         )
         self.canvas.pack()
-
         self.text_id = self.canvas.create_text(
-            overlay_width // 2,
-            overlay_height // 2,
+            geo.width // 2,
+            geo.height // 2,
             text=self.overlay_text,
-                fill=config.overlay_config.label_color,
+            fill=config.overlay_config.label_color,
             font=("Arial", 18, "bold"),
-            width=overlay_width - 60,
+            width=geo.width - 60,
             justify="center",
         )
 
+    def _save_geometry_state(self, geo: InfoOverlayGeometry, screen_width: int, screen_height: int) -> None:
         self.info_overlay_geometry.screen_width = screen_width
         self.info_overlay_geometry.screen_height = screen_height
-        self.info_overlay_geometry.width = overlay_width
-        self.info_overlay_geometry.height = overlay_height
+        self.info_overlay_geometry.width = geo.width
+        self.info_overlay_geometry.height = geo.height
         overlay_state.info_overlay_root = self.root
         overlay_state.info_overlay_canvas = self.canvas
         overlay_state.info_text_id = self.text_id
         overlay_state.info_overlay_geometry = self.info_overlay_geometry
 
+    def show(self, screen_width: int, screen_height: int) -> None:
+        self._destroy_existing()
+        geo = compute_info_overlay_geometry(screen_width, screen_height)
+        self._create_overlay_canvas(geo)
+        self._save_geometry_state(geo, screen_width, screen_height)
         self.start_label_timeout()
 
     def hide(self) -> None:

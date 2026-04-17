@@ -39,8 +39,7 @@
     "continuous_capture_interval": 2.0,
     "ollama_config": {
         "model": "qwen2.5vl:3b",
-        "host": "",
-        "default_host": "http://127.0.0.1:11434"
+        "host": ""
     },
     "scan_config": {
         "min_confidence": 0.65

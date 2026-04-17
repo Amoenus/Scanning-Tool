@@ -1,7 +1,5 @@
 """Pure overlay geometry helpers."""
 
-from typing import Tuple
-
 from .base import (
     ANCHOR_OVERLAY_PAD,
     CAPTURE_OVERLAY_PADDING_X,
@@ -12,10 +10,10 @@ from .base import (
     SCREEN_MARGIN,
 )
 from scanning_tool.core.state_manager import config, scan_state, service_state, overlay_state, control_state, save_config
-from scanning_tool.domain.models import AnchorOverlayGeometry, CaptureOverlayLayout
+from scanning_tool.domain.models import AnchorOverlayGeometry, CaptureOverlayLayout, InfoOverlayLayout
 
 
-def compute_info_overlay_geometry(screen_width: int, screen_height: int) -> Tuple[int, int, int, int]:
+def compute_info_overlay_geometry(screen_width: int, screen_height: int) -> InfoOverlayLayout:
     overlay_settings = config.overlay_config
 
     overlay_width = max(
@@ -34,7 +32,7 @@ def compute_info_overlay_geometry(screen_width: int, screen_height: int) -> Tupl
 
     left = min(max(0, base_left + offset_x), max_left)
     top = min(max(0, base_top + offset_y), max_top)
-    return overlay_width, overlay_height, left, top
+    return InfoOverlayLayout(width=overlay_width, height=overlay_height, left=left, top=top)
 
 
 def compute_capture_overlay_layout() -> CaptureOverlayLayout:
