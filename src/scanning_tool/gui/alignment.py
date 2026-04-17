@@ -7,7 +7,7 @@ from scanning_tool.services.alignment_service import alignment_service, reset_al
 from scanning_tool.gui.overlays import update_capture_overlay_region, sync_capture_sliders
 from scanning_tool.gui.overlays.base import safe_tk
 from scanning_tool.gui.status import StatusBar
-from scanning_tool.core.state_manager import config, scan_state, service_state, overlay_state, control_state, save_config
+from scanning_tool.core.state_manager import config, scan_state
 
 
 class AlignmentPoller:
