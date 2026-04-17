@@ -9,7 +9,9 @@ This document defines coding conventions for the Scanning Tool repository. It is
 - Avoid abbreviations unless they are well-known domain terms.
 - Use `snake_case` for functions, methods, variables, and module names.
 - Use `PascalCase` for classes, dataclasses, and exception types.
-- Use `UPPER_SNAKE_CASE` for constants.
+- Use `UPPER_SNAKE_CASE` for constants, and define constants at the top of the file or in a central module when shared across the project.
+- Use a single leading underscore (`_name`) for internal/protected members and a double leading underscore (`__name`) only when class-private name mangling is intentionally required.
+- Use `__all__` for public API exports in modules that intentionally re-export names.
 - Prefer specific domain terms over generic names like `manager`, `handler`, or `helper`.
 - Keep public API names stable and avoid renaming without a clear migration path.
 
@@ -80,6 +82,10 @@ Example:
 ## 5. Package and module structure
 
 - Keep package boundaries clear: `config`, `domain`, `deposits`, `services`, `state`, `gui`, `core`, `ollama`, and `web`.
+- Use a proper Python package layout with `pyproject.toml` and a top-level package module.
+- Support a local editable install (`pip install -e .`) for developer workflows when feasible.
+- Structure code into separable components and avoid a flat script-style repository layout.
+- Prefer a small reusable core package with isolated dependencies, and extend via higher-level packages or submodules.
 - Only export necessary symbols from package `__init__.py` files.
 - Avoid cross-package import cycles.
 - Put low-level helpers and reusable primitives in `core/`.
@@ -102,11 +108,19 @@ Example:
 - Keep business logic and services decoupled from the concrete environment.
 - Avoid hidden service locators; make required collaborators explicit.
 - Prefer small factory functions or assembler classes if wiring becomes complex.
+- Declare abstract dependencies in project metadata and capture concrete environment dependencies in a lock file or pinned `requirements.txt` for reproducible installs.
+- Use minimum supported versions for dependencies where possible, but also maintain exact pinned environments for development and CI.
+- Use a dedicated virtual environment per project or the repository's `uv` managed environment to avoid dependency drift.
+- Prefer minimal external dependencies; add packages only when the maintenance cost is justified.
+- Pin production and development dependencies explicitly in `requirements.txt` or lock files so environments can be reproduced reliably.
+- Use a dedicated virtual environment per project or the repository's `uv` managed environment to avoid dependency drift.
 
 ## 8. Error handling and logging
 
 - Handle expected errors explicitly and fail fast on unexpected conditions.
 - Do not swallow exceptions silently.
+- Use Python's `logging` module for error, warning, info, and debug messages.
+- Configure logging in bootstrap or entrypoint code, not during import time within library modules.
 - Use structured logging with clear context for troubleshooting.
 - Keep error-handling code separate from happy-path logic when possible.
 - Prefer domain-specific exception types over generic exceptions.
@@ -115,7 +129,10 @@ Example:
 
 - Write comments to explain why, not what.
 - Prefer self-documenting code through clear names and structure.
+- Use small helper methods instead of comments when the intent can be expressed in code.
 - Use docstrings for public classes, functions, and modules.
+- Document packages and modules with module-level docstrings and package docstrings in `__init__.py` where appropriate.
+- Use docstring-driven documentation tools such as Sphinx, MkDocs + mkdocstrings, or FastAPI auto-generated docs for web APIs.
 - Keep architecture and design decisions in `architecture/` and `prds/`.
 - Update documentation when the architecture or package boundaries change.
 
@@ -126,13 +143,28 @@ Example:
 - Keep tests small and focused on a single responsibility.
 - Use typed models and parsers in tests to validate input and output shapes.
 - Test service interactions through composable interfaces rather than global state.
+- Prefer descriptive, scenario-style test names that document the expected behavior.
+- Keep tests isolated from unrelated infrastructure and avoid broad integration in small modules when possible.
+- Use doctests for simple examples where it keeps documentation and tests aligned.
+- Prefer pytest for unit tests, and run tests in CI to keep regressions visible.
+- Do not allow incomplete or placeholder tests to pass silently; fail fast with a clear assertion if a test is unfinished.
 
 ## 11. Formatting and linting
 
 - Follow existing repository conventions and formatting.
 - Use `ruff`/`mypy` for linting and type checking when available.
+- Use a code formatter or linter as part of development and CI to enforce consistent style.
+- Use `pre-commit` or a similar hook system to run formatting and lint checks before commits.
+- Prefer 4 spaces per indentation level; spaces are preferred over tabs and mixing tabs and spaces is forbidden.
 - Keep imports grouped: standard library, third-party, local.
-- Keep line length reasonable (88-100 characters) unless readability favors a longer line.
+- Keep imports at the top of the file, after module docstrings and before module globals and constants.
+- Use blank lines to separate top-level definitions (two blank lines) and class method definitions (one blank line).
+- Avoid `from module import *`; prefer explicit imports or module-qualified names.
+- Use absolute imports when practical; explicit relative imports are acceptable for complex package layouts.
+- Avoid trailing whitespace.
+- Keep line length reasonable (88-100 characters) unless readability favors a longer line; wrap docstrings and comments around 72 characters.
+- Prefer module-level imports for local packages when possible; use symbol imports only when the package explicitly documents them or for third-party APIs.
+- Use context managers (`with`) for files and other managed resources instead of manual cleanup.
 - Prefer explicit code formatting over line-breaking that obscures intent.
 
 ## 12. Practical rules
@@ -143,6 +175,7 @@ Example:
 - Avoid hidden side effects in getters and short helper methods.
 - Keep exception handling specific and avoid swallowing exceptions silently.
 - Avoid deep coupling between GUI and business logic.
+- Avoid `== True`, `== False`, and `== None` checks; prefer truthiness and identity comparisons such as `if attr`, `if not attr`, `if attr is None`, and `if attr is not None`.
 
 ## 13. Example culture
 
