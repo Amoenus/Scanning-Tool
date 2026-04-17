@@ -5,10 +5,13 @@ from __future__ import annotations
 import logging
 import sys
 from types import FrameType
-from typing import Sequence
+from typing import TYPE_CHECKING, Sequence
 
 from flask import Flask
 from loguru import logger
+
+if TYPE_CHECKING:
+    from loguru import Logger
 
 LOG_FILE_NAME = "scanning_tool.log"
 INTERCEPT_LOGGERS: Sequence[str] = ("werkzeug", "flask.app", "flask")
@@ -44,7 +47,7 @@ def _apply_intercept_handler(logger_name: str) -> None:
     intercepted_logger.propagate = False
 
 
-def setup_logging() -> "loguru.Logger":
+def setup_logging() -> Logger:
     """Configure loguru logger with console and file handlers."""
     logger.remove()
 

@@ -8,16 +8,9 @@ from typing import Optional
 from .base import create_overlay_window, safe_tk
 from .capture import _capture_overlay
 from .geometry import compute_info_overlay_geometry
-from scanning_tool.state.manager import (
-    config,
-    scan_state,
-    service_state,
-    overlay_state,
-    control_state,
-    save_config,
-)
+from scanning_tool.state.manager import config, overlay_state
 from scanning_tool.domain.capture import DepositInfo
-from scanning_tool.gui.layout import InfoOverlayGeometry
+from scanning_tool.gui.layout import InfoOverlayGeometry, InfoOverlayLayout
 
 
 class InfoOverlay:
@@ -37,10 +30,12 @@ class InfoOverlay:
         return f"{name} x{deposits}" if deposits is not None else name
 
     def _update_canvas_text(self) -> None:
-        if self.canvas and self.text_id:
+        canvas = self.canvas
+        text_id = self.text_id
+        if canvas is not None and text_id is not None:
             safe_tk(
-                lambda: self.canvas.itemconfig(
-                    self.text_id,
+                lambda: canvas.itemconfig(
+                    text_id,
                     text=self.overlay_text,
                     fill=config.overlay_config.label_color,
                 )
@@ -62,24 +57,25 @@ class InfoOverlay:
         self._update_canvas_text()
 
     def reposition(self) -> None:
-        if not self.root or not self.canvas or not self.text_id:
+        root = self.root
+        canvas = self.canvas
+        text_id = self.text_id
+        if root is None or canvas is None or text_id is None:
             return
-        if safe_tk(self.root.winfo_exists, False) is False:
+        if safe_tk(root.winfo_exists, False) is False:
             return
 
-        screen_width = safe_tk(self.root.winfo_screenwidth, 1920) or 1920
-        screen_height = safe_tk(self.root.winfo_screenheight, 1080) or 1080
+        screen_width = safe_tk(root.winfo_screenwidth, 1920) or 1920
+        screen_height = safe_tk(root.winfo_screenheight, 1080) or 1080
 
         geo = compute_info_overlay_geometry(screen_width, screen_height)
 
         safe_tk(
-            lambda: self.root.geometry(f"{geo.width}x{geo.height}+{geo.left}+{geo.top}")
+            lambda: root.geometry(f"{geo.width}x{geo.height}+{geo.left}+{geo.top}")
         )
-        safe_tk(lambda: self.canvas.config(width=geo.width, height=geo.height))
-        safe_tk(
-            lambda: self.canvas.coords(self.text_id, geo.width // 2, geo.height // 2)
-        )
-        safe_tk(lambda: self.canvas.itemconfig(self.text_id, width=geo.width - 60))
+        safe_tk(lambda: canvas.config(width=geo.width, height=geo.height))
+        safe_tk(lambda: canvas.coords(text_id, geo.width // 2, geo.height // 2))
+        safe_tk(lambda: canvas.itemconfig(text_id, width=geo.width - 60))
 
         self.info_overlay_geometry.screen_width = screen_width
         self.info_overlay_geometry.screen_height = screen_height
@@ -88,14 +84,17 @@ class InfoOverlay:
         overlay_state.info_overlay_geometry = self.info_overlay_geometry
 
     def start_label_timeout(self) -> None:
-        if self.canvas and self.text_id:
+        canvas = self.canvas
+        text_id = self.text_id
+        if canvas is not None and text_id is not None:
             if self.last_overlay_time and (time.time() - self.last_overlay_time > 10):
-                safe_tk(lambda: self.canvas.itemconfig(self.text_id, text=""))
+                safe_tk(lambda: canvas.itemconfig(text_id, text=""))
                 self.last_overlay_time = 0
                 overlay_state.last_overlay_time = 0
 
-        if self.root and safe_tk(self.root.winfo_exists, False):
-            safe_tk(lambda: self.root.after(500, self.start_label_timeout))
+        root = self.root
+        if root is not None and safe_tk(root.winfo_exists, False):
+            safe_tk(lambda: root.after(500, self.start_label_timeout))
 
     def _destroy_existing(self) -> None:
         if self.root and safe_tk(self.root.winfo_exists, False):
@@ -106,7 +105,7 @@ class InfoOverlay:
             self.canvas = None
             self.text_id = None
 
-    def _create_overlay_canvas(self, geo: InfoOverlayGeometry) -> None:
+    def _create_overlay_canvas(self, geo: InfoOverlayLayout) -> None:
         self.root = create_overlay_window(geo.width, geo.height, geo.left, geo.top)
         self.canvas = tk.Canvas(
             self.root,
@@ -127,7 +126,7 @@ class InfoOverlay:
         )
 
     def _save_geometry_state(
-        self, geo: InfoOverlayGeometry, screen_width: int, screen_height: int
+        self, geo: InfoOverlayLayout, screen_width: int, screen_height: int
     ) -> None:
         self.info_overlay_geometry.screen_width = screen_width
         self.info_overlay_geometry.screen_height = screen_height
@@ -187,21 +186,23 @@ def choose_label_color() -> None:
     if not color:
         return
     overlay_settings.label_color = color
-    if _info_overlay.canvas and _info_overlay.text_id:
+    canvas = _info_overlay.canvas
+    text_id = _info_overlay.text_id
+    if canvas is not None and text_id is not None:
         safe_tk(
-            lambda: _info_overlay.canvas.itemconfig(
-                _info_overlay.text_id,
+            lambda: canvas.itemconfig(
+                text_id,
                 fill=overlay_settings.label_color,
             )
         )
 
 
 def toggle_border() -> None:
-    overlay_state = overlay_state
     overlay_state.show_border = not overlay_state.show_border
-    if _capture_overlay.border_canvas:
+    border_canvas = _capture_overlay.border_canvas
+    if border_canvas is not None:
         safe_tk(
-            lambda: _capture_overlay.border_canvas.itemconfig(
+            lambda: border_canvas.itemconfig(
                 "border", state="normal" if overlay_state.show_border else "hidden"
             )
         )

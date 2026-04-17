@@ -13,6 +13,7 @@ from scanning_tool.domain.capture import DepositInfo, ScanResult
 from scanning_tool.domain.common import DepositTable
 from scanning_tool.web.schemas import StatusResponse
 from scanning_tool.logging_setup import configure_flask_logging
+from scanning_tool.state.app_state import AppState
 from scanning_tool.state.scan_state import ScanState
 from scanning_tool.state.service_state import ServiceState
 
@@ -100,9 +101,6 @@ class WebService:
             return jsonify(response.to_dict())
 
         return app
-
-
-from scanning_tool.state.app_state import AppState
 
 
 def create_app() -> Flask:

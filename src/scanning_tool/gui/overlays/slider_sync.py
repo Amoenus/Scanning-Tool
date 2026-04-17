@@ -1,17 +1,9 @@
 """Slider registration and synchronization helpers for overlays."""
 
-from loguru import logger
 import tkinter as tk
 
 from scanning_tool.gui.control_state import ScaleWidget
-from scanning_tool.state.manager import (
-    config,
-    scan_state,
-    service_state,
-    overlay_state,
-    control_state,
-    save_config,
-)
+from scanning_tool.state.manager import config, control_state
 from .base import safe_tk
 
 

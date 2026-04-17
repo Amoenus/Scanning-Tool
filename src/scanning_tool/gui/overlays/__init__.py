@@ -2,8 +2,6 @@
 
 from typing import Optional
 
-import tkinter as tk
-
 from .anchor import (
     hide_anchor_overlay,
     show_anchor_overlay,
@@ -17,7 +15,6 @@ from .capture import (
     stop_capture_overlay_animation,
     update_capture_overlay_region,
 )
-from .geometry import compute_info_overlay_geometry
 from .info import (
     choose_label_color,
     reposition_info_overlay,
@@ -35,14 +32,7 @@ from .slider_sync import (
     sync_capture_sliders,
     sync_overlay_sliders,
 )
-from scanning_tool.state.manager import (
-    config,
-    scan_state,
-    service_state,
-    overlay_state,
-    control_state,
-    save_config,
-)
+from scanning_tool.state.manager import overlay_state
 
 __all__ = [
     "choose_label_color",

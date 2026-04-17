@@ -1,6 +1,9 @@
 """Main entry point - startup orchestration."""
 
+from __future__ import annotations
+
 from threading import Thread
+from typing import TYPE_CHECKING
 
 from flask import Flask
 from loguru import logger
@@ -13,6 +16,9 @@ from scanning_tool.ollama import (
     ensure_ollama_installed,
     log_model_running_status,
 )
+
+if TYPE_CHECKING:
+    from scanning_tool.services.capture_service import CaptureService
 
 
 def _initialize_services() -> None:

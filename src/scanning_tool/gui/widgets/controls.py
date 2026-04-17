@@ -5,8 +5,6 @@ from typing import Callable, Optional, Tuple
 import tkinter as tk
 from tkinter import ttk
 
-from scanning_tool.gui.theme import style_spinbox
-
 
 def create_section_row(parent: ttk.Widget, pady: Tuple[int, int] = (0, 5)) -> ttk.Frame:
     """Create a styled row container for section controls."""
