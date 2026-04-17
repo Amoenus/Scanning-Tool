@@ -1,6 +1,7 @@
 """Logger configuration for the scanning tool using loguru."""
 
-from loguru import Logger, logger
+from loguru import logger
+from loguru._logger import Logger
 import sys
 
 def setup_logging() -> Logger:

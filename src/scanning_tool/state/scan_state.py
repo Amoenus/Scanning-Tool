@@ -3,7 +3,7 @@
 
 from dataclasses import dataclass, field
 from typing import Optional
-from scanning_tool.core.anchor import AnchorRegionTracker
+from scanning_tool.core.AnchorRegionTracker import AnchorRegionTracker
 from scanning_tool.domain.models import AlignmentInfo, ScanResult
 
 @dataclass
