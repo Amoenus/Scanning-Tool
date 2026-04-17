@@ -7,13 +7,16 @@ from scanning_tool.core.state_manager import service_state
 from scanning_tool.domain.models import CodeExtraction, DepositInfo
 from scanning_tool.deposits.scan_signatures import SCAN_SIGNATURES
 
+_LOOKUP_DEPOSIT_RE = re.compile(r"(\d+)$")
+_PARSE_ALPHA_CODE_RE = re.compile(r"([A-Za-z]?-?)([\d,\.]+)")
+
 
 def lookup_deposit(code: Optional[str]) -> Optional[DepositInfo]:
     """Look up a deposit by its numeric code using scraped scan signature data."""
     if not code:
         return None
     try:
-        m = re.search(r"(\d+)$", code)
+        m = _LOOKUP_DEPOSIT_RE.search(code)
         if not m:
             return None
         num_code = int(m.group(1))
@@ -31,10 +34,8 @@ def lookup_deposit(code: Optional[str]) -> Optional[DepositInfo]:
     return None
 
 
-_ALPHANUMERIC_CODE_RE = re.compile(r"([A-Za-z]?-?)([\d,\.]+)")
-
 def _parse_alphanumeric_code(raw: str) -> str:
-    m = _ALPHANUMERIC_CODE_RE.match(raw)
+    m = _PARSE_ALPHA_CODE_RE.match(raw)
     if m:
         prefix, digits = m.groups()
         digits = digits.replace(",", "").replace(".", "")
