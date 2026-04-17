@@ -1,6 +1,8 @@
-pytest
-mypy
+pytest>=9.0.3
+mypy>=1.20.1
 pandas-stubs
 types-keyboard
 vulture
 ruff>=0.15.11
+pyright>=1.1.408
+pylance>=4.0.0

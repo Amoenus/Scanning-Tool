@@ -5,6 +5,7 @@ mss
 flask
 keyboard
 ollama
+pydantic
 loguru
 playwright>=1.44.0
 pandas
