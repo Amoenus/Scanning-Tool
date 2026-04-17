@@ -9,10 +9,8 @@ import mss
 from loguru import logger
 from PIL import Image
 
-from scanning_tool.state.manager import (
-    config,
-    scan_state,
-)
+from scanning_tool.config.service import ConfigData
+from scanning_tool.state.scan_state import ScanState
 from scanning_tool.services.ocr_service import ocr_with_ollama
 from scanning_tool.deposits import extract_code_from_text, lookup_deposit
 from scanning_tool.services.alignment_service import alignment_service
@@ -61,10 +59,12 @@ class ScanResultFactory:
 class CaptureService:
     """Service for capturing screen regions and processing OCR results."""
 
-    def __init__(self) -> None:
+    def __init__(self, config: ConfigData, scan_state: ScanState) -> None:
         self._status_callback: Optional[CaptureStatusCallback] = None
         self._screen_capture_provider = ScreenCaptureProvider()
         self._scan_result_factory = ScanResultFactory()
+        self._config = config
+        self._scan_state = scan_state
 
     def capture_once(self, status_callback: Optional[CaptureStatusCallback] = None) -> None:
         """Capture one scan from the capture region and update overlay."""
@@ -82,24 +82,24 @@ class CaptureService:
     def _align_before_capture(self) -> None:
         self._set_status("Aligning region...")
         auto_aligned = alignment_service.align(
-            scan_state.anchor_tracker,
-            scan_state.last_alignment_info,
-            AlignmentRequest.from_config(config),
+            self._scan_state.anchor_tracker,
+            self._scan_state.last_alignment_info,
+            AlignmentRequest.from_config(self._config),
             sync_capture_sliders,
             update_capture_overlay_region,
         )
-        if config.auto_alignment.enabled:
+        if self._config.auto_alignment.enabled:
             logger.debug(
                 "Auto alignment %s before capture.",
                 "succeeded" if auto_aligned else "did not match",
             )
 
     def _capture_screen_region(self) -> Image.Image:
-        return self._screen_capture_provider.capture(config.capture_region)
+        return self._screen_capture_provider.capture(self._config.capture_region)
 
     def _run_ocr_pipeline(self, pil_img: Image.Image) -> ScanResult:
         return self._scan_result_factory.build_from_image(
-            pil_img, config.capture_region
+            pil_img, self._config.capture_region
         )
 
     def _log_scan_result(self, result: ScanResult) -> None:
@@ -118,8 +118,8 @@ class CaptureService:
         self._set_status("Loading OCR model (may take a moment)...")
         logger.debug("Loading OCR model for scan...")
         try:
-            scan_state.last_result = self._run_ocr_pipeline(pil_img)
-            self._log_scan_result(scan_state.last_result)
+            self._scan_state.last_result = self._run_ocr_pipeline(pil_img)
+            self._log_scan_result(self._scan_state.last_result)
             self._set_status("Scan complete.")
         except Exception as e:
             logger.error(f"OCR/model error: {e}")
@@ -127,21 +127,17 @@ class CaptureService:
 
     def toggle_continuous(self) -> None:
         """Toggle continuous scanning mode."""
-        scan_state.continuous_mode = not scan_state.continuous_mode
-        logger.info(f"Continuous mode: {scan_state.continuous_mode}")
+        self._scan_state.continuous_mode = not self._scan_state.continuous_mode
+        logger.info(f"Continuous mode: {self._scan_state.continuous_mode}")
 
-        if scan_state.continuous_mode:
+        if self._scan_state.continuous_mode:
             Thread(target=self._continuous_scan_loop, daemon=True).start()
 
     def _continuous_scan_loop(self) -> None:
         """Run scans repeatedly until continuous_mode is turned off."""
         while True:
-            if not scan_state.continuous_mode:
+            if not self._scan_state.continuous_mode:
                 break
             self.capture_once()
-            interval = max(0.1, float(config.continuous_capture_interval))
+            interval = max(0.1, float(self._config.continuous_capture_interval))
             time.sleep(interval)
-
-
-# Create a singleton instance for backward compatibility
-capture_service = CaptureService()

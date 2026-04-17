@@ -10,15 +10,6 @@ from scanning_tool.gui.overlays import (
     toggle_border,
     update_overlay_region,
 )
-from scanning_tool.services.capture_service import capture_service
-from scanning_tool.state.manager import (
-    config,
-    scan_state,
-    service_state,
-    overlay_state,
-    control_state,
-    save_config,
-)
 
 
 class ControlsSection:
@@ -28,10 +19,11 @@ class ControlsSection:
         frame = ttk.LabelFrame(parent, text="Controls", style="Glass.TLabelframe")
         frame.pack(fill="x", padx=5, pady=8)
 
+        self._ctx = ctx
         self._status = ctx.status
 
         self._interval_var = tk.DoubleVar(
-            value=float(config.continuous_capture_interval)
+            value=float(ctx.config.continuous_capture_interval)
         )
         create_labeled_spinbox(
             frame,
@@ -49,11 +41,11 @@ class ControlsSection:
         create_button_row(
             frame,
             [
-                ("Single Scan", capture_service.capture_once),
-                ("Loop Toggle", capture_service.toggle_continuous),
+                ("Single Scan", ctx.capture_service.capture_once),
+                ("Loop Toggle", ctx.capture_service.toggle_continuous),
                 ("Update Overlay", update_overlay_region),
                 ("Set Label Color", choose_label_color),
-                ("Save Config", save_config),
+                ("Save Config", ctx.save_config),
                 ("Toggle Border", toggle_border),
             ],
         )
@@ -66,7 +58,7 @@ class ControlsSection:
         except (tk.TclError, ValueError):
             return
         value = max(0.2, min(30.0, value))
-        config.continuous_capture_interval = value
+        self._ctx.config.continuous_capture_interval = value
         self._status.set_status(
-            f"Continuous capture interval set to {config.continuous_capture_interval:.1f}s"
+            f"Continuous capture interval set to {self._ctx.config.continuous_capture_interval:.1f}s"
         )

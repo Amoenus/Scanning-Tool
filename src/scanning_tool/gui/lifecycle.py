@@ -1,22 +1,20 @@
 """Window lifecycle / teardown for the GUI."""
 
+from typing import Callable
 import tkinter as tk
 
 from scanning_tool.gui.overlays import (
     destroy_all_overlays,
     stop_capture_overlay_animation,
 )
-from scanning_tool.state.manager import (
-    config,
-    scan_state,
-    service_state,
-    overlay_state,
-    control_state,
-    save_config,
-)
+from scanning_tool.gui.overlay_state import OverlayState
 
 
-def register_close_handler(root: tk.Tk) -> None:
+def register_close_handler(
+    root: tk.Tk,
+    overlay_state: OverlayState,
+    save_config: Callable[[], None],
+) -> None:
     """Wire the root window's close button to a clean teardown sequence."""
 
     def on_close() -> None:

@@ -4,14 +4,7 @@ import time
 import tkinter as tk
 from typing import Optional
 
-from scanning_tool.state.manager import (
-    config,
-    scan_state,
-    service_state,
-    overlay_state,
-    control_state,
-    save_config,
-)
+from scanning_tool.state.service_state import ServiceState
 
 
 class StatusBar:
@@ -58,6 +51,6 @@ class StatusBar:
         self.anchor_status_var.set(message)
         self._last_alignment_message = message
 
-    def install_as_scanning_callback(self) -> None:
+    def install_as_scanning_callback(self, service_state: ServiceState) -> None:
         """Wire scanning.py's status callback to this status bar."""
         service_state.gui_status_callback = self.set_status_async

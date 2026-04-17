@@ -9,14 +9,6 @@ from scanning_tool.gui.overlays import (
     sync_capture_sliders,
     update_capture_overlay_region,
 )
-from scanning_tool.state.manager import (
-    config,
-    scan_state,
-    service_state,
-    overlay_state,
-    control_state,
-    save_config,
-)
 
 
 class CaptureRegionSection:
@@ -27,8 +19,9 @@ class CaptureRegionSection:
         frame.pack(fill="x", padx=5, pady=8)
 
         self._status = ctx.status
+        self._ctx = ctx
 
-        cap_region = config.capture_region
+        cap_region = ctx.config.capture_region
 
         self._left = self._make_capture_scale(frame, "Left", 0, 3000, cap_region.left)
         self._top = self._make_capture_scale(frame, "Top", 0, 2000, cap_region.top)
@@ -63,9 +56,9 @@ class CaptureRegionSection:
         )
 
     def _on_change(self, *_args: object) -> None:
-        if control_state.syncing.capture:
+        if self._ctx.control_state.syncing.capture:
             return
-        cap_region = config.capture_region
+        cap_region = self._ctx.config.capture_region
         cap_region.left = int(self._left.get())
         cap_region.top = int(self._top.get())
         cap_region.width = int(self._width.get())

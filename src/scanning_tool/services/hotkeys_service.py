@@ -3,12 +3,11 @@
 from loguru import logger
 
 import keyboard
-
-from scanning_tool.services.capture_service import capture_service
+from scanning_tool.services.capture_service import CaptureService
 from scanning_tool.gui.overlays import toggle_border
 
 
-def hotkey_listener() -> None:
+def hotkey_listener(capture_service: CaptureService) -> None:
     """Set up hotkey listeners with cross-platform error handling."""
     try:
         keyboard.add_hotkey("7", capture_service.capture_once)

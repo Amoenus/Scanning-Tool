@@ -1,9 +1,9 @@
 """Head Sway Compensation section — anchor tracking and auto-alignment."""
 
-from loguru import logger
 import os
 import subprocess
 import sys
+from typing import Callable
 
 import tkinter as tk
 from tkinter import ttk
@@ -25,14 +25,6 @@ from scanning_tool.gui.overlays import (
     sync_anchor_sliders,
     update_anchor_overlay_region,
 )
-from scanning_tool.state.manager import (
-    config,
-    scan_state,
-    service_state,
-    overlay_state,
-    control_state,
-    save_config,
-)
 
 
 class HeadSwaySection:
@@ -44,9 +36,10 @@ class HeadSwaySection:
         )
         frame.pack(fill="x", padx=5, pady=8)
 
+        self._ctx = ctx
         self._status = ctx.status
 
-        self._auto_align_var = tk.BooleanVar(value=config.auto_alignment.enabled)
+        self._auto_align_var = tk.BooleanVar(value=ctx.config.auto_alignment.enabled)
         ttk.Checkbutton(
             frame,
             text="Enable auto alignment",
@@ -56,7 +49,7 @@ class HeadSwaySection:
         ).pack(anchor="w", padx=5, pady=(5, 0))
 
         self._anchor_overlay_var = tk.BooleanVar(
-            value=overlay_state.anchor_overlay_visible
+            value=ctx.overlay_state.anchor_overlay_visible
         )
         ttk.Checkbutton(
             frame,
@@ -74,7 +67,7 @@ class HeadSwaySection:
         return frame
 
     def _build_interval_row(self, parent: ttk.Widget, ctx: SectionContext) -> None:
-        self._interval_var = tk.IntVar(value=int(config.alignment_poll_interval_ms))
+        self._interval_var = tk.IntVar(value=int(self._ctx.config.alignment_poll_interval_ms))
         create_labeled_spinbox(
             parent,
             text="Alignment interval (ms)",
@@ -89,7 +82,7 @@ class HeadSwaySection:
         self._interval_var.trace_add("write", self._update_alignment_interval)
 
     def _build_threshold_row(self, parent: ttk.Widget, ctx: SectionContext) -> None:
-        self._threshold_var = tk.DoubleVar(value=config.anchor_threshold)
+        self._threshold_var = tk.DoubleVar(value=self._ctx.config.anchor_threshold)
         create_labeled_spinbox(
             parent,
             text="Detection threshold",
@@ -110,7 +103,7 @@ class HeadSwaySection:
         minimum: float,
         maximum: float,
         initial: float,
-        command,
+        command: Callable[[str], None],
         padding: tuple[int, int] = (0, 4),
     ) -> ttk.Scale:
         return create_glass_scale(
@@ -124,8 +117,8 @@ class HeadSwaySection:
         )
 
     def _build_region_sliders(self, parent: ttk.Widget) -> None:
-        anchor_region = config.anchor_template
-        anchor_offset = config.anchor_offset
+        anchor_region = self._ctx.config.anchor_template
+        anchor_offset = self._ctx.config.anchor_offset
 
         self._anchor_left = self._make_scale(
             parent, "Anchor Left", 0, 3840, anchor_region.left, self._on_region_change
@@ -183,32 +176,34 @@ class HeadSwaySection:
         )
 
     def _on_region_change(self, *_args: object) -> None:
-        if control_state.syncing.anchor:
+        if self._ctx.control_state.syncing.anchor:
             return
-        anchor_region = config.anchor_template
+        anchor_region = self._ctx.config.anchor_template
         anchor_region.left = int(self._anchor_left.get())
         anchor_region.top = int(self._anchor_top.get())
         anchor_region.width = int(self._anchor_width.get())
         anchor_region.height = int(self._anchor_height.get())
         self._status.set_anchor(f"Anchor region updated: {anchor_region}", hold=2.0)
-        if config.auto_alignment.enabled:
+        if self._ctx.config.auto_alignment.enabled:
             self._run_auto_alignment()
         update_anchor_overlay_region()
 
     def _on_offset_change(self, *_args: object) -> None:
-        if control_state.syncing.anchor:
+        if self._ctx.control_state.syncing.anchor:
             return
-        anchor_offset = config.anchor_offset
+        anchor_offset = self._ctx.config.anchor_offset
         anchor_offset.x = int(self._offset_x.get())
         anchor_offset.y = int(self._offset_y.get())
         self._status.set_anchor(f"Anchor offset updated: {anchor_offset}", hold=2.0)
-        if config.auto_alignment.enabled:
+        if self._ctx.config.auto_alignment.enabled:
             self._run_auto_alignment()
 
     def _toggle_auto_align(self) -> None:
-        config.auto_alignment.enabled = self._auto_align_var.get()
-        scan_state.last_alignment_info.enabled = config.auto_alignment.enabled
-        if config.auto_alignment.enabled:
+        self._ctx.config.auto_alignment.enabled = self._auto_align_var.get()
+        self._ctx.scan_state.last_alignment_info.enabled = (
+            self._ctx.config.auto_alignment.enabled
+        )
+        if self._ctx.config.auto_alignment.enabled:
             self._status.set_anchor("Head sway compensation enabled.")
             self._run_auto_alignment()
         else:
@@ -218,16 +213,16 @@ class HeadSwaySection:
         from scanning_tool.gui.overlays import sync_capture_sliders
 
         return alignment_service.align(
-            scan_state.anchor_tracker,
-            scan_state.last_alignment_info,
-            AlignmentRequest.from_config(config),
+            self._ctx.scan_state.anchor_tracker,
+            self._ctx.scan_state.last_alignment_info,
+            AlignmentRequest.from_config(self._ctx.config),
             sync_capture_sliders,
             update_anchor_overlay_region,
         )
 
     def _toggle_anchor_overlay_visibility(self) -> None:
-        overlay_state.anchor_overlay_visible = self._anchor_overlay_var.get()
-        if overlay_state.anchor_overlay_visible:
+        self._ctx.overlay_state.anchor_overlay_visible = self._anchor_overlay_var.get()
+        if self._ctx.overlay_state.anchor_overlay_visible:
             show_anchor_overlay()
             self._status.set_anchor("Anchor overlay shown.")
         else:
@@ -240,9 +235,9 @@ class HeadSwaySection:
         except (tk.TclError, ValueError):
             return
         value = max(100, min(5000, value))
-        config.alignment_poll_interval_ms = value
+        self._ctx.config.alignment_poll_interval_ms = value
         self._status.set_anchor(
-            f"Alignment interval set to {config.alignment_poll_interval_ms} ms",
+            f"Alignment interval set to {self._ctx.config.alignment_poll_interval_ms} ms",
             hold=2.0,
         )
 
@@ -252,33 +247,38 @@ class HeadSwaySection:
         except (tk.TclError, ValueError):
             return
         value = max(0.1, min(0.99, value))
-        config.anchor_threshold = value
-        if scan_state.anchor_tracker is not None:
-            scan_state.anchor_tracker.set_threshold(config.anchor_threshold)
+        self._ctx.config.anchor_threshold = value
+        if self._ctx.scan_state.anchor_tracker is not None:
+            self._ctx.scan_state.anchor_tracker.set_threshold(
+                self._ctx.config.anchor_threshold
+            )
         self._status.set_anchor(
-            f"Anchor detection threshold set to {config.anchor_threshold:.2f}"
+            f"Anchor detection threshold set to {self._ctx.config.anchor_threshold:.2f}"
         )
 
     def _reload_anchor_templates(self) -> None:
-        ensure_anchor_directory(config.anchor_template_dir)
-        if scan_state.anchor_tracker is None:
-            scan_state.anchor_tracker = AnchorRegionTracker(
-                config.anchor_template_dir, config.anchor_threshold
+        ensure_anchor_directory(self._ctx.config.anchor_template_dir)
+        if self._ctx.scan_state.anchor_tracker is None:
+            self._ctx.scan_state.anchor_tracker = AnchorRegionTracker(
+                self._ctx.config.anchor_template_dir,
+                self._ctx.config.anchor_threshold,
             )
-        count = scan_state.anchor_tracker.set_directory(config.anchor_template_dir)
+        count = self._ctx.scan_state.anchor_tracker.set_directory(
+            self._ctx.config.anchor_template_dir
+        )
         self._status.set_anchor(
-            f"Loaded {count} anchor template(s) from {config.anchor_template_dir}."
+            f"Loaded {count} anchor template(s) from {self._ctx.config.anchor_template_dir}."
         )
 
     def _manual_realign(self) -> None:
         if self._run_auto_alignment():
-            info = scan_state.last_alignment_info
+            info = self._ctx.scan_state.last_alignment_info
             self._status.set_anchor(
                 f"Anchor locked using {info.template} (score {info.score:.2f}).",
                 hold=2.5,
             )
             self._status.set_status(
-                f"Auto alignment adjusted CAP_REGION: {config.capture_region}"
+                f"Auto alignment adjusted CAP_REGION: {self._ctx.config.capture_region}"
             )
         else:
             self._status.set_anchor(
@@ -286,7 +286,7 @@ class HeadSwaySection:
             )
 
     def _open_anchor_directory(self) -> None:
-        path = os.path.abspath(config.anchor_template_dir)
+        path = os.path.abspath(self._ctx.config.anchor_template_dir)
         ensure_anchor_directory(path)
         try:
             if sys.platform.startswith("win"):

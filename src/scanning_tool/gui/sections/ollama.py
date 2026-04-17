@@ -21,14 +21,6 @@ from scanning_tool.ollama import (
     set_configured_ollama_host,
     set_configured_ollama_model,
 )
-from scanning_tool.state.manager import (
-    config,
-    scan_state,
-    service_state,
-    overlay_state,
-    control_state,
-    save_config,
-)
 from scanning_tool.web import get_local_ip
 
 
@@ -54,9 +46,10 @@ class OllamaSection:
         )
         frame.pack(fill="x", padx=5, pady=8)
 
+        self._ctx = ctx
         self._status = ctx.status
-        self._host_var = tk.StringVar(value=config.ollama_config.host)
-        self._model_var = tk.StringVar(value=config.ollama_config.model)
+        self._host_var = tk.StringVar(value=ctx.config.ollama_config.host)
+        self._model_var = tk.StringVar(value=ctx.config.ollama_config.model)
         self._active_host_var = tk.StringVar()
         self._active_model_var = tk.StringVar()
 
@@ -148,7 +141,12 @@ class OllamaSection:
         logger.info(message)
 
     def _open_mobile_overlay(self) -> None:
-        web_config = config.web_server_config
+        if hasattr(self, "_ctx"):
+            web_config = self._ctx.config.web_server_config
+        else:
+            from scanning_tool.state.manager import config
+
+            web_config = config.web_server_config
         host = web_config.host
         port = web_config.port
 

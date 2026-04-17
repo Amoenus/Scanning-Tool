@@ -103,14 +103,17 @@ class WebService:
         return app
 
 
+from scanning_tool.state.app_state import AppState
+
+
 def create_app() -> Flask:
     """Create the default Flask app using global runtime state."""
-    from scanning_tool.state.manager import config, scan_state, service_state
-
+    app_state = AppState()
+    config = app_state.load_config()
     return WebService(
         config=config,
-        scan_state=scan_state,
-        service_state=service_state,
+        scan_state=app_state.scan_state,
+        service_state=app_state.service_state,
         template_folder=resource_path("templates"),
     ).create_app()
 

@@ -14,7 +14,7 @@ class ScrollableFrame:
     Children should be packed into ``self.inner``.
     """
 
-    def __init__(self, parent: tk.Widget, colors: GlassPalette) -> None:
+    def __init__(self, parent: tk.Misc, colors: GlassPalette) -> None:
         self.container = ttk.Frame(parent, style="Glass.Main.TFrame")
         self.container.pack(fill="both", expand=True)
 

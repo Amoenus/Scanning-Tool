@@ -9,14 +9,6 @@ from scanning_tool.gui.overlays import (
     reposition_info_overlay,
     sync_overlay_sliders,
 )
-from scanning_tool.state.manager import (
-    config,
-    scan_state,
-    service_state,
-    overlay_state,
-    control_state,
-    save_config,
-)
 
 
 class ResultDisplaySection:
@@ -26,9 +18,10 @@ class ResultDisplaySection:
         frame = ttk.LabelFrame(parent, text="Result Display", style="Glass.TLabelframe")
         frame.pack(fill="x", padx=5, pady=8)
 
+        self._ctx = ctx
         self._status = ctx.status
 
-        overlay_offset = config.overlay_config.info_offset
+        overlay_offset = ctx.config.overlay_config.info_offset
 
         self._offset_x = self._make_offset_scale(
             frame, "Display offset X", -800, 800, overlay_offset.x
@@ -61,9 +54,9 @@ class ResultDisplaySection:
         )
 
     def _on_change(self, *_args: object) -> None:
-        if control_state.syncing.overlay:
+        if self._ctx.control_state.syncing.overlay:
             return
-        overlay_offset = config.overlay_config.info_offset
+        overlay_offset = self._ctx.config.overlay_config.info_offset
         overlay_offset.x = int(self._offset_x.get())
         overlay_offset.y = int(self._offset_y.get())
         self._status.set_status(
