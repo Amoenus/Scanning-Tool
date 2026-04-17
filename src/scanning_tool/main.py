@@ -2,8 +2,10 @@
 
 from threading import Thread
 
+from flask import Flask
 from loguru import logger
 
+from scanning_tool.config import resource_path
 from scanning_tool.deposits import load_rock_data
 from scanning_tool.gui.app import launch_gui
 from scanning_tool.services.hotkeys_service import hotkey_listener
@@ -15,9 +17,9 @@ from scanning_tool.ollama import (
 )
 from scanning_tool.services.alignment_service import alignment_service
 from scanning_tool.services.ollama_service import ollama_service
-from scanning_tool.state.manager import config, scan_state
+from scanning_tool.state.manager import config, scan_state, service_state
 from scanning_tool.core.anchor import AnchorRegionTracker
-from scanning_tool.web import create_app, get_local_ip
+from scanning_tool.web.app import WebService
 
 
 def _initialize_services() -> None:
@@ -59,6 +61,19 @@ def _start_web_server() -> None:
         target=lambda: flask_app.run(host=host, port=port, debug=False),
         daemon=True,
     ).start()
+
+
+def create_app() -> Flask:
+    """Create the default Flask app using global runtime state."""
+    return WebService(
+        config=config,
+        scan_state=scan_state,
+        service_state=service_state,
+        template_folder=resource_path("templates"),
+    ).create_app()
+
+
+get_local_ip = WebService.get_local_ip
 
 
 def main() -> None:

@@ -13,8 +13,8 @@ The application is organized into distinct layers:
 - `state/`: runtime state containers for scanning, service state, overlays, and control state.
 - `core/anchor/`: low-level anchor template matching and tracker implementation.
 - `gui/`: GUI sections, overlay rendering, and app lifecycle.
+- `web/`: browser overlay service and web API layer.
 - `ollama/`: wrapper modules for host install, client interaction, and model management.
-- `web.py`: Flask app exposing the overlay.
 
 ## Key design principles
 - **Single responsibility**: each package owns a focused concern.
