@@ -7,3 +7,4 @@ keyboard
 ollama
 loguru
 playwright>=1.44.0
+pandas
