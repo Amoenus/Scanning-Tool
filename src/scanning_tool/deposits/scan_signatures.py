@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Optional, TypedDict
 
@@ -12,11 +13,49 @@ import pandas as pd  # type: ignore[import]
 from scanning_tool.domain.models import ScanSignature, SignatureRegistry
 
 
-class ScanSignatureRow(TypedDict, total=False):
+class ScanSignatureCSVRow(TypedDict, total=False):
     mineral: str
     category: str
     base_value: int | float | str
     max_multiplier: int | float | str
+
+
+@dataclass(frozen=True)
+class ScanSignatureRow:
+    mineral: Any = None
+    category: Any = None
+    base_value: Any = None
+    max_multiplier: Any = None
+
+    @classmethod
+    def from_mapping(
+        cls, row: Mapping[str, Any] | pd.Series
+    ) -> "ScanSignatureRow":
+        if row is None:
+            return cls()
+
+        return cls(
+            mineral=row.get("mineral"),
+            category=row.get("category"),
+            base_value=row.get("base_value"),
+            max_multiplier=row.get("max_multiplier"),
+        )
+
+    def to_scan_signature(self) -> Optional[ScanSignature]:
+        name = _to_str(self.mineral)
+        category = _to_str(self.category)
+        base_value = _to_int(self.base_value)
+        max_multiplier = _to_int(self.max_multiplier)
+
+        if not name or not category or base_value is None or max_multiplier is None:
+            return None
+
+        return ScanSignature(
+            name=name,
+            category=category,
+            base_value=base_value,
+            max_multiplier=max_multiplier,
+        )
 
 
 SCAN_SIG_CSV = (
@@ -64,20 +103,7 @@ def parse_scan_signature_row(row: Mapping[str, Any] | pd.Series) -> Optional[Sca
     if row is None or len(row) == 0:
         return None
 
-    mineral = _to_str(row.get("mineral"))
-    category = _to_str(row.get("category"))
-    base_value = _to_int(row.get("base_value"))
-    max_multiplier = _to_int(row.get("max_multiplier"))
-
-    if not mineral or not category or base_value is None or max_multiplier is None:
-        return None
-
-    return ScanSignature(
-        name=mineral,
-        category=category,
-        base_value=base_value,
-        max_multiplier=max_multiplier,
-    )
+    return ScanSignatureRow.from_mapping(row).to_scan_signature()
 
 
 def _load_scan_signatures(path: Path) -> SignatureRegistry:
@@ -100,6 +126,4 @@ def _load_scan_signatures(path: Path) -> SignatureRegistry:
     return registry
 
 
-SCAN_SIGNATURE_REGISTRY: SignatureRegistry = SignatureRegistry.load_from_csv(
-    SCAN_SIG_CSV
-)
+SCAN_SIGNATURE_REGISTRY: SignatureRegistry = _load_scan_signatures(SCAN_SIG_CSV)
