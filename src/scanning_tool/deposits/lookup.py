@@ -61,11 +61,8 @@ class DepositLookupService:
         if not code:
             return None
 
-        num_code = DepositCodeParser._lookup_deposit_re.search(code)
-        if num_code is None:
-            return None
-
-        numeric_code = self._extract_numeric_suffix(code)
+        parser = DepositCodeParser(service_state.code_re)
+        numeric_code = parser.extract_numeric_suffix(code)
         if numeric_code is None:
             return None
 
@@ -75,15 +72,6 @@ class DepositLookupService:
 
         return None
 
-    @staticmethod
-    def _extract_numeric_suffix(code: str) -> Optional[int]:
-        match = DepositCodeParser._lookup_deposit_re.search(code)
-        if not match:
-            return None
-        try:
-            return int(match.group(1))
-        except ValueError:
-            return None
 
     @staticmethod
     def _build_deposit_info(

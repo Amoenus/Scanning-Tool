@@ -10,7 +10,6 @@ from pydantic import BaseModel, Field, ValidationError
 
 from scanning_tool.config.models import (
     AutoAlignmentConfig,
-    ContinuousCaptureConfig,
     OllamaConfig,
     OverlayConfig,
     WebServerConfig,

@@ -36,13 +36,6 @@ class AutoAlignmentConfig:
 
 
 @dataclass
-class ContinuousCaptureConfig:
-    """Represents continuous capture configuration."""
-
-    interval: float
-
-
-@dataclass
 class WebServerConfig:
     """Represents the Flask web server configuration."""
 

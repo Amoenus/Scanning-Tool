@@ -7,7 +7,6 @@ import sys
 from types import FrameType
 from typing import Sequence
 
-import loguru
 from flask import Flask
 from loguru import logger
 
