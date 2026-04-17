@@ -1,70 +1,116 @@
 """Deposit lookup and code extraction from OCR text."""
 
 import re
-from typing import Optional
+from typing import Optional, Pattern
 
 from scanning_tool.core.state_manager import service_state
-from scanning_tool.domain.models import CodeExtraction, DepositInfo, ScanSignature
+from scanning_tool.domain.models import (
+    CodeExtraction,
+    DepositInfo,
+    ScanSignature,
+    SignatureRegistry,
+)
 from scanning_tool.deposits.scan_signatures import SCAN_SIGNATURE_REGISTRY
 
-_LOOKUP_DEPOSIT_RE = re.compile(r"(\d+)$")
-_PARSE_ALPHA_CODE_RE = re.compile(r"([A-Za-z]?-?)([\d,\.]+)")
+
+class DepositCodeParser:
+    """Parse deposit codes out of OCR text and normalize them."""
+
+    _lookup_deposit_re: Pattern[str] = re.compile(r"(\d+)$")
+    _parse_alpha_code_re: Pattern[str] = re.compile(r"([A-Za-z]?-?)([\d,\.]+)")
+
+    def __init__(self, code_re: Pattern[str]) -> None:
+        self.code_re = code_re
+
+    def extract_code(self, raw_text: str) -> CodeExtraction:
+        """Extract a code and raw match from OCR text."""
+        if not raw_text:
+            return CodeExtraction(code=None, raw=None)
+
+        match = self.code_re.search(raw_text)
+        if not match:
+            return CodeExtraction(code=None, raw=raw_text)
+
+        raw = match.group(0).upper()
+        return CodeExtraction(code=self._normalize_code(raw), raw=raw)
+
+    def _normalize_code(self, raw: str) -> str:
+        raw = raw.replace(",", "").replace(".", "")
+        match = self._parse_alpha_code_re.match(raw)
+        if match:
+            prefix, digits = match.groups()
+            return prefix + digits
+        return raw
+
+    def extract_numeric_suffix(self, code: str) -> Optional[int]:
+        """Return the last numeric segment of a deposit code, if present."""
+        match = self._lookup_deposit_re.search(code)
+        if not match:
+            return None
+
+        try:
+            return int(match.group(1))
+        except ValueError:
+            return None
 
 
-def _extract_numeric_suffix(code: str) -> Optional[int]:
-    """Return the last numeric segment of a deposit code, if present."""
-    m = _LOOKUP_DEPOSIT_RE.search(code)
-    if not m:
+class DepositLookupService:
+    """Lookup deposit metadata from a scan signature registry."""
+
+    def __init__(self, registry: "SignatureRegistry") -> None:
+        self._registry = registry
+
+    def lookup(self, code: Optional[str]) -> Optional[DepositInfo]:
+        """Return deposit metadata when the code matches a known signature."""
+        if not code:
+            return None
+
+        num_code = DepositCodeParser._lookup_deposit_re.search(code)
+        if num_code is None:
+            return None
+
+        numeric_code = self._extract_numeric_suffix(code)
+        if numeric_code is None:
+            return None
+
+        for base_value, signature in self._registry.get_all().items():
+            if numeric_code % base_value == 0:
+                return self._build_deposit_info(base_value, signature, numeric_code)
+
         return None
-    try:
-        return int(m.group(1))
-    except ValueError:
-        return None
+
+    @staticmethod
+    def _extract_numeric_suffix(code: str) -> Optional[int]:
+        match = DepositCodeParser._lookup_deposit_re.search(code)
+        if not match:
+            return None
+        try:
+            return int(match.group(1))
+        except ValueError:
+            return None
+
+    @staticmethod
+    def _build_deposit_info(
+        base_value: int, signature: ScanSignature, numeric_code: int
+    ) -> DepositInfo:
+        return DepositInfo(
+            name=signature.name,
+            base_code=base_value,
+            deposits=numeric_code // base_value,
+            category=signature.category,
+            max_multiplier=signature.max_multiplier,
+        )
 
 
-def _build_deposit_info(base_value: int, sig: ScanSignature, num_code: int) -> DepositInfo:
-    return DepositInfo(
-        name=sig.name,
-        base_code=base_value,
-        deposits=num_code // base_value,
-        category=sig.category,
-        max_multiplier=sig.max_multiplier,
-    )
+_code_parser = DepositCodeParser(service_state.code_re)
+_lookup_service = DepositLookupService(SCAN_SIGNATURE_REGISTRY)
 
 
 def lookup_deposit(code: Optional[str]) -> Optional[DepositInfo]:
     """Look up a deposit by its numeric code using scraped scan signature data."""
-    if not code:
-        return None
-
-    num_code = _extract_numeric_suffix(code)
-    if num_code is None:
-        return None
-
-    for base_value, sig in SCAN_SIGNATURE_REGISTRY.get_all().items():
-        if num_code % base_value == 0:
-            return _build_deposit_info(base_value, sig, num_code)
-
-    return None
-
-
-def _normalize_code(raw: str) -> str:
-    raw = raw.replace(",", "").replace(".", "")
-    m = _PARSE_ALPHA_CODE_RE.match(raw)
-    if m:
-        prefix, digits = m.groups()
-        return prefix + digits
-    return raw
+    return _lookup_service.lookup(code)
 
 
 def extract_code_from_text(raw_text: str) -> CodeExtraction:
     """Extract a deposit code from OCR text."""
-    if not raw_text:
-        return CodeExtraction(code=None, raw=None)
-
-    match = service_state.code_re.search(raw_text)
-    if not match:
-        return CodeExtraction(code=None, raw=raw_text)
-
-    raw = match.group(0).upper()
-    return CodeExtraction(code=_normalize_code(raw), raw=raw)
+    return _code_parser.extract_code(raw_text)
