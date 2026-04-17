@@ -58,7 +58,6 @@ class CaptureService:
         deposit_info = lookup_deposit(extraction.code)
         result = ScanResult(
             label=extraction.code if extraction.code else "UNKNOWN",
-            confidence=1.0,
             region=config.capture_region,
             info=deposit_info,
             code_raw=extraction.raw,
@@ -71,7 +70,6 @@ class CaptureService:
         logger.info(
             f"Scan result: ScanResult("
             f"label={result.label}, "
-            f"confidence={result.confidence}, "
             f"region={result.region}, "
             f"code_raw={result.code_raw}, "
             f"raw_text={result.raw_text}"

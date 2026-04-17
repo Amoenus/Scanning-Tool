@@ -191,11 +191,6 @@ class OllamaConfig:
     host: Optional[str]
 
 
-@dataclass
-class ScanConfig:
-    """Represents scanning configuration."""
-    min_confidence: float
-
 
 @dataclass
 class AutoAlignmentConfig:
@@ -217,7 +212,6 @@ class ContinuousCaptureConfig:
 class ScanResult:
     """A single scan result — the cleaned code (`label`), the raw OCR text it came from, and resolved deposit metadata."""
     label: str
-    confidence: float
     region: CaptureRegion
     info: Optional[DepositInfo] = None
     code_raw: Optional[str] = None
@@ -324,7 +318,6 @@ class StatusResponse:
     info: Optional[DepositInfo]
     code: Optional[str]
     code_raw: Optional[str]
-    confidence: Optional[float]
     raw_text: Optional[str]
     table: Optional[DepositTable]
 

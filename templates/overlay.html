@@ -314,7 +314,7 @@ async function poll(){
       if(j.info.deposits){ text += " x" + j.info.deposits; }
       document.getElementById('name').textContent = text;
       document.getElementById('code').textContent = "Code: " + (j.code ?? "");
-      document.getElementById('raw').textContent = j.code_raw ? ("(raw: " + j.code_raw + ", conf " + j.confidence.toFixed(2) + ")") : "";
+      document.getElementById('raw').textContent = j.code_raw ? ("(raw: " + j.code_raw + ")") : "";
       const info = j.info || {};
       const category = info.category || '';
       if(Array.isArray(j.table) && j.table.length){
