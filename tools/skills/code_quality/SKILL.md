@@ -32,9 +32,10 @@ uv run --managed-python --with-requirements requirements.txt -- python -m ruff c
 ```
 
 ## What it does
-1. Runs `mypy` across the repository to validate static typing.
-2. Runs `ruff check .` to surface lint errors, code smells, complexity issues, and style violations.
-3. Optionally checks whether formatting is required via `ruff format . --check`.
+1. Runs `pyright` across the repository to validate imports, module resolution, and narrow type assignments.
+2. Runs `mypy` across the repository to validate static typing.
+3. Runs `ruff check .` to surface lint errors, code smells, complexity issues, and style violations.
+4. Optionally checks whether formatting is required via `ruff format . --check`.
 
 ## Expected output
 - `mypy` reports type errors, missing imports, invalid assignments, and protocol mismatches.
@@ -51,8 +52,10 @@ uv run --managed-python --with-requirements requirements.txt -- python -m ruff c
 4. Re-run tests after cleanup to verify behavior.
 
 ## Gotchas
+- `pyright` may report missing imports if the virtual environment is not fully installed or if the repo path is not configured correctly.
 - `mypy` may need `--ignore-missing-imports` or repo-specific config if third-party stubs are missing.
 - `ruff` can produce warnings for dynamic imports or generated code, so verify before changing code.
+- Prefer narrow types and explicit domain models instead of suppressing issues with `Any`.
 - A clean result from these tools is necessary but not sufficient; still run the test suite for behavior validation.
 
 ## Notes for LLM agents
