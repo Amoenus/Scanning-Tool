@@ -2,3 +2,5 @@ pytest
 mypy
 pandas-stubs
 types-keyboard
+vulture
+ruff>=0.15.11

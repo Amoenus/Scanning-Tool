@@ -17,6 +17,7 @@ dependencies = [
     "ollama",
     "pydantic",
     "loguru",
+    "playwright>=1.44.0",
     "pandas",
 ]
 
@@ -43,4 +44,5 @@ dev = [
     "pandas-stubs",
     "types-keyboard",
     "ruff>=0.15.11",
+    "vulture>=2.16",
 ]
