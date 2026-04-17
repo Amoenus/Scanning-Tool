@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, Literal, Mapping, TypedDict
+from typing import Literal, TypedDict
 
 OreTier = Literal["HIGHEST", "HIGH", "MEDIUM", "LOW", "OTHER"]
 

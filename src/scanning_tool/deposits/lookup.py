@@ -98,8 +98,3 @@ def lookup_deposit(code: Optional[str]) -> Optional[DepositInfo]:
 def extract_code_from_text(raw_text: str) -> CodeExtraction:
     """Extract a deposit code from OCR text."""
     return DepositCodeParser(service_state.code_re).extract_code(raw_text)
-
-
-def _parse_alphanumeric_code(raw_text: str) -> str:
-    """Normalize a raw deposit code string for parsing and benchmarking."""
-    return DepositCodeParser(service_state.code_re)._normalize_code(raw_text)

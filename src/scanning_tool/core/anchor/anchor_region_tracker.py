@@ -11,7 +11,7 @@ from loguru import logger
 from mss.models import Monitor
 
 
-from typing import List, Optional, Tuple
+from typing import List, Optional
 
 
 class AnchorRegionTracker:
