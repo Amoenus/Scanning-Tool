@@ -1,6 +1,7 @@
 from .anchor_matcher import AnchorMatcher
 from .anchor_template_loader import AnchorTemplate, AnchorTemplateLoader
-from scanning_tool.domain.models import AnchorDetection, CaptureRegion, MssMonitor
+from scanning_tool.domain.alignment import AnchorDetection, CaptureRegion
+from scanning_tool.domain.common import MssMonitor
 
 
 import cv2

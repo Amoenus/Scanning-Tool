@@ -5,11 +5,8 @@ import subprocess
 
 import ollama
 
-from scanning_tool.domain.models import (
-    RegionDepositTables,
-    RockData,
-    RockDataCollection,
-)
+from scanning_tool.domain.common import RegionDepositTables
+from scanning_tool.domain.ore import RockData, RockDataCollection
 
 
 @dataclass

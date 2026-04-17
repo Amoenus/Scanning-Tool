@@ -17,11 +17,7 @@ from scanning_tool.state.manager import (
     control_state,
     save_config,
 )
-from scanning_tool.domain.models import (
-    AnchorOverlayGeometry,
-    CaptureOverlayLayout,
-    InfoOverlayLayout,
-)
+from scanning_tool.gui.layout import AnchorOverlayGeometry, CaptureOverlayLayout, InfoOverlayLayout
 
 
 def compute_info_overlay_geometry(

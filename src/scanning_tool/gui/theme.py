@@ -2,11 +2,27 @@
 
 import tkinter as tk
 from tkinter import ttk
+from dataclasses import dataclass
 
 from PIL import Image, ImageDraw, ImageTk
 
-from scanning_tool.domain.models import GlassPalette
 from .overlays.base import safe_tk
+
+
+@dataclass(frozen=True)
+class GlassPalette:
+    background: str
+    panel: str
+    accent: str
+    text: str
+    muted: str
+    button: str
+    button_hover: str
+    border: str
+    glow: str
+    knob: str
+    knob_active: str
+    knob_outline: str
 
 
 _PALETTE = GlassPalette(

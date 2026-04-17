@@ -1,12 +1,18 @@
 """Ollama Connection section — model picker, host entry, and action buttons."""
 
+from __future__ import annotations
+
 from loguru import logger
 import webbrowser
 
 import tkinter as tk
 from tkinter import ttk
 
-from scanning_tool.gui.sections.base import SectionContext
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from scanning_tool.gui.sections.base import SectionContext
+
 from scanning_tool.gui.widgets import (
     create_button_row,
     create_labeled_combobox,
@@ -21,7 +27,12 @@ from scanning_tool.ollama import (
     set_configured_ollama_host,
     set_configured_ollama_model,
 )
-from scanning_tool.web import get_local_ip
+
+
+def get_local_ip() -> str:
+    from scanning_tool.web import get_local_ip as web_get_local_ip
+
+    return web_get_local_ip()
 
 
 SUGGESTED_MODELS = (

@@ -5,7 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Optional
 
-from scanning_tool.domain.models import CaptureRegion, Offset2D
+from scanning_tool.domain.alignment import CaptureRegion
+from scanning_tool.domain.common import Offset2D
 
 
 @dataclass

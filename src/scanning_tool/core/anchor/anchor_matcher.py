@@ -1,5 +1,5 @@
 from .anchor_template_loader import AnchorTemplate
-from scanning_tool.domain.models import AnchorDetection
+from scanning_tool.domain.alignment import AnchorDetection
 
 
 import cv2

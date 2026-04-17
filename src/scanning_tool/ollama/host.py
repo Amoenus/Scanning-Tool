@@ -10,7 +10,8 @@ from scanning_tool.state.manager import (
     control_state,
     save_config,
 )
-from scanning_tool.domain.models import OLLAMA_DEFAULT_HOST
+
+OLLAMA_DEFAULT_HOST = "http://127.0.0.1:11434"
 
 
 def sanitize_ollama_host(value: str) -> str:

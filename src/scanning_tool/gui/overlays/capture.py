@@ -13,7 +13,7 @@ from scanning_tool.state.manager import (
     control_state,
     save_config,
 )
-from scanning_tool.domain.models import CaptureOverlayLayout
+from scanning_tool.gui.layout import CaptureOverlayLayout
 
 
 class CaptureOverlay:

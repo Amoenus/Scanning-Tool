@@ -1,7 +1,10 @@
 """Shared application state exports."""
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
+
 from scanning_tool.state.app_state import AppState
-from scanning_tool.state.scan_state import ScanState
 from scanning_tool.state.service_state import ServiceState
 from scanning_tool.state.manager import (
     app_state,
@@ -12,6 +15,21 @@ from scanning_tool.state.manager import (
     control_state,
     save_config,
 )
+
+if TYPE_CHECKING:
+    from scanning_tool.state.scan_state import ScanState
+
+
+def __getattr__(name: str) -> Any:
+    if name == "ScanState":
+        from scanning_tool.state.scan_state import ScanState
+
+        return ScanState
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
+
+def __dir__() -> list[str]:
+    return sorted(list(globals().keys()) + ["ScanState"])
 
 __all__ = [
     "AppState",

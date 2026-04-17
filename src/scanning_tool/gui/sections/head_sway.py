@@ -9,7 +9,7 @@ import tkinter as tk
 from tkinter import ttk
 
 from scanning_tool.core.anchor import AnchorRegionTracker
-from scanning_tool.domain.models import AlignmentRequest
+from scanning_tool.domain.alignment import AlignmentRequest
 from scanning_tool.services.alignment_service import alignment_service
 from scanning_tool.config import ensure_anchor_directory
 from scanning_tool.gui.sections.base import SectionContext

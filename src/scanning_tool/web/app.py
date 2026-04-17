@@ -9,12 +9,9 @@ from flask import Flask, Response, jsonify, render_template, request
 
 from scanning_tool.config import resource_path
 from scanning_tool.config.service import ConfigData
-from scanning_tool.domain.models import (
-    DepositInfo,
-    DepositTable,
-    ScanResult,
-    StatusResponse,
-)
+from scanning_tool.domain.capture import DepositInfo, ScanResult
+from scanning_tool.domain.common import DepositTable
+from scanning_tool.web.schemas import StatusResponse
 from scanning_tool.logging_setup import configure_flask_logging
 from scanning_tool.state.scan_state import ScanState
 from scanning_tool.state.service_state import ServiceState

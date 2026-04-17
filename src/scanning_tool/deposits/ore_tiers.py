@@ -2,7 +2,9 @@
 
 from typing import Dict, List
 
-from scanning_tool.domain.models import OreTier, OreTierInfo, OreValueInfo
+from scanning_tool.domain.common import OreValueInfo
+from scanning_tool.domain.ore import OreTierInfo
+from scanning_tool.domain.ore import OreTier
 
 ORE_TIERS: Dict[OreTier, OreTierInfo] = {
     "HIGHEST": OreTierInfo(ores=["QUANTANIUM", "STILERON", "RICCITE"], color="#E88AFF"),

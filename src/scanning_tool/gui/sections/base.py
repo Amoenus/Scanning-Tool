@@ -10,7 +10,7 @@ from scanning_tool.config.service import ConfigData
 from scanning_tool.gui.control_state import ControlState
 from scanning_tool.gui.overlay_state import OverlayState
 from scanning_tool.gui.status import StatusBar
-from scanning_tool.domain.models import GlassPalette
+from scanning_tool.gui.theme import GlassPalette
 from scanning_tool.services.capture_service import CaptureService
 from scanning_tool.state.scan_state import ScanState
 from scanning_tool.state.service_state import ServiceState

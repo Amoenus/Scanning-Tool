@@ -15,7 +15,8 @@ from scanning_tool.config.models import (
     OverlayConfig,
     WebServerConfig,
 )
-from scanning_tool.domain.models import CaptureRegion, Offset2D
+from scanning_tool.domain.alignment import CaptureRegion
+from scanning_tool.domain.common import Offset2D
 
 
 class ConfigData(BaseModel):

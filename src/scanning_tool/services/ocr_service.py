@@ -1,6 +1,7 @@
 """OCR service abstraction for Ollama vision models."""
 
 import io
+from dataclasses import dataclass
 from typing import Optional
 
 import ollama
@@ -8,7 +9,13 @@ from loguru import logger
 from PIL import Image
 
 from scanning_tool.ollama import get_ollama_client, get_ollama_model
-from scanning_tool.domain.models import ModelPromptProfile
+
+
+@dataclass(frozen=True)
+class ModelPromptProfile:
+    prefix: str
+    prompt: str
+
 
 _DEFAULT_PROMPT = "Extract the numeric code shown in this image. Only return the code, no extra words."
 

@@ -8,7 +8,7 @@ from scanning_tool.services.alignment_service import (
     reset_alignment_info,
 )
 from scanning_tool.config.service import ConfigData
-from scanning_tool.domain.models import AlignmentRequest
+from scanning_tool.domain.alignment import AlignmentRequest
 from scanning_tool.gui.overlays import (
     update_capture_overlay_region,
     sync_capture_sliders,

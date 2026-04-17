@@ -3,7 +3,7 @@ from typing import Optional
 
 import tkinter as tk
 
-from scanning_tool.domain.models import CaptureOverlayLayout, InfoOverlayGeometry
+from scanning_tool.gui.layout import CaptureOverlayLayout, InfoOverlayGeometry
 
 
 @dataclass

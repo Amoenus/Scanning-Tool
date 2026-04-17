@@ -4,12 +4,8 @@ import re
 from typing import Optional, Pattern
 
 from scanning_tool.state.manager import service_state
-from scanning_tool.domain.models import (
-    CodeExtraction,
-    DepositInfo,
-    ScanSignature,
-    SignatureRegistry,
-)
+from scanning_tool.domain.capture import CodeExtraction, DepositInfo
+from scanning_tool.domain.scan_signature import ScanSignature, SignatureRegistry
 from scanning_tool.deposits.scan_signatures import SCAN_SIGNATURE_REGISTRY
 
 
