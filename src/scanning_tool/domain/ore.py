@@ -2,20 +2,22 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
+from pydantic import BaseModel, Field, ValidationError, field_validator
+
 from scanning_tool.domain.dtos import JsonObject
 
 
-@dataclass
-class OreStatistics:
-    """Per-ore stats inside a Deposit's `ores` map (loaded from RockType.json)."""
+class OreStatisticsSchema(BaseModel):
+    prob: float = 0.0
+    minPct: float = 0.0
+    maxPct: float = 0.0
+    medPct: float = 0.0
 
-    prob: float
-    minPct: float
-    maxPct: float
-    medPct: float
+    model_config = {"extra": "ignore"}
 
-    @staticmethod
-    def _to_float(value: int | float | str | None) -> float:
+    @field_validator("*", mode="before")
+    @classmethod
+    def _coerce_to_float(cls, value):
         if isinstance(value, (int, float)):
             return float(value)
         if isinstance(value, str):
@@ -25,31 +27,30 @@ class OreStatistics:
                 return 0.0
         return 0.0
 
-    @classmethod
-    def from_dict(cls, data: JsonObject) -> "OreStatistics":
-        return cls(
-            prob=cls._to_float(data.get("prob")),
-            minPct=cls._to_float(data.get("minPct")),
-            maxPct=cls._to_float(data.get("maxPct")),
-            medPct=cls._to_float(data.get("medPct")),
+    def to_domain(self) -> "OreStatistics":
+        return OreStatistics(
+            prob=self.prob,
+            minPct=self.minPct,
+            maxPct=self.maxPct,
+            medPct=self.medPct,
         )
 
 
-@dataclass
-class Deposit:
-    """A single deposit entry inside a region in RockType.json."""
+class DepositSchema(BaseModel):
+    users: int = 0
+    scans: int = 0
+    clusters: int = 0
+    clusterCount: dict[str, float] = Field(default_factory=dict)
+    mass: dict[str, float] = Field(default_factory=dict)
+    inst: dict[str, float] = Field(default_factory=dict)
+    res: dict[str, float] = Field(default_factory=dict)
+    ores: dict[str, OreStatisticsSchema] = Field(default_factory=dict)
 
-    users: int
-    scans: int
-    clusters: int
-    clusterCount: dict[str, float]
-    mass: dict[str, float]
-    inst: dict[str, float]
-    res: dict[str, float]
-    ores: dict[str, OreStatistics]
+    model_config = {"extra": "ignore"}
 
-    @staticmethod
-    def _to_int(value: int | str | float | object | None) -> int:
+    @field_validator("users", "scans", "clusters", mode="before")
+    @classmethod
+    def _coerce_to_int(cls, value):
         if isinstance(value, int):
             return value
         if isinstance(value, float):
@@ -61,8 +62,9 @@ class Deposit:
                 return 0
         return 0
 
-    @staticmethod
-    def _to_float_mapping(value: object | None) -> dict[str, float]:
+    @field_validator("clusterCount", "mass", "inst", "res", mode="before")
+    @classmethod
+    def _coerce_float_mapping(cls, value):
         if not isinstance(value, dict):
             return {}
 
@@ -79,23 +81,58 @@ class Deposit:
                     continue
         return converted
 
+
+@dataclass
+class OreStatistics:
+    """Per-ore stats inside a Deposit's `ores` map (loaded from RockType.json)."""
+
+    prob: float
+    minPct: float
+    maxPct: float
+    medPct: float
+
+    @classmethod
+    def from_dict(cls, data: JsonObject) -> "OreStatistics":
+        try:
+            validated = OreStatisticsSchema.model_validate(data)
+        except ValidationError:
+            validated = OreStatisticsSchema()
+        return validated.to_domain()
+
+
+@dataclass
+class Deposit:
+    """A single deposit entry inside a region in RockType.json."""
+
+    users: int
+    scans: int
+    clusters: int
+    clusterCount: dict[str, float]
+    mass: dict[str, float]
+    inst: dict[str, float]
+    res: dict[str, float]
+    ores: dict[str, OreStatistics]
+
     @classmethod
     def from_dict(cls, data: JsonObject) -> "Deposit":
-        ores_data = data.get("ores", {})
+        try:
+            validated = DepositSchema.model_validate(data)
+        except ValidationError:
+            validated = DepositSchema()
+
         ores = {
-            ore_name: OreStatistics.from_dict(ore_data)
-            for ore_name, ore_data in ores_data.items()
-            if isinstance(ore_data, dict)
+            ore_name: ore_schema.to_domain()
+            for ore_name, ore_schema in validated.ores.items()
         }
 
         return cls(
-            users=cls._to_int(data.get("users")),
-            scans=cls._to_int(data.get("scans")),
-            clusters=cls._to_int(data.get("clusters")),
-            clusterCount=cls._to_float_mapping(data.get("clusterCount")),
-            mass=cls._to_float_mapping(data.get("mass")),
-            inst=cls._to_float_mapping(data.get("inst")),
-            res=cls._to_float_mapping(data.get("res")),
+            users=validated.users,
+            scans=validated.scans,
+            clusters=validated.clusters,
+            clusterCount=validated.clusterCount,
+            mass=validated.mass,
+            inst=validated.inst,
+            res=validated.res,
             ores=ores,
         )
 
