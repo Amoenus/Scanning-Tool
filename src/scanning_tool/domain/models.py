@@ -8,14 +8,6 @@ from typing import Dict, Literal, Optional, List, Tuple, TypedDict, Union
 OreTier = Literal["HIGHEST", "HIGH", "MEDIUM", "LOW", "OTHER"]
 
 
-class OreInfo(TypedDict):
-    """Per-ore stats inside a RockDeposit's `ores` map (loaded from RockType.json)."""
-    prob: float
-    minPct: float
-    maxPct: float
-    medPct: float
-
-
 class MssMonitor(TypedDict):
     """Monitor dict compatible with the mss library."""
     left: int
@@ -24,7 +16,26 @@ class MssMonitor(TypedDict):
     height: int
 
 
-class RockDeposit(TypedDict, total=False):
+@dataclass
+class OreStatistics:
+    """Per-ore stats inside a Deposit's `ores` map (loaded from RockType.json)."""
+    prob: float
+    minPct: float
+    maxPct: float
+    medPct: float
+
+    @classmethod
+    def from_dict(cls, data: dict) -> 'OreStatistics':
+        return cls(
+            prob=float(data.get("prob", 0.0)),
+            minPct=float(data.get("minPct", 0.0)),
+            maxPct=float(data.get("maxPct", 0.0)),
+            medPct=float(data.get("medPct", 0.0))
+        )
+
+
+@dataclass
+class Deposit:
     """A single deposit entry inside a region in RockType.json."""
     users: int
     scans: int
@@ -33,11 +44,47 @@ class RockDeposit(TypedDict, total=False):
     mass: Dict[str, float]
     inst: Dict[str, float]
     res: Dict[str, float]
-    ores: Dict[str, OreInfo]
+    ores: Dict[str, OreStatistics]
+
+    @classmethod
+    def from_dict(cls, data: dict) -> 'Deposit':
+        ores_data = data.get("ores", {})
+        ores = {k: OreStatistics.from_dict(v) for k, v in ores_data.items() if isinstance(v, dict)}
+
+        return cls(
+            users=int(data.get("users", 0)),
+            scans=int(data.get("scans", 0)),
+            clusters=int(data.get("clusters", 0)),
+            clusterCount=data.get("clusterCount", {}),
+            mass=data.get("mass", {}),
+            inst=data.get("inst", {}),
+            res=data.get("res", {}),
+            ores=ores
+        )
 
 
-# Region name -> deposit name -> RockDeposit (raw RockType.json shape).
-RockData = Dict[str, Dict[str, RockDeposit]]
+@dataclass
+class Region:
+    """A collection of deposits for a given region."""
+    deposits: Dict[str, Deposit]
+
+    @classmethod
+    def from_dict(cls, data: dict) -> 'Region':
+        deposits = {k: Deposit.from_dict(v) for k, v in data.items() if isinstance(v, dict)}
+        return cls(deposits=deposits)
+
+
+@dataclass
+class RockDataCollection:
+    """Top-level container for all region data."""
+    regions: Dict[str, Region]
+
+    @classmethod
+    def from_dict(cls, data: dict) -> 'RockDataCollection':
+        regions = {k: Region.from_dict(v) for k, v in data.items() if isinstance(v, dict)}
+        return cls(regions=regions)
+
+RockData = RockDataCollection  # Alias for backward compatibility during refactor
 
 
 @dataclass(frozen=True)
@@ -72,6 +119,27 @@ class ScanSignature:
     category: str
     base_value: int
     max_multiplier: int
+
+
+class SignatureRegistry:
+    """Domain service to manage a registry of ScanSignatures."""
+
+    def __init__(self, signatures: Dict[int, ScanSignature] = None):
+        self._signatures = signatures or {}
+
+    def add(self, signature: ScanSignature) -> None:
+        self._signatures[signature.base_value] = signature
+
+    def get(self, base_value: int) -> Optional[ScanSignature]:
+        return self._signatures.get(base_value)
+
+    def get_all(self) -> Dict[int, ScanSignature]:
+        return self._signatures.copy()
+
+    @classmethod
+    def load_from_csv(cls, path: str) -> 'SignatureRegistry':
+        # the implementation is moved to deposits/scan_signatures.py
+        pass
 
 
 # --- Shared Value Types ---
