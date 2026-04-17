@@ -13,7 +13,7 @@ from scanning_tool.domain.ore import RockData, RockDataCollection
 class OllamaClientState:
     client: Optional[ollama.Client] = None
     client_host: str = ""
-    server_process: Optional[subprocess.Popen] = field(default=None, repr=False)
+    server_process: Optional[subprocess.Popen[bytes]] = field(default=None, repr=False)
 
 
 @dataclass
@@ -60,11 +60,11 @@ class ServiceState:
         self.ollama_state.client_host = value
 
     @property
-    def ollama_server_process(self) -> Optional[subprocess.Popen]:
+    def ollama_server_process(self) -> Optional[subprocess.Popen[bytes]]:
         return self.ollama_state.server_process
 
     @ollama_server_process.setter
-    def ollama_server_process(self, value: Optional[subprocess.Popen]) -> None:
+    def ollama_server_process(self, value: Optional[subprocess.Popen[bytes]]) -> None:
         self.ollama_state.server_process = value
 
     @property
