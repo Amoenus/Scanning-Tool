@@ -1,5 +1,5 @@
-from scanning_tool.core.AnchorMatcher import AnchorMatcher
-from scanning_tool.core.AnchorTemplateLoader import AnchorTemplateLoader
+from .AnchorMatcher import AnchorMatcher
+from .AnchorTemplateLoader import AnchorTemplateLoader
 from scanning_tool.domain.models import AnchorDetection, CaptureRegion, MssMonitor
 
 

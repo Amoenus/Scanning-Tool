@@ -2,7 +2,7 @@
 
 from typing import Callable, Optional, Tuple
 from scanning_tool.services.base_service import BaseService
-from scanning_tool.core.AnchorRegionTracker import AnchorRegionTracker
+from scanning_tool.core.anchor import AnchorRegionTracker
 from scanning_tool.domain.models import AlignmentInfo, AnchorDetection
 
 SyncCallback = Callable[[], None]

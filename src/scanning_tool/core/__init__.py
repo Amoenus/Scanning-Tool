@@ -1,5 +1,5 @@
 """Core scanning services and algorithms."""
 
-from .AnchorRegionTracker import AnchorRegionTracker
+from .anchor import AnchorRegionTracker
 
 __all__ = ["AnchorRegionTracker"]
