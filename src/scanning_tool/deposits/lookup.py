@@ -5,7 +5,7 @@ from typing import Optional
 
 from scanning_tool.core.state_manager import service_state
 from scanning_tool.domain.models import CodeExtraction, DepositInfo
-from scanning_tool.deposits.scan_signatures import SCAN_SIGNATURES
+from scanning_tool.deposits.scan_signatures import SCAN_SIGNATURE_REGISTRY
 
 _LOOKUP_DEPOSIT_RE = re.compile(r"(\d+)$")
 _PARSE_ALPHA_CODE_RE = re.compile(r"([A-Za-z]?-?)([\d,\.]+)")
@@ -20,7 +20,7 @@ def lookup_deposit(code: Optional[str]) -> Optional[DepositInfo]:
         if not m:
             return None
         num_code = int(m.group(1))
-        for base_value, sig in SCAN_SIGNATURES.items():
+        for base_value, sig in SCAN_SIGNATURE_REGISTRY.get_all().items():
             if num_code % base_value == 0:
                 return DepositInfo(
                     name=sig.name,
