@@ -211,6 +211,13 @@ class ContinuousCaptureConfig:
     interval: float
 
 
+@dataclass
+class WebServerConfig:
+    """Represents the Flask web server configuration."""
+    host: str = "0.0.0.0"
+    port: int = 5000
+
+
 # --- Additional Domain Models / DTOs ---
 
 @dataclass
