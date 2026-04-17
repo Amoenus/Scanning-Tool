@@ -2,34 +2,27 @@
 
 from __future__ import annotations
 
-from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Optional, TypedDict
+from typing import Optional
 
 from loguru import logger
 import pandas as pd  # type: ignore[import]
 
+from scanning_tool.domain.dtos import ScanSignatureCSVRowData
 from scanning_tool.domain.models import ScanSignature, SignatureRegistry
-
-
-class ScanSignatureCSVRow(TypedDict, total=False):
-    mineral: str
-    category: str
-    base_value: int | float | str
-    max_multiplier: int | float | str
 
 
 @dataclass(frozen=True)
 class ScanSignatureRow:
-    mineral: Any = None
-    category: Any = None
-    base_value: Any = None
-    max_multiplier: Any = None
+    mineral: Optional[str] = None
+    category: Optional[str] = None
+    base_value: Optional[int | float | str] = None
+    max_multiplier: Optional[int | float | str] = None
 
     @classmethod
     def from_mapping(
-        cls, row: Mapping[str, Any] | pd.Series
+        cls, row: ScanSignatureCSVRowData | pd.Series | None
     ) -> "ScanSignatureRow":
         if row is None:
             return cls()
@@ -66,7 +59,7 @@ SCAN_SIG_CSV = (
 )
 
 
-def _to_int(value: Any) -> Optional[int]:
+def _to_int(value: object | None) -> Optional[int]:
     if value is None:
         return None
     if isinstance(value, bool):
@@ -88,7 +81,7 @@ def _to_int(value: Any) -> Optional[int]:
     return None
 
 
-def _to_str(value: Any) -> Optional[str]:
+def _to_str(value: object | None) -> Optional[str]:
     if value is None:
         return None
     if isinstance(value, str):
@@ -99,7 +92,7 @@ def _to_str(value: Any) -> Optional[str]:
     return None
 
 
-def parse_scan_signature_row(row: Mapping[str, Any] | pd.Series) -> Optional[ScanSignature]:
+def parse_scan_signature_row(row: ScanSignatureCSVRowData | pd.Series | None) -> Optional[ScanSignature]:
     if row is None or len(row) == 0:
         return None
 
