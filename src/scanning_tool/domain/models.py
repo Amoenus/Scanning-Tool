@@ -14,6 +14,10 @@ if TYPE_CHECKING:
 
 OreTier = Literal["HIGHEST", "HIGH", "MEDIUM", "LOW", "OTHER"]
 
+OreValueMap = Mapping[str, float]
+OreStatisticsMap = Mapping[str, "OreStatistics"]
+DepositMap = Mapping[str, "Deposit"]
+
 
 class OreStatisticsData(TypedDict, total=False):
     prob: float | str
@@ -26,15 +30,15 @@ class DepositData(TypedDict, total=False):
     users: int | str
     scans: int | str
     clusters: int | str
-    clusterCount: Dict[str, float]
-    mass: Dict[str, float]
-    inst: Dict[str, float]
-    res: Dict[str, float]
-    ores: Dict[str, OreStatisticsData]
+    clusterCount: OreValueMap
+    mass: OreValueMap
+    inst: OreValueMap
+    res: OreValueMap
+    ores: Mapping[str, OreStatisticsData]
 
 
-RegionData = Dict[str, DepositData]
-RockDataJSON = Dict[str, RegionData]
+RegionData = Mapping[str, DepositData]
+RockDataJSON = Mapping[str, RegionData]
 
 
 class MssMonitor(TypedDict):
@@ -83,11 +87,11 @@ class Deposit:
     users: int
     scans: int
     clusters: int
-    clusterCount: Dict[str, float]
-    mass: Dict[str, float]
-    inst: Dict[str, float]
-    res: Dict[str, float]
-    ores: Dict[str, OreStatistics]
+    clusterCount: OreValueMap
+    mass: OreValueMap
+    inst: OreValueMap
+    res: OreValueMap
+    ores: OreStatisticsMap
 
     @staticmethod
     def _to_int(value: int | str | float | None) -> int:
@@ -127,7 +131,7 @@ class Deposit:
 class Region:
     """A collection of deposits for a given region."""
 
-    deposits: Dict[str, Deposit]
+    deposits: DepositMap
 
     @classmethod
     def from_dict(cls, data: RegionData) -> "Region":
@@ -286,9 +290,9 @@ class SignatureRegistry:
     @classmethod
     def load_from_csv(cls, path: str | Path) -> "SignatureRegistry":
         from pathlib import Path
-        from scanning_tool.deposits.scan_signatures import _load_scan_signatures
+        from scanning_tool.deposits.scan_signatures import load_scan_signatures
 
-        return _load_scan_signatures(Path(path))
+        return load_scan_signatures(Path(path))
 
 
 # --- Shared Value Types ---

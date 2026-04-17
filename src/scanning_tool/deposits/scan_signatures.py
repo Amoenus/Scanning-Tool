@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional
+from typing import Mapping, Optional
 
 from loguru import logger
 import pandas as pd  # type: ignore[import]
@@ -24,14 +24,16 @@ SCAN_SIG_CSV = (
 )
 
 
-def parse_scan_signature_row(row: ScanSignatureCSVRowData | pd.Series | None) -> Optional[ScanSignature]:
+def parse_scan_signature_row(
+    row: ScanSignatureCSVRowData | Mapping[str, object] | pd.Series | None
+) -> Optional[ScanSignature]:
     if row is None or len(row) == 0:
         return None
 
     return ScanSignatureCSVRow.from_mapping(row).to_scan_signature()
 
 
-def _load_scan_signatures(path: Path) -> SignatureRegistry:
+def load_scan_signatures(path: Path) -> SignatureRegistry:
     registry = SignatureRegistry()
     if not path.exists():
         logger.warning(f"Scan signature CSV not found: {path}")
@@ -51,4 +53,28 @@ def _load_scan_signatures(path: Path) -> SignatureRegistry:
     return registry
 
 
-SCAN_SIGNATURE_REGISTRY: SignatureRegistry = _load_scan_signatures(SCAN_SIG_CSV)
+_scan_signature_registry_loaded = False
+
+
+def bootstrap_scan_signature_registry(
+    path: Path | str = SCAN_SIG_CSV,
+) -> SignatureRegistry:
+    global SCAN_SIGNATURE_REGISTRY, _scan_signature_registry_loaded
+
+    if isinstance(path, str):
+        path = Path(path)
+
+    SCAN_SIGNATURE_REGISTRY = load_scan_signatures(path)
+    _scan_signature_registry_loaded = True
+    return SCAN_SIGNATURE_REGISTRY
+
+
+def get_scan_signature_registry() -> SignatureRegistry:
+    global _scan_signature_registry_loaded
+
+    if not _scan_signature_registry_loaded:
+        bootstrap_scan_signature_registry()
+    return SCAN_SIGNATURE_REGISTRY
+
+
+SCAN_SIGNATURE_REGISTRY: SignatureRegistry = SignatureRegistry()

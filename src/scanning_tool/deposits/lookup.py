@@ -103,14 +103,15 @@ class DepositLookupService:
 
 
 _code_parser = DepositCodeParser(service_state.code_re)
-_lookup_service = DepositLookupService(SCAN_SIGNATURE_REGISTRY)
 
 
 def lookup_deposit(code: Optional[str]) -> Optional[DepositInfo]:
     """Look up a deposit by its numeric code using scraped scan signature data."""
-    return _lookup_service.lookup(code)
+    from scanning_tool.deposits.scan_signatures import get_scan_signature_registry
+
+    return DepositLookupService(get_scan_signature_registry()).lookup(code)
 
 
 def extract_code_from_text(raw_text: str) -> CodeExtraction:
     """Extract a deposit code from OCR text."""
-    return _code_parser.extract_code(raw_text)
+    return DepositCodeParser(service_state.code_re).extract_code(raw_text)
