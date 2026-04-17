@@ -31,8 +31,10 @@ def lookup_deposit(code: Optional[str]) -> Optional[DepositInfo]:
     return None
 
 
+_ALPHANUMERIC_CODE_RE = re.compile(r"([A-Za-z]?-?)([\d,\.]+)")
+
 def _parse_alphanumeric_code(raw: str) -> str:
-    m = re.match(r"([A-Za-z]?-?)([\d,\.]+)", raw)
+    m = _ALPHANUMERIC_CODE_RE.match(raw)
     if m:
         prefix, digits = m.groups()
         digits = digits.replace(",", "").replace(".", "")
