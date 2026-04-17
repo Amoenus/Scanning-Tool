@@ -1,5 +1,5 @@
 from .anchor_matcher import AnchorMatcher
-from .anchor_template_loader import AnchorTemplateLoader
+from .anchor_template_loader import AnchorTemplate, AnchorTemplateLoader
 from scanning_tool.domain.models import AnchorDetection, CaptureRegion, MssMonitor
 
 
@@ -31,7 +31,7 @@ class AnchorRegionTracker:
         return self.template_loader.load_templates()
 
     @property
-    def templates(self) -> List[Tuple[str, np.ndarray]]:
+    def templates(self) -> List[AnchorTemplate]:
         return self.template_loader.templates
 
     @property
@@ -60,7 +60,7 @@ class AnchorRegionTracker:
 
         if best_score < self.threshold:
             logger.debug(
-                f"Anchor match below threshold ({best_score:.3f} < {self.threshold:.3f}) using template {best_template[0]}"
+                f"Anchor match below threshold ({best_score:.3f} < {self.threshold:.3f}) using template {best_template.name}"
             )
             return None
 

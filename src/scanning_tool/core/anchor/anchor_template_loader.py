@@ -1,13 +1,20 @@
+from dataclasses import dataclass
+from pathlib import Path
+from typing import List
+
+from loguru import logger
+import cv2
+import numpy as np
+
 from scanning_tool.config import ensure_anchor_directory
 
 
-import cv2
-import numpy as np
-from loguru import logger
+@dataclass(frozen=True)
+class AnchorTemplate:
+    """Represents a named anchor image template."""
 
-
-from pathlib import Path
-from typing import List, Tuple
+    name: str
+    image: np.ndarray
 
 
 class AnchorTemplateLoader:
@@ -17,7 +24,7 @@ class AnchorTemplateLoader:
 
     def __init__(self, template_dir: str) -> None:
         self.template_dir = template_dir
-        self.templates: List[Tuple[str, np.ndarray]] = []
+        self.templates: List[AnchorTemplate] = []
         self.last_loaded_count = 0
         self.load_templates()
 
@@ -39,8 +46,8 @@ class AnchorTemplateLoader:
         self._log_template_load_result(directory)
         return self.last_loaded_count
 
-    def _load_image_files(self, directory: Path) -> List[Tuple[str, np.ndarray]]:
-        loaded: List[Tuple[str, np.ndarray]] = []
+    def _load_image_files(self, directory: Path) -> List[AnchorTemplate]:
+        loaded: List[AnchorTemplate] = []
         for path in sorted(directory.glob("**/*")):
             if (
                 path.suffix.lower() not in self.SUPPORTED_EXTENSIONS
@@ -51,7 +58,7 @@ class AnchorTemplateLoader:
             if image is None:
                 logger.warning(f"Failed to load anchor template: {path}")
                 continue
-            loaded.append((path.name, image))
+            loaded.append(AnchorTemplate(name=path.name, image=image))
         return loaded
 
     def _log_template_load_result(self, directory: Path) -> None:

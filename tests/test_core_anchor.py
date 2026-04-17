@@ -13,7 +13,7 @@ def test_load_templates_reads_supported_images(tmp_path):
     tracker = AnchorRegionTracker(str(tmp_path), threshold=0.5)
 
     assert tracker.last_loaded_count == 1
-    assert tracker.templates[0][0] == "template.png"
+    assert tracker.templates[0].name == "template.png"
 
 
 def test_capture_region_to_mss_monitor_and_tuple_conversion():

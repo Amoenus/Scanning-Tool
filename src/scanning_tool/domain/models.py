@@ -396,7 +396,7 @@ class CaptureRegion:
     width: int
     height: int
 
-    def to_mss_monitor(self) -> dict[str, int]:
+    def to_mss_monitor(self) -> MssMonitor:
         """Return an mss-compatible monitor dict for this region."""
         return {
             "left": int(self.left),
