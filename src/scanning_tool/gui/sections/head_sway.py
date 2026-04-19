@@ -116,44 +116,50 @@ class HeadSwaySection:
             padding=padding,
         )
 
+    def _create_anchor_slider(
+        self,
+        parent: ttk.Widget,
+        text: str,
+        minimum: float,
+        maximum: float,
+        initial: float,
+        command: Callable[[str], None],
+        padding: tuple[int, int] = (0, 4),
+    ) -> ttk.Scale:
+        return self._make_scale(
+            parent,
+            text=text,
+            minimum=minimum,
+            maximum=maximum,
+            initial=initial,
+            command=command,
+            padding=padding,
+        )
+
     def _build_region_sliders(self, parent: ttk.Widget) -> None:
         anchor_region = self._ctx.config.anchor_template
         anchor_offset = self._ctx.config.anchor_offset
 
-        self._anchor_left = self._make_scale(
-            parent, "Anchor Left", 0, 3840, anchor_region.left, self._on_region_change
-        )
-        self._anchor_top = self._make_scale(
-            parent, "Anchor Top", 0, 2160, anchor_region.top, self._on_region_change
-        )
-        self._anchor_width = self._make_scale(
-            parent,
-            "Anchor Width",
-            50,
-            1200,
-            anchor_region.width,
-            self._on_region_change,
-        )
-        self._anchor_height = self._make_scale(
-            parent,
-            "Anchor Height",
-            50,
-            800,
-            anchor_region.height,
-            self._on_region_change,
-        )
-        self._offset_x = self._make_scale(
-            parent, "Offset X", -300, 600, anchor_offset.x, self._on_offset_change
-        )
-        self._offset_y = self._make_scale(
-            parent,
-            "Offset Y",
-            -300,
-            600,
-            anchor_offset.y,
-            self._on_offset_change,
-            padding=(0, 0),
-        )
+        slider_configs = [
+            ("Anchor Left", 0, 3840, anchor_region.left, self._on_region_change, (0, 4)),
+            ("Anchor Top", 0, 2160, anchor_region.top, self._on_region_change, (0, 4)),
+            ("Anchor Width", 50, 1200, anchor_region.width, self._on_region_change, (0, 4)),
+            ("Anchor Height", 50, 800, anchor_region.height, self._on_region_change, (0, 4)),
+            ("Offset X", -300, 600, anchor_offset.x, self._on_offset_change, (0, 4)),
+            ("Offset Y", -300, 600, anchor_offset.y, self._on_offset_change, (0, 0)),
+        ]
+
+        (
+            self._anchor_left,
+            self._anchor_top,
+            self._anchor_width,
+            self._anchor_height,
+            self._offset_x,
+            self._offset_y,
+        ) = [
+            self._create_anchor_slider(parent, *config)
+            for config in slider_configs
+        ]
 
         register_anchor_sliders(
             self._anchor_left,
