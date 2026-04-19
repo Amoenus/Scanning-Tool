@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Mapping, Optional, cast
 
 from scanning_tool.domain.dtos import ScanSignatureCSVRowData
+from scanning_tool.domain.parsers import parse_int, parse_str
 
 if TYPE_CHECKING:
     import pandas as pd
@@ -47,36 +48,11 @@ class ScanSignatureCSVRow:
 
     @staticmethod
     def _to_int(value: object | None) -> Optional[int]:
-        if value is None:
-            return None
-        if isinstance(value, bool):
-            return int(value)
-        if isinstance(value, int):
-            return value
-        if isinstance(value, float):
-            if value != value:
-                return None
-            return int(value)
-        if isinstance(value, str):
-            cleaned = value.strip()
-            if not cleaned:
-                return None
-            try:
-                return int(float(cleaned))
-            except ValueError:
-                return None
-        return None
+        return parse_int(value)
 
     @staticmethod
     def _to_str(value: object | None) -> Optional[str]:
-        if value is None:
-            return None
-        if isinstance(value, str):
-            cleaned = value.strip()
-            return cleaned if cleaned else None
-        if isinstance(value, (int, float)):
-            return str(value)
-        return None
+        return parse_str(value)
 
     def to_scan_signature(self) -> Optional[ScanSignature]:
         name = self._to_str(self.mineral)
