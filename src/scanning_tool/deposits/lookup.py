@@ -52,25 +52,40 @@ class DepositCodeParser:
 class DepositLookupService:
     """Lookup deposit metadata from a scan signature registry."""
 
-    def __init__(self, registry: "SignatureRegistry") -> None:
+    def __init__(
+        self,
+        registry: "SignatureRegistry",
+        parser: Optional[DepositCodeParser] = None,
+    ) -> None:
         self._registry = registry
+        self._parser = parser or _code_parser
 
     def lookup(self, code: Optional[str]) -> Optional[DepositInfo]:
         """Return deposit metadata when the code matches a known signature."""
         if not code:
             return None
 
-        parser = DepositCodeParser(service_state.code_re)
-        numeric_code = parser.extract_numeric_suffix(code)
+        numeric_code = self._extract_numeric_code(code)
         if numeric_code is None:
             return None
 
+        signature_match = self._find_matching_signature(numeric_code)
+        if signature_match is None:
+            return None
+
+        base_value, signature = signature_match
+        return self._build_deposit_info(base_value, signature, numeric_code)
+
+    def _extract_numeric_code(self, code: str) -> Optional[int]:
+        return self._parser.extract_numeric_suffix(code)
+
+    def _find_matching_signature(
+        self, numeric_code: int
+    ) -> Optional[tuple[int, ScanSignature]]:
         for base_value, signature in self._registry.get_all().items():
             if numeric_code % base_value == 0:
-                return self._build_deposit_info(base_value, signature, numeric_code)
-
+                return base_value, signature
         return None
-
 
     @staticmethod
     def _build_deposit_info(
@@ -92,9 +107,11 @@ def lookup_deposit(code: Optional[str]) -> Optional[DepositInfo]:
     """Look up a deposit by its numeric code using scraped scan signature data."""
     from scanning_tool.deposits.scan_signatures import get_scan_signature_registry
 
-    return DepositLookupService(get_scan_signature_registry()).lookup(code)
+    return DepositLookupService(
+        get_scan_signature_registry(), parser=_code_parser
+    ).lookup(code)
 
 
 def extract_code_from_text(raw_text: str) -> CodeExtraction:
     """Extract a deposit code from OCR text."""
-    return DepositCodeParser(service_state.code_re).extract_code(raw_text)
+    return _code_parser.extract_code(raw_text)
