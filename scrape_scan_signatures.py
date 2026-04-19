@@ -185,9 +185,29 @@ async def scrape_scan_signatures() -> List[ScanSignatureEntry]:
         return entries
 
 
+SAVE_CSV_FIELDNAMES = [
+    "mineral",
+    "category",
+    "color",
+    "amount",
+    "value",
+    "pill_text",
+    "pill_title",
+]
+
+SUMMARY_CSV_FIELDNAMES = ["mineral", "category", "base_value", "max_multiplier"]
+
+
 def save_json(data: List[ScanSignatureEntry], path: Path) -> None:
     with open(path, "w", encoding="utf-8") as f:
         json.dump([asdict(entry) for entry in data], f, indent=2, ensure_ascii=False)
+
+
+def _write_csv(path: Path, rows: List[CsvRow], fieldnames: list[str]) -> None:
+    with open(path, "w", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)
 
 
 def save_csv(data: List[ScanSignatureEntry], path: Path) -> None:
@@ -195,19 +215,7 @@ def save_csv(data: List[ScanSignatureEntry], path: Path) -> None:
     for entry in data:
         rows.extend(entry.to_csv_rows())
 
-    fieldnames = [
-        "mineral",
-        "category",
-        "color",
-        "amount",
-        "value",
-        "pill_text",
-        "pill_title",
-    ]
-    with open(path, "w", encoding="utf-8", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(rows)
+    _write_csv(path, rows, SAVE_CSV_FIELDNAMES)
 
 
 def save_summary_csv(data: List[ScanSignatureEntry], path: Path) -> None:
@@ -215,11 +223,7 @@ def save_summary_csv(data: List[ScanSignatureEntry], path: Path) -> None:
     for entry in data:
         rows.append(entry.to_summary_row())
 
-    fieldnames = ["mineral", "category", "base_value", "max_multiplier"]
-    with open(path, "w", encoding="utf-8", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(rows)
+    _write_csv(path, rows, SUMMARY_CSV_FIELDNAMES)
 
 
 def main() -> None:
