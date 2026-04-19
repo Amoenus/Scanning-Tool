@@ -125,13 +125,7 @@ def _create_scan_value(raw_value: RawScanValue) -> ScanValue:
 
 def _create_scan_signature_entry(raw_entry: RawScanSignatureEntry) -> ScanSignatureEntry:
     raw_values = raw_entry.get("values") or []
-    values: List[ScanValue] = []
-    if isinstance(raw_values, list):
-        values = [
-            _create_scan_value(raw_value)
-            for raw_value in raw_values
-            if isinstance(raw_value, dict)
-        ]
+    values = [_create_scan_value(raw_value) for raw_value in raw_values]
 
     color = _as_optional_str(raw_entry.get("color"))
     return ScanSignatureEntry(
