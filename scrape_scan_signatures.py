@@ -127,6 +127,31 @@ class ScanValue:
 
 
 @dataclass(frozen=True)
+class ScanSignatureSummary:
+    mineral: Optional[str]
+    category: str
+    base_value: Optional[int]
+    max_multiplier: Optional[int]
+
+    def to_csv_row(self) -> CsvRow:
+        return {
+            "mineral": self.mineral,
+            "category": self.category,
+            "base_value": self.base_value,
+            "max_multiplier": self.max_multiplier,
+        }
+
+    @classmethod
+    def from_entry(cls, entry: "ScanSignatureEntry") -> "ScanSignatureSummary":
+        return cls(
+            mineral=entry.mineral,
+            category=entry.category,
+            base_value=entry._find_base_value(),
+            max_multiplier=entry._find_max_multiplier(),
+        )
+
+
+@dataclass(frozen=True)
 class ScanSignatureEntry:
     mineral: Optional[str]
     color: Optional[str]
@@ -140,12 +165,7 @@ class ScanSignatureEntry:
         ]
 
     def to_summary_row(self) -> CsvRow:
-        return {
-            "mineral": self.mineral,
-            "category": self.category,
-            "base_value": self._find_base_value(),
-            "max_multiplier": self._find_max_multiplier(),
-        }
+        return ScanSignatureSummary.from_entry(self).to_csv_row()
 
     def _find_base_value(self) -> Optional[int]:
         for value in self.values:
