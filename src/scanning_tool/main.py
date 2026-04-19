@@ -77,6 +77,7 @@ def _start_web_server(
     logger.info(msg)
 
     from scanning_tool.web.app import WebService
+    from scanning_tool.web.server import WebServer
 
     flask_app = WebService(
         config=config,
@@ -85,7 +86,7 @@ def _start_web_server(
         template_folder=resource_path("templates"),
     ).create_app()
     Thread(
-        target=lambda: flask_app.run(host=host, port=port, debug=False),
+        target=lambda: WebServer.run(flask_app, host=host, port=port),
         daemon=True,
     ).start()
 

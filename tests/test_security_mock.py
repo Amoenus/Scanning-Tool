@@ -47,11 +47,46 @@ class TestSecurity(unittest.TestCase):
         mock_state_manager.config.web_server_config.port = 5000
 
     def test_flask_binding_default(self):
-        with patch("scanning_tool.main.create_app") as mock_create_app:
+        with patch("scanning_tool.web.app.WebService.create_app") as mock_create_app:
             with patch("scanning_tool.main.Thread") as mock_thread:
                 with patch("scanning_tool.main.logger") as mock_logger:
                     with patch("scanning_tool.main.get_local_ip") as mock_get_local_ip:
-                        mock_get_local_ip.return_value = "192.168.1.100"
+                        with patch("scanning_tool.web.server.WebServer.run") as mock_web_run:
+                            mock_get_local_ip.return_value = "192.168.1.100"
+                            from scanning_tool.main import _start_web_server
+
+                            mock_flask_app = MagicMock()
+                            mock_create_app.return_value = mock_flask_app
+
+                            _start_web_server(
+                                config=mock_state_manager.config,
+                                scan_state=MagicMock(),
+                                service_state=MagicMock(),
+                            )
+
+                            self.assertTrue(mock_thread.called)
+                            args, kwargs = mock_thread.call_args
+                            target = kwargs.get("target") or args[0]
+                            target()
+
+                            mock_web_run.assert_called_once_with(
+                                mock_flask_app,
+                                host="0.0.0.0",
+                                port=5000,
+                            )
+
+                            mock_logger.info.assert_called_once()
+                            msg = mock_logger.info.call_args[0][0]
+                            self.assertIn("192.168.1.100", msg)
+
+    def test_flask_binding_custom(self):
+        mock_state_manager.config.web_server_config.host = "127.0.0.1"
+        mock_state_manager.config.web_server_config.port = 8080
+
+        with patch("scanning_tool.web.app.WebService.create_app") as mock_create_app:
+            with patch("scanning_tool.main.Thread") as mock_thread:
+                with patch("scanning_tool.main.logger") as mock_logger:
+                    with patch("scanning_tool.web.server.WebServer.run") as mock_web_run:
                         from scanning_tool.main import _start_web_server
 
                         mock_flask_app = MagicMock()
@@ -63,48 +98,19 @@ class TestSecurity(unittest.TestCase):
                             service_state=MagicMock(),
                         )
 
-                        self.assertTrue(mock_thread.called)
                         args, kwargs = mock_thread.call_args
                         target = kwargs.get("target") or args[0]
                         target()
 
-                        mock_flask_app.run.assert_called_once_with(
-                            host="0.0.0.0", port=5000, debug=False
+                        mock_web_run.assert_called_once_with(
+                            mock_flask_app,
+                            host="127.0.0.1",
+                            port=8080,
                         )
 
-                        mock_logger.info.assert_called_once()
-                        msg = mock_logger.info.call_args[0][0]
-                        self.assertIn("192.168.1.100", msg)
-
-    def test_flask_binding_custom(self):
-        mock_state_manager.config.web_server_config.host = "127.0.0.1"
-        mock_state_manager.config.web_server_config.port = 8080
-
-        with patch("scanning_tool.main.create_app") as mock_create_app:
-            with patch("scanning_tool.main.Thread") as mock_thread:
-                with patch("scanning_tool.main.logger") as mock_logger:
-                    from scanning_tool.main import _start_web_server
-
-                    mock_flask_app = MagicMock()
-                    mock_create_app.return_value = mock_flask_app
-
-                    _start_web_server(
-                        config=mock_state_manager.config,
-                        scan_state=MagicMock(),
-                        service_state=MagicMock(),
-                    )
-
-                    args, kwargs = mock_thread.call_args
-                    target = kwargs.get("target") or args[0]
-                    target()
-
-                    mock_flask_app.run.assert_called_once_with(
-                        host="127.0.0.1", port=8080, debug=False
-                    )
-
-                    mock_logger.info.assert_called_once_with(
-                        "Starting overlay server: http://127.0.0.1:8080"
-                    )
+                        mock_logger.info.assert_called_once_with(
+                            "Starting overlay server: http://127.0.0.1:8080"
+                        )
 
     def test_mobile_overlay_url_default(self):
         # Already set to 0.0.0.0 in setUp

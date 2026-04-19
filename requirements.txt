@@ -3,6 +3,7 @@ opencv-python
 numpy
 mss
 flask
+waitress
 keyboard
 ollama
 pydantic

@@ -19,6 +19,7 @@ dependencies = [
     "loguru",
     "playwright>=1.44.0",
     "pandas",
+    "waitress>=3.0.2",
 ]
 
 [project.scripts]
