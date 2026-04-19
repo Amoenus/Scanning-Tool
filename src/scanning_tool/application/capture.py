@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import re
 from typing import Optional
 
 from loguru import logger
@@ -18,6 +17,7 @@ from scanning_tool.interfaces.capture import (
     StatusCallback,
 )
 from scanning_tool.state.scan_state import ScanState
+from scanning_tool.application.scan_result_reporter import ScanResultReporter
 
 
 class ScanPipeline:
@@ -44,27 +44,6 @@ class ScanPipeline:
             info=deposit_info,
             code_raw=extraction.raw,
             raw_text=raw_text,
-        )
-
-
-class ScanResultReporter:
-    """Format and publish scan results for both logs and status callbacks."""
-
-    @staticmethod
-    def format(result: ScanResult) -> str:
-        return (
-            f"Scan result: ScanResult(label={result.label}, region={result.region}, "
-            f"code_raw={result.code_raw}, raw_text={result.raw_text})"
-        )
-
-    @staticmethod
-    def log(result: ScanResult) -> None:
-        logger.info(
-            "Scan result: ScanResult(label={}, region={}, code_raw={}, raw_text={})",
-            result.label,
-            result.region,
-            result.code_raw,
-            result.raw_text,
         )
 
 
@@ -98,10 +77,6 @@ class CaptureUseCase:
         self._status_callback = status_callback
         self._do_capture()
 
-    def _highlight_numbers(self, text: str) -> str:
-        """Wrap numbers in <yellow> tags for log output."""
-        return re.sub(r"(\d+)", r"<yellow>\1</yellow>", text)
-
     def _set_status(self, message: str) -> None:
         if self._status_callback:
             self._status_callback(message)
@@ -122,7 +97,7 @@ class CaptureUseCase:
 
     def _report_scan_result(self, result: ScanResult) -> None:
         ScanResultReporter.log(result)
-        self._set_status(self._highlight_numbers(ScanResultReporter.format(result)))
+        self._set_status(ScanResultReporter.format_status_message(result))
         logger.debug("Deposit info: {}", result.info)
 
     def _do_capture(self) -> None:
