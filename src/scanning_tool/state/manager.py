@@ -1,9 +1,11 @@
 """Runtime state manager for the scanning tool."""
 
+from scanning_tool.config.service import ConfigService
 from scanning_tool.state.app_state import AppState
 
-app_state = AppState()
-config = app_state.load_config()
+config_service = ConfigService()
+config = config_service.load()
+app_state = AppState(config=config)
 scan_state = app_state.scan_state
 service_state = app_state.service_state
 overlay_state = app_state.overlay_state
@@ -22,4 +24,4 @@ __all__ = [
 
 def save_config() -> None:
     """Persist the current configuration."""
-    app_state.save_config()
+    config_service.save()

@@ -8,7 +8,7 @@ from typing import Optional
 from flask import Flask, Response, jsonify, render_template, request
 
 from scanning_tool.config import resource_path
-from scanning_tool.config.service import ConfigData
+from scanning_tool.config.service import ConfigData, ConfigService
 from scanning_tool.domain.capture import DepositInfo, ScanResult
 from scanning_tool.domain.common import DepositTable
 from scanning_tool.web.schemas import StatusResponse
@@ -102,8 +102,9 @@ class WebService:
 
 def create_app() -> Flask:
     """Create the default Flask app using global runtime state."""
-    app_state = AppState()
-    config = app_state.load_config()
+    config_service = ConfigService()
+    config = config_service.load()
+    app_state = AppState(config=config)
     return WebService(
         config=config,
         scan_state=app_state.scan_state,

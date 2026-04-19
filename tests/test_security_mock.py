@@ -57,7 +57,11 @@ class TestSecurity(unittest.TestCase):
                         mock_flask_app = MagicMock()
                         mock_create_app.return_value = mock_flask_app
 
-                        _start_web_server()
+                        _start_web_server(
+                            config=mock_state_manager.config,
+                            scan_state=MagicMock(),
+                            service_state=MagicMock(),
+                        )
 
                         self.assertTrue(mock_thread.called)
                         args, kwargs = mock_thread.call_args
@@ -84,7 +88,11 @@ class TestSecurity(unittest.TestCase):
                     mock_flask_app = MagicMock()
                     mock_create_app.return_value = mock_flask_app
 
-                    _start_web_server()
+                    _start_web_server(
+                        config=mock_state_manager.config,
+                        scan_state=MagicMock(),
+                        service_state=MagicMock(),
+                    )
 
                     args, kwargs = mock_thread.call_args
                     target = kwargs.get("target") or args[0]

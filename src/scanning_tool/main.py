@@ -9,6 +9,7 @@ from flask import Flask
 from loguru import logger
 
 from scanning_tool.config import resource_path
+from scanning_tool.config.service import ConfigService
 from scanning_tool.deposits import load_rock_data
 from scanning_tool.logging_setup import setup_logging
 from scanning_tool.ollama import (
@@ -91,11 +92,13 @@ def _start_web_server(
 
 def create_app() -> Flask:
     """Create the default Flask app using global runtime state."""
+    from scanning_tool.config.service import ConfigService
     from scanning_tool.state.app_state import AppState
     from scanning_tool.web.app import WebService
 
-    app_state = AppState()
-    config = app_state.load_config()
+    config_service = ConfigService()
+    config = config_service.load()
+    app_state = AppState(config=config)
     return WebService(
         config=config,
         scan_state=app_state.scan_state,
@@ -117,8 +120,9 @@ def main() -> None:
 
     from scanning_tool.state.app_state import AppState
 
-    app_state = AppState()
-    config = app_state.load_config()
+    config_service = ConfigService()
+    config = config_service.load()
+    app_state = AppState(config=config)
     scan_state = app_state.scan_state
     service_state = app_state.service_state
 
@@ -141,7 +145,7 @@ def main() -> None:
             overlay_state=app_state.overlay_state,
             control_state=app_state.control_state,
             capture_service=capture_service,
-            save_config=app_state.save_config,
+            save_config=config_service.save,
         )
     finally:
         from scanning_tool.services.alignment_service import alignment_service

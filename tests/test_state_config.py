@@ -6,16 +6,15 @@ from scanning_tool.config.service import ConfigService, ConfigData
 from scanning_tool.state.app_state import AppState
 
 
-def test_app_state_loads_config_explicitly(tmp_path: Path) -> None:
+def test_app_state_is_instantiated_with_config(tmp_path: Path) -> None:
     config_file = tmp_path / "config.json"
     service = ConfigService(config_file=config_file)
-    app_state = AppState(config_service=service)
 
-    assert app_state.config is None
+    loaded_config = service.load()
+    app_state = AppState(config=loaded_config)
 
-    loaded_config = app_state.load_config()
-    assert isinstance(loaded_config, ConfigData)
-    assert loaded_config is service.get_config()
+    assert isinstance(app_state.config, ConfigData)
+    assert app_state.config is loaded_config
     assert config_file.exists()
 
 
