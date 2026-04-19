@@ -34,16 +34,29 @@ class OllamaService(BaseService):
         self.logger.info("Initializing Ollama backend logic...")
         host = get_ollama_host()
 
+        if self._should_use_remote_host(host):
+            return
+
+        if self._ensure_local_ollama_running(host):
+            return
+
+        self._start_local_ollama(host)
+
+    def _should_use_remote_host(self, host: str) -> bool:
         if not is_local_ollama_host(host):
             self.logger.info(
                 f"Using remote Ollama host at {host}; assuming it is managed externally."
             )
-            return
+            return True
+        return False
 
+    def _ensure_local_ollama_running(self, host: str) -> bool:
         if self._is_running(host):
             self.logger.info("Local Ollama service detected.")
-            return
+            return True
+        return False
 
+    def _start_local_ollama(self, host: str) -> None:
         if not shutil.which("ollama"):
             self.logger.warning(
                 "Cannot start Ollama automatically because it is not installed."
