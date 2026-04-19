@@ -152,22 +152,8 @@ class OllamaSection:
         logger.info(message)
 
     def _open_mobile_overlay(self) -> None:
-        if hasattr(self, "_ctx"):
-            web_config = self._ctx.config.web_server_config
-        else:
-            from scanning_tool.state.manager import config
+        url = self._build_mobile_overlay_url()
 
-            web_config = config.web_server_config
-        host = web_config.host
-        port = web_config.port
-
-        display_host = "127.0.0.1"
-        if host == "0.0.0.0":
-            display_host = get_local_ip()
-        elif host:
-            display_host = host
-
-        url = f"http://{display_host}:{port}"
         try:
             webbrowser.open_new_tab(url)
         except Exception as exc:
@@ -176,3 +162,19 @@ class OllamaSection:
         else:
             self._status.set_status(f"Opening overlay in browser: {url}")
             logger.info("Opened mobile overlay URL: {}", url)
+
+    def _build_mobile_overlay_url(self) -> str:
+        if hasattr(self, "_ctx"):
+            web_config = self._ctx.config.web_server_config
+        else:
+            from scanning_tool.state.manager import config
+
+            web_config = config.web_server_config
+
+        display_host = self._resolve_mobile_overlay_display_host(web_config.host)
+        return f"http://{display_host}:{web_config.port}"
+
+    def _resolve_mobile_overlay_display_host(self, host: str) -> str:
+        if host == "0.0.0.0":
+            return get_local_ip()
+        return host if host else "127.0.0.1"
