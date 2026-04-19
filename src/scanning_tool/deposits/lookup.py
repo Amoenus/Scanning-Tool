@@ -1,11 +1,18 @@
 """Deposit lookup and code extraction from OCR text."""
 
 import re
+from dataclasses import dataclass
 from typing import Optional, Pattern
 
 from scanning_tool.state.manager import service_state
 from scanning_tool.domain.capture import CodeExtraction, DepositInfo
 from scanning_tool.domain.scan_signature import ScanSignature, SignatureRegistry
+
+
+@dataclass(frozen=True)
+class DepositSignatureMatch:
+    base_value: int
+    signature: ScanSignature
 
 
 class DepositCodeParser:
@@ -73,18 +80,21 @@ class DepositLookupService:
         if signature_match is None:
             return None
 
-        base_value, signature = signature_match
-        return self._build_deposit_info(base_value, signature, numeric_code)
+        return self._build_deposit_info(
+            signature_match.base_value,
+            signature_match.signature,
+            numeric_code,
+        )
 
     def _extract_numeric_code(self, code: str) -> Optional[int]:
         return self._parser.extract_numeric_suffix(code)
 
     def _find_matching_signature(
         self, numeric_code: int
-    ) -> Optional[tuple[int, ScanSignature]]:
+    ) -> Optional[DepositSignatureMatch]:
         for base_value, signature in self._registry.get_all().items():
             if numeric_code % base_value == 0:
-                return base_value, signature
+                return DepositSignatureMatch(base_value=base_value, signature=signature)
         return None
 
     @staticmethod
