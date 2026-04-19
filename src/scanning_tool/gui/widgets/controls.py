@@ -5,12 +5,31 @@ from typing import Callable, Optional, Tuple
 import tkinter as tk
 from tkinter import ttk
 
+GlassScaleCommand = Callable[[str], None]
+
 
 def create_section_row(parent: ttk.Widget, pady: Tuple[int, int] = (0, 5)) -> ttk.Frame:
     """Create a styled row container for section controls."""
     row = ttk.Frame(parent, style="Glass.Section.TFrame")
     row.pack(fill="x", padx=5, pady=pady)
     return row
+
+
+def _format_glass_scale_value(value: float, resolution: float) -> str:
+    if resolution and resolution < 1.0:
+        return f"{value:.2f}"
+    return f"{int(round(value))}"
+
+
+def _coerce_glass_scale_value(raw_value: str, default_value: float) -> float:
+    try:
+        return float(raw_value)
+    except (TypeError, ValueError):
+        return default_value
+
+
+def _snap_glass_scale_value(value: float, resolution: float) -> float:
+    return round(value / resolution) * resolution if resolution else value
 
 
 def create_glass_scale(
@@ -20,7 +39,7 @@ def create_glass_scale(
     minimum: float,
     maximum: float,
     initial: float,
-    command: Optional[Callable[[str], None]],
+    command: Optional[GlassScaleCommand],
     resolution: float = 1.0,
     padding: Tuple[int, int] = (0, 4),
 ) -> ttk.Scale:
@@ -29,41 +48,22 @@ def create_glass_scale(
     container.pack(fill="x", padx=4, pady=padding)
 
     value_var = tk.DoubleVar(value=initial)
-
-    def format_value(value: float) -> str:
-        if resolution and resolution < 1.0:
-            return f"{value:.2f}"
-        return f"{int(round(value))}"
-
-    label_var = tk.StringVar(value=f"{text}: {format_value(initial)}")
+    label_var = tk.StringVar(value=f"{text}: {_format_glass_scale_value(initial, resolution)}")
     ttk.Label(container, textvariable=label_var, style="Glass.Small.TLabel").pack(
         anchor="w", padx=2
     )
 
     def on_change(raw_value: str) -> None:
-        try:
-            numeric = float(raw_value)
-        except (TypeError, ValueError):
-            numeric = value_var.get()
-
-        if resolution:
-            snapped = round(numeric / resolution) * resolution
-        else:
-            snapped = numeric
+        numeric = _coerce_glass_scale_value(raw_value, value_var.get())
+        snapped = _snap_glass_scale_value(numeric, resolution)
 
         if abs(snapped - value_var.get()) > 1e-9:
             value_var.set(snapped)
-            numeric = snapped
-        else:
-            numeric = snapped
 
-        label_var.set(f"{text}: {format_value(numeric)}")
+        label_var.set(f"{text}: {_format_glass_scale_value(snapped, resolution)}")
 
         if command is not None:
-            if resolution and resolution < 1.0:
-                command(f"{numeric:.2f}")
-            else:
-                command(str(int(round(numeric))))
+            command(_format_glass_scale_value(snapped, resolution))
 
     scale = ttk.Scale(
         container,
@@ -78,7 +78,7 @@ def create_glass_scale(
 
     def update_label(*_: object) -> None:
         value = value_var.get()
-        label_var.set(f"{text}: {format_value(value)}")
+        label_var.set(f"{text}: {_format_glass_scale_value(value, resolution)}")
 
     value_var.trace_add("write", update_label)
 
