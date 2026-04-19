@@ -3,7 +3,12 @@
 from typing import Callable, Optional, Tuple
 from scanning_tool.services.base_service import BaseService
 from scanning_tool.core.anchor import AnchorRegionTracker
-from scanning_tool.domain.alignment import AlignmentInfo, AlignmentRequest, AnchorDetection
+from scanning_tool.domain.alignment import (
+    AlignmentInfo,
+    AlignmentRequest,
+    AnchorDetection,
+    CaptureRegion,
+)
 
 SyncCallback = Callable[[], None]
 
@@ -45,9 +50,29 @@ class AlignmentService(BaseService):
         detection = anchor_tracker.locate_anchor(alignment_request.anchor_template)
 
         if not detection:
-            reset_alignment_info(last_alignment_info)
+            self._reset_alignment(last_alignment_info)
             return False
 
+        self._apply_alignment(
+            detection,
+            alignment_request,
+            last_alignment_info,
+            sync_capture_sliders,
+            update_capture_overlay_region,
+        )
+        return True
+
+    def _reset_alignment(self, last_alignment_info: AlignmentInfo) -> None:
+        reset_alignment_info(last_alignment_info)
+
+    def _apply_alignment(
+        self,
+        detection: AnchorDetection,
+        alignment_request: AlignmentRequest,
+        last_alignment_info: AlignmentInfo,
+        sync_capture_sliders: SyncCallback,
+        update_capture_overlay_region: SyncCallback,
+    ) -> None:
         new_left, new_top = self._calculate_aligned_position(
             detection, alignment_request
         )
@@ -59,15 +84,20 @@ class AlignmentService(BaseService):
         )
         sync_capture_sliders()
         update_capture_overlay_region()
+        self._log_alignment_applied(detection, alignment_request.capture_region)
 
+    def _log_alignment_applied(
+        self,
+        detection: AnchorDetection,
+        capture_region: CaptureRegion,
+    ) -> None:
         self.logger.debug(
             "Auto alignment applied using %s (score %.3f) => CAP_REGION left/top updated to (%d, %d)",
             detection.template,
             detection.score,
-            alignment_request.capture_region.left,
-            alignment_request.capture_region.top,
+            capture_region.left,
+            capture_region.top,
         )
-        return True
 
     def _calculate_aligned_position(
         self, detection: AnchorDetection, alignment_request: AlignmentRequest
