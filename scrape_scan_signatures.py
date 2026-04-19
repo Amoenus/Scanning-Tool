@@ -7,8 +7,9 @@ Outputs JSON and CSV formats.
 import asyncio
 import json
 import csv
+from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import List, Dict
+from typing import Dict, List, Optional, TypedDict
 
 from playwright.async_api import async_playwright
 
@@ -16,6 +17,82 @@ OUTPUT_DIR = Path("csv/scansig")
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 TARGET_URL = "https://scmdb.net/?page=mine"
+
+
+class RawScanValue(TypedDict, total=False):
+    text: Optional[str]
+    title: Optional[str]
+    amount: Optional[int]
+    value: Optional[int]
+
+
+class RawScanSignatureEntry(TypedDict, total=False):
+    mineral: Optional[str]
+    color: Optional[str]
+    values: List[RawScanValue]
+
+
+CsvRow = Dict[str, Optional[str | int]]
+
+
+@dataclass(frozen=True)
+class ScanValue:
+    text: Optional[str]
+    title: Optional[str]
+    amount: Optional[int]
+    value: Optional[int]
+
+    def to_csv_row(
+        self,
+        mineral: Optional[str],
+        category: str,
+        color: Optional[str],
+    ) -> CsvRow:
+        return {
+            "mineral": mineral,
+            "category": category,
+            "color": color,
+            "amount": self.amount,
+            "value": self.value,
+            "pill_text": self.text,
+            "pill_title": self.title,
+        }
+
+
+@dataclass(frozen=True)
+class ScanSignatureEntry:
+    mineral: Optional[str]
+    color: Optional[str]
+    values: List[ScanValue]
+    category: str
+
+    def to_csv_rows(self) -> List[CsvRow]:
+        return [
+            value.to_csv_row(mineral=self.mineral, category=self.category, color=self.color)
+            for value in self.values
+        ]
+
+    def to_summary_row(self) -> CsvRow:
+        base_value: Optional[int] = None
+        max_multiplier: Optional[int] = None
+
+        for value in self.values:
+            if value.amount == 1:
+                base_value = value.value
+            if value.amount is not None and (
+                max_multiplier is None or value.amount > max_multiplier
+            ):
+                max_multiplier = value.amount
+
+        if base_value is None and self.values:
+            base_value = self.values[0].value
+
+        return {
+            "mineral": self.mineral,
+            "category": self.category,
+            "base_value": base_value,
+            "max_multiplier": max_multiplier,
+        }
 
 
 def parse_color_to_category(color: str) -> str:
@@ -33,7 +110,39 @@ def parse_color_to_category(color: str) -> str:
     return color_map.get(color, color)
 
 
-async def scrape_scan_signatures():
+def _as_optional_str(value: object | None) -> Optional[str]:
+    return value if isinstance(value, str) else None
+
+
+def _create_scan_value(raw_value: RawScanValue) -> ScanValue:
+    return ScanValue(
+        text=_as_optional_str(raw_value.get("text")),
+        title=_as_optional_str(raw_value.get("title")),
+        amount=raw_value.get("amount"),
+        value=raw_value.get("value"),
+    )
+
+
+def _create_scan_signature_entry(raw_entry: RawScanSignatureEntry) -> ScanSignatureEntry:
+    raw_values = raw_entry.get("values") or []
+    values: List[ScanValue] = []
+    if isinstance(raw_values, list):
+        values = [
+            _create_scan_value(raw_value)
+            for raw_value in raw_values
+            if isinstance(raw_value, dict)
+        ]
+
+    color = _as_optional_str(raw_entry.get("color"))
+    return ScanSignatureEntry(
+        mineral=_as_optional_str(raw_entry.get("mineral")),
+        color=color,
+        values=values,
+        category=parse_color_to_category(color or ""),
+    )
+
+
+async def scrape_scan_signatures() -> List[ScanSignatureEntry]:
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
         page = await browser.new_page()
@@ -45,7 +154,7 @@ async def scrape_scan_signatures():
         await page.wait_for_selector(".sigchart-overlay", timeout=10000)
 
         # Extract data from overlay
-        data = await page.evaluate("""() => {
+        raw_data: List[RawScanSignatureEntry] = await page.evaluate("""() => {
             const rows = Array.from(document.querySelectorAll('.sigchart-row'));
             return rows.map(row => {
                 const labelDiv = row.querySelector('.sigchart-label');
@@ -54,7 +163,7 @@ async def scrape_scan_signatures():
                 const pills = Array.from(row.querySelectorAll('.sigchart-pill'));
                 const values = pills.map(pill => {
                     // Example: "Quantainium ×2 = 6,340"
-                    const m = pill.title.match(/(.+) ×(\d+) = ([\d,]+)/);
+                    const m = pill.title.match(/(.+) ×(\\d+) = ([\\d,]+)/);
                     return {
                         text: pill.textContent.trim(),
                         title: pill.title,
@@ -70,35 +179,24 @@ async def scrape_scan_signatures():
             });
         }""")
 
-        # Add rarity/category
-        for entry in data:
-            entry["category"] = parse_color_to_category(entry["color"])
+        entries: List[ScanSignatureEntry] = []
+        for raw_entry in raw_data:
+            entries.append(_create_scan_signature_entry(raw_entry))
 
         await browser.close()
-        return data
+        return entries
 
 
-def save_json(data, path):
+def save_json(data: List[ScanSignatureEntry], path: Path) -> None:
     with open(path, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
+        json.dump([asdict(entry) for entry in data], f, indent=2, ensure_ascii=False)
 
 
-def save_csv(data, path):
-    # Flatten for CSV: one row per mineral per value
-    rows = []
+def save_csv(data: List[ScanSignatureEntry], path: Path) -> None:
+    rows: List[CsvRow] = []
     for entry in data:
-        for v in entry["values"]:
-            rows.append(
-                {
-                    "mineral": entry["mineral"],
-                    "category": entry["category"],
-                    "color": entry["color"],
-                    "amount": v["amount"],
-                    "value": v["value"],
-                    "pill_text": v["text"],
-                    "pill_title": v["title"],
-                }
-            )
+        rows.extend(entry.to_csv_rows())
+
     fieldnames = [
         "mineral",
         "category",
@@ -114,31 +212,11 @@ def save_csv(data, path):
         writer.writerows(rows)
 
 
-def save_summary_csv(data, path):
-    # One row per mineral: base value (x1), max multiplier
-    rows = []
+def save_summary_csv(data: List[ScanSignatureEntry], path: Path) -> None:
+    rows: List[CsvRow] = []
     for entry in data:
-        if not entry["values"]:
-            continue
-        # Find base value (amount==1) and max multiplier
-        base_value = None
-        max_multiplier = None
-        for v in entry["values"]:
-            if v["amount"] == 1:
-                base_value = v["value"]
-            if max_multiplier is None or (v["amount"] and v["amount"] > max_multiplier):
-                max_multiplier = v["amount"]
-        # Fallback: if no x1, use first value
-        if base_value is None and entry["values"]:
-            base_value = entry["values"][0]["value"]
-        rows.append(
-            {
-                "mineral": entry["mineral"],
-                "category": entry["category"],
-                "base_value": base_value,
-                "max_multiplier": max_multiplier,
-            }
-        )
+        rows.append(entry.to_summary_row())
+
     fieldnames = ["mineral", "category", "base_value", "max_multiplier"]
     with open(path, "w", encoding="utf-8", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
@@ -146,7 +224,7 @@ def save_summary_csv(data, path):
         writer.writerows(rows)
 
 
-def main():
+def main() -> None:
     data = asyncio.run(scrape_scan_signatures())
     save_json(data, OUTPUT_DIR / "scan_signatures.json")
     save_csv(data, OUTPUT_DIR / "scan_signatures.csv")
