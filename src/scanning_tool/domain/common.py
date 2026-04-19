@@ -1,7 +1,20 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from enum import StrEnum
 from typing import Literal, TypedDict, TypeAlias
+
+class SpaceSystem(StrEnum):
+    STANTON = "STANTON"
+    PYRO = "PYRO"
+    NYX = "NYX"
+
+    @classmethod
+    def normalize(cls, value: str) -> "SpaceSystem":
+        try:
+            return cls(value.upper())
+        except ValueError:
+            return cls.STANTON
 
 OreTier = Literal["HIGHEST", "HIGH", "MEDIUM", "LOW", "OTHER"]
 
@@ -45,4 +58,4 @@ class OreTableEntry:
 
 
 DepositTable = list[OreTableEntry]
-RegionDepositTables: TypeAlias = dict[str, dict[str, DepositTable]]
+RegionDepositTables: TypeAlias = dict[SpaceSystem, dict[str, DepositTable]]

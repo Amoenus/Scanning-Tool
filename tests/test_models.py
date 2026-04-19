@@ -1,4 +1,5 @@
 import pytest
+from scanning_tool.domain.common import SpaceSystem
 from scanning_tool.domain.models import (
     AlignmentInfo,
     AlignmentRequest,
@@ -89,3 +90,10 @@ def test_alignment_request_and_info_helpers():
     assert info.match_top == 34
     assert info.capture_left == request.capture_region.left
     assert info.capture_top == request.capture_region.top
+
+
+def test_space_system_normalization():
+    assert SpaceSystem.normalize("stanton") is SpaceSystem.STANTON
+    assert SpaceSystem.normalize("Pyro") is SpaceSystem.PYRO
+    assert SpaceSystem.normalize("nyx") is SpaceSystem.NYX
+    assert SpaceSystem.normalize("unknown") is SpaceSystem.STANTON

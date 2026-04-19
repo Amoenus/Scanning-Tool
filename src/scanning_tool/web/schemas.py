@@ -5,7 +5,7 @@ from typing import Literal, Optional, TypedDict
 
 from scanning_tool.domain.alignment import AlignmentInfo, CaptureRegion
 from scanning_tool.domain.capture import DepositInfo, ScanResult
-from scanning_tool.domain.common import MssMonitor, OreTableEntry
+from scanning_tool.domain.common import MssMonitor, OreTableEntry, SpaceSystem
 
 DepositTable = list[OreTableEntry]
 
@@ -73,7 +73,7 @@ class StatusResponse:
     label_color: str
     last: Optional[ScanResult]
     alignment: AlignmentInfo
-    selected_region: str
+    selected_region: SpaceSystem
     info: Optional[DepositInfo]
     code: Optional[str]
     code_raw: Optional[str]
@@ -86,7 +86,7 @@ class StatusResponse:
             "label_color": self.label_color,
             "last": self._scan_result_dict(self.last),
             "alignment": self._alignment_info_dict(self.alignment),
-            "selected_region": self.selected_region,
+            "selected_region": self.selected_region.value,
             "info": self._deposit_info_dict(self.info),
             "code": self.code,
             "code_raw": self.code_raw,

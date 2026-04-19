@@ -6,7 +6,7 @@ from scanning_tool.domain.models import AlignmentInfo, DepositInfo, ScanResult
 from scanning_tool.logging_setup import InterceptHandler
 from scanning_tool.state.scan_state import ScanState
 from scanning_tool.state.service_state import ServiceState
-from scanning_tool.web.app import WebService
+from scanning_tool.web.app import WebService, DefaultStatusResponseBuilder
 
 
 def test_web_service_status_exposes_latest_scan_result():
@@ -26,6 +26,7 @@ def test_web_service_status_exposes_latest_scan_result():
         scan_state=scan_state,
         service_state=service_state,
         template_folder=resource_path("templates"),
+        status_response_builder=DefaultStatusResponseBuilder(),
     )
 
     app = web_service.create_app()
@@ -48,6 +49,7 @@ def test_flask_app_routes_logs_through_loguru_intercept_handler():
         scan_state=scan_state,
         service_state=service_state,
         template_folder=resource_path("templates"),
+        status_response_builder=DefaultStatusResponseBuilder(),
     )
 
     app = web_service.create_app()

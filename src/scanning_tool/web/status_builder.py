@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Optional
 
 from scanning_tool.config.service import ConfigData
+from scanning_tool.domain.common import SpaceSystem
 from scanning_tool.domain.capture import DepositInfo
 from scanning_tool.interfaces.web import StatusResponseBuilder
 from scanning_tool.state.scan_state import ScanState
@@ -18,7 +19,7 @@ class DefaultStatusResponseBuilder(StatusResponseBuilder):
         config: ConfigData,
         scan_state: ScanState,
         service_state: ServiceState,
-        selected_region: str,
+        selected_region: SpaceSystem,
     ) -> StatusResponse:
         result = scan_state.last_result
         info = result.info if result else None
@@ -39,7 +40,7 @@ class DefaultStatusResponseBuilder(StatusResponseBuilder):
     def _lookup_deposit_table(
         self,
         info: Optional[DepositInfo],
-        selected_region: str,
+        selected_region: SpaceSystem,
         service_state: ServiceState,
     ) -> Optional[DepositTable]:
         if not info:
