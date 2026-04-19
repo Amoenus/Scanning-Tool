@@ -64,22 +64,13 @@ class ConfigService:
                 "Configuration file not found, creating default.",
                 path=str(self.config_file),
             )
-            config = ConfigData()
-            self._config = config
-            self.save()
-            return config
+            self._config = self._create_default_config()
+            return self._config
 
         try:
-            with open(self.config_file, "r", encoding="utf-8") as f:
-                data = json.load(f)
-            config = ConfigData.model_validate(data)
-
-            env_model = os.getenv("OLLAMA_MODEL", "").strip()
-            if env_model:
-                config.ollama_config.model = env_model
-
-            self._config = config
-            return config
+            self._config = self._load_config_from_file()
+            self._apply_env_model_override(self._config)
+            return self._config
 
         except (json.JSONDecodeError, OSError, ValidationError) as exc:
             logger.warning(
@@ -87,9 +78,25 @@ class ConfigService:
                 path=str(self.config_file),
                 error=exc,
             )
-            self._config = ConfigData()
-            self.save()
+            self._config = self._create_default_config()
             return self._config
+
+    def _create_default_config(self) -> ConfigData:
+        config = ConfigData()
+        self._config = config
+        self.save()
+        return config
+
+    def _load_config_from_file(self) -> ConfigData:
+        with open(self.config_file, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        return ConfigData.model_validate(data)
+
+    @staticmethod
+    def _apply_env_model_override(config: ConfigData) -> None:
+        env_model = os.getenv("OLLAMA_MODEL", "").strip()
+        if env_model:
+            config.ollama_config.model = env_model
 
     def save(self) -> None:
         """Save configuration to file."""
