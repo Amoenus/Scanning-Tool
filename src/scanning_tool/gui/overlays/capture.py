@@ -1,12 +1,20 @@
 """Capture overlay window lifecycle and animation."""
 
 import tkinter as tk
+from dataclasses import dataclass
 from typing import Optional
 
 from .base import CAPTURE_ANIMATION_INTERVAL_MS, create_overlay_window, safe_tk
 from .geometry import compute_capture_overlay_layout
 from scanning_tool.state.manager import overlay_state
 from scanning_tool.gui.layout import CaptureOverlayLayout
+
+
+@dataclass(frozen=True)
+class _CaptureOverlayLayoutChange:
+    size_changed: bool
+    pos_changed: bool
+    rect_changed: bool
 
 
 class CaptureOverlay:
@@ -18,6 +26,29 @@ class CaptureOverlay:
         self.animation_job: Optional[str] = None
         self.last_layout: Optional[CaptureOverlayLayout] = None
 
+    def _compute_layout_change(
+        self, layout: CaptureOverlayLayout, force: bool
+    ) -> _CaptureOverlayLayoutChange:
+        last = self.last_layout
+        if last is None:
+            return _CaptureOverlayLayoutChange(True, True, True)
+
+        return _CaptureOverlayLayoutChange(
+            size_changed=(
+                force
+                or last.overlay_width != layout.overlay_width
+                or last.overlay_height != layout.overlay_height
+            ),
+            pos_changed=(
+                force or last.left != layout.left or last.top != layout.top
+            ),
+            rect_changed=(
+                force
+                or last.cap_w != layout.cap_w
+                or last.cap_h != layout.cap_h
+            ),
+        )
+
     def _apply_layout(self, *, force: bool = False) -> None:
         if not self.canvas or not self.rect_id or not self.root:
             return
@@ -28,31 +59,16 @@ class CaptureOverlay:
         assert canvas is not None and root is not None and rect_id is not None
 
         layout = compute_capture_overlay_layout()
-        last = self.last_layout
-        size_changed = (
-            force
-            or last is None
-            or last.overlay_width != layout.overlay_width
-            or last.overlay_height != layout.overlay_height
-        )
-        pos_changed = (
-            force or last is None or last.left != layout.left or last.top != layout.top
-        )
-        rect_changed = (
-            force
-            or last is None
-            or last.cap_w != layout.cap_w
-            or last.cap_h != layout.cap_h
-        )
+        layout_change = self._compute_layout_change(layout, force=force)
 
-        if size_changed:
+        if layout_change.size_changed:
             safe_tk(
                 lambda: canvas.config(
                     width=layout.overlay_width, height=layout.overlay_height
                 )
             )
 
-        if rect_changed:
+        if layout_change.rect_changed:
             safe_tk(
                 lambda: canvas.coords(
                     rect_id,
@@ -63,7 +79,7 @@ class CaptureOverlay:
                 )
             )
 
-        if size_changed or pos_changed:
+        if layout_change.size_changed or layout_change.pos_changed:
             safe_tk(
                 lambda: root.geometry(
                     f"{layout.overlay_width}x{layout.overlay_height}+{layout.left}+{layout.top}"
