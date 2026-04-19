@@ -14,6 +14,15 @@ class DepositSignatureMatch:
     base_value: int
     signature: ScanSignature
 
+    def to_deposit_info(self, numeric_code: int) -> DepositInfo:
+        return DepositInfo(
+            name=self.signature.name,
+            base_code=self.base_value,
+            deposits=numeric_code // self.base_value,
+            category=self.signature.category,
+            max_multiplier=self.signature.max_multiplier,
+        )
+
 
 class DepositCodeParser:
     """Parse deposit codes out of OCR text and normalize them."""
@@ -68,20 +77,6 @@ class DepositSignatureMatcher:
                 return DepositSignatureMatch(base_value=base_value, signature=signature)
         return None
 
-    def build_deposit_info(
-        self,
-        signature_match: DepositSignatureMatch,
-        numeric_code: int,
-    ) -> DepositInfo:
-        return DepositInfo(
-            name=signature_match.signature.name,
-            base_code=signature_match.base_value,
-            deposits=numeric_code // signature_match.base_value,
-            category=signature_match.signature.category,
-            max_multiplier=signature_match.signature.max_multiplier,
-        )
-
-
 class DepositLookupService:
     """Lookup deposit metadata from a scan signature registry."""
 
@@ -107,7 +102,7 @@ class DepositLookupService:
         if signature_match is None:
             return None
 
-        return self._matcher.build_deposit_info(signature_match, numeric_code)
+        return signature_match.to_deposit_info(numeric_code)
 
     def _extract_numeric_code(self, code: str) -> Optional[int]:
         return self._parser.extract_numeric_suffix(code)
