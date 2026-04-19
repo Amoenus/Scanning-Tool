@@ -1,4 +1,8 @@
-from scrape_scan_signatures import ScanSignatureEntry, ScanValue, parse_color_to_category
+from scanning_tool.deposits.scan_signature_scraper import (
+    ScanSignatureEntry,
+    ScanValue,
+    parse_color_to_category,
+)
 
 
 def test_scan_signature_entry_to_csv_rows():
