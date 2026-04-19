@@ -73,26 +73,27 @@ class ScanSignatureEntry:
         ]
 
     def to_summary_row(self) -> CsvRow:
-        base_value: Optional[int] = None
-        max_multiplier: Optional[int] = None
+        return {
+            "mineral": self.mineral,
+            "category": self.category,
+            "base_value": self._find_base_value(),
+            "max_multiplier": self._find_max_multiplier(),
+        }
 
+    def _find_base_value(self) -> Optional[int]:
         for value in self.values:
             if value.amount == 1:
-                base_value = value.value
+                return value.value
+        return self.values[0].value if self.values else None
+
+    def _find_max_multiplier(self) -> Optional[int]:
+        max_multiplier: Optional[int] = None
+        for value in self.values:
             if value.amount is not None and (
                 max_multiplier is None or value.amount > max_multiplier
             ):
                 max_multiplier = value.amount
-
-        if base_value is None and self.values:
-            base_value = self.values[0].value
-
-        return {
-            "mineral": self.mineral,
-            "category": self.category,
-            "base_value": base_value,
-            "max_multiplier": max_multiplier,
-        }
+        return max_multiplier
 
 
 def parse_color_to_category(color: str) -> str:
