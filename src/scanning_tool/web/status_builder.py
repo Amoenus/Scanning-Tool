@@ -10,6 +10,8 @@ from scanning_tool.state.scan_state import ScanState
 from scanning_tool.state.service_state import ServiceState
 from scanning_tool.web.schemas import DepositTable, StatusResponse
 
+SUPPORTED_DEPOSIT_CATEGORIES = {"rock deposits", "gems"}
+
 
 class DefaultStatusResponseBuilder(StatusResponseBuilder):
     """Builds the overlay status response from runtime state."""
@@ -46,10 +48,24 @@ class DefaultStatusResponseBuilder(StatusResponseBuilder):
         if not info:
             return None
 
-        deposit_key = (info.key or info.name or "").upper()
+        deposit_key = self._deposit_key(info)
         region_tables = service_state.rocks.deposit_tables.get(selected_region, {})
         table = region_tables.get(deposit_key)
-        category = str(info.category or "").lower()
-        if not table or category not in {"rock deposits", "gems"}:
-            return None
-        return table
+        category = self._deposit_category(info)
+
+        return table if self._is_supported_deposit_category(table, category) else None
+
+    @staticmethod
+    def _deposit_key(info: DepositInfo) -> str:
+        return (info.key or info.name or "").upper()
+
+    @staticmethod
+    def _deposit_category(info: DepositInfo) -> str:
+        return str(info.category or "").lower()
+
+    @staticmethod
+    def _is_supported_deposit_category(
+        table: Optional[DepositTable],
+        category: str,
+    ) -> bool:
+        return bool(table) and category in SUPPORTED_DEPOSIT_CATEGORIES

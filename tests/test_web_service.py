@@ -2,6 +2,7 @@ import logging
 
 from scanning_tool.config import resource_path
 from scanning_tool.config.service import ConfigData
+from scanning_tool.domain.common import OreTableEntry, SpaceSystem
 from scanning_tool.domain.models import AlignmentInfo, DepositInfo, ScanResult
 from scanning_tool.logging_setup import InterceptHandler
 from scanning_tool.state.scan_state import ScanState
@@ -38,6 +39,30 @@ def test_web_service_status_exposes_latest_scan_result():
     assert response.json["info"]["name"] == "Ore 123"
     assert response.json["code_raw"] == "ORE123"
     assert response.json["selected_region"] == "STANTON"
+
+
+def test_status_response_builder_includes_supported_deposit_table():
+    builder = DefaultStatusResponseBuilder()
+    info = DepositInfo(key="ore123", name="Ore 123", category="rock deposits")
+    service_state = ServiceState()
+    service_state.rocks.deposit_tables[SpaceSystem.STANTON] = {
+        "ORE123": [
+            OreTableEntry(
+                name="Ore 123",
+                prob="100%",
+                min="0%",
+                max="100%",
+                med="50%",
+                tier="HIGH",
+                color="#fff",
+            )
+        ]
+    }
+
+    table = builder._lookup_deposit_table(info, SpaceSystem.STANTON, service_state)
+
+    assert table is not None
+    assert table[0].name == "Ore 123"
 
 
 def test_flask_app_routes_logs_through_loguru_intercept_handler():
