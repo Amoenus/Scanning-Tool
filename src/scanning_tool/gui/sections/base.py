@@ -11,7 +11,7 @@ from scanning_tool.gui.control_state import ControlState
 from scanning_tool.gui.overlay_state import OverlayState
 from scanning_tool.gui.status import StatusBar
 from scanning_tool.gui.theme import GlassPalette
-from scanning_tool.services.capture_service import CaptureService
+from scanning_tool.interfaces import CaptureController
 from scanning_tool.state.scan_state import ScanState
 from scanning_tool.state.service_state import ServiceState
 
@@ -33,7 +33,7 @@ class SectionContext:
     service_state: ServiceState
     overlay_state: OverlayState
     control_state: ControlState
-    capture_service: CaptureService
+    capture_service: CaptureController
     save_config: Callable[[], None]
 
 

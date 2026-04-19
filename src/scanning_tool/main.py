@@ -78,12 +78,14 @@ def _start_web_server(
 
     from scanning_tool.web.app import WebService
     from scanning_tool.web.server import WebServer
+    from scanning_tool.web.status_builder import DefaultStatusResponseBuilder
 
     flask_app = WebService(
         config=config,
         scan_state=scan_state,
         service_state=service_state,
         template_folder=resource_path("templates"),
+        status_response_builder=DefaultStatusResponseBuilder(),
     ).create_app()
     Thread(
         target=lambda: WebServer.run(flask_app, host=host, port=port),
@@ -96,6 +98,7 @@ def create_app() -> Flask:
     from scanning_tool.config.service import ConfigService
     from scanning_tool.state.app_state import AppState
     from scanning_tool.web.app import WebService
+    from scanning_tool.web.status_builder import DefaultStatusResponseBuilder
 
     config_service = ConfigService()
     config = config_service.load()
@@ -105,6 +108,7 @@ def create_app() -> Flask:
         scan_state=app_state.scan_state,
         service_state=app_state.service_state,
         template_folder=resource_path("templates"),
+        status_response_builder=DefaultStatusResponseBuilder(),
     ).create_app()
 
 

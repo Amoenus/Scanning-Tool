@@ -8,6 +8,7 @@ from .capture import (
     StatusCallback,
     SyncCallback,
 )
+from .capture_service import CaptureController
 
 __all__ = [
     "AlignmentAdapter",
@@ -16,4 +17,5 @@ __all__ = [
     "OCRProvider",
     "StatusCallback",
     "SyncCallback",
+    "CaptureController",
 ]

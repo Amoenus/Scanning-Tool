@@ -41,7 +41,5 @@ class AlignmentAdapter(Protocol):
         anchor_tracker: AnchorRegionTracker | None,
         last_alignment_info: AlignmentInfo,
         alignment_request: AlignmentRequest,
-        sync_capture_sliders: SyncCallback,
-        update_capture_overlay_region: SyncCallback,
     ) -> bool:
         ...

@@ -16,7 +16,6 @@ from scanning_tool.interfaces.capture import (
     DepositLookupProvider,
     OCRProvider,
     StatusCallback,
-    SyncCallback,
 )
 from scanning_tool.state.scan_state import ScanState
 
@@ -32,8 +31,6 @@ class CaptureUseCase:
         ocr_provider: OCRProvider,
         deposit_lookup: DepositLookupProvider,
         alignment_adapter: AlignmentAdapter,
-        sync_capture_sliders: SyncCallback,
-        update_capture_overlay_region: SyncCallback,
     ) -> None:
         self._config = config
         self._scan_state = scan_state
@@ -41,8 +38,6 @@ class CaptureUseCase:
         self._ocr_provider = ocr_provider
         self._deposit_lookup = deposit_lookup
         self._alignment_adapter = alignment_adapter
-        self._sync_capture_sliders = sync_capture_sliders
-        self._update_capture_overlay_region = update_capture_overlay_region
         self._status_callback: Optional[StatusCallback] = None
 
     def capture_once(self, status_callback: Optional[StatusCallback] = None) -> None:
@@ -64,8 +59,6 @@ class CaptureUseCase:
             self._scan_state.anchor_tracker,
             self._scan_state.last_alignment_info,
             AlignmentRequest.from_config(self._config),
-            self._sync_capture_sliders,
-            self._update_capture_overlay_region,
         )
 
     def _capture_screen_region(self) -> Image:

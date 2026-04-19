@@ -22,7 +22,7 @@ from scanning_tool.gui.status import StatusBar
 from scanning_tool.gui.theme import GlassPalette, apply_glass_theme
 from scanning_tool.gui.widgets import ScrollableFrame
 from scanning_tool.gui.overlays import show_overlay
-from scanning_tool.services.capture_service import CaptureService
+from scanning_tool.interfaces import CaptureController
 from scanning_tool.state.scan_state import ScanState
 from scanning_tool.state.service_state import ServiceState
 from scanning_tool.gui.control_state import ControlState
@@ -43,7 +43,7 @@ def launch_gui(
     service_state: ServiceState,
     overlay_state: OverlayState,
     control_state: ControlState,
-    capture_service: CaptureService,
+    capture_service: CaptureController,
     save_config,
 ) -> None:
     """Build and run the main Tkinter control panel."""
@@ -93,7 +93,7 @@ def _build_section_context(
     service_state: ServiceState,
     overlay_state: OverlayState,
     control_state: ControlState,
-    capture_service: CaptureService,
+    capture_service: CaptureController,
     save_config,
 ) -> SectionContext:
     return SectionContext(

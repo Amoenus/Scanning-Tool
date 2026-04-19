@@ -3,19 +3,17 @@
 from __future__ import annotations
 
 import socket
-from typing import Optional
 
 from flask import Flask, Response, jsonify, render_template, request
 
 from scanning_tool.config import resource_path
 from scanning_tool.config.service import ConfigData, ConfigService
-from scanning_tool.domain.capture import DepositInfo, ScanResult
-from scanning_tool.domain.common import DepositTable
-from scanning_tool.web.schemas import StatusResponse
 from scanning_tool.logging_setup import configure_flask_logging
 from scanning_tool.state.app_state import AppState
 from scanning_tool.state.scan_state import ScanState
 from scanning_tool.state.service_state import ServiceState
+from scanning_tool.interfaces.web import StatusResponseBuilder
+from scanning_tool.web.status_builder import DefaultStatusResponseBuilder
 
 
 class WebService:
@@ -27,11 +25,13 @@ class WebService:
         scan_state: ScanState,
         service_state: ServiceState,
         template_folder: str,
+        status_response_builder: StatusResponseBuilder,
     ) -> None:
         self.config = config
         self.scan_state = scan_state
         self.service_state = service_state
         self.template_folder = template_folder
+        self._status_response_builder = status_response_builder
 
     @staticmethod
     def get_local_ip() -> str:
@@ -46,38 +46,6 @@ class WebService:
             pass
         return "127.0.0.1"
 
-    def _lookup_deposit_table(
-        self, info: Optional[DepositInfo], selected_region: str
-    ) -> Optional[DepositTable]:
-        if not info:
-            return None
-        deposit_key = (info.key or info.name or "").upper()
-        region_tables = self.service_state.rocks.deposit_tables.get(selected_region, {})
-        table = region_tables.get(deposit_key)
-        category = str(info.category or "").lower()
-        if not table or category not in {"rock deposits", "gems"}:
-            return None
-        return table
-
-    def _build_status_response(
-        self,
-        result: Optional[ScanResult],
-        info: Optional[DepositInfo],
-        selected_region: str,
-        table: Optional[DepositTable],
-    ) -> StatusResponse:
-        return StatusResponse(
-            region=self.config.capture_region,
-            label_color=self.config.overlay_config.label_color,
-            last=result,
-            alignment=self.scan_state.last_alignment_info,
-            selected_region=selected_region,
-            info=info,
-            code=result.label if result else None,
-            code_raw=result.code_raw if result else None,
-            raw_text=result.raw_text if result else None,
-            table=table,
-        )
 
     def _index(self) -> str:
         return render_template("overlay.html")
@@ -85,10 +53,12 @@ class WebService:
     def _status(self) -> Response:
         """Return the latest scan information for the overlay UI."""
         selected_region = request.args.get("region", "STANTON").upper()
-        result = self.scan_state.last_result
-        info = result.info if result else None
-        table = self._lookup_deposit_table(info, selected_region)
-        response = self._build_status_response(result, info, selected_region, table)
+        response = self._status_response_builder.build_status_response(
+            self.config,
+            self.scan_state,
+            self.service_state,
+            selected_region,
+        )
         return jsonify(response.to_dict())
 
     def create_app(self) -> Flask:
@@ -110,6 +80,7 @@ def create_app() -> Flask:
         scan_state=app_state.scan_state,
         service_state=app_state.service_state,
         template_folder=resource_path("templates"),
+        status_response_builder=DefaultStatusResponseBuilder(),
     ).create_app()
 
 

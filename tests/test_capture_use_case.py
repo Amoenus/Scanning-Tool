@@ -27,8 +27,6 @@ class FakeAlignmentAdapter:
         anchor_tracker,
         last_alignment_info,
         alignment_request,
-        sync_capture_sliders,
-        update_capture_overlay_region,
     ):
         return False
 
@@ -43,8 +41,6 @@ def test_capture_use_case_populates_scan_state_and_returns_deposit_info():
         ocr_provider=FakeOCRProvider(),
         deposit_lookup=FakeDepositLookupProvider(),
         alignment_adapter=FakeAlignmentAdapter(),
-        sync_capture_sliders=lambda: None,
-        update_capture_overlay_region=lambda: None,
     )
 
     statuses: list[str] = []
