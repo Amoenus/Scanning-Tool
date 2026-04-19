@@ -11,12 +11,37 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Dict, List, Optional, TypedDict
 
-from playwright.async_api import async_playwright
+from playwright.async_api import Page, async_playwright
 
 OUTPUT_DIR = Path("csv/scansig")
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 TARGET_URL = "https://scmdb.net/?page=mine"
+
+
+SCRAPE_SIGNATURES_SCRIPT = """() => {
+            const rows = Array.from(document.querySelectorAll('.sigchart-row'));
+            return rows.map(row => {
+                const labelDiv = row.querySelector('.sigchart-label');
+                const color = labelDiv ? labelDiv.style.color : null;
+                const mineral = labelDiv ? labelDiv.textContent.trim() : null;
+                const pills = Array.from(row.querySelectorAll('.sigchart-pill'));
+                const values = pills.map(pill => {
+                    const m = pill.title.match(/(.+) ×(\d+) = ([\d,]+)/);
+                    return {
+                        text: pill.textContent.trim(),
+                        title: pill.title,
+                        amount: m ? parseInt(m[2]) : null,
+                        value: m ? parseInt(m[3].replace(/,/g, '')) : null,
+                    };
+                });
+                return {
+                    mineral,
+                    color,
+                    values,
+                };
+            });
+        }"""
 
 
 class RawScanValue(TypedDict, total=False):
@@ -137,46 +162,24 @@ def _create_scan_signature_entry(raw_entry: RawScanSignatureEntry) -> ScanSignat
     )
 
 
+async def _evaluate_scan_signature_overlay(page: Page) -> List[RawScanSignatureEntry]:
+    await page.click('button[title^="Scan Signature Identifier"]')
+    await page.wait_for_selector(".sigchart-overlay", timeout=10000)
+    return await page.evaluate(SCRAPE_SIGNATURES_SCRIPT)
+
+
+def _build_scan_signature_entries(raw_data: List[RawScanSignatureEntry]) -> List[ScanSignatureEntry]:
+    return [_create_scan_signature_entry(raw_entry) for raw_entry in raw_data]
+
+
 async def scrape_scan_signatures() -> List[ScanSignatureEntry]:
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
         page = await browser.new_page()
         await page.goto(TARGET_URL, wait_until="networkidle")
 
-        # Click the Scan Signature Identifier button
-        await page.click('button[title^="Scan Signature Identifier"]')
-        # Wait for overlay to appear
-        await page.wait_for_selector(".sigchart-overlay", timeout=10000)
-
-        # Extract data from overlay
-        raw_data: List[RawScanSignatureEntry] = await page.evaluate("""() => {
-            const rows = Array.from(document.querySelectorAll('.sigchart-row'));
-            return rows.map(row => {
-                const labelDiv = row.querySelector('.sigchart-label');
-                const color = labelDiv ? labelDiv.style.color : null;
-                const mineral = labelDiv ? labelDiv.textContent.trim() : null;
-                const pills = Array.from(row.querySelectorAll('.sigchart-pill'));
-                const values = pills.map(pill => {
-                    // Example: "Quantainium ×2 = 6,340"
-                    const m = pill.title.match(/(.+) ×(\\d+) = ([\\d,]+)/);
-                    return {
-                        text: pill.textContent.trim(),
-                        title: pill.title,
-                        amount: m ? parseInt(m[2]) : null,
-                        value: m ? parseInt(m[3].replace(/,/g, '')) : null,
-                    };
-                });
-                return {
-                    mineral,
-                    color,
-                    values,
-                };
-            });
-        }""")
-
-        entries: List[ScanSignatureEntry] = []
-        for raw_entry in raw_data:
-            entries.append(_create_scan_signature_entry(raw_entry))
+        raw_data = await _evaluate_scan_signature_overlay(page)
+        entries = _build_scan_signature_entries(raw_data)
 
         await browser.close()
         return entries
