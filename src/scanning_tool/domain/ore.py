@@ -15,17 +15,22 @@ class OreStatisticsSchema(BaseModel):
 
     model_config = {"extra": "ignore"}
 
-    @field_validator("*", mode="before")
-    @classmethod
-    def _coerce_to_float(cls, value):
+    @staticmethod
+    def _try_parse_float(value: object | None) -> float | None:
         if isinstance(value, (int, float)):
             return float(value)
         if isinstance(value, str):
             try:
                 return float(value)
             except ValueError:
-                return 0.0
-        return 0.0
+                return None
+        return None
+
+    @field_validator("*", mode="before")
+    @classmethod
+    def _coerce_to_float(cls, value):
+        parsed_value = cls._try_parse_float(value)
+        return parsed_value if parsed_value is not None else 0.0
 
     def to_domain(self) -> "OreStatistics":
         return OreStatistics(
@@ -48,19 +53,40 @@ class DepositSchema(BaseModel):
 
     model_config = {"extra": "ignore"}
 
-    @field_validator("users", "scans", "clusters", mode="before")
-    @classmethod
-    def _coerce_to_int(cls, value):
+    @staticmethod
+    def _try_parse_int(value: object | None) -> int | None:
+        if isinstance(value, bool):
+            return int(value)
         if isinstance(value, int):
             return value
         if isinstance(value, float):
             return int(value)
         if isinstance(value, str):
+            cleaned = value.strip()
+            if not cleaned:
+                return None
             try:
-                return int(float(value))
+                return int(float(cleaned))
             except ValueError:
-                return 0
-        return 0
+                return None
+        return None
+
+    @staticmethod
+    def _try_parse_float(value: object | None) -> float | None:
+        if isinstance(value, (int, float)):
+            return float(value)
+        if isinstance(value, str):
+            try:
+                return float(value)
+            except ValueError:
+                return None
+        return None
+
+    @field_validator("users", "scans", "clusters", mode="before")
+    @classmethod
+    def _coerce_to_int(cls, value):
+        parsed_value = cls._try_parse_int(value)
+        return parsed_value if parsed_value is not None else 0
 
     @field_validator("clusterCount", "mass", "inst", "res", mode="before")
     @classmethod
@@ -72,13 +98,10 @@ class DepositSchema(BaseModel):
         for raw_key, raw_value in value.items():
             if not isinstance(raw_key, str):
                 continue
-            if isinstance(raw_value, (int, float)):
-                converted[raw_key] = float(raw_value)
-            elif isinstance(raw_value, str):
-                try:
-                    converted[raw_key] = float(raw_value)
-                except ValueError:
-                    continue
+            parsed_value = cls._try_parse_float(raw_value)
+            if parsed_value is None:
+                continue
+            converted[raw_key] = parsed_value
         return converted
 
 
