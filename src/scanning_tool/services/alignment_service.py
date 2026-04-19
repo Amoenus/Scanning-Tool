@@ -9,8 +9,31 @@ from scanning_tool.domain.alignment import (
     AnchorDetection,
     CaptureRegion,
 )
+from scanning_tool.domain.common import Offset2D
 
 SyncCallback = Callable[[], None]
+
+
+class AlignmentCalculator:
+    @staticmethod
+    def calculate_aligned_position(
+        detection: AnchorDetection,
+        capture_region: CaptureRegion,
+        anchor_offset: Offset2D,
+    ) -> tuple[int, int]:
+        base_left = (
+            detection.match_left
+            + (detection.template_width / 2.0)
+            - (capture_region.width / 2.0)
+        )
+        base_top = (
+            detection.match_top
+            + (detection.template_height / 2.0)
+            - (capture_region.height / 2.0)
+        )
+        new_left = int(round(base_left + anchor_offset.x))
+        new_top = int(round(base_top + anchor_offset.y))
+        return new_left, new_top
 
 
 def reset_alignment_info(info: AlignmentInfo) -> None:
@@ -73,8 +96,10 @@ class AlignmentService(BaseService):
         sync_capture_sliders: SyncCallback,
         update_capture_overlay_region: SyncCallback,
     ) -> None:
-        new_left, new_top = self._calculate_aligned_position(
-            detection, alignment_request
+        new_left, new_top = AlignmentCalculator.calculate_aligned_position(
+            detection,
+            alignment_request.capture_region,
+            alignment_request.anchor_offset,
         )
         alignment_request.capture_region.left = max(0, new_left)
         alignment_request.capture_region.top = max(0, new_top)
@@ -98,23 +123,6 @@ class AlignmentService(BaseService):
             capture_region.left,
             capture_region.top,
         )
-
-    def _calculate_aligned_position(
-        self, detection: AnchorDetection, alignment_request: AlignmentRequest
-    ) -> Tuple[int, int]:
-        base_left = (
-            detection.match_left
-            + (detection.template_width / 2.0)
-            - (alignment_request.capture_region.width / 2.0)
-        )
-        base_top = (
-            detection.match_top
-            + (detection.template_height / 2.0)
-            - (alignment_request.capture_region.height / 2.0)
-        )
-        new_left = int(round(base_left + alignment_request.anchor_offset.x))
-        new_top = int(round(base_top + alignment_request.anchor_offset.y))
-        return new_left, new_top
 
 
 alignment_service = AlignmentService()
