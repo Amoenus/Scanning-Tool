@@ -56,6 +56,32 @@ class DepositCodeParser:
             return None
 
 
+class DepositSignatureMatcher:
+    """Encapsulates deposit signature matching and DepositInfo creation."""
+
+    def __init__(self, registry: "SignatureRegistry") -> None:
+        self._registry = registry
+
+    def match(self, numeric_code: int) -> Optional[DepositSignatureMatch]:
+        for base_value, signature in self._registry.get_all().items():
+            if numeric_code % base_value == 0:
+                return DepositSignatureMatch(base_value=base_value, signature=signature)
+        return None
+
+    def build_deposit_info(
+        self,
+        signature_match: DepositSignatureMatch,
+        numeric_code: int,
+    ) -> DepositInfo:
+        return DepositInfo(
+            name=signature_match.signature.name,
+            base_code=signature_match.base_value,
+            deposits=numeric_code // signature_match.base_value,
+            category=signature_match.signature.category,
+            max_multiplier=signature_match.signature.max_multiplier,
+        )
+
+
 class DepositLookupService:
     """Lookup deposit metadata from a scan signature registry."""
 
@@ -63,9 +89,10 @@ class DepositLookupService:
         self,
         registry: "SignatureRegistry",
         parser: Optional[DepositCodeParser] = None,
+        matcher: Optional[DepositSignatureMatcher] = None,
     ) -> None:
-        self._registry = registry
         self._parser = parser or _code_parser
+        self._matcher = matcher or DepositSignatureMatcher(registry)
 
     def lookup(self, code: Optional[str]) -> Optional[DepositInfo]:
         """Return deposit metadata when the code matches a known signature."""
@@ -76,38 +103,14 @@ class DepositLookupService:
         if numeric_code is None:
             return None
 
-        signature_match = self._find_matching_signature(numeric_code)
+        signature_match = self._matcher.match(numeric_code)
         if signature_match is None:
             return None
 
-        return self._build_deposit_info(
-            signature_match.base_value,
-            signature_match.signature,
-            numeric_code,
-        )
+        return self._matcher.build_deposit_info(signature_match, numeric_code)
 
     def _extract_numeric_code(self, code: str) -> Optional[int]:
         return self._parser.extract_numeric_suffix(code)
-
-    def _find_matching_signature(
-        self, numeric_code: int
-    ) -> Optional[DepositSignatureMatch]:
-        for base_value, signature in self._registry.get_all().items():
-            if numeric_code % base_value == 0:
-                return DepositSignatureMatch(base_value=base_value, signature=signature)
-        return None
-
-    @staticmethod
-    def _build_deposit_info(
-        base_value: int, signature: ScanSignature, numeric_code: int
-    ) -> DepositInfo:
-        return DepositInfo(
-            name=signature.name,
-            base_code=base_value,
-            deposits=numeric_code // base_value,
-            category=signature.category,
-            max_multiplier=signature.max_multiplier,
-        )
 
 
 _code_parser = DepositCodeParser(service_state.code_re)
