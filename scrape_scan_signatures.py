@@ -4,6 +4,8 @@ Extracts mineral name, scan values, rarity/color, and category from the overlay.
 Outputs JSON and CSV formats.
 """
 
+from __future__ import annotations
+
 import asyncio
 import json
 import csv
@@ -42,6 +44,46 @@ SCRAPE_SIGNATURES_SCRIPT = """() => {
                 };
             });
         }"""
+
+
+COLOR_CATEGORY_MAP: dict[str, str] = {
+    "rgb(255, 170, 51)": "legendary",
+    "rgb(204, 102, 255)": "epic",
+    "rgb(51, 153, 255)": "rare",
+    "rgb(51, 204, 170)": "uncommon",
+    "rgb(136, 153, 170)": "common",
+    "rgb(102, 221, 170)": "ROC Mineables",
+    "rgb(119, 187, 221)": "FPS Mineables",
+    "rgb(170, 153, 119)": "Salvage",
+}
+
+
+class ScanSignatureEntryFactory:
+    @staticmethod
+    def _as_optional_str(value: object | None) -> Optional[str]:
+        return value if isinstance(value, str) else None
+
+    @staticmethod
+    def _create_scan_value(raw_value: RawScanValue) -> ScanValue:
+        return ScanValue(
+            text=ScanSignatureEntryFactory._as_optional_str(raw_value.get("text")),
+            title=ScanSignatureEntryFactory._as_optional_str(raw_value.get("title")),
+            amount=raw_value.get("amount"),
+            value=raw_value.get("value"),
+        )
+
+    @classmethod
+    def from_raw_entry(cls, raw_entry: RawScanSignatureEntry) -> ScanSignatureEntry:
+        raw_values = raw_entry.get("values") or []
+        values = [cls._create_scan_value(raw_value) for raw_value in raw_values]
+
+        color = cls._as_optional_str(raw_entry.get("color"))
+        return ScanSignatureEntry(
+            mineral=cls._as_optional_str(raw_entry.get("mineral")),
+            color=color,
+            values=values,
+            category=parse_color_to_category(color or ""),
+        )
 
 
 class RawScanValue(TypedDict, total=False):
@@ -123,43 +165,7 @@ class ScanSignatureEntry:
 
 def parse_color_to_category(color: str) -> str:
     """Map RGB color to rarity/category string."""
-    color_map = {
-        "rgb(255, 170, 51)": "legendary",
-        "rgb(204, 102, 255)": "epic",
-        "rgb(51, 153, 255)": "rare",
-        "rgb(51, 204, 170)": "uncommon",
-        "rgb(136, 153, 170)": "common",
-        "rgb(102, 221, 170)": "ROC Mineables",
-        "rgb(119, 187, 221)": "FPS Mineables",
-        "rgb(170, 153, 119)": "Salvage",
-    }
-    return color_map.get(color, color)
-
-
-def _as_optional_str(value: object | None) -> Optional[str]:
-    return value if isinstance(value, str) else None
-
-
-def _create_scan_value(raw_value: RawScanValue) -> ScanValue:
-    return ScanValue(
-        text=_as_optional_str(raw_value.get("text")),
-        title=_as_optional_str(raw_value.get("title")),
-        amount=raw_value.get("amount"),
-        value=raw_value.get("value"),
-    )
-
-
-def _create_scan_signature_entry(raw_entry: RawScanSignatureEntry) -> ScanSignatureEntry:
-    raw_values = raw_entry.get("values") or []
-    values = [_create_scan_value(raw_value) for raw_value in raw_values]
-
-    color = _as_optional_str(raw_entry.get("color"))
-    return ScanSignatureEntry(
-        mineral=_as_optional_str(raw_entry.get("mineral")),
-        color=color,
-        values=values,
-        category=parse_color_to_category(color or ""),
-    )
+    return COLOR_CATEGORY_MAP.get(color, color)
 
 
 async def _evaluate_scan_signature_overlay(page: Page) -> List[RawScanSignatureEntry]:
@@ -169,7 +175,7 @@ async def _evaluate_scan_signature_overlay(page: Page) -> List[RawScanSignatureE
 
 
 def _build_scan_signature_entries(raw_data: List[RawScanSignatureEntry]) -> List[ScanSignatureEntry]:
-    return [_create_scan_signature_entry(raw_entry) for raw_entry in raw_data]
+    return [ScanSignatureEntryFactory.from_raw_entry(raw_entry) for raw_entry in raw_data]
 
 
 async def scrape_scan_signatures() -> List[ScanSignatureEntry]:
