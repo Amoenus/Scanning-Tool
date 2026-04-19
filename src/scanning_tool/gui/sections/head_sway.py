@@ -176,27 +176,47 @@ class HeadSwaySection:
         )
 
     def _on_region_change(self, *_args: object) -> None:
+        self._apply_anchor_change(
+            self._update_anchor_region,
+            lambda: f"Anchor region updated: {self._ctx.config.anchor_template}",
+            update_overlay=True,
+        )
+
+    def _on_offset_change(self, *_args: object) -> None:
+        self._apply_anchor_change(
+            self._update_anchor_offset,
+            lambda: f"Anchor offset updated: {self._ctx.config.anchor_offset}",
+        )
+
+    def _apply_anchor_change(
+        self,
+        update: Callable[[], None],
+        status_message: Callable[[], str],
+        update_overlay: bool = False,
+    ) -> None:
         if self._ctx.control_state.syncing.anchor:
             return
+
+        update()
+        self._status.set_anchor(status_message(), hold=2.0)
+
+        if self._ctx.config.auto_alignment.enabled:
+            self._run_auto_alignment()
+
+        if update_overlay:
+            update_anchor_overlay_region()
+
+    def _update_anchor_region(self) -> None:
         anchor_region = self._ctx.config.anchor_template
         anchor_region.left = int(self._anchor_left.get())
         anchor_region.top = int(self._anchor_top.get())
         anchor_region.width = int(self._anchor_width.get())
         anchor_region.height = int(self._anchor_height.get())
-        self._status.set_anchor(f"Anchor region updated: {anchor_region}", hold=2.0)
-        if self._ctx.config.auto_alignment.enabled:
-            self._run_auto_alignment()
-        update_anchor_overlay_region()
 
-    def _on_offset_change(self, *_args: object) -> None:
-        if self._ctx.control_state.syncing.anchor:
-            return
+    def _update_anchor_offset(self) -> None:
         anchor_offset = self._ctx.config.anchor_offset
         anchor_offset.x = int(self._offset_x.get())
         anchor_offset.y = int(self._offset_y.get())
-        self._status.set_anchor(f"Anchor offset updated: {anchor_offset}", hold=2.0)
-        if self._ctx.config.auto_alignment.enabled:
-            self._run_auto_alignment()
 
     def _toggle_auto_align(self) -> None:
         self._ctx.config.auto_alignment.enabled = self._auto_align_var.get()
