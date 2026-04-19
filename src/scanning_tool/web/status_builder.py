@@ -13,8 +13,46 @@ from scanning_tool.web.schemas import DepositTable, StatusResponse
 SUPPORTED_DEPOSIT_CATEGORIES = {"rock deposits", "gems"}
 
 
+class DepositTableResolver:
+    """Resolve deposit tables from service state for a selected region."""
+
+    def resolve(
+        self,
+        info: Optional[DepositInfo],
+        selected_region: SpaceSystem,
+        service_state: ServiceState,
+    ) -> Optional[DepositTable]:
+        if info is None:
+            return None
+
+        deposit_key = self._deposit_key(info)
+        region_tables = service_state.rocks.deposit_tables.get(selected_region, {})
+        table = region_tables.get(deposit_key)
+        category = self._deposit_category(info)
+
+        return table if self._is_supported_deposit_category(table, category) else None
+
+    @staticmethod
+    def _deposit_key(info: DepositInfo) -> str:
+        return (info.key or info.name or "").upper()
+
+    @staticmethod
+    def _deposit_category(info: DepositInfo) -> str:
+        return str(info.category or "").lower()
+
+    @staticmethod
+    def _is_supported_deposit_category(
+        table: Optional[DepositTable],
+        category: str,
+    ) -> bool:
+        return bool(table) and category in SUPPORTED_DEPOSIT_CATEGORIES
+
+
 class DefaultStatusResponseBuilder(StatusResponseBuilder):
     """Builds the overlay status response from runtime state."""
+
+    def __init__(self, deposit_table_resolver: Optional[DepositTableResolver] = None) -> None:
+        self._deposit_table_resolver = deposit_table_resolver or DepositTableResolver()
 
     def build_status_response(
         self,
@@ -45,27 +83,4 @@ class DefaultStatusResponseBuilder(StatusResponseBuilder):
         selected_region: SpaceSystem,
         service_state: ServiceState,
     ) -> Optional[DepositTable]:
-        if not info:
-            return None
-
-        deposit_key = self._deposit_key(info)
-        region_tables = service_state.rocks.deposit_tables.get(selected_region, {})
-        table = region_tables.get(deposit_key)
-        category = self._deposit_category(info)
-
-        return table if self._is_supported_deposit_category(table, category) else None
-
-    @staticmethod
-    def _deposit_key(info: DepositInfo) -> str:
-        return (info.key or info.name or "").upper()
-
-    @staticmethod
-    def _deposit_category(info: DepositInfo) -> str:
-        return str(info.category or "").lower()
-
-    @staticmethod
-    def _is_supported_deposit_category(
-        table: Optional[DepositTable],
-        category: str,
-    ) -> bool:
-        return bool(table) and category in SUPPORTED_DEPOSIT_CATEGORIES
+        return self._deposit_table_resolver.resolve(info, selected_region, service_state)
