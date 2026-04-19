@@ -65,33 +65,20 @@ class StatusResponseDict(TypedDict):
     table: list[OreTableEntryDict] | None
 
 
-@dataclass
-class StatusResponse:
-    """Payload returned by the /status web endpoint."""
-
-    region: CaptureRegion
-    label_color: str
-    last: Optional[ScanResult]
-    alignment: AlignmentInfo
-    selected_region: SpaceSystem
-    info: Optional[DepositInfo]
-    code: Optional[str]
-    code_raw: Optional[str]
-    raw_text: Optional[str]
-    table: Optional[DepositTable]
-
-    def to_dict(self) -> StatusResponseDict:
+class StatusResponseSerializer:
+    @classmethod
+    def to_dict(cls, status_response: "StatusResponse") -> StatusResponseDict:
         return {
-            "region": self._capture_region_dict(self.region),
-            "label_color": self.label_color,
-            "last": self._scan_result_dict(self.last),
-            "alignment": self._alignment_info_dict(self.alignment),
-            "selected_region": self.selected_region.value,
-            "info": self._deposit_info_dict(self.info),
-            "code": self.code,
-            "code_raw": self.code_raw,
-            "raw_text": self.raw_text,
-            "table": self._deposit_table(self.table),
+            "region": cls._capture_region_dict(status_response.region),
+            "label_color": status_response.label_color,
+            "last": cls._scan_result_dict(status_response.last),
+            "alignment": cls._alignment_info_dict(status_response.alignment),
+            "selected_region": status_response.selected_region.value,
+            "info": cls._deposit_info_dict(status_response.info),
+            "code": status_response.code,
+            "code_raw": status_response.code_raw,
+            "raw_text": status_response.raw_text,
+            "table": cls._deposit_table(status_response.table),
         }
 
     @staticmethod
@@ -160,3 +147,22 @@ class StatusResponse:
         if table is None:
             return None
         return [cls._ore_table_entry_dict(entry) for entry in table]
+
+
+@dataclass
+class StatusResponse:
+    """Payload returned by the /status web endpoint."""
+
+    region: CaptureRegion
+    label_color: str
+    last: Optional[ScanResult]
+    alignment: AlignmentInfo
+    selected_region: SpaceSystem
+    info: Optional[DepositInfo]
+    code: Optional[str]
+    code_raw: Optional[str]
+    raw_text: Optional[str]
+    table: Optional[DepositTable]
+
+    def to_dict(self) -> StatusResponseDict:
+        return StatusResponseSerializer.to_dict(self)
