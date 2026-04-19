@@ -23,8 +23,9 @@ modules_to_mock = [
     "webbrowser",
 ]
 
-for module_name in modules_to_mock:
-    sys.modules[module_name] = MagicMock()
+
+def _create_mocked_modules():
+    return {module_name: MagicMock() for module_name in modules_to_mock}
 
 
 # Mocking state_manager
@@ -35,16 +36,19 @@ class MockConfig:
         self.web_server_config.port = 5000
 
 
-mock_state_manager = MagicMock()
-mock_state_manager.config = MockConfig()
-sys.modules["scanning_tool.state.manager"] = mock_state_manager
-
-
 class TestSecurity(unittest.TestCase):
     def setUp(self):
-        # Reset defaults before each test
-        mock_state_manager.config.web_server_config.host = "0.0.0.0"
-        mock_state_manager.config.web_server_config.port = 5000
+        self.mock_state_manager = MagicMock()
+        self.mock_state_manager.config = MockConfig()
+
+        patched_modules = _create_mocked_modules()
+        patched_modules["scanning_tool.state.manager"] = self.mock_state_manager
+        self._patcher = patch.dict(sys.modules, patched_modules)
+        self._patcher.start()
+
+    def tearDown(self):
+        self._patcher.stop()
+
 
     def test_flask_binding_default(self):
         with patch("scanning_tool.web.app.WebService.create_app") as mock_create_app:
@@ -59,7 +63,7 @@ class TestSecurity(unittest.TestCase):
                             mock_create_app.return_value = mock_flask_app
 
                             _start_web_server(
-                                config=mock_state_manager.config,
+                                config=self.mock_state_manager.config,
                                 scan_state=MagicMock(),
                                 service_state=MagicMock(),
                             )
@@ -80,8 +84,8 @@ class TestSecurity(unittest.TestCase):
                             self.assertIn("192.168.1.100", msg)
 
     def test_flask_binding_custom(self):
-        mock_state_manager.config.web_server_config.host = "127.0.0.1"
-        mock_state_manager.config.web_server_config.port = 8080
+        self.mock_state_manager.config.web_server_config.host = "127.0.0.1"
+        self.mock_state_manager.config.web_server_config.port = 8080
 
         with patch("scanning_tool.web.app.WebService.create_app") as mock_create_app:
             with patch("scanning_tool.main.Thread") as mock_thread:
@@ -93,7 +97,7 @@ class TestSecurity(unittest.TestCase):
                         mock_create_app.return_value = mock_flask_app
 
                         _start_web_server(
-                            config=mock_state_manager.config,
+                            config=self.mock_state_manager.config,
                             scan_state=MagicMock(),
                             service_state=MagicMock(),
                         )
@@ -130,8 +134,8 @@ class TestSecurity(unittest.TestCase):
                 )
 
     def test_mobile_overlay_url_custom(self):
-        mock_state_manager.config.web_server_config.host = "127.0.0.1"
-        mock_state_manager.config.web_server_config.port = 8080
+        self.mock_state_manager.config.web_server_config.host = "127.0.0.1"
+        self.mock_state_manager.config.web_server_config.port = 8080
 
         with patch("scanning_tool.gui.sections.ollama.webbrowser") as mock_webbrowser:
             from scanning_tool.gui.sections.ollama import OllamaSection
