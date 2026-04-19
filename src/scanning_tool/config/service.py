@@ -48,21 +48,39 @@ class ConfigData(BaseModel):
     )
 
 
+class ConfigFileStore:
+    """Persist configuration JSON on disk."""
+
+    def __init__(self, config_file: Path) -> None:
+        self.config_file = config_file
+
+    def exists(self) -> bool:
+        return self.config_file.exists()
+
+    def load_data(self) -> dict[str, object]:
+        with open(self.config_file, "r", encoding="utf-8") as file:
+            return json.load(file)
+
+    def save_data(self, data: dict[str, object]) -> None:
+        with open(self.config_file, "w", encoding="utf-8") as file:
+            json.dump(data, file, indent=4)
+            file.write("\n")
+
+
 class ConfigService:
     """Service for loading, saving, and managing configuration."""
 
     def __init__(self, config_file: Optional[Path] = None):
-        self.config_file = (
-            config_file or Path(__file__).parent.parent.parent / "config.json"
-        )
+        config_file = config_file or Path(__file__).parent.parent.parent / "config.json"
+        self._store = ConfigFileStore(config_file)
         self._config: Optional[ConfigData] = None
 
     def load(self) -> ConfigData:
         """Load configuration from file."""
-        if not self.config_file.exists():
+        if not self._store.exists():
             logger.info(
                 "Configuration file not found, creating default.",
-                path=str(self.config_file),
+                path=str(self._store.config_file),
             )
             self._config = self._create_default_config()
             return self._config
@@ -75,7 +93,7 @@ class ConfigService:
         except (json.JSONDecodeError, OSError, ValidationError) as exc:
             logger.warning(
                 "Failed to load configuration, using defaults.",
-                path=str(self.config_file),
+                path=str(self._store.config_file),
                 error=exc,
             )
             self._config = self._create_default_config()
@@ -88,8 +106,7 @@ class ConfigService:
         return config
 
     def _load_config_from_file(self) -> ConfigData:
-        with open(self.config_file, "r", encoding="utf-8") as f:
-            data = json.load(f)
+        data = self._store.load_data()
         return ConfigData.model_validate(data)
 
     @staticmethod
@@ -104,9 +121,7 @@ class ConfigService:
             raise ValueError("No configuration to save")
 
         try:
-            with open(self.config_file, "w", encoding="utf-8") as f:
-                json.dump(self._config.model_dump(), f, indent=4)
-                f.write("\n")
+            self._store.save_data(self._config.model_dump())
             logger.info("Configuration saved successfully.")
         except OSError as exc:
             logger.error(f"Failed to save configuration: {exc}")
