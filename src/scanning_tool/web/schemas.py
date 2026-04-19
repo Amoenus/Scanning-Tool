@@ -65,24 +65,9 @@ class StatusResponseDict(TypedDict):
     table: list[OreTableEntryDict] | None
 
 
-class StatusResponseSerializer:
-    @classmethod
-    def to_dict(cls, status_response: "StatusResponse") -> StatusResponseDict:
-        return {
-            "region": cls._capture_region_dict(status_response.region),
-            "label_color": status_response.label_color,
-            "last": cls._scan_result_dict(status_response.last),
-            "alignment": cls._alignment_info_dict(status_response.alignment),
-            "selected_region": status_response.selected_region.value,
-            "info": cls._deposit_info_dict(status_response.info),
-            "code": status_response.code,
-            "code_raw": status_response.code_raw,
-            "raw_text": status_response.raw_text,
-            "table": cls._deposit_table(status_response.table),
-        }
-
+class CaptureRegionSerializer:
     @staticmethod
-    def _capture_region_dict(region: CaptureRegion) -> MssMonitor:
+    def to_dict(region: CaptureRegion) -> MssMonitor:
         return {
             "left": region.left,
             "top": region.top,
@@ -90,8 +75,10 @@ class StatusResponseSerializer:
             "height": region.height,
         }
 
+
+class DepositInfoSerializer:
     @staticmethod
-    def _deposit_info_dict(info: Optional[DepositInfo]) -> DepositInfoDict | None:
+    def to_dict(info: Optional[DepositInfo]) -> DepositInfoDict | None:
         if info is None:
             return None
         return {
@@ -105,20 +92,24 @@ class StatusResponseSerializer:
             "max_multiplier": info.max_multiplier,
         }
 
+
+class ScanResultSerializer:
     @classmethod
-    def _scan_result_dict(cls, result: Optional[ScanResult]) -> ScanResultDict | None:
+    def to_dict(cls, result: Optional[ScanResult]) -> ScanResultDict | None:
         if result is None:
             return None
         return {
             "label": result.label,
-            "region": cls._capture_region_dict(result.region),
-            "info": cls._deposit_info_dict(result.info),
+            "region": CaptureRegionSerializer.to_dict(result.region),
+            "info": DepositInfoSerializer.to_dict(result.info),
             "code_raw": result.code_raw,
             "raw_text": result.raw_text,
         }
 
+
+class AlignmentInfoSerializer:
     @staticmethod
-    def _alignment_info_dict(alignment: AlignmentInfo) -> AlignmentInfoDict:
+    def to_dict(alignment: AlignmentInfo) -> AlignmentInfoDict:
         return {
             "enabled": alignment.enabled,
             "matched": alignment.matched,
@@ -130,8 +121,10 @@ class StatusResponseSerializer:
             "capture_top": alignment.capture_top,
         }
 
+
+class OreTableEntrySerializer:
     @staticmethod
-    def _ore_table_entry_dict(entry: OreTableEntry) -> OreTableEntryDict:
+    def to_dict(entry: OreTableEntry) -> OreTableEntryDict:
         return {
             "name": entry.name,
             "prob": entry.prob,
@@ -142,11 +135,30 @@ class StatusResponseSerializer:
             "color": entry.color,
         }
 
+
+class DepositTableSerializer:
     @classmethod
-    def _deposit_table(cls, table: Optional[DepositTable]) -> list[OreTableEntryDict] | None:
+    def to_dict(cls, table: Optional[DepositTable]) -> list[OreTableEntryDict] | None:
         if table is None:
             return None
-        return [cls._ore_table_entry_dict(entry) for entry in table]
+        return [OreTableEntrySerializer.to_dict(entry) for entry in table]
+
+
+class StatusResponseSerializer:
+    @classmethod
+    def to_dict(cls, status_response: "StatusResponse") -> StatusResponseDict:
+        return {
+            "region": CaptureRegionSerializer.to_dict(status_response.region),
+            "label_color": status_response.label_color,
+            "last": ScanResultSerializer.to_dict(status_response.last),
+            "alignment": AlignmentInfoSerializer.to_dict(status_response.alignment),
+            "selected_region": status_response.selected_region.value,
+            "info": DepositInfoSerializer.to_dict(status_response.info),
+            "code": status_response.code,
+            "code_raw": status_response.code_raw,
+            "raw_text": status_response.raw_text,
+            "table": DepositTableSerializer.to_dict(status_response.table),
+        }
 
 
 @dataclass
