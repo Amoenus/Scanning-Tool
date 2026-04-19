@@ -100,14 +100,18 @@ class CaptureUseCase:
         self._set_status(ScanResultReporter.format_status_message(result))
         logger.debug("Deposit info: {}", result.info)
 
+    def _capture_and_report(self, pil_img: Image) -> ScanResult:
+        result = self._run_scan_pipeline(pil_img)
+        self._report_scan_result(result)
+        return result
+
     def _do_capture(self) -> None:
         self._align_before_capture()
         pil_img = self._capture_screen_region()
         self._set_status("Loading OCR model (may take a moment)...")
         logger.info("Starting OCR capture pipeline.")
         try:
-            self._scan_state.last_result = self._run_scan_pipeline(pil_img)
-            self._report_scan_result(self._scan_state.last_result)
+            self._scan_state.last_result = self._capture_and_report(pil_img)
             self._set_status("Scan complete.")
         except Exception as exc:  # pragma: no cover
             logger.error("OCR/model error: {}", exc)
