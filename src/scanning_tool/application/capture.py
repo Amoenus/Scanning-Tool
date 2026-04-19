@@ -47,6 +47,27 @@ class ScanPipeline:
         )
 
 
+class ScanResultReporter:
+    """Format and publish scan results for both logs and status callbacks."""
+
+    @staticmethod
+    def format(result: ScanResult) -> str:
+        return (
+            f"Scan result: ScanResult(label={result.label}, region={result.region}, "
+            f"code_raw={result.code_raw}, raw_text={result.raw_text})"
+        )
+
+    @staticmethod
+    def log(result: ScanResult) -> None:
+        logger.info(
+            "Scan result: ScanResult(label={}, region={}, code_raw={}, raw_text={})",
+            result.label,
+            result.region,
+            result.code_raw,
+            result.raw_text,
+        )
+
+
 class CaptureUseCase:
     """Orchestrates capture, OCR, and deposit lookup without UI logic."""
 
@@ -99,18 +120,10 @@ class CaptureUseCase:
     def _run_scan_pipeline(self, pil_img: Image) -> ScanResult:
         return self._scan_pipeline.scan(pil_img)
 
-    def _log_scan_result(self, result: ScanResult) -> None:
-        logger.info(
-            "Scan result: ScanResult(label={}, region={}, code_raw={}, raw_text={})",
-            result.label,
-            result.region,
-            result.code_raw,
-            result.raw_text,
-        )
+    def _report_scan_result(self, result: ScanResult) -> None:
+        ScanResultReporter.log(result)
+        self._set_status(self._highlight_numbers(ScanResultReporter.format(result)))
         logger.debug("Deposit info: {}", result.info)
-        self._set_status(self._highlight_numbers(
-            f"Scan result: ScanResult(label={result.label}, region={result.region}, code_raw={result.code_raw}, raw_text={result.raw_text})"
-        ))
 
     def _do_capture(self) -> None:
         self._align_before_capture()
@@ -119,7 +132,7 @@ class CaptureUseCase:
         logger.info("Starting OCR capture pipeline.")
         try:
             self._scan_state.last_result = self._run_scan_pipeline(pil_img)
-            self._log_scan_result(self._scan_state.last_result)
+            self._report_scan_result(self._scan_state.last_result)
             self._set_status("Scan complete.")
         except Exception as exc:  # pragma: no cover
             logger.error("OCR/model error: {}", exc)
