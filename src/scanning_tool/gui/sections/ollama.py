@@ -35,6 +35,37 @@ def get_local_ip() -> str:
     return web_get_local_ip()
 
 
+class OllamaModelManager:
+    """Encapsulate Ollama model configuration, installation, and status messages."""
+
+    @staticmethod
+    def apply_model(model_value: str) -> tuple[bool, str]:
+        if not model_value:
+            return False, "Please specify an Ollama model."
+
+        set_configured_ollama_model(model_value)
+        try:
+            ensure_model_installed(model_value, exit_on_error=False)
+        except Exception as exc:
+            logger.error("Failed to install model {}: {}", model_value, exc)
+            return False, f"Model install failed: {exc}"
+
+        running = log_model_running_status(model_value)
+        return True, OllamaModelManager._build_activation_message(
+            model_value, running
+        )
+
+    @staticmethod
+    def _build_activation_message(model_value: str, running: bool) -> str:
+        if running:
+            return (
+                f"Ollama model set to {model_value} and is currently running."
+            )
+        return (
+            f"Ollama model set to {model_value}. It is not running yet and will start on first scan."
+        )
+
+
 SUGGESTED_MODELS = (
     "moondream:1.8b",
     "granite3.2-vision:2b",
@@ -109,27 +140,11 @@ class OllamaSection:
 
     def _apply_model(self) -> None:
         model_value = self._model_var.get().strip()
-        if not model_value:
-            self._status.set_status("Please specify an Ollama model.")
-            return
-        set_configured_ollama_model(model_value)
-        try:
-            ensure_model_installed(model_value, exit_on_error=False)
-        except Exception as exc:
-            self._status.set_status(f"Model install failed: {exc}")
-            logger.error("Failed to install model {}: {}", model_value, exc)
-            return
-        running = log_model_running_status(model_value)
-        self._refresh_active_labels()
-        if running:
-            self._status.set_status(
-                f"Ollama model set to {model_value} and is currently running."
-            )
-        else:
-            self._status.set_status(
-                f"Ollama model set to {model_value}. It is not running yet and will start on first scan."
-            )
-        logger.info("Ollama model set to {}.", model_value)
+        success, message = OllamaModelManager.apply_model(model_value)
+        if success:
+            self._refresh_active_labels()
+            logger.info("Ollama model set to {}.", model_value)
+        self._status.set_status(message)
 
     def _apply_host(self) -> None:
         sanitized = set_configured_ollama_host(self._host_var.get())
