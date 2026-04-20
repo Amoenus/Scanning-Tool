@@ -6,6 +6,9 @@ import tkinter as tk
 from tkinter import ttk
 from typing import Any, Optional
 
+from scanning_tool.domain.alignment import AlignmentInfo
+from scanning_tool.domain.capture import ScanResult
+
 from .base import SectionContext
 from ..overlays.base import safe_tk
 from ..widgets import create_section_row, create_status_label
