@@ -130,18 +130,29 @@ class CaptureOverlay:
         safe_tk(self._schedule_animation)
 
     def _destroy_existing_overlay(self) -> None:
-        if self.root and safe_tk(self.root.winfo_exists, False):
-            try:
-                self.stop_animation()
-                self.root.destroy()
-            except tk.TclError:
-                pass
+        self._destroy_overlay_window()
         self._clear_overlay_references()
 
     def _clear_overlay_references(self) -> None:
         self.canvas = None
         self.rect_id = None
         self.border_canvas = None
+
+    def _destroy_overlay_window(self) -> None:
+        if self.root and safe_tk(self.root.winfo_exists, False):
+            try:
+                self.stop_animation()
+                self.root.destroy()
+            except tk.TclError:
+                pass
+        self.root = None
+        self.animation_job = None
+
+    def _reset_overlay_state(self, overlay_state: OverlayState) -> None:
+        overlay_state.capture_overlay_root = None
+        overlay_state.capture_overlay_canvas = None
+        overlay_state.capture_rect_id = None
+        overlay_state.border_canvas = None
 
     def _create_overlay(self, layout: CaptureOverlayLayout) -> None:
         self.root = create_overlay_window(
@@ -201,24 +212,10 @@ class CaptureOverlay:
         self.start_animation(force=True)
 
     def hide(self, overlay_state: OverlayState) -> None:
-        if self.root and safe_tk(self.root.winfo_exists, False):
-            try:
-                self.stop_animation()
-                self.root.destroy()
-            except tk.TclError:
-                pass
-
-        self.root = None
-        self.canvas = None
-        self.rect_id = None
-        self.border_canvas = None
-        self.animation_job = None
+        self._destroy_overlay_window()
+        self._clear_overlay_references()
         self._capture_region = None
-
-        overlay_state.capture_overlay_root = None
-        overlay_state.capture_overlay_canvas = None
-        overlay_state.capture_rect_id = None
-        overlay_state.border_canvas = None
+        self._reset_overlay_state(overlay_state)
 
 
 _capture_overlay = CaptureOverlay()
