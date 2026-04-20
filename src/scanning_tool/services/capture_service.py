@@ -53,7 +53,8 @@ class CaptureService(CaptureController):
 
     def toggle_continuous(self) -> None:
         """Toggle continuous scanning mode."""
-        self._scan_state.continuous_mode = not self._scan_state.continuous_mode
+        enabled = not self._scan_state.continuous_mode
+        self._scan_state.set_continuous_mode(enabled)
         logger.info(f"Continuous mode: {self._scan_state.continuous_mode}")
 
         if self._scan_state.continuous_mode:

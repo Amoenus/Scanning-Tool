@@ -6,6 +6,7 @@ import tkinter as tk
 from tkinter import ttk
 
 from .base import SectionContext
+from ..overlays.base import safe_tk
 from ..widgets import create_section_row, create_status_label
 from scanning_tool.ollama import get_ollama_host, get_ollama_model, is_model_running
 
@@ -42,6 +43,9 @@ class StatusOverviewSection:
         ).pack(fill="x", padx=5)
 
         self._refresh_status()
+        self._ctx.scan_state.add_continuous_mode_listener(
+            self._on_continuous_mode_change
+        )
         self._schedule_refresh()
         return frame
 
@@ -88,6 +92,19 @@ class StatusOverviewSection:
         self._update_badge_color(self._capture_badge, self._capture_var.get())
         self._update_badge_color(self._auto_scan_badge, self._auto_scan_var.get())
         self._update_badge_color(self._auto_align_badge, self._auto_align_var.get())
+
+    def _on_continuous_mode_change(self, continuous_mode: bool) -> None:
+        safe_tk(
+            lambda: self._ctx.root.after(
+                0,
+                lambda: self._refresh_auto_scan_badge(continuous_mode),
+            )
+        )
+
+    def _refresh_auto_scan_badge(self, continuous_mode: bool) -> None:
+        text = "Active" if continuous_mode else "Inactive"
+        self._auto_scan_var.set(text)
+        self._update_badge_color(self._auto_scan_badge, text)
 
     def _build_model_text(self) -> str:
         model = get_ollama_model() or "<not configured>"

@@ -4,7 +4,6 @@ import tkinter as tk
 from tkinter import ttk
 
 from .base import SectionContext
-from ..widgets import create_labeled_spinbox, create_section_row
 from ..overlays import (
     choose_label_color,
     hide_capture_overlay,
@@ -12,6 +11,8 @@ from ..overlays import (
     toggle_border,
     update_overlay_region,
 )
+from ..overlays.base import safe_tk
+from ..widgets import create_labeled_spinbox, create_section_row
 
 
 class ControlsSection:
@@ -84,6 +85,9 @@ class ControlsSection:
             style="Glass.TButton",
         ).pack(side="left", padx=5)
 
+        self._ctx.scan_state.add_continuous_mode_listener(
+            self._on_continuous_mode_change
+        )
         return frame
 
     def _on_interval_change(self, *_args: object) -> None:
@@ -95,6 +99,14 @@ class ControlsSection:
         self._ctx.config.continuous_capture_interval = value
         self._status.set_status(
             f"Continuous capture interval set to {self._ctx.config.continuous_capture_interval:.1f}s"
+        )
+
+    def _on_continuous_mode_change(self, continuous_mode: bool) -> None:
+        safe_tk(
+            lambda: self._ctx.root.after(
+                0,
+                lambda: self._continuous_button_text.set(self._build_continuous_button_label()),
+            )
         )
 
     def _build_continuous_button_label(self) -> str:
@@ -129,7 +141,7 @@ class ControlsSection:
 
     def _toggle_continuous_capture(self) -> None:
         self._ctx.capture_service.toggle_continuous()
-        self._continuous_button_text.set(self._build_continuous_button_label())
+        self._on_continuous_mode_change(self._ctx.scan_state.continuous_mode)
         self._status.set_status(
             "Auto scan started." if self._ctx.scan_state.continuous_mode else "Auto scan stopped."
         )
