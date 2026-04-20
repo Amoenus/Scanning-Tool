@@ -1,10 +1,8 @@
 from loguru import logger
-import os
 import shutil
 import subprocess
 import sys
 import webbrowser
-from typing import Optional
 
 from .host import get_ollama_host, is_local_ollama_host
 

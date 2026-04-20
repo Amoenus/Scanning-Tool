@@ -9,9 +9,9 @@ from __future__ import annotations
 import asyncio
 import json
 import csv
-from dataclasses import asdict, dataclass
+from dataclasses import asdict
 from pathlib import Path
-from typing import Callable, Dict, List, Optional
+from typing import Callable, List
 import sys
 
 from playwright.async_api import Page, async_playwright
@@ -23,13 +23,9 @@ if str(SRC_DIR) not in sys.path:
 
 from scanning_tool.deposits.scan_signature_scraper import (
     CsvRow,
-    RawScanValue,
     RawScanSignatureEntry,
     ScanSignatureEntry,
     ScanSignatureEntryFactory,
-    ScanSignatureSummary,
-    ScanValue,
-    parse_color_to_category,
 )
 
 OUTPUT_DIR = Path("csv/scansig")

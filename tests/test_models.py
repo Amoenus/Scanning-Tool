@@ -1,13 +1,9 @@
-import pytest
 from scanning_tool.domain.common import SpaceSystem
 from scanning_tool.domain.models import (
     AlignmentInfo,
     AlignmentRequest,
     AnchorDetection,
-    CaptureRegion,
     Deposit,
-    Offset2D,
-    Region,
     RockDataCollection,
     OreStatistics,
 )

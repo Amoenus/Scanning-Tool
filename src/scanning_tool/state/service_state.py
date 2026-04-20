@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Callable, Optional, Pattern
+from typing import Optional, Pattern
 import re
 import subprocess
 

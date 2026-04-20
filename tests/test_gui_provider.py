@@ -1,4 +1,3 @@
-import pytest
 
 from scanning_tool.config.service import ConfigData
 from scanning_tool.gui.provider import get_default_gui_provider

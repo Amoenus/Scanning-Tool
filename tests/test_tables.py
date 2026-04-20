@@ -1,8 +1,6 @@
-import pytest
 from scanning_tool.domain.models import (
     Deposit,
     Region,
-    RockDataCollection,
     OreStatistics,
 )
 from scanning_tool.deposits.tables import build_deposit_tables, _create_ore_table_entry

@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 
 from scanning_tool.config import ensure_anchor_directory, resource_path

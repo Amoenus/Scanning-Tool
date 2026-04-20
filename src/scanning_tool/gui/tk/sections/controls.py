@@ -9,7 +9,6 @@ from ..overlays import (
     choose_label_color,
     hide_capture_overlay,
     show_capture_overlay,
-    toggle_border,
     update_overlay_region,
 )
 from ..overlays.base import safe_tk

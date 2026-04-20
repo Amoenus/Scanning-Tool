@@ -1,6 +1,5 @@
 """Common overlay utilities and Tk helper functions."""
 
-from loguru import logger
 from typing import Callable, Optional, TypeVar
 
 import tkinter as tk

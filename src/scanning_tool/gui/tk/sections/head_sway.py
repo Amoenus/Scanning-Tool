@@ -242,7 +242,6 @@ class HeadSwaySection:
             self._status.set_anchor("Head sway compensation disabled.")
 
     def _run_auto_alignment(self) -> bool:
-        from ..overlays import sync_capture_sliders
 
         result = alignment_service.align(
             self._ctx.scan_state.anchor_tracker,

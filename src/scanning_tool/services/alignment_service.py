@@ -1,6 +1,6 @@
 """Auto-alignment background service."""
 
-from typing import Optional, Tuple
+from typing import Optional
 from scanning_tool.services.alignment_calculator import AlignmentCalculator
 from scanning_tool.services.base_service import BaseService
 from scanning_tool.core.anchor import AnchorRegionTracker
@@ -10,7 +10,6 @@ from scanning_tool.domain.alignment import (
     AnchorDetection,
     CaptureRegion,
 )
-from scanning_tool.domain.common import Offset2D
 from scanning_tool.state.signals import (
     sync_capture_sliders_signal,
     update_capture_overlay_region_signal,

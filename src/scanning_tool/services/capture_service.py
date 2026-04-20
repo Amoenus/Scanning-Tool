@@ -17,7 +17,6 @@ from scanning_tool.services.deposit_lookup_adapter import DepositLookupAdapter
 from scanning_tool.services.ocr_provider import OllamaOCRProvider
 from scanning_tool.state.scan_state import ScanState
 from scanning_tool.state.service_state import ServiceState
-from scanning_tool.gui.overlays import update_capture_overlay_region
 
 
 class CaptureService(CaptureController):
