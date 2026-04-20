@@ -1,7 +1,7 @@
-"""Tkinter GUI wrapper module for backwards compatibility."""
+"""Shared GUI control state models for backend-agnostic access."""
 
 from __future__ import annotations
 
-from scanning_tool.gui.tk.control_state import ControlState, ScaleWidget
+from scanning_tool.gui.state import ControlState, ScaleWidget
 
 __all__ = ["ControlState", "ScaleWidget"]
