@@ -65,27 +65,37 @@ SCRAPE_SIGNATURES_SCRIPT = """() => {
 
 
 
-async def _evaluate_scan_signature_overlay(page: Page) -> List[RawScanSignatureEntry]:
-    await page.click('button[title^="Scan Signature Identifier"]')
-    await page.wait_for_selector(".sigchart-overlay", timeout=10000)
-    return await page.evaluate(SCRAPE_SIGNATURES_SCRIPT)
+class ScanSignatureScraper:
+    """Scrape scan signature entries from the SCMDB overlay."""
 
+    def __init__(self, target_url: str = TARGET_URL) -> None:
+        self._target_url = target_url
 
-def _build_scan_signature_entries(raw_data: List[RawScanSignatureEntry]) -> List[ScanSignatureEntry]:
-    return [ScanSignatureEntryFactory.from_raw_entry(raw_entry) for raw_entry in raw_data]
+    async def _evaluate_scan_signature_overlay(self, page: Page) -> List[RawScanSignatureEntry]:
+        await page.click('button[title^="Scan Signature Identifier"]')
+        await page.wait_for_selector(".sigchart-overlay", timeout=10000)
+        return await page.evaluate(SCRAPE_SIGNATURES_SCRIPT)
+
+    def _build_scan_signature_entries(
+        self, raw_data: List[RawScanSignatureEntry]
+    ) -> List[ScanSignatureEntry]:
+        return [ScanSignatureEntryFactory.from_raw_entry(raw_entry) for raw_entry in raw_data]
+
+    async def scrape(self) -> List[ScanSignatureEntry]:
+        async with async_playwright() as p:
+            browser = await p.chromium.launch(headless=True)
+            page = await browser.new_page()
+            await page.goto(self._target_url, wait_until="networkidle")
+
+            raw_data = await self._evaluate_scan_signature_overlay(page)
+            entries = self._build_scan_signature_entries(raw_data)
+
+            await browser.close()
+            return entries
 
 
 async def scrape_scan_signatures() -> List[ScanSignatureEntry]:
-    async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=True)
-        page = await browser.new_page()
-        await page.goto(TARGET_URL, wait_until="networkidle")
-
-        raw_data = await _evaluate_scan_signature_overlay(page)
-        entries = _build_scan_signature_entries(raw_data)
-
-        await browser.close()
-        return entries
+    return await ScanSignatureScraper().scrape()
 
 
 SAVE_CSV_FIELDNAMES = [
