@@ -72,12 +72,6 @@ class ControlsSection:
             command=ctx.config_service.save,
             style="Glass.TButton",
         ).pack(side="left", padx=5)
-        ttk.Button(
-            button_row,
-            text="Toggle Border",
-            command=lambda: toggle_border(self._ctx.overlay_state),
-            style="Glass.TButton",
-        ).pack(side="left", padx=5)
 
         return frame
 

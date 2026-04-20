@@ -1,5 +1,6 @@
 """Capture Region section — 4 sliders controlling the OCR capture rectangle via AppContext capture settings."""
 
+import tkinter as tk
 from tkinter import ttk
 
 from .base import SectionContext
@@ -40,7 +41,24 @@ class CaptureRegionSection:
             self._ctx.control_state,
         )
         sync_capture_sliders(self._ctx.control_state, cap_region)
+        self._build_border_visibility_checkbox(frame)
         return frame
+
+    def _build_border_visibility_checkbox(self, parent: ttk.Widget) -> None:
+        self._border_var = tk.BooleanVar(value=self._ctx.overlay_state.show_border)
+        ttk.Checkbutton(
+            parent,
+            text="Show capture border",
+            variable=self._border_var,
+            command=self._toggle_capture_border,
+            style="Glass.TCheckbutton",
+        ).pack(anchor="w", padx=5, pady=(0, 5))
+
+    def _toggle_capture_border(self) -> None:
+        from ..overlays import toggle_border
+
+        toggle_border(self._ctx.overlay_state)
+        self._border_var.set(self._ctx.overlay_state.show_border)
 
     def _make_capture_scale(
         self,
