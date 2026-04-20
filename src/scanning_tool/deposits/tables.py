@@ -4,8 +4,8 @@ import json
 from typing import Dict
 
 from scanning_tool.config import ROCK_TYPE_FILE
-from scanning_tool.state.manager import service_state
 from scanning_tool.domain.common import DepositTable, OreTableEntry, OreValueInfo, SpaceSystem
+from scanning_tool.state.service_state import ServiceState
 from scanning_tool.domain.ore import Deposit, Region, OreStatistics, RockDataCollection
 from scanning_tool.deposits.ore_tiers import ORE_VALUE_MAP, TIER_ORDER
 
@@ -50,7 +50,7 @@ def _create_ore_table_entry(ore_name: str, stats: OreStatistics) -> OreTableEntr
     return DepositTableBuilder()._create_ore_table_entry(ore_name, stats)
 
 
-def load_rock_data() -> None:
+def load_rock_data(service_state: ServiceState) -> None:
     """Load RockType.json and build deposit tables into service state."""
     with open(ROCK_TYPE_FILE, "r") as f:
         raw_data = json.load(f)

@@ -21,7 +21,10 @@ from .sections import (
 from .status import StatusBar
 from .theme import GlassPalette, apply_glass_theme
 from .widgets import ScrollableFrame
-from .overlays import show_overlay
+from .overlays import (
+    configure_capture_slider_sync,
+    show_overlay,
+)
 from scanning_tool.interfaces import CaptureController
 from scanning_tool.state.scan_state import ScanState
 from scanning_tool.state.service_state import ServiceState
@@ -66,13 +69,22 @@ def launch_gui(
         capture_service=capture_service,
         config_service=config_service,
     )
+    configure_capture_slider_sync(
+        ctx.control_state,
+        lambda: ctx.config.capture_region,
+    )
 
     main = _build_main_panel(root, colors, ctx)
     _build_sections(main, ctx)
     _append_status_labels(main, status)
 
     root.update_idletasks()
-    show_overlay(root.winfo_screenwidth(), root.winfo_screenheight())
+    show_overlay(
+        ctx.overlay_state,
+        ctx.config,
+        root.winfo_screenwidth(),
+        root.winfo_screenheight(),
+    )
     AlignmentPoller(root, status, config, scan_state).start()
     root.mainloop()
 

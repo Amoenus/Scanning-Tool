@@ -16,16 +16,22 @@ from scanning_tool.services.capture_provider import ScreenCaptureProvider
 from scanning_tool.services.deposit_lookup_adapter import DepositLookupAdapter
 from scanning_tool.services.ocr_provider import OllamaOCRProvider
 from scanning_tool.state.scan_state import ScanState
+from scanning_tool.state.service_state import ServiceState
 from scanning_tool.gui.overlays import (
     update_capture_overlay_region,
-    sync_capture_sliders,
+    sync_capture_sliders_callback,
 )
 
 
 class CaptureService(CaptureController):
     """Service for capturing screen regions and processing OCR results."""
 
-    def __init__(self, config: ConfigData, scan_state: ScanState) -> None:
+    def __init__(
+        self,
+        config: ConfigData,
+        scan_state: ScanState,
+        service_state: ServiceState,
+    ) -> None:
         self._config = config
         self._scan_state = scan_state
         self._capture_use_case = CaptureUseCase(
@@ -33,11 +39,12 @@ class CaptureService(CaptureController):
             scan_state=scan_state,
             capture_provider=ScreenCaptureProvider(),
             ocr_provider=OllamaOCRProvider(),
-            deposit_lookup=DepositLookupAdapter(),
+            deposit_lookup=DepositLookupAdapter(service_state.code_re),
             alignment_adapter=UIAlignmentAdapter(
-                sync_capture_sliders=sync_capture_sliders,
+                sync_capture_sliders=sync_capture_sliders_callback,
                 update_capture_overlay_region=update_capture_overlay_region,
             ),
+            code_re=service_state.code_re,
         )
 
     def capture_once(self, status_callback: Optional[StatusCallback] = None) -> None:

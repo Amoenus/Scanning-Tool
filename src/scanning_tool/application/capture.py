@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Optional
+from typing import Optional, Pattern
 
 from loguru import logger
 from PIL.Image import Image
@@ -17,6 +17,7 @@ from scanning_tool.interfaces.capture import (
     StatusCallback,
 )
 from scanning_tool.state.scan_state import ScanState
+from scanning_tool.state.service_state import ServiceState
 from scanning_tool.application.scan_result_reporter import ScanResultReporter
 
 
@@ -28,14 +29,16 @@ class ScanPipeline:
         ocr_provider: OCRProvider,
         deposit_lookup: DepositLookupProvider,
         capture_region: CaptureRegion,
+        code_re: Pattern[str],
     ) -> None:
         self._ocr_provider = ocr_provider
         self._deposit_lookup = deposit_lookup
         self._capture_region = capture_region
+        self._code_re = code_re
 
     def scan(self, pil_img: Image) -> ScanResult:
         raw_text = self._ocr_provider.extract_text(pil_img)
-        extraction: CodeExtraction = extract_code_from_text(raw_text)
+        extraction: CodeExtraction = extract_code_from_text(raw_text, self._code_re)
         deposit_info = self._deposit_lookup.lookup(extraction.code)
 
         return ScanResult(
@@ -58,6 +61,7 @@ class CaptureUseCase:
         ocr_provider: OCRProvider,
         deposit_lookup: DepositLookupProvider,
         alignment_adapter: AlignmentAdapter,
+        code_re: Pattern[str] | None = None,
     ) -> None:
         self._config = config
         self._scan_state = scan_state
@@ -69,6 +73,7 @@ class CaptureUseCase:
             ocr_provider=ocr_provider,
             deposit_lookup=deposit_lookup,
             capture_region=config.capture_region,
+            code_re=code_re or ServiceState().code_re,
         )
         self._status_callback: Optional[StatusCallback] = None
 

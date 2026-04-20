@@ -168,8 +168,13 @@ class HeadSwaySection:
             self._anchor_height,
             self._offset_x,
             self._offset_y,
+            self._ctx.control_state,
         )
-        sync_anchor_sliders()
+        sync_anchor_sliders(
+            self._ctx.control_state,
+            self._ctx.config.anchor_template,
+            self._ctx.config.anchor_offset,
+        )
 
     def _build_action_buttons(self, parent: ttk.Widget) -> None:
         create_button_row(
@@ -210,7 +215,7 @@ class HeadSwaySection:
             self._run_auto_alignment()
 
         if update_overlay:
-            update_anchor_overlay_region()
+            update_anchor_overlay_region(self._ctx.overlay_state)
 
     def _update_anchor_region(self) -> None:
         anchor_region = self._ctx.config.anchor_template
@@ -242,17 +247,20 @@ class HeadSwaySection:
             self._ctx.scan_state.anchor_tracker,
             self._ctx.scan_state.last_alignment_info,
             AlignmentRequest.from_config(self._ctx.config),
-            sync_capture_sliders,
-            update_anchor_overlay_region,
+            lambda: sync_capture_sliders(
+                self._ctx.control_state,
+                self._ctx.config.capture_region,
+            ),
+            lambda: update_anchor_overlay_region(self._ctx.overlay_state),
         )
 
     def _toggle_anchor_overlay_visibility(self) -> None:
         self._ctx.overlay_state.anchor_overlay_visible = self._anchor_overlay_var.get()
         if self._ctx.overlay_state.anchor_overlay_visible:
-            show_anchor_overlay()
+            show_anchor_overlay(self._ctx.overlay_state, self._ctx.config.anchor_template)
             self._status.set_anchor("Anchor overlay shown.")
         else:
-            hide_anchor_overlay()
+            hide_anchor_overlay(self._ctx.overlay_state)
             self._status.set_anchor("Anchor overlay hidden.")
 
     def _update_alignment_interval(self, *_args: object) -> None:

@@ -30,8 +30,15 @@ class ResultDisplaySection:
             frame, "Display offset Y", -600, 600, overlay_offset.y, padding=(0, 0)
         )
 
-        register_overlay_sliders(self._offset_x, self._offset_y)
-        sync_overlay_sliders()
+        register_overlay_sliders(
+            self._offset_x,
+            self._offset_y,
+            self._ctx.control_state,
+        )
+        sync_overlay_sliders(
+            self._ctx.control_state,
+            self._ctx.config.overlay_config.info_offset,
+        )
         return frame
 
     def _make_offset_scale(
@@ -62,4 +69,4 @@ class ResultDisplaySection:
         self._status.set_status(
             f"Display offset updated: x={overlay_offset.x}, y={overlay_offset.y}"
         )
-        reposition_info_overlay()
+        reposition_info_overlay(self._ctx.overlay_state, self._ctx.config.overlay_config)

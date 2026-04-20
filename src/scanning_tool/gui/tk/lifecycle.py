@@ -20,7 +20,7 @@ def register_close_handler(
     def on_close() -> None:
         stop_capture_overlay_animation()
         config_service.save()
-        destroy_all_overlays()
+        destroy_all_overlays(overlay_state)
 
         overlay_state.capture.reset()
         overlay_state.info.reset()

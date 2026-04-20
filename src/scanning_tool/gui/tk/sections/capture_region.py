@@ -32,8 +32,14 @@ class CaptureRegionSection:
             frame, "Height", 20, 500, cap_region.height, padding=(0, 0)
         )
 
-        register_capture_sliders(self._left, self._top, self._width, self._height)
-        sync_capture_sliders()
+        register_capture_sliders(
+            self._left,
+            self._top,
+            self._width,
+            self._height,
+            self._ctx.control_state,
+        )
+        sync_capture_sliders(self._ctx.control_state, cap_region)
         return frame
 
     def _make_capture_scale(

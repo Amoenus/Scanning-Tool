@@ -4,9 +4,9 @@ import re
 from dataclasses import dataclass
 from typing import Optional, Pattern
 
-from scanning_tool.state.manager import service_state
 from scanning_tool.domain.capture import CodeExtraction, DepositInfo
 from scanning_tool.domain.scan_signature import ScanSignature, SignatureRegistry
+from scanning_tool.state.service_state import ServiceState
 
 
 @dataclass(frozen=True)
@@ -78,8 +78,7 @@ class DepositSignatureMatcher:
         return None
 
 
-def _get_default_code_parser() -> DepositCodeParser:
-    return DepositCodeParser(service_state.code_re)
+_default_code_re = ServiceState().code_re
 
 
 class DepositLookupService:
@@ -88,10 +87,10 @@ class DepositLookupService:
     def __init__(
         self,
         registry: "SignatureRegistry",
-        parser: Optional[DepositCodeParser] = None,
+        code_re: Pattern[str],
         matcher: Optional[DepositSignatureMatcher] = None,
     ) -> None:
-        self._parser = parser or _get_default_code_parser()
+        self._parser = DepositCodeParser(code_re)
         self._matcher = matcher or DepositSignatureMatcher(registry)
 
     def lookup(self, code: Optional[str]) -> Optional[DepositInfo]:
@@ -113,18 +112,24 @@ class DepositLookupService:
         return self._parser.extract_numeric_suffix(code)
 
 
-_code_parser = DepositCodeParser(service_state.code_re)
-
-
-def lookup_deposit(code: Optional[str]) -> Optional[DepositInfo]:
+def lookup_deposit(
+    code: Optional[str], code_re: Pattern[str] | None = None
+) -> Optional[DepositInfo]:
     """Look up a deposit by its numeric code using scraped scan signature data."""
     from scanning_tool.deposits.scan_signatures import get_scan_signature_registry
 
+    if code_re is None:
+        code_re = _default_code_re
+
     return DepositLookupService(
-        get_scan_signature_registry(), parser=_code_parser
+        get_scan_signature_registry(), code_re=code_re
     ).lookup(code)
 
 
-def extract_code_from_text(raw_text: str) -> CodeExtraction:
+def extract_code_from_text(
+    raw_text: str, code_re: Pattern[str] | None = None
+) -> CodeExtraction:
     """Extract a deposit code from OCR text."""
-    return _code_parser.extract_code(raw_text)
+    if code_re is None:
+        code_re = _default_code_re
+    return DepositCodeParser(code_re).extract_code(raw_text)

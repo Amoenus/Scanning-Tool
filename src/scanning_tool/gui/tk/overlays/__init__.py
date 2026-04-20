@@ -25,14 +25,18 @@ from .info import (
     hide_info_overlay,
 )
 from .slider_sync import (
+    configure_capture_slider_sync,
     register_anchor_sliders,
     register_capture_sliders,
     register_overlay_sliders,
     sync_anchor_sliders,
     sync_capture_sliders,
+    sync_capture_sliders_callback,
     sync_overlay_sliders,
 )
-from scanning_tool.state.manager import overlay_state
+from scanning_tool.config.service import ConfigData
+from scanning_tool.gui.overlay_state import OverlayState
+from scanning_tool.gui.control_state import ControlState
 
 __all__ = [
     "choose_label_color",
@@ -55,6 +59,8 @@ __all__ = [
     "stop_capture_overlay_animation",
     "sync_anchor_sliders",
     "sync_capture_sliders",
+    "sync_capture_sliders_callback",
+    "configure_capture_slider_sync",
     "sync_overlay_sliders",
     "update_capture_overlay_region",
     "update_overlay_label",
@@ -65,10 +71,13 @@ __all__ = [
 
 
 def show_overlay(
-    screen_width: Optional[int] = None, screen_height: Optional[int] = None
+    overlay_state: OverlayState,
+    config: ConfigData,
+    screen_width: Optional[int] = None,
+    screen_height: Optional[int] = None,
 ) -> None:
-    show_anchor_overlay()
-    show_capture_overlay()
+    show_anchor_overlay(overlay_state, config.anchor_template)
+    show_capture_overlay(overlay_state, config.capture_region)
 
     if screen_width is None or screen_height is None:
         if overlay_state.capture_overlay_root and safe_tk(
@@ -84,15 +93,20 @@ def show_overlay(
             )
 
     if screen_width is not None and screen_height is not None:
-        show_info_overlay(screen_width, screen_height)
+        show_info_overlay(
+            screen_width,
+            screen_height,
+            overlay_state,
+            config.overlay_config,
+        )
 
 
-def update_overlay_region() -> None:
-    update_anchor_overlay_region()
+def update_overlay_region(overlay_state: OverlayState) -> None:
+    update_anchor_overlay_region(overlay_state)
     update_capture_overlay_region()
 
 
-def destroy_all_overlays() -> None:
-    hide_anchor_overlay()
-    hide_capture_overlay()
-    hide_info_overlay()
+def destroy_all_overlays(overlay_state: OverlayState) -> None:
+    hide_anchor_overlay(overlay_state)
+    hide_capture_overlay(overlay_state)
+    hide_info_overlay(overlay_state)

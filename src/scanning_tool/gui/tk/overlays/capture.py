@@ -6,7 +6,8 @@ from typing import Optional
 
 from .base import CAPTURE_ANIMATION_INTERVAL_MS, create_overlay_window, safe_tk
 from .geometry import compute_capture_overlay_layout
-from scanning_tool.state.manager import overlay_state
+from scanning_tool.domain.alignment import CaptureRegion
+from scanning_tool.gui.overlay_state import OverlayState
 from ..layout import CaptureOverlayLayout
 
 
@@ -25,6 +26,7 @@ class CaptureOverlay:
         self.border_canvas: Optional[tk.Canvas] = None
         self.animation_job: Optional[str] = None
         self.last_layout: Optional[CaptureOverlayLayout] = None
+        self._capture_region: Optional[CaptureRegion] = None
 
     def _compute_layout_change(
         self, layout: CaptureOverlayLayout, force: bool
@@ -82,7 +84,11 @@ class CaptureOverlay:
         safe_tk(lambda: root.lift())
 
     def _apply_layout(self, *, force: bool = False) -> None:
-        layout = compute_capture_overlay_layout()
+        capture_region = self._capture_region
+        if capture_region is None:
+            return
+
+        layout = compute_capture_overlay_layout(capture_region)
         layout_change = self._compute_layout_change(layout, force=force)
 
         if layout_change.size_changed:
@@ -123,7 +129,7 @@ class CaptureOverlay:
 
         safe_tk(self._schedule_animation)
 
-    def show(self) -> None:
+    def show(self, overlay_state: OverlayState, capture_region: CaptureRegion) -> None:
         if self.root and safe_tk(self.root.winfo_exists, False):
             try:
                 self.stop_animation()
@@ -134,7 +140,8 @@ class CaptureOverlay:
             self.rect_id = None
             self.border_canvas = None
 
-        layout = compute_capture_overlay_layout()
+        self._capture_region = capture_region
+        layout = compute_capture_overlay_layout(capture_region)
         self.root = create_overlay_window(
             layout.overlay_width, layout.overlay_height, layout.left, layout.top
         )
@@ -183,7 +190,7 @@ class CaptureOverlay:
     def update_region(self) -> None:
         self.start_animation(force=True)
 
-    def hide(self) -> None:
+    def hide(self, overlay_state: OverlayState) -> None:
         if self.root and safe_tk(self.root.winfo_exists, False):
             try:
                 self.stop_animation()
@@ -196,6 +203,7 @@ class CaptureOverlay:
         self.rect_id = None
         self.border_canvas = None
         self.animation_job = None
+        self._capture_region = None
 
         overlay_state.capture_overlay_root = None
         overlay_state.capture_overlay_canvas = None
@@ -218,9 +226,11 @@ def update_capture_overlay_region() -> None:
     _capture_overlay.update_region()
 
 
-def show_capture_overlay() -> None:
-    _capture_overlay.show()
+def show_capture_overlay(
+    overlay_state: OverlayState, capture_region: CaptureRegion
+) -> None:
+    _capture_overlay.show(overlay_state, capture_region)
 
 
-def hide_capture_overlay() -> None:
-    _capture_overlay.hide()
+def hide_capture_overlay(overlay_state: OverlayState) -> None:
+    _capture_overlay.hide(overlay_state)

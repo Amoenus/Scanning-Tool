@@ -120,10 +120,11 @@ def get_local_ip() -> str:
 def _create_capture_service(
     config: ConfigData,
     scan_state: ScanState,
+    service_state: ServiceState,
 ) -> "CaptureService":
     from scanning_tool.services.capture_service import CaptureService
 
-    return CaptureService(config, scan_state)
+    return CaptureService(config, scan_state, service_state)
 
 
 def _launch_gui(
@@ -165,9 +166,9 @@ def main() -> None:
 
     from scanning_tool.deposits import load_rock_data
 
-    load_rock_data()
+    load_rock_data(service_state)
 
-    capture_service = _create_capture_service(config, scan_state)
+    capture_service = _create_capture_service(config, scan_state, service_state)
 
     _initialize_services()
     _initialize_anchor_tracking(config, scan_state)

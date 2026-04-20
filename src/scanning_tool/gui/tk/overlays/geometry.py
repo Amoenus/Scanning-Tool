@@ -9,22 +9,16 @@ from .base import (
     MIN_INFO_OVERLAY_WIDTH,
     SCREEN_MARGIN,
 )
-from scanning_tool.state.manager import (
-    config,
-    scan_state,
-    service_state,
-    overlay_state,
-    control_state,
-    save_config,
-)
+from scanning_tool.config.models import OverlayConfig
+from scanning_tool.domain.alignment import CaptureRegion
 from ..layout import AnchorOverlayGeometry, CaptureOverlayLayout, InfoOverlayLayout
 
 
 def compute_info_overlay_geometry(
-    screen_width: int, screen_height: int
+    screen_width: int,
+    screen_height: int,
+    overlay_config: OverlayConfig,
 ) -> InfoOverlayLayout:
-    overlay_settings = config.overlay_config
-
     overlay_width = max(
         MIN_INFO_OVERLAY_WIDTH,
         min(MAX_INFO_OVERLAY_WIDTH, screen_width - SCREEN_MARGIN),
@@ -33,8 +27,8 @@ def compute_info_overlay_geometry(
     base_left = max(0, (screen_width - overlay_width) // 2)
     base_top = max(0, int(screen_height * 0.35) - overlay_height // 2)
 
-    offset_x = overlay_settings.info_offset.x
-    offset_y = overlay_settings.info_offset.y
+    offset_x = overlay_config.info_offset.x
+    offset_y = overlay_config.info_offset.y
 
     max_left = max(0, screen_width - overlay_width)
     max_top = max(0, screen_height - overlay_height)
@@ -46,15 +40,14 @@ def compute_info_overlay_geometry(
     )
 
 
-def compute_capture_overlay_layout() -> CaptureOverlayLayout:
-    cap_region = config.capture_region
-    cap_w = int(cap_region.width)
-    cap_h = int(cap_region.height)
+def compute_capture_overlay_layout(capture_region: CaptureRegion) -> CaptureOverlayLayout:
+    cap_w = int(capture_region.width)
+    cap_h = int(capture_region.height)
 
     overlay_width = cap_w + CAPTURE_OVERLAY_PADDING_X
     overlay_height = cap_h + CAPTURE_OVERLAY_PADDING_Y
-    left = int(cap_region.left) - (CAPTURE_OVERLAY_PADDING_X // 2)
-    top = int(cap_region.top) - CAPTURE_OVERLAY_PADDING_Y
+    left = int(capture_region.left) - (CAPTURE_OVERLAY_PADDING_X // 2)
+    top = int(capture_region.top) - CAPTURE_OVERLAY_PADDING_Y
 
     return CaptureOverlayLayout(
         overlay_width=overlay_width,
@@ -68,8 +61,7 @@ def compute_capture_overlay_layout() -> CaptureOverlayLayout:
     )
 
 
-def compute_anchor_overlay_geometry() -> AnchorOverlayGeometry:
-    anchor_region = config.anchor_template
+def compute_anchor_overlay_geometry(anchor_region: CaptureRegion) -> AnchorOverlayGeometry:
     width = int(anchor_region.width) + ANCHOR_OVERLAY_PAD
     height = int(anchor_region.height) + ANCHOR_OVERLAY_PAD
     left = int(anchor_region.left) - (ANCHOR_OVERLAY_PAD // 2)
