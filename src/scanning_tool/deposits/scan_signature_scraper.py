@@ -77,8 +77,8 @@ class ScanSignatureSummary:
         return cls(
             mineral=entry.mineral,
             category=entry.category,
-            base_value=entry._find_base_value(),
-            max_multiplier=entry._find_max_multiplier(),
+            base_value=entry.base_value,
+            max_multiplier=entry.max_multiplier,
         )
 
 
@@ -98,13 +98,15 @@ class ScanSignatureEntry:
     def to_summary_row(self) -> CsvRow:
         return ScanSignatureSummary.from_entry(self).to_csv_row()
 
-    def _find_base_value(self) -> Optional[int]:
+    @property
+    def base_value(self) -> Optional[int]:
         for value in self.values:
             if value.amount == 1:
                 return value.value
         return self.values[0].value if self.values else None
 
-    def _find_max_multiplier(self) -> Optional[int]:
+    @property
+    def max_multiplier(self) -> Optional[int]:
         max_multiplier: Optional[int] = None
         for value in self.values:
             if value.amount is not None and (
