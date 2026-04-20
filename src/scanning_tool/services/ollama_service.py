@@ -4,8 +4,9 @@ import socket
 import shutil
 import subprocess
 import sys
-import time
 from typing import Optional
+
+from tenacity import RetryError, retry, retry_if_result, stop_after_delay, wait_fixed
 
 from scanning_tool.services.base_service import BaseService
 from scanning_tool.ollama.host import (
@@ -83,21 +84,23 @@ class OllamaService(BaseService):
             sys.exit("Ollama failed to launch.")
 
     def _wait_for_readiness(self, host: str) -> None:
-        deadline = time.time() + 10.0
-        while time.time() < deadline:
-            if self._is_running(host):
-                self.logger.info("Ollama service is now running gracefully.")
-                return
-            daemon_process = self._daemon_process
-            if daemon_process is not None and daemon_process.poll() is not None:
-                self.logger.error(
-                    "'ollama serve' exited before the service became ready."
-                )
-                sys.exit("Ollama exit crash.")
-            time.sleep(0.5)
+        @retry(
+            retry=retry_if_result(lambda running: running is False),
+            wait=wait_fixed(0.5),
+            stop=stop_after_delay(10.0),
+            reraise=True,
+        )
+        def wait_until_running() -> bool:
+            if self._daemon_process is not None and self._daemon_process.poll() is not None:
+                raise RuntimeError("'ollama serve' exited before the service became ready.")
+            return self._is_running(host)
 
-        self.logger.warning("Timed out waiting for Ollama service to start.")
-        sys.exit("Ollama daemon timeout.")
+        try:
+            wait_until_running()
+            self.logger.info("Ollama service is now running gracefully.")
+        except RetryError:
+            self.logger.warning("Timed out waiting for Ollama service to start.")
+            sys.exit("Ollama daemon timeout.")
 
     def _on_stop(self) -> None:
         self.logger.info("Shutting down Ollama integration.")

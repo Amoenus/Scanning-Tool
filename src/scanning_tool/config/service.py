@@ -1,12 +1,12 @@
-"""Configuration load/save service for the scanning tool."""
+"""Configuration persistence service for the scanning tool."""
 
 import json
-import os
 from pathlib import Path
 from typing import Optional, Protocol
 
 from loguru import logger
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import Field, ValidationError
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from scanning_tool.config.models import (
     AutoAlignmentConfig,
@@ -17,11 +17,18 @@ from scanning_tool.config.models import (
 from scanning_tool.domain.alignment import CaptureRegion
 from scanning_tool.domain.common import Offset2D
 
+DEFAULT_CONFIG_FILE = Path(__file__).resolve().parents[3] / "config.json"
 
-class ConfigData(BaseModel):
-    """Pydantic model for configuration data."""
 
-    model_config = {"arbitrary_types_allowed": True, "extra": "ignore"}
+class ConfigData(BaseSettings):
+    """Typed settings for the scanning tool."""
+
+    model_config = SettingsConfigDict(
+        arbitrary_types_allowed=True,
+        extra="ignore",
+        env_prefix="",
+        env_nested_delimiter="__",
+    )
 
     capture_region: CaptureRegion = Field(
         default_factory=lambda: CaptureRegion(1260, 310, 160, 30)
@@ -49,6 +56,8 @@ class ConfigData(BaseModel):
     gui_backend: str = "tk"
 
 
+
+
 class ConfigSaver(Protocol):
     """Minimal config persistence contract."""
 
@@ -56,52 +65,31 @@ class ConfigSaver(Protocol):
         ...
 
 
-class ConfigFileStore:
-    """Persist configuration JSON on disk."""
-
-    def __init__(self, config_file: Path) -> None:
-        self.config_file = config_file
-
-    def exists(self) -> bool:
-        return self.config_file.exists()
-
-    def load_data(self) -> dict[str, object]:
-        with open(self.config_file, "r", encoding="utf-8") as file:
-            return json.load(file)
-
-    def save_data(self, data: dict[str, object]) -> None:
-        with open(self.config_file, "w", encoding="utf-8") as file:
-            json.dump(data, file, indent=4)
-            file.write("\n")
-
-
 class ConfigService:
     """Service for loading, saving, and managing configuration."""
 
     def __init__(self, config_file: Optional[Path] = None):
-        config_file = config_file or Path(__file__).parent.parent.parent / "config.json"
-        self._store = ConfigFileStore(config_file)
+        self.config_file = config_file or DEFAULT_CONFIG_FILE
         self._config: Optional[ConfigData] = None
 
     def load(self) -> ConfigData:
         """Load configuration from file."""
-        if not self._store.exists():
+        if not self.config_file.exists():
             logger.info(
                 "Configuration file not found, creating default.",
-                path=str(self._store.config_file),
+                path=str(self.config_file),
             )
             self._config = self._create_default_config()
             return self._config
 
         try:
             self._config = self._load_config_from_file()
-            self._apply_env_model_override(self._config)
             return self._config
 
         except (json.JSONDecodeError, OSError, ValidationError) as exc:
             logger.warning(
                 "Failed to load configuration, using defaults.",
-                path=str(self._store.config_file),
+                path=str(self.config_file),
                 error=exc,
             )
             self._config = self._create_default_config()
@@ -114,14 +102,8 @@ class ConfigService:
         return config
 
     def _load_config_from_file(self) -> ConfigData:
-        data = self._store.load_data()
-        return ConfigData.model_validate(data)
-
-    @staticmethod
-    def _apply_env_model_override(config: ConfigData) -> None:
-        env_model = os.getenv("OLLAMA_MODEL", "").strip()
-        if env_model:
-            config.ollama_config.model = env_model
+        raw_data = json.loads(self.config_file.read_text(encoding="utf-8"))
+        return ConfigData(**raw_data)
 
     def save(self) -> None:
         """Save configuration to file."""
@@ -129,7 +111,11 @@ class ConfigService:
             raise ValueError("No configuration to save")
 
         try:
-            self._store.save_data(self._config.model_dump())
+            self.config_file.parent.mkdir(parents=True, exist_ok=True)
+            self.config_file.write_text(
+                json.dumps(self._config.model_dump(mode="json"), indent=4) + "\n",
+                encoding="utf-8",
+            )
             logger.info("Configuration saved successfully.")
         except OSError as exc:
             logger.error(f"Failed to save configuration: {exc}")

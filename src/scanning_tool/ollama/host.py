@@ -2,8 +2,6 @@ import os
 from typing import Tuple
 from urllib.parse import urlparse
 
-from scanning_tool.state import manager
-
 OLLAMA_DEFAULT_HOST = "http://127.0.0.1:11434"
 
 
@@ -12,13 +10,16 @@ def sanitize_ollama_host(value: str) -> str:
     host = (value or "").strip()
     if not host:
         return ""
-    if not manager.service_state.host_scheme_re.match(host):
+    parsed = urlparse(host)
+    if not parsed.scheme:
         host = f"http://{host}"
     return host
 
 
 def get_ollama_host() -> str:
     """Return the configured Ollama host, preferring environment config."""
+    from scanning_tool.state import manager
+
     env_host = os.getenv("OLLAMA_HOST", "").strip()
     if env_host:
         return sanitize_ollama_host(env_host)
@@ -29,6 +30,8 @@ def get_ollama_host() -> str:
 
 def set_configured_ollama_model(value: str) -> str:
     """Update the configured Ollama model and persist it to the config."""
+    from scanning_tool.state import manager
+
     sanitized = (value or "").strip()
     if sanitized:
         if sanitized != manager.config.ollama_config.model:
@@ -44,6 +47,8 @@ def set_configured_ollama_model(value: str) -> str:
 
 def set_configured_ollama_host(value: str) -> str:
     """Update the configured Ollama host and refresh environment state."""
+    from scanning_tool.state import manager
+
     sanitized = sanitize_ollama_host(value)
     if sanitized != manager.config.ollama_config.host:
         manager.config.ollama_config.host = sanitized
@@ -56,6 +61,8 @@ def set_configured_ollama_host(value: str) -> str:
 
 def get_ollama_model() -> str:
     """Return the active Ollama model, preferring environment config."""
+    from scanning_tool.state import manager
+
     env_model = os.getenv("OLLAMA_MODEL", "").strip()
     return env_model or manager.config.ollama_config.model
 

@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from scanning_tool.config.service import ConfigFileStore, ConfigService, ConfigData
+from scanning_tool.config.service import ConfigService, ConfigData
 from scanning_tool.state.app_state import AppState
 
 
@@ -29,12 +29,16 @@ def test_config_service_requires_load_before_access(tmp_path: Path) -> None:
     assert config is service.get_config()
 
 
-def test_config_file_store_loads_and_saves_data(tmp_path: Path) -> None:
+def test_config_service_persists_data(tmp_path: Path) -> None:
     config_file = tmp_path / "config.json"
-    store = ConfigFileStore(config_file=config_file)
-    data = {"capture_region": {"x": 1, "y": 2, "width": 3, "height": 4}}
+    service = ConfigService(config_file=config_file)
+    loaded_config = service.load()
 
-    store.save_data(data)
+    loaded_config.anchor_threshold = 0.9
+    service.save()
+
+    reloaded_service = ConfigService(config_file=config_file)
+    reloaded_config = reloaded_service.load()
 
     assert config_file.exists()
-    assert store.load_data() == data
+    assert reloaded_config.anchor_threshold == 0.9

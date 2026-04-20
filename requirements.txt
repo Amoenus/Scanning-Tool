@@ -7,6 +7,8 @@ waitress
 keyboard
 ollama
 pydantic
+pydantic-settings
+tenacity
 blinker>=1.9.0
 loguru
 playwright>=1.44.0

@@ -16,6 +16,8 @@ dependencies = [
     "keyboard",
     "ollama",
     "pydantic",
+    "pydantic-settings",
+    "tenacity",
     "loguru",
     "playwright>=1.44.0",
     "pandas",

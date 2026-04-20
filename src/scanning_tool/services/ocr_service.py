@@ -100,6 +100,13 @@ def ocr_with_ollama(pil_img: Image.Image, model: Optional[str] = None) -> str:
     """Send an image to Ollama for OCR and return the extracted text."""
     if model is None:
         model = get_ollama_model()
+
+    if not model:
+        logger.error(
+            "Ollama model is not configured. OCR cannot proceed until a model is set."
+        )
+        return ""
+
     image_bytes = _get_image_bytes(pil_img)
     prompt = _select_prompt(model)
     logger.debug(f"Using OCR prompt for model '{model}': {prompt}")
