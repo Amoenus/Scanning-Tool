@@ -49,43 +49,50 @@ class CaptureOverlay:
             ),
         )
 
+    def _apply_overlay_size(self, layout: CaptureOverlayLayout) -> None:
+        assert self.canvas is not None
+        safe_tk(
+            lambda: self.canvas.config(
+                width=layout.overlay_width, height=layout.overlay_height
+            )
+        )
+
+    def _apply_overlay_rectangle(self, layout: CaptureOverlayLayout) -> None:
+        assert self.canvas is not None and self.rect_id is not None
+        safe_tk(
+            lambda: self.canvas.coords(
+                self.rect_id,
+                layout.padding_x // 2,
+                layout.padding_y,
+                layout.padding_x // 2 + layout.cap_w,
+                layout.padding_y + layout.cap_h,
+            )
+        )
+
+    def _apply_overlay_position(self, layout: CaptureOverlayLayout) -> None:
+        assert self.root is not None
+        safe_tk(
+            lambda: self.root.geometry(
+                f"{layout.overlay_width}x{layout.overlay_height}+{layout.left}+{layout.top}"
+            )
+        )
+        safe_tk(lambda: self.root.lift())
+
     def _apply_layout(self, *, force: bool = False) -> None:
         if not self.canvas or not self.rect_id or not self.root:
             return
-
-        canvas = self.canvas
-        root = self.root
-        rect_id = self.rect_id
-        assert canvas is not None and root is not None and rect_id is not None
 
         layout = compute_capture_overlay_layout()
         layout_change = self._compute_layout_change(layout, force=force)
 
         if layout_change.size_changed:
-            safe_tk(
-                lambda: canvas.config(
-                    width=layout.overlay_width, height=layout.overlay_height
-                )
-            )
+            self._apply_overlay_size(layout)
 
         if layout_change.rect_changed:
-            safe_tk(
-                lambda: canvas.coords(
-                    rect_id,
-                    layout.padding_x // 2,
-                    layout.padding_y,
-                    layout.padding_x // 2 + layout.cap_w,
-                    layout.padding_y + layout.cap_h,
-                )
-            )
+            self._apply_overlay_rectangle(layout)
 
         if layout_change.size_changed or layout_change.pos_changed:
-            safe_tk(
-                lambda: root.geometry(
-                    f"{layout.overlay_width}x{layout.overlay_height}+{layout.left}+{layout.top}"
-                )
-            )
-            safe_tk(lambda: root.lift())
+            self._apply_overlay_position(layout)
 
         self.last_layout = layout
 
