@@ -11,7 +11,7 @@ import json
 import csv
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Callable, Dict, List, Optional
 import sys
 
 from playwright.async_api import Page, async_playwright
@@ -115,18 +115,22 @@ class ScanSignatureExporter:
             writer.writeheader()
             writer.writerows(rows)
 
-    def save_csv(self, data: List[ScanSignatureEntry], path: Path) -> None:
+    def _collect_rows(
+        self,
+        data: List[ScanSignatureEntry],
+        row_factory: Callable[[ScanSignatureEntry], List[CsvRow]],
+    ) -> List[CsvRow]:
         rows: List[CsvRow] = []
         for entry in data:
-            rows.extend(entry.to_csv_rows())
+            rows.extend(row_factory(entry))
+        return rows
 
+    def save_csv(self, data: List[ScanSignatureEntry], path: Path) -> None:
+        rows = self._collect_rows(data, lambda entry: entry.to_csv_rows())
         self._write_csv(path, rows, SAVE_CSV_FIELDNAMES)
 
     def save_summary_csv(self, data: List[ScanSignatureEntry], path: Path) -> None:
-        rows: List[CsvRow] = []
-        for entry in data:
-            rows.append(entry.to_summary_row())
-
+        rows = self._collect_rows(data, lambda entry: [entry.to_summary_row()])
         self._write_csv(path, rows, SUMMARY_CSV_FIELDNAMES)
 
     def export_all(self, data: List[ScanSignatureEntry]) -> None:
