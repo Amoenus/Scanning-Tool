@@ -9,7 +9,6 @@ from flask import Flask
 from loguru import logger
 
 from scanning_tool.config import resource_path
-from scanning_tool.config.service import ConfigService
 from scanning_tool.deposits import load_rock_data
 from scanning_tool.logging_setup import setup_logging
 from scanning_tool.ollama import (
@@ -17,6 +16,7 @@ from scanning_tool.ollama import (
     ensure_ollama_installed,
     log_model_running_status,
 )
+from scanning_tool.state import manager
 
 if TYPE_CHECKING:
     from scanning_tool.config.service import ConfigData
@@ -104,16 +104,10 @@ def _build_flask_app(
 
 def create_app() -> Flask:
     """Create the default Flask app using global runtime state."""
-    from scanning_tool.config.service import ConfigService
-    from scanning_tool.state.app_state import AppState
-
-    config_service = ConfigService()
-    config = config_service.load()
-    app_state = AppState(config=config)
     return _build_flask_app(
-        config=config,
-        scan_state=app_state.scan_state,
-        service_state=app_state.service_state,
+        config=manager.config,
+        scan_state=manager.scan_state,
+        service_state=manager.service_state,
     )
 
 
@@ -128,13 +122,9 @@ def main() -> None:
     setup_logging()
     load_rock_data()
 
-    from scanning_tool.state.app_state import AppState
-
-    config_service = ConfigService()
-    config = config_service.load()
-    app_state = AppState(config=config)
-    scan_state = app_state.scan_state
-    service_state = app_state.service_state
+    config = manager.config
+    scan_state = manager.scan_state
+    service_state = manager.service_state
 
     from scanning_tool.services.capture_service import CaptureService
 
@@ -152,10 +142,10 @@ def main() -> None:
             config=config,
             scan_state=scan_state,
             service_state=service_state,
-            overlay_state=app_state.overlay_state,
-            control_state=app_state.control_state,
+            overlay_state=manager.overlay_state,
+            control_state=manager.control_state,
             capture_service=capture_service,
-            save_config=config_service.save,
+            save_config=manager.save_config,
         )
     finally:
         from scanning_tool.services.alignment_service import alignment_service

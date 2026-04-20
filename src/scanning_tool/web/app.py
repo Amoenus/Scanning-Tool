@@ -7,10 +7,10 @@ import socket
 from flask import Flask, Response, jsonify, render_template, request
 
 from scanning_tool.config import resource_path
-from scanning_tool.config.service import ConfigData, ConfigService
+from scanning_tool.config.service import ConfigData
 from scanning_tool.domain.common import SpaceSystem
 from scanning_tool.logging_setup import configure_flask_logging
-from scanning_tool.state.app_state import AppState
+from scanning_tool.state import manager
 from scanning_tool.state.scan_state import ScanState
 from scanning_tool.state.service_state import ServiceState
 from scanning_tool.interfaces.web import StatusResponseBuilder
@@ -82,13 +82,10 @@ class WebService:
 
 def create_app() -> Flask:
     """Create the default Flask app using global runtime state."""
-    config_service = ConfigService()
-    config = config_service.load()
-    app_state = AppState(config=config)
     return WebService(
-        config=config,
-        scan_state=app_state.scan_state,
-        service_state=app_state.service_state,
+        config=manager.config,
+        scan_state=manager.scan_state,
+        service_state=manager.service_state,
         template_folder=resource_path("templates"),
         status_response_builder=DefaultStatusResponseBuilder(),
     ).create_app()
