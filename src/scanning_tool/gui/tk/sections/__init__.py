@@ -12,6 +12,7 @@ __all__ = [
     "ControlsSection",
     "HeadSwaySection",
     "OllamaSection",
+    "StatusOverviewSection",
     "ResultDisplaySection",
 ]
 
@@ -22,6 +23,7 @@ _SECTION_MODULE_MAP = {
     "ControlsSection": "controls",
     "HeadSwaySection": "head_sway",
     "OllamaSection": "ollama",
+    "StatusOverviewSection": "status_overview",
     "ResultDisplaySection": "result_display",
 }
 

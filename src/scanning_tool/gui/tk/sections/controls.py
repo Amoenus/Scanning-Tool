@@ -7,6 +7,8 @@ from .base import SectionContext
 from ..widgets import create_labeled_spinbox, create_section_row
 from ..overlays import (
     choose_label_color,
+    hide_capture_overlay,
+    show_capture_overlay,
     toggle_border,
     update_overlay_region,
 )
@@ -54,6 +56,15 @@ class ControlsSection:
             command=self._toggle_continuous_capture,
             style="Glass.TButton",
         ).pack(side="left", padx=5)
+        self._capture_box_button_text = tk.StringVar(
+            value=self._build_capture_box_button_label()
+        )
+        ttk.Button(
+            button_row,
+            textvariable=self._capture_box_button_text,
+            command=self._toggle_capture_box,
+            style="Glass.TButton",
+        ).pack(side="left", padx=5)
         ttk.Button(
             button_row,
             text="Update Overlay",
@@ -92,6 +103,29 @@ class ControlsSection:
             if self._ctx.scan_state.continuous_mode
             else "Start Auto Scan"
         )
+
+    def _build_capture_box_button_label(self) -> str:
+        return (
+            "Hide Capture Box"
+            if self._is_capture_box_visible()
+            else "Show Capture Box"
+        )
+
+    def _is_capture_box_visible(self) -> bool:
+        return bool(self._ctx.overlay_state.capture_overlay_root)
+
+    def _toggle_capture_box(self) -> None:
+        if self._is_capture_box_visible():
+            hide_capture_overlay(self._ctx.overlay_state)
+            self._capture_box_button_text.set("Show Capture Box")
+            self._status.set_status("Capture box hidden.")
+        else:
+            show_capture_overlay(
+                self._ctx.overlay_state,
+                self._ctx.config.capture_region,
+            )
+            self._capture_box_button_text.set("Hide Capture Box")
+            self._status.set_status("Capture box shown.")
 
     def _toggle_continuous_capture(self) -> None:
         self._ctx.capture_service.toggle_continuous()

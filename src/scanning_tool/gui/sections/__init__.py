@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import importlib
+from typing import Any
+
 from scanning_tool.gui.tk.sections import (
     CaptureRegionSection,
     ControlsSection,
@@ -10,6 +13,7 @@ from scanning_tool.gui.tk.sections import (
     ResultDisplaySection,
     Section,
     SectionContext,
+    StatusOverviewSection,
 )
 
 __all__ = [
@@ -19,5 +23,22 @@ __all__ = [
     "ControlsSection",
     "HeadSwaySection",
     "OllamaSection",
+    "StatusOverviewSection",
     "ResultDisplaySection",
 ]
+
+_SECTION_MODULE_MAP = {
+    "ollama": "scanning_tool.gui.tk.sections.ollama",
+}
+
+
+def __getattr__(name: str) -> Any:
+    if name in _SECTION_MODULE_MAP:
+        module = importlib.import_module(_SECTION_MODULE_MAP[name])
+        globals()[name] = module
+        return module
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
+
+def __dir__() -> list[str]:
+    return sorted(list(globals().keys()) + list(_SECTION_MODULE_MAP.keys()))

@@ -1,0 +1,130 @@
+"""Runtime status section for build-time and current scanner state."""
+
+from __future__ import annotations
+
+import tkinter as tk
+from tkinter import ttk
+
+from .base import SectionContext
+from ..widgets import create_section_row, create_status_label
+from scanning_tool.ollama import get_ollama_host, get_ollama_model, is_model_running
+
+
+class StatusOverviewSection:
+    """Status panel that keeps key runtime state visible in the GUI."""
+
+    def build(self, parent: ttk.Widget, ctx: SectionContext) -> ttk.LabelFrame:
+        frame = ttk.LabelFrame(parent, text="Runtime Status", style="Glass.TLabelframe")
+        frame.pack(fill="x", padx=5, pady=8)
+
+        self._ctx = ctx
+        self._host_var = tk.StringVar()
+        self._model_var = tk.StringVar()
+        self._capture_var = tk.StringVar()
+        self._auto_scan_var = tk.StringVar()
+        self._auto_align_var = tk.StringVar()
+        self._last_scan_var = tk.StringVar()
+
+        self._host_badge = self._create_badge(frame, "Ollama host", self._host_var)
+        self._model_badge = self._create_badge(frame, "Model", self._model_var)
+        self._capture_badge = self._create_badge(frame, "Capture box", self._capture_var)
+        self._auto_scan_badge = self._create_badge(frame, "Auto scan", self._auto_scan_var)
+        self._auto_align_badge = self._create_badge(frame, "Auto align", self._auto_align_var)
+        create_status_label(frame, self._last_scan_var)
+
+        hotkey_row = create_section_row(frame, pady=(0, 2))
+        ttk.Label(
+            hotkey_row,
+            text="Hotkeys: 7 = Single Scan · Ctrl+7 = Toggle Auto Scan · 8 = Show/Hide Capture Box",
+            style="Glass.Small.TLabel",
+            wraplength=660,
+            justify="left",
+        ).pack(fill="x", padx=5)
+
+        self._refresh_status()
+        self._schedule_refresh()
+        return frame
+
+    def _create_badge(
+        self,
+        parent: ttk.Widget,
+        label_text: str,
+        variable: tk.StringVar,
+    ) -> tk.Label:
+        row = create_section_row(parent, pady=(0, 2))
+        ttk.Label(row, text=f"{label_text}: ", style="Glass.Small.TLabel").pack(side="left")
+        badge = tk.Label(
+            row,
+            textvariable=variable,
+            bg="#294452",
+            fg="#ffffff",
+            relief="ridge",
+            borderwidth=1,
+            padx=8,
+            pady=4,
+            anchor="w",
+            justify="left",
+            font=("Segoe UI", 9, "bold"),
+        )
+        badge.pack(side="left", fill="x", expand=True)
+        return badge
+
+    def _schedule_refresh(self) -> None:
+        self._ctx.root.after(500, self._periodic_refresh)
+
+    def _periodic_refresh(self) -> None:
+        self._refresh_status()
+        self._schedule_refresh()
+
+    def _refresh_status(self) -> None:
+        self._host_var.set(get_ollama_host())
+        self._model_var.set(self._build_model_text())
+        self._capture_var.set("Visible" if self._is_capture_visible() else "Hidden")
+        self._auto_scan_var.set("Active" if self._ctx.scan_state.continuous_mode else "Inactive")
+        self._auto_align_var.set(self._build_auto_align_text())
+        self._last_scan_var.set(self._build_last_scan_text())
+
+        self._update_badge_color(self._model_badge, self._model_var.get())
+        self._update_badge_color(self._capture_badge, self._capture_var.get())
+        self._update_badge_color(self._auto_scan_badge, self._auto_scan_var.get())
+        self._update_badge_color(self._auto_align_badge, self._auto_align_var.get())
+
+    def _build_model_text(self) -> str:
+        model = get_ollama_model() or "<not configured>"
+        status = "running" if is_model_running(model) else "idle"
+        return f"{model} ({status})"
+
+    def _is_capture_visible(self) -> bool:
+        return bool(self._ctx.overlay_state.capture_overlay_root)
+
+    def _build_auto_align_text(self) -> str:
+        info = self._ctx.scan_state.last_alignment_info
+        if not info.enabled:
+            return "Disabled"
+        if info.matched:
+            template = info.template or "template"
+            score = f"{info.score:.2f}"
+            return f"Matched ({template} / {score})"
+        return "Active (searching)"
+
+    def _build_last_scan_text(self) -> str:
+        result = self._ctx.scan_state.last_result
+        if result is None:
+            return "Last scan: none"
+
+        if result.info is None:
+            if result.code_raw:
+                return f"Last scan: no deposit metadata for {result.code_raw}"
+            return "Last scan: no code extracted"
+
+        name = result.info.name or result.label or "Unknown"
+        return f"Last scan: {name} ({result.label})"
+
+    def _update_badge_color(self, badge: tk.Label, value: str) -> None:
+        if "Visible" in value or "Active" in value or "running" in value:
+            color = "#2f8f4a"
+        elif "Hidden" in value or "Inactive" in value:
+            color = "#9a2f2f"
+        else:
+            color = "#2f85b5"
+        badge.config(bg=color)

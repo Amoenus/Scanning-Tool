@@ -17,6 +17,7 @@ from .sections import (
     ResultDisplaySection,
     Section,
     SectionContext,
+    StatusOverviewSection,
 )
 from .status import StatusBar
 from .theme import GlassPalette, apply_glass_theme
@@ -35,6 +36,7 @@ SECTION_CLASSES: Sequence[Type[Section]] = (
     CaptureRegionSection,
     HeadSwaySection,
     OllamaSection,
+    StatusOverviewSection,
     ResultDisplaySection,
     ControlsSection,
 )

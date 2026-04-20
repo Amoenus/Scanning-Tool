@@ -26,6 +26,13 @@ class InterceptHandler(logging.Handler):
         except ValueError:
             level = record.levelno
 
+        if (
+            record.name == "httpx"
+            and record.levelno == logging.INFO
+            and record.getMessage().startswith("HTTP Request:")
+        ):
+            level = "DEBUG"
+
         logger.opt(depth=_calculate_frame_depth(), exception=record.exc_info).log(
             level,
             record.getMessage(),
