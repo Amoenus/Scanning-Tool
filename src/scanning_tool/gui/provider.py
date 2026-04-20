@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from typing import Protocol, Callable, TYPE_CHECKING
+from typing import Protocol, TYPE_CHECKING
 
-from scanning_tool.config.service import ConfigData
+from scanning_tool.config.service import ConfigData, ConfigSaver
 from scanning_tool.interfaces import CaptureController
 
 if TYPE_CHECKING:
@@ -25,7 +25,7 @@ class GuiProvider(Protocol):
         overlay_state: OverlayState,
         control_state: ControlState,
         capture_service: CaptureController,
-        save_config: Callable[[], None],
+        config_service: ConfigSaver,
     ) -> None:
         ...
 

@@ -14,6 +14,7 @@ control_state = app_state.control_state
 __all__ = [
     "app_state",
     "config",
+    "config_service",
     "scan_state",
     "service_state",
     "overlay_state",

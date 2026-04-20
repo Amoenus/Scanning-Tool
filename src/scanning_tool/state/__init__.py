@@ -9,6 +9,7 @@ from scanning_tool.state.service_state import ServiceState
 from scanning_tool.state.manager import (
     app_state,
     config,
+    config_service,
     scan_state,
     service_state,
     overlay_state,
@@ -37,6 +38,7 @@ __all__ = [
     "ServiceState",
     "app_state",
     "config",
+    "config_service",
     "scan_state",
     "service_state",
     "overlay_state",

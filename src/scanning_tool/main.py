@@ -146,7 +146,7 @@ def main() -> None:
             overlay_state=manager.overlay_state,
             control_state=manager.control_state,
             capture_service=capture_service,
-            save_config=manager.save_config,
+            config_service=manager.config_service,
         )
     finally:
         from scanning_tool.services.alignment_service import alignment_service

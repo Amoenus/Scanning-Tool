@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from typing import Callable, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
-from scanning_tool.config.service import ConfigData
+from scanning_tool.config.service import ConfigData, ConfigSaver
 from scanning_tool.interfaces import CaptureController
 from scanning_tool.state.scan_state import ScanState
 from scanning_tool.state.service_state import ServiceState
@@ -25,7 +25,7 @@ class TkGuiProvider:
         overlay_state: OverlayState,
         control_state: ControlState,
         capture_service: CaptureController,
-        save_config: Callable[[], None],
+        config_service: ConfigSaver,
     ) -> None:
         from scanning_tool.gui.tk.app import launch_gui as launch_tk_gui
 
@@ -36,5 +36,5 @@ class TkGuiProvider:
             overlay_state=overlay_state,
             control_state=control_state,
             capture_service=capture_service,
-            save_config=save_config,
+            config_service=config_service,
         )

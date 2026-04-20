@@ -45,7 +45,7 @@ class ControlsSection:
                 ("Loop Toggle", ctx.capture_service.toggle_continuous),
                 ("Update Overlay", update_overlay_region),
                 ("Set Label Color", choose_label_color),
-                ("Save Config", ctx.save_config),
+                ("Save Config", ctx.config_service.save),
                 ("Toggle Border", toggle_border),
             ],
         )

@@ -3,7 +3,7 @@
 import json
 import os
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Protocol
 
 from loguru import logger
 from pydantic import BaseModel, Field, ValidationError
@@ -46,6 +46,13 @@ class ConfigData(BaseModel):
     web_server_config: WebServerConfig = Field(
         default_factory=lambda: WebServerConfig("0.0.0.0", 5000)
     )
+
+
+class ConfigSaver(Protocol):
+    """Minimal config persistence contract."""
+
+    def save(self) -> None:
+        ...
 
 
 class ConfigFileStore:

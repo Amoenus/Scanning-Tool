@@ -1,12 +1,12 @@
 """Common types for GUI sections."""
 
 from dataclasses import dataclass
-from typing import Callable, Protocol
+from typing import Protocol
 
 import tkinter as tk
 from tkinter import ttk
 
-from scanning_tool.config.service import ConfigData
+from scanning_tool.config.service import ConfigData, ConfigSaver
 from ..control_state import ControlState
 from ..overlay_state import OverlayState
 from ..status import StatusBar
@@ -34,7 +34,7 @@ class SectionContext:
     overlay_state: OverlayState
     control_state: ControlState
     capture_service: CaptureController
-    save_config: Callable[[], None]
+    config_service: ConfigSaver
 
 
 class Section(Protocol):

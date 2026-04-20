@@ -5,7 +5,7 @@ from typing import Sequence, Type
 import tkinter as tk
 from tkinter import ttk
 
-from scanning_tool.config.service import ConfigData
+from scanning_tool.config.service import ConfigData, ConfigSaver
 from .alignment import AlignmentPoller
 from .lifecycle import register_close_handler
 from .overlay_state import OverlayState
@@ -44,11 +44,11 @@ def launch_gui(
     overlay_state: OverlayState,
     control_state: ControlState,
     capture_service: CaptureController,
-    save_config,
+    config_service: ConfigSaver,
 ) -> None:
     """Build and run the main Tkinter control panel."""
     root = _create_root()
-    register_close_handler(root, overlay_state, save_config)
+    register_close_handler(root, overlay_state, config_service)
 
     colors = apply_glass_theme(root)
     status = StatusBar(root)
@@ -64,7 +64,7 @@ def launch_gui(
         overlay_state=overlay_state,
         control_state=control_state,
         capture_service=capture_service,
-        save_config=save_config,
+        config_service=config_service,
     )
 
     main = _build_main_panel(root, colors, ctx)
@@ -94,7 +94,7 @@ def _build_section_context(
     overlay_state: OverlayState,
     control_state: ControlState,
     capture_service: CaptureController,
-    save_config,
+    config_service: ConfigSaver,
 ) -> SectionContext:
     return SectionContext(
         root=root,
@@ -106,7 +106,7 @@ def _build_section_context(
         overlay_state=overlay_state,
         control_state=control_state,
         capture_service=capture_service,
-        save_config=save_config,
+        config_service=config_service,
     )
 
 
