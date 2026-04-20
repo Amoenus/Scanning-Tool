@@ -234,6 +234,7 @@ class HeadSwaySection:
         self._ctx.scan_state.last_alignment_info.enabled = (
             self._ctx.config.auto_alignment.enabled
         )
+        self._ctx.scan_state.notify_alignment_info_listeners()
         if self._ctx.config.auto_alignment.enabled:
             self._status.set_anchor("Head sway compensation enabled.")
             self._run_auto_alignment()
@@ -243,7 +244,7 @@ class HeadSwaySection:
     def _run_auto_alignment(self) -> bool:
         from ..overlays import sync_capture_sliders
 
-        return alignment_service.align(
+        result = alignment_service.align(
             self._ctx.scan_state.anchor_tracker,
             self._ctx.scan_state.last_alignment_info,
             AlignmentRequest.from_config(self._ctx.config),
@@ -253,6 +254,8 @@ class HeadSwaySection:
             ),
             lambda: update_anchor_overlay_region(self._ctx.overlay_state),
         )
+        self._ctx.scan_state.notify_alignment_info_listeners()
+        return result
 
     def _toggle_anchor_overlay_visibility(self) -> None:
         self._ctx.overlay_state.anchor_overlay_visible = self._anchor_overlay_var.get()

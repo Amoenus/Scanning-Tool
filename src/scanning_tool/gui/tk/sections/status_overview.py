@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import tkinter as tk
 from tkinter import ttk
+from typing import Any, Optional
 
 from .base import SectionContext
 from ..overlays.base import safe_tk
@@ -46,7 +47,16 @@ class StatusOverviewSection:
         self._ctx.scan_state.add_continuous_mode_listener(
             self._on_continuous_mode_change
         )
-        self._schedule_refresh()
+        self._ctx.scan_state.add_scan_result_listener(
+            self._on_scan_result_change
+        )
+        self._ctx.scan_state.add_alignment_info_listener(
+            self._on_alignment_info_change
+        )
+        self._ctx.overlay_state.add_capture_overlay_root_listener(
+            self._on_capture_overlay_visibility_change
+        )
+        self._schedule_host_model_refresh()
         return frame
 
     def _create_badge(
@@ -73,25 +83,24 @@ class StatusOverviewSection:
         badge.pack(side="left", fill="x", expand=True)
         return badge
 
-    def _schedule_refresh(self) -> None:
-        self._ctx.root.after(500, self._periodic_refresh)
+    def _schedule_host_model_refresh(self) -> None:
+        self._ctx.root.after(1000, self._periodic_host_model_refresh)
 
-    def _periodic_refresh(self) -> None:
-        self._refresh_status()
-        self._schedule_refresh()
+    def _periodic_host_model_refresh(self) -> None:
+        self._refresh_host_model_status()
+        self._schedule_host_model_refresh()
 
     def _refresh_status(self) -> None:
+        self._refresh_host_model_status()
+        self._refresh_capture_badge()
+        self._refresh_auto_scan_badge(self._ctx.scan_state.continuous_mode)
+        self._refresh_auto_align_badge(self._ctx.scan_state.last_alignment_info)
+        self._refresh_last_scan_badge(self._ctx.scan_state.last_result)
+
+    def _refresh_host_model_status(self) -> None:
         self._host_var.set(get_ollama_host())
         self._model_var.set(self._build_model_text())
-        self._capture_var.set("Visible" if self._is_capture_visible() else "Hidden")
-        self._auto_scan_var.set("Active" if self._ctx.scan_state.continuous_mode else "Inactive")
-        self._auto_align_var.set(self._build_auto_align_text())
-        self._last_scan_var.set(self._build_last_scan_text())
-
         self._update_badge_color(self._model_badge, self._model_var.get())
-        self._update_badge_color(self._capture_badge, self._capture_var.get())
-        self._update_badge_color(self._auto_scan_badge, self._auto_scan_var.get())
-        self._update_badge_color(self._auto_align_badge, self._auto_align_var.get())
 
     def _on_continuous_mode_change(self, continuous_mode: bool) -> None:
         safe_tk(
@@ -101,10 +110,63 @@ class StatusOverviewSection:
             )
         )
 
+    def _on_scan_result_change(self, scan_result: Optional[ScanResult]) -> None:
+        safe_tk(
+            lambda: self._ctx.root.after(
+                0,
+                lambda: self._refresh_last_scan_badge(scan_result),
+            )
+        )
+
+    def _on_alignment_info_change(self, alignment_info: AlignmentInfo) -> None:
+        safe_tk(
+            lambda: self._ctx.root.after(
+                0,
+                lambda: self._refresh_auto_align_badge(alignment_info),
+            )
+        )
+
+    def _on_capture_overlay_visibility_change(
+        self,
+        capture_root: Optional[Any],
+    ) -> None:
+        safe_tk(
+            lambda: self._ctx.root.after(
+                0,
+                self._refresh_capture_badge,
+            )
+        )
+
+    def _refresh_capture_badge(self) -> None:
+        text = "Visible" if self._is_capture_visible() else "Hidden"
+        self._capture_var.set(text)
+        self._update_badge_color(self._capture_badge, text)
+
     def _refresh_auto_scan_badge(self, continuous_mode: bool) -> None:
         text = "Active" if continuous_mode else "Inactive"
         self._auto_scan_var.set(text)
         self._update_badge_color(self._auto_scan_badge, text)
+
+    def _refresh_auto_align_badge(self, alignment_info: AlignmentInfo) -> None:
+        self._auto_align_var.set(self._build_auto_align_text(alignment_info))
+        self._update_badge_color(self._auto_align_badge, self._auto_align_var.get())
+
+    def _refresh_last_scan_badge(self, result: Optional[ScanResult]) -> None:
+        if result is None:
+            self._last_scan_var.set("Last scan: none")
+            return
+
+        if result.info is None:
+            if result.code_raw:
+                self._last_scan_var.set(
+                    f"Last scan: no deposit metadata for {result.code_raw}"
+                )
+                return
+            self._last_scan_var.set("Last scan: no code extracted")
+            return
+
+        name = result.info.name or result.label or "Unknown"
+        self._last_scan_var.set(f"Last scan: {name} ({result.label})")
 
     def _build_model_text(self) -> str:
         model = get_ollama_model() or "<not configured>"
@@ -114,8 +176,7 @@ class StatusOverviewSection:
     def _is_capture_visible(self) -> bool:
         return bool(self._ctx.overlay_state.capture_overlay_root)
 
-    def _build_auto_align_text(self) -> str:
-        info = self._ctx.scan_state.last_alignment_info
+    def _build_auto_align_text(self, info: AlignmentInfo) -> str:
         if not info.enabled:
             return "Disabled"
         if info.matched:

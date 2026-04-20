@@ -2,6 +2,7 @@
 
 import tkinter as tk
 from tkinter import ttk
+from typing import Any, Optional
 
 from .base import SectionContext
 from ..overlays import (
@@ -88,6 +89,9 @@ class ControlsSection:
         self._ctx.scan_state.add_continuous_mode_listener(
             self._on_continuous_mode_change
         )
+        self._ctx.overlay_state.add_capture_overlay_root_listener(
+            self._on_capture_overlay_visibility_change
+        )
         return frame
 
     def _on_interval_change(self, *_args: object) -> None:
@@ -129,15 +133,26 @@ class ControlsSection:
     def _toggle_capture_box(self) -> None:
         if self._is_capture_box_visible():
             hide_capture_overlay(self._ctx.overlay_state)
-            self._capture_box_button_text.set("Show Capture Box")
             self._status.set_status("Capture box hidden.")
         else:
             show_capture_overlay(
                 self._ctx.overlay_state,
                 self._ctx.config.capture_region,
             )
-            self._capture_box_button_text.set("Hide Capture Box")
             self._status.set_status("Capture box shown.")
+
+    def _on_capture_overlay_visibility_change(
+        self,
+        capture_root: Optional[Any],
+    ) -> None:
+        safe_tk(
+            lambda: self._ctx.root.after(
+                0,
+                lambda: self._capture_box_button_text.set(
+                    self._build_capture_box_button_label()
+                ),
+            )
+        )
 
     def _toggle_continuous_capture(self) -> None:
         self._ctx.capture_service.toggle_continuous()

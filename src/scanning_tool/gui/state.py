@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any, Callable, Optional
 
 from scanning_tool.gui.layout_types import CaptureOverlayLayout, InfoOverlayGeometry
 
 ScaleWidget = Any
+OverlayCaptureRootListener = Callable[[Optional[Any]], None]
 
 
 @dataclass
@@ -122,13 +123,32 @@ class OverlayState:
     border_canvas: Optional[Any] = None
     show_border: bool = True
 
+    _capture_overlay_root_listeners: list[OverlayCaptureRootListener] = field(
+        default_factory=list,
+        init=False,
+        repr=False,
+    )
+
     @property
     def capture_overlay_root(self) -> Optional[Any]:
         return self.capture.root
 
     @capture_overlay_root.setter
     def capture_overlay_root(self, value: Optional[Any]) -> None:
+        if self.capture.root is value:
+            return
         self.capture.root = value
+        self._notify_capture_overlay_root_listeners()
+
+    def add_capture_overlay_root_listener(
+        self,
+        listener: OverlayCaptureRootListener,
+    ) -> None:
+        self._capture_overlay_root_listeners.append(listener)
+
+    def _notify_capture_overlay_root_listeners(self) -> None:
+        for listener in tuple(self._capture_overlay_root_listeners):
+            listener(self.capture.root)
 
     @property
     def capture_overlay_canvas(self) -> Optional[Any]:
