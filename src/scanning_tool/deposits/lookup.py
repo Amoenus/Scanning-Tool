@@ -77,6 +77,11 @@ class DepositSignatureMatcher:
                 return DepositSignatureMatch(base_value=base_value, signature=signature)
         return None
 
+
+def _get_default_code_parser() -> DepositCodeParser:
+    return DepositCodeParser(service_state.code_re)
+
+
 class DepositLookupService:
     """Lookup deposit metadata from a scan signature registry."""
 
@@ -86,7 +91,7 @@ class DepositLookupService:
         parser: Optional[DepositCodeParser] = None,
         matcher: Optional[DepositSignatureMatcher] = None,
     ) -> None:
-        self._parser = parser or _code_parser
+        self._parser = parser or _get_default_code_parser()
         self._matcher = matcher or DepositSignatureMatcher(registry)
 
     def lookup(self, code: Optional[str]) -> Optional[DepositInfo]:

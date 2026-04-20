@@ -9,7 +9,6 @@ from flask import Flask
 from loguru import logger
 
 from scanning_tool.config import resource_path
-from scanning_tool.deposits import load_rock_data
 from scanning_tool.logging_setup import setup_logging
 from scanning_tool.ollama import (
     ensure_model_installed,
@@ -17,6 +16,7 @@ from scanning_tool.ollama import (
     log_model_running_status,
 )
 from scanning_tool.state import manager
+from scanning_tool.bootstrap import bootstrap
 
 if TYPE_CHECKING:
     from scanning_tool.config.service import ConfigData
@@ -120,11 +120,15 @@ def get_local_ip() -> str:
 def main() -> None:
     """Launch the scanning tool."""
     setup_logging()
-    load_rock_data()
 
-    config = manager.config
-    scan_state = manager.scan_state
-    service_state = manager.service_state
+    app_state = bootstrap()
+    config = app_state.config
+    scan_state = app_state.scan_state
+    service_state = app_state.service_state
+
+    from scanning_tool.deposits import load_rock_data
+
+    load_rock_data()
 
     from scanning_tool.services.capture_service import CaptureService
 
