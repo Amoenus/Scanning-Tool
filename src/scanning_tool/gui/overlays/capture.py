@@ -32,7 +32,6 @@ class CaptureOverlay:
         last = self.last_layout
         if last is None:
             return _CaptureOverlayLayoutChange(True, True, True)
-
         return _CaptureOverlayLayoutChange(
             size_changed=(
                 force
@@ -79,9 +78,6 @@ class CaptureOverlay:
         safe_tk(lambda: self.root.lift())
 
     def _apply_layout(self, *, force: bool = False) -> None:
-        if not self.canvas or not self.rect_id or not self.root:
-            return
-
         layout = compute_capture_overlay_layout()
         layout_change = self._compute_layout_change(layout, force=force)
 
@@ -166,9 +162,6 @@ class CaptureOverlay:
         self.start_animation(force=True)
 
     def start_animation(self, *, force: bool = False) -> None:
-        if not self.root or not self.canvas or not self.rect_id:
-            return
-
         self._apply_layout(force=force)
 
         if self.animation_job is None:
