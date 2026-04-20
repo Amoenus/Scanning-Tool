@@ -79,7 +79,7 @@ class CaptureOverlay:
                 f"{layout.overlay_width}x{layout.overlay_height}+{layout.left}+{layout.top}"
             )
         )
-        safe_tk(root.lift)
+        safe_tk(lambda: root.lift())
 
     def _apply_layout(self, *, force: bool = False) -> None:
         layout = compute_capture_overlay_layout()
