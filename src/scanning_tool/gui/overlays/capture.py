@@ -49,18 +49,21 @@ class CaptureOverlay:
         )
 
     def _apply_overlay_size(self, layout: CaptureOverlayLayout) -> None:
-        assert self.canvas is not None
+        canvas = self.canvas
+        assert canvas is not None
         safe_tk(
-            lambda: self.canvas.config(
+            lambda: canvas.config(
                 width=layout.overlay_width, height=layout.overlay_height
             )
         )
 
     def _apply_overlay_rectangle(self, layout: CaptureOverlayLayout) -> None:
-        assert self.canvas is not None and self.rect_id is not None
+        canvas = self.canvas
+        rect_id = self.rect_id
+        assert canvas is not None and rect_id is not None
         safe_tk(
-            lambda: self.canvas.coords(
-                self.rect_id,
+            lambda: canvas.coords(
+                rect_id,
                 layout.padding_x // 2,
                 layout.padding_y,
                 layout.padding_x // 2 + layout.cap_w,
@@ -69,13 +72,14 @@ class CaptureOverlay:
         )
 
     def _apply_overlay_position(self, layout: CaptureOverlayLayout) -> None:
-        assert self.root is not None
+        root = self.root
+        assert root is not None
         safe_tk(
-            lambda: self.root.geometry(
+            lambda: root.geometry(
                 f"{layout.overlay_width}x{layout.overlay_height}+{layout.left}+{layout.top}"
             )
         )
-        safe_tk(lambda: self.root.lift())
+        safe_tk(root.lift)
 
     def _apply_layout(self, *, force: bool = False) -> None:
         layout = compute_capture_overlay_layout()
