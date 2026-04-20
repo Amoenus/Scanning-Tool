@@ -44,22 +44,31 @@ def test_alignment_service_updates_capture_region_and_callbacks():
     sync_called = False
     overlay_called = False
 
-    def sync_capture_sliders() -> None:
+    def sync_capture_sliders(sender: object) -> None:
         nonlocal sync_called
         sync_called = True
 
-    def update_capture_overlay_region() -> None:
+    def update_capture_overlay_region(sender: object) -> None:
         nonlocal overlay_called
         overlay_called = True
 
-    service = AlignmentService()
-    result = service.align(
-        anchor_tracker,
-        alignment_info,
-        alignment_request,
-        sync_capture_sliders,
-        update_capture_overlay_region,
+    from scanning_tool.state.signals import (
+        sync_capture_sliders_signal,
+        update_capture_overlay_region_signal,
     )
+
+    sync_capture_sliders_signal.connect(sync_capture_sliders, weak=False)
+    update_capture_overlay_region_signal.connect(update_capture_overlay_region, weak=False)
+    try:
+        service = AlignmentService()
+        result = service.align(
+            anchor_tracker,
+            alignment_info,
+            alignment_request,
+        )
+    finally:
+        sync_capture_sliders_signal.disconnect(sync_capture_sliders)
+        update_capture_overlay_region_signal.disconnect(update_capture_overlay_region)
 
     assert result is True
     assert anchor_tracker.threshold == 0.4
@@ -88,8 +97,6 @@ def test_alignment_service_skips_when_anchor_tracker_missing():
         None,
         alignment_info,
         alignment_request,
-        lambda: None,
-        lambda: None,
     )
 
     assert result is False

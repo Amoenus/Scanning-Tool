@@ -248,11 +248,6 @@ class HeadSwaySection:
             self._ctx.scan_state.anchor_tracker,
             self._ctx.scan_state.last_alignment_info,
             AlignmentRequest.from_config(self._ctx.config),
-            lambda: sync_capture_sliders(
-                self._ctx.control_state,
-                self._ctx.config.capture_region,
-            ),
-            lambda: update_anchor_overlay_region(self._ctx.overlay_state),
         )
         self._ctx.scan_state.notify_alignment_info_listeners()
         return result

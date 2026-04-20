@@ -9,7 +9,6 @@ from scanning_tool.services.alignment_service import (
 )
 from scanning_tool.config.service import ConfigData
 from scanning_tool.domain.alignment import AlignmentRequest
-from .overlays import update_capture_overlay_region, sync_capture_sliders
 from .overlays.base import safe_tk
 from .status import StatusBar
 from scanning_tool.state.scan_state import ScanState
@@ -67,8 +66,6 @@ class AlignmentPoller:
             self._scan_state.anchor_tracker,
             self._scan_state.last_alignment_info,
             AlignmentRequest.from_config(self._config),
-            sync_capture_sliders,
-            update_capture_overlay_region,
         )
 
     def _build_alignment_status_message(self, match_found: bool) -> Optional[str]:

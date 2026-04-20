@@ -44,7 +44,6 @@ class ServiceState:
     ollama_state: OllamaClientState = field(default_factory=OllamaClientState)
     patterns: CodePatterns = field(default_factory=CodePatterns)
     rocks: RockDataCache = field(default_factory=RockDataCache)
-    gui_status_callback: Optional[Callable[[str], None]] = None
 
     # Convenience accessors for migration — keeps existing attribute paths working
     @property

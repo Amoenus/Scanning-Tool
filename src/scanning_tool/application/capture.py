@@ -18,6 +18,7 @@ from scanning_tool.interfaces.capture import (
 )
 from scanning_tool.state.scan_state import ScanState
 from scanning_tool.state.service_state import ServiceState
+from scanning_tool.state.signals import status_updated
 from scanning_tool.application.scan_result_reporter import ScanResultReporter
 
 
@@ -75,16 +76,24 @@ class CaptureUseCase:
             capture_region=config.capture_region,
             code_re=code_re or ServiceState().code_re,
         )
-        self._status_callback: Optional[StatusCallback] = None
 
     def capture_once(self, status_callback: Optional[StatusCallback] = None) -> None:
         """Capture a single scan and populate the shared scan state."""
-        self._status_callback = status_callback
-        self._do_capture()
+        if status_callback is None:
+            self._do_capture()
+            return
+
+        def _receiver(sender: object, message: str) -> None:
+            status_callback(message)
+
+        status_updated.connect(_receiver, weak=False)
+        try:
+            self._do_capture()
+        finally:
+            status_updated.disconnect(_receiver)
 
     def _set_status(self, message: str) -> None:
-        if self._status_callback:
-            self._status_callback(message)
+        status_updated.send(self, message=message)
 
     def _align_before_capture(self) -> None:
         self._set_status("Aligning region...")

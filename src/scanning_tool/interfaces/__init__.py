@@ -6,7 +6,6 @@ from .capture import (
     DepositLookupProvider,
     OCRProvider,
     StatusCallback,
-    SyncCallback,
 )
 from .capture_service import CaptureController
 
@@ -16,6 +15,5 @@ __all__ = [
     "DepositLookupProvider",
     "OCRProvider",
     "StatusCallback",
-    "SyncCallback",
     "CaptureController",
 ]

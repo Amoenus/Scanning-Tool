@@ -9,7 +9,6 @@ from scanning_tool.domain.alignment import AlignmentInfo, AlignmentRequest, Capt
 from scanning_tool.domain.capture import DepositInfo
 
 StatusCallback = Callable[[str], None]
-SyncCallback = Callable[[], None]
 
 
 class CaptureProvider(Protocol):

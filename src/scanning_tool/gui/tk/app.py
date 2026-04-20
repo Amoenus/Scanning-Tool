@@ -25,6 +25,8 @@ from .widgets import ScrollableFrame
 from .overlays import (
     configure_capture_slider_sync,
     show_overlay,
+    sync_capture_sliders_callback,
+    update_capture_overlay_region,
 )
 from scanning_tool.interfaces import CaptureController
 from scanning_tool.state.scan_state import ScanState
@@ -74,6 +76,17 @@ def launch_gui(
     configure_capture_slider_sync(
         ctx.control_state,
         lambda: ctx.config.capture_region,
+    )
+
+    from scanning_tool.state.signals import (
+        sync_capture_sliders_signal,
+        update_capture_overlay_region_signal,
+    )
+
+    sync_capture_sliders_signal.connect(sync_capture_sliders_callback, weak=False)
+    update_capture_overlay_region_signal.connect(
+        update_capture_overlay_region,
+        weak=False,
     )
 
     main = _build_main_panel(root, colors, ctx)

@@ -1,6 +1,6 @@
 """Auto-alignment background service."""
 
-from typing import Callable, Optional, Tuple
+from typing import Optional, Tuple
 from scanning_tool.services.alignment_calculator import AlignmentCalculator
 from scanning_tool.services.base_service import BaseService
 from scanning_tool.core.anchor import AnchorRegionTracker
@@ -11,8 +11,10 @@ from scanning_tool.domain.alignment import (
     CaptureRegion,
 )
 from scanning_tool.domain.common import Offset2D
-
-SyncCallback = Callable[[], None]
+from scanning_tool.state.signals import (
+    sync_capture_sliders_signal,
+    update_capture_overlay_region_signal,
+)
 
 
 def reset_alignment_info(info: AlignmentInfo) -> None:
@@ -33,8 +35,6 @@ class AlignmentService(BaseService):
         anchor_tracker: Optional[AnchorRegionTracker],
         last_alignment_info: AlignmentInfo,
         alignment_request: AlignmentRequest,
-        sync_capture_sliders: SyncCallback,
-        update_capture_overlay_region: SyncCallback,
     ) -> bool:
         """Attempt to adjust the capture region based on anchor template matches."""
         last_alignment_info.enabled = alignment_request.enabled
@@ -59,8 +59,6 @@ class AlignmentService(BaseService):
             detection,
             alignment_request,
             last_alignment_info,
-            sync_capture_sliders,
-            update_capture_overlay_region,
         )
         return True
 
@@ -72,8 +70,6 @@ class AlignmentService(BaseService):
         detection: AnchorDetection,
         alignment_request: AlignmentRequest,
         last_alignment_info: AlignmentInfo,
-        sync_capture_sliders: SyncCallback,
-        update_capture_overlay_region: SyncCallback,
     ) -> None:
         new_left, new_top = AlignmentCalculator.calculate_aligned_position(
             detection,
@@ -86,8 +82,8 @@ class AlignmentService(BaseService):
         last_alignment_info.update_from_detection(
             detection, alignment_request.capture_region
         )
-        sync_capture_sliders()
-        update_capture_overlay_region()
+        sync_capture_sliders_signal.send(self)
+        update_capture_overlay_region_signal.send(self)
         self._log_alignment_applied(detection, alignment_request.capture_region)
 
     def _log_alignment_applied(

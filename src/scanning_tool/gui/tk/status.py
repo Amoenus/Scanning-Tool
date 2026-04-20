@@ -4,7 +4,7 @@ import time
 import tkinter as tk
 from typing import Optional
 
-from scanning_tool.state.service_state import ServiceState
+from scanning_tool.state.signals import status_updated
 
 
 class StatusBar:
@@ -26,7 +26,7 @@ class StatusBar:
     def set_status(self, message: str) -> None:
         self.status_var.set(message)
 
-    def set_status_async(self, message: str) -> None:
+    def set_status_async(self, sender: object, message: str) -> None:
         """Set status and pump idle tasks — used by background scanning callbacks."""
         self.status_var.set(message)
         self.root.update_idletasks()
@@ -51,6 +51,6 @@ class StatusBar:
         self.anchor_status_var.set(message)
         self._last_alignment_message = message
 
-    def install_as_scanning_callback(self, service_state: ServiceState) -> None:
+    def install_as_scanning_callback(self, service_state: object) -> None:
         """Wire scanning.py's status callback to this status bar."""
-        service_state.gui_status_callback = self.set_status_async
+        status_updated.connect(self.set_status_async, weak=False)
