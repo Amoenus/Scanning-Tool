@@ -20,6 +20,7 @@ dependencies = [
     "playwright>=1.44.0",
     "pandas",
     "waitress>=3.0.2",
+    "pyqt6>=6.6.0",
 ]
 
 [project.scripts]
