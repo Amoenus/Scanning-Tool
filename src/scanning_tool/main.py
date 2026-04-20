@@ -76,40 +76,45 @@ def _start_web_server(
         msg += f" (this device) | http://{local_ip}:{port} (local network)"
     logger.info(msg)
 
-    from scanning_tool.web.app import WebService
     from scanning_tool.web.server import WebServer
-    from scanning_tool.web.status_builder import DefaultStatusResponseBuilder
 
-    flask_app = WebService(
-        config=config,
-        scan_state=scan_state,
-        service_state=service_state,
-        template_folder=resource_path("templates"),
-        status_response_builder=DefaultStatusResponseBuilder(),
-    ).create_app()
+    flask_app = _build_flask_app(config, scan_state, service_state)
     Thread(
         target=lambda: WebServer.run(flask_app, host=host, port=port),
         daemon=True,
     ).start()
 
 
+def _build_flask_app(
+    config: ConfigData,
+    scan_state: ScanState,
+    service_state: ServiceState,
+) -> Flask:
+    from scanning_tool.web.app import WebService
+    from scanning_tool.web.status_builder import DefaultStatusResponseBuilder
+
+    return WebService(
+        config=config,
+        scan_state=scan_state,
+        service_state=service_state,
+        template_folder=resource_path("templates"),
+        status_response_builder=DefaultStatusResponseBuilder(),
+    ).create_app()
+
+
 def create_app() -> Flask:
     """Create the default Flask app using global runtime state."""
     from scanning_tool.config.service import ConfigService
     from scanning_tool.state.app_state import AppState
-    from scanning_tool.web.app import WebService
-    from scanning_tool.web.status_builder import DefaultStatusResponseBuilder
 
     config_service = ConfigService()
     config = config_service.load()
     app_state = AppState(config=config)
-    return WebService(
+    return _build_flask_app(
         config=config,
         scan_state=app_state.scan_state,
         service_state=app_state.service_state,
-        template_folder=resource_path("templates"),
-        status_response_builder=DefaultStatusResponseBuilder(),
-    ).create_app()
+    )
 
 
 def get_local_ip() -> str:
