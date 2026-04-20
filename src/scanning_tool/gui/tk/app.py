@@ -107,6 +107,8 @@ def launch_gui(
 def _create_root() -> tk.Tk:
     window = tk.Tk()
     window.title("Star Citizen Scanner Control")
+    window.rowconfigure(0, weight=1)
+    window.columnconfigure(0, weight=1)
     return window
 
 

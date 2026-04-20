@@ -12,7 +12,10 @@ from ..overlays import (
     update_overlay_region,
 )
 from ..overlays.base import safe_tk
-from ..widgets import create_labeled_spinbox, create_section_row
+from ..widgets import (
+    create_button_row,
+    create_labeled_spinbox,
+)
 
 
 class ControlsSection:
@@ -41,49 +44,24 @@ class ControlsSection:
         )
         self._interval_var.trace_add("write", self._on_interval_change)
 
-        button_row = create_section_row(frame)
-        ttk.Button(
-            button_row,
-            text="Single Scan",
-            command=ctx.capture_service.capture_once,
-            style="Glass.TButton",
-        ).pack(side="left", padx=5)
         self._continuous_button_text = tk.StringVar(
             value=self._build_continuous_button_label()
         )
-        ttk.Button(
-            button_row,
-            textvariable=self._continuous_button_text,
-            command=self._toggle_continuous_capture,
-            style="Glass.TButton",
-        ).pack(side="left", padx=5)
         self._capture_box_button_text = tk.StringVar(
             value=self._build_capture_box_button_label()
         )
-        ttk.Button(
-            button_row,
-            textvariable=self._capture_box_button_text,
-            command=self._toggle_capture_box,
-            style="Glass.TButton",
-        ).pack(side="left", padx=5)
-        ttk.Button(
-            button_row,
-            text="Update Overlay",
-            command=update_overlay_region,
-            style="Glass.TButton",
-        ).pack(side="left", padx=5)
-        ttk.Button(
-            button_row,
-            text="Set Label Color",
-            command=choose_label_color,
-            style="Glass.TButton",
-        ).pack(side="left", padx=5)
-        ttk.Button(
-            button_row,
-            text="Save Config",
-            command=ctx.config_service.save,
-            style="Glass.TButton",
-        ).pack(side="left", padx=5)
+
+        create_button_row(
+            frame,
+            [
+                ("Single Scan", ctx.capture_service.capture_once),
+                (self._continuous_button_text, self._toggle_continuous_capture),
+                (self._capture_box_button_text, self._toggle_capture_box),
+                ("Update Overlay", update_overlay_region),
+                ("Set Label Color", choose_label_color),
+                ("Save Config", ctx.config_service.save),
+            ],
+        )
 
         self._ctx.scan_state.add_continuous_mode_listener(
             self._on_continuous_mode_change

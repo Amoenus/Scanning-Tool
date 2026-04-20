@@ -128,15 +128,71 @@ def create_glass_scale(
     return controller.scale
 
 
+class ResponsiveButtonRow(ttk.Frame):
+    """A button container that switches between horizontal and vertical layouts."""
+
+    MIN_BUTTON_WIDTH = 140
+
+    def __init__(self, parent: ttk.Widget, style: str = "Glass.Section.TFrame") -> None:
+        super().__init__(parent, style=style)
+        self.pack(fill="x", padx=5, pady=(0, 5))
+        self._buttons: list[ttk.Button] = []
+        self._button_specs: list[tuple[str | tk.StringVar, Callable[[], None], str]] = []
+        self.bind("<Configure>", self._on_configure)
+
+    def add_button(
+        self,
+        label: str | tk.StringVar,
+        command: Callable[[], None],
+        style: str,
+    ) -> None:
+        self._button_specs.append((label, command, style))
+        if isinstance(label, tk.StringVar):
+            button = ttk.Button(
+                self,
+                textvariable=label,
+                command=command,
+                style=style,
+            )
+        else:
+            button = ttk.Button(self, text=label, command=command, style=style)
+
+        self._buttons.append(button)
+        button.grid(row=0, column=len(self._buttons) - 1, sticky="ew", padx=5, pady=2)
+        self.columnconfigure(len(self._buttons) - 1, weight=1)
+        self._apply_layout(self.winfo_width())
+
+    def _on_configure(self, event: tk.Event) -> None:
+        self._apply_layout(event.width)
+
+    def _apply_layout(self, width: int) -> None:
+        if not self._buttons:
+            return
+
+        use_stacked = width < len(self._buttons) * self.MIN_BUTTON_WIDTH
+        for index, button in enumerate(self._buttons):
+            button.grid_forget()
+            if use_stacked:
+                button.grid(row=index, column=0, sticky="ew", padx=5, pady=2)
+            else:
+                button.grid(row=0, column=index, sticky="ew", padx=5, pady=2)
+
+        if use_stacked:
+            self.columnconfigure(0, weight=1)
+            for column in range(1, len(self._buttons)):
+                self.columnconfigure(column, weight=0)
+        else:
+            for column in range(len(self._buttons)):
+                self.columnconfigure(column, weight=1)
+
+
 def create_button_row(
     parent: ttk.Widget,
-    buttons: list[tuple[str, Callable[[], None]]],
+    buttons: list[tuple[str | tk.StringVar, Callable[[], None]]],
     style: str = "Glass.TButton",
 ) -> ttk.Frame:
-    """Create a row of buttons with equal spacing."""
-    row = create_section_row(parent)
+    """Create a responsive row of buttons."""
+    row = ResponsiveButtonRow(parent)
     for label, command in buttons:
-        ttk.Button(row, text=label, command=command, style=style).pack(
-            side="left", padx=5
-        )
+        row.add_button(label, command, style)
     return row

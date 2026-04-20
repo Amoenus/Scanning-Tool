@@ -33,7 +33,7 @@ def create_labeled_spinbox(
         width=width,
         command=command if command is not None else "",
     )
-    spinbox.pack(side="left", padx=5)
+    spinbox.pack(side="left", padx=5, fill="x", expand=True)
     from ..theme import style_spinbox
 
     style_spinbox(spinbox, colors)
@@ -50,7 +50,7 @@ def create_labeled_entry(
     row = create_section_row(parent)
     ttk.Label(row, text=text, style="Glass.Small.TLabel").pack(side="left")
 
-    entry = tk.Entry(row, textvariable=variable, width=40)
+    entry = tk.Entry(row, textvariable=variable, width=1)
     entry.pack(side="left", padx=5, fill="x", expand=True)
     return entry
 
@@ -70,7 +70,7 @@ def create_labeled_combobox(
     text: str,
     variable: tk.Variable,
     values: list[str],
-    width: int = 40,
+    width: int = 1,
 ) -> ttk.Combobox:
     """Create a labeled combobox row with the custom glass styling."""
     row = create_section_row(parent)
