@@ -101,39 +101,59 @@ SAVE_CSV_FIELDNAMES = [
 SUMMARY_CSV_FIELDNAMES = ["mineral", "category", "base_value", "max_multiplier"]
 
 
+class ScanSignatureExporter:
+    def __init__(self, output_dir: Path = OUTPUT_DIR) -> None:
+        self.output_dir = output_dir
+
+    def save_json(self, data: List[ScanSignatureEntry], path: Path) -> None:
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump([asdict(entry) for entry in data], f, indent=2, ensure_ascii=False)
+
+    def _write_csv(self, path: Path, rows: List[CsvRow], fieldnames: list[str]) -> None:
+        with open(path, "w", encoding="utf-8", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(rows)
+
+    def save_csv(self, data: List[ScanSignatureEntry], path: Path) -> None:
+        rows: List[CsvRow] = []
+        for entry in data:
+            rows.extend(entry.to_csv_rows())
+
+        self._write_csv(path, rows, SAVE_CSV_FIELDNAMES)
+
+    def save_summary_csv(self, data: List[ScanSignatureEntry], path: Path) -> None:
+        rows: List[CsvRow] = []
+        for entry in data:
+            rows.append(entry.to_summary_row())
+
+        self._write_csv(path, rows, SUMMARY_CSV_FIELDNAMES)
+
+    def export_all(self, data: List[ScanSignatureEntry]) -> None:
+        self.save_json(data, self.output_dir / "scan_signatures.json")
+        self.save_csv(data, self.output_dir / "scan_signatures.csv")
+        self.save_summary_csv(data, self.output_dir / "scan_signatures_summary.csv")
+
+
+# Preserve the module-level public API for existing callers.
+_default_exporter = ScanSignatureExporter()
+
+
 def save_json(data: List[ScanSignatureEntry], path: Path) -> None:
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump([asdict(entry) for entry in data], f, indent=2, ensure_ascii=False)
-
-
-def _write_csv(path: Path, rows: List[CsvRow], fieldnames: list[str]) -> None:
-    with open(path, "w", encoding="utf-8", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(rows)
+    _default_exporter.save_json(data, path)
 
 
 def save_csv(data: List[ScanSignatureEntry], path: Path) -> None:
-    rows: List[CsvRow] = []
-    for entry in data:
-        rows.extend(entry.to_csv_rows())
-
-    _write_csv(path, rows, SAVE_CSV_FIELDNAMES)
+    _default_exporter.save_csv(data, path)
 
 
 def save_summary_csv(data: List[ScanSignatureEntry], path: Path) -> None:
-    rows: List[CsvRow] = []
-    for entry in data:
-        rows.append(entry.to_summary_row())
-
-    _write_csv(path, rows, SUMMARY_CSV_FIELDNAMES)
+    _default_exporter.save_summary_csv(data, path)
 
 
 def main() -> None:
     data = asyncio.run(scrape_scan_signatures())
-    save_json(data, OUTPUT_DIR / "scan_signatures.json")
-    save_csv(data, OUTPUT_DIR / "scan_signatures.csv")
-    save_summary_csv(data, OUTPUT_DIR / "scan_signatures_summary.csv")
+    _default_exporter.export_all(data)
     print(
         f"Saved {len(data)} minerals to {OUTPUT_DIR}/scan_signatures.json, .csv, and scan_signatures_summary.csv"
     )
