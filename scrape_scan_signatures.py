@@ -100,38 +100,41 @@ SAVE_CSV_FIELDNAMES = [
 
 SUMMARY_CSV_FIELDNAMES = ["mineral", "category", "base_value", "max_multiplier"]
 
+RowFactory = Callable[[ScanSignatureEntry], List[CsvRow]]
 
-class ScanSignatureExporter:
-    def __init__(self, output_dir: Path = OUTPUT_DIR) -> None:
-        self.output_dir = output_dir
 
-    def save_json(self, data: List[ScanSignatureEntry], path: Path) -> None:
-        with open(path, "w", encoding="utf-8") as f:
-            json.dump([asdict(entry) for entry in data], f, indent=2, ensure_ascii=False)
-
+class ScanSignatureCsvWriter:
     def _write_csv(self, path: Path, rows: List[CsvRow], fieldnames: list[str]) -> None:
         with open(path, "w", encoding="utf-8", newline="") as f:
             writer = csv.DictWriter(f, fieldnames=fieldnames)
             writer.writeheader()
             writer.writerows(rows)
 
-    def _collect_rows(
-        self,
-        data: List[ScanSignatureEntry],
-        row_factory: Callable[[ScanSignatureEntry], List[CsvRow]],
-    ) -> List[CsvRow]:
+    def _collect_rows(self, data: List[ScanSignatureEntry], row_factory: RowFactory) -> List[CsvRow]:
         rows: List[CsvRow] = []
         for entry in data:
             rows.extend(row_factory(entry))
         return rows
 
+    def write(self, data: List[ScanSignatureEntry], path: Path, row_factory: RowFactory, fieldnames: list[str]) -> None:
+        rows = self._collect_rows(data, row_factory)
+        self._write_csv(path, rows, fieldnames)
+
+
+class ScanSignatureExporter:
+    def __init__(self, output_dir: Path = OUTPUT_DIR) -> None:
+        self.output_dir = output_dir
+        self._csv_writer = ScanSignatureCsvWriter()
+
+    def save_json(self, data: List[ScanSignatureEntry], path: Path) -> None:
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump([asdict(entry) for entry in data], f, indent=2, ensure_ascii=False)
+
     def save_csv(self, data: List[ScanSignatureEntry], path: Path) -> None:
-        rows = self._collect_rows(data, lambda entry: entry.to_csv_rows())
-        self._write_csv(path, rows, SAVE_CSV_FIELDNAMES)
+        self._csv_writer.write(data, path, lambda entry: entry.to_csv_rows(), SAVE_CSV_FIELDNAMES)
 
     def save_summary_csv(self, data: List[ScanSignatureEntry], path: Path) -> None:
-        rows = self._collect_rows(data, lambda entry: [entry.to_summary_row()])
-        self._write_csv(path, rows, SUMMARY_CSV_FIELDNAMES)
+        self._csv_writer.write(data, path, lambda entry: [entry.to_summary_row()], SUMMARY_CSV_FIELDNAMES)
 
     def export_all(self, data: List[ScanSignatureEntry]) -> None:
         self.save_json(data, self.output_dir / "scan_signatures.json")

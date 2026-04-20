@@ -17,6 +17,20 @@ class ModelPromptProfile:
     prompt: str
 
 
+@dataclass(frozen=True)
+class OllamaChatMessage:
+    role: str
+    content: str
+    images: list[bytes]
+
+    def to_payload(self) -> dict[str, object]:
+        return {
+            "role": self.role,
+            "content": self.content,
+            "images": self.images,
+        }
+
+
 _DEFAULT_PROMPT = "Extract the numeric code shown in this image. Only return the code, no extra words."
 
 _MODEL_PROMPTS: tuple[ModelPromptProfile, ...] = (
@@ -70,19 +84,13 @@ def _get_image_bytes(pil_img: Image.Image) -> bytes:
     return buf.getvalue()
 
 
-def _build_ollama_message(prompt: str, image_bytes: bytes) -> list[dict[str, object]]:
-    return [
-        {
-            "role": "user",
-            "content": prompt,
-            "images": [image_bytes],
-        }
-    ]
+def _build_ollama_messages(prompt: str, image_bytes: bytes) -> list[OllamaChatMessage]:
+    return [OllamaChatMessage(role="user", content=prompt, images=[image_bytes])]
 
 
 def _send_ollama_chat(model: str, prompt: str, image_bytes: bytes) -> str:
     client: ollama.Client = get_ollama_client()
-    messages = _build_ollama_message(prompt, image_bytes)
+    messages = [message.to_payload() for message in _build_ollama_messages(prompt, image_bytes)]
     response: ollama.ChatResponse = client.chat(model=model, messages=messages)
     content = response.message.content
     return content.strip() if content else ""
