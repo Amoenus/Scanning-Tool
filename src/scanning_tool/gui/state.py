@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import Any, Callable, Optional
+from blinker import Signal
 
 from scanning_tool.gui.layout_types import CaptureOverlayLayout, InfoOverlayGeometry
 
@@ -123,11 +124,7 @@ class OverlayState:
     border_canvas: Optional[Any] = None
     show_border: bool = True
 
-    _capture_overlay_root_listeners: list[OverlayCaptureRootListener] = field(
-        default_factory=list,
-        init=False,
-        repr=False,
-    )
+    _capture_overlay_root_signal: Signal = field(default_factory=Signal, init=False, repr=False)
 
     @property
     def capture_overlay_root(self) -> Optional[Any]:
@@ -144,11 +141,13 @@ class OverlayState:
         self,
         listener: OverlayCaptureRootListener,
     ) -> None:
-        self._capture_overlay_root_listeners.append(listener)
+        def receiver(sender: object, capture_root: Optional[Any]) -> None:
+            listener(capture_root)
+
+        self._capture_overlay_root_signal.connect(receiver, weak=False)
 
     def _notify_capture_overlay_root_listeners(self) -> None:
-        for listener in tuple(self._capture_overlay_root_listeners):
-            listener(self.capture.root)
+        self._capture_overlay_root_signal.send(self, capture_root=self.capture.root)
 
     @property
     def capture_overlay_canvas(self) -> Optional[Any]:

@@ -4301,6 +4301,7 @@ name = "scanning-tool"
 version = "1.0.0"
 source = { editable = "." }
 dependencies = [
+    { name = "blinker" },
     { name = "flask" },
     { name = "keyboard" },
     { name = "loguru" },
@@ -4338,6 +4339,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "blinker", specifier = ">=1.9.0" },
     { name = "flask" },
     { name = "keyboard" },
     { name = "loguru" },
