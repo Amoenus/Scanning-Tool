@@ -117,6 +117,43 @@ def get_local_ip() -> str:
     return WebService.get_local_ip()
 
 
+def _create_capture_service(
+    config: ConfigData,
+    scan_state: ScanState,
+) -> "CaptureService":
+    from scanning_tool.services.capture_service import CaptureService
+
+    return CaptureService(config, scan_state)
+
+
+def _launch_gui(
+    config: ConfigData,
+    scan_state: ScanState,
+    service_state: ServiceState,
+    capture_service: "CaptureService",
+) -> None:
+    from scanning_tool.gui.provider import get_default_gui_provider
+
+    gui_provider = get_default_gui_provider()
+    gui_provider.launch_gui(
+        config=config,
+        scan_state=scan_state,
+        service_state=service_state,
+        overlay_state=manager.overlay_state,
+        control_state=manager.control_state,
+        capture_service=capture_service,
+        config_service=manager.config_service,
+    )
+
+
+def _shutdown_services() -> None:
+    from scanning_tool.services.alignment_service import alignment_service
+    from scanning_tool.services.ollama_service import ollama_service
+
+    ollama_service.stop()
+    alignment_service.stop()
+
+
 def main() -> None:
     """Launch the scanning tool."""
     setup_logging()
@@ -130,9 +167,7 @@ def main() -> None:
 
     load_rock_data()
 
-    from scanning_tool.services.capture_service import CaptureService
-
-    capture_service = CaptureService(config, scan_state)
+    capture_service = _create_capture_service(config, scan_state)
 
     _initialize_services()
     _initialize_anchor_tracking(config, scan_state)
@@ -140,21 +175,6 @@ def main() -> None:
     _start_web_server(config, scan_state, service_state)
 
     try:
-        from scanning_tool.gui.provider import get_default_gui_provider
-
-        gui_provider = get_default_gui_provider()
-        gui_provider.launch_gui(
-            config=config,
-            scan_state=scan_state,
-            service_state=service_state,
-            overlay_state=manager.overlay_state,
-            control_state=manager.control_state,
-            capture_service=capture_service,
-            config_service=manager.config_service,
-        )
+        _launch_gui(config, scan_state, service_state, capture_service)
     finally:
-        from scanning_tool.services.alignment_service import alignment_service
-        from scanning_tool.services.ollama_service import ollama_service
-
-        ollama_service.stop()
-        alignment_service.stop()
+        _shutdown_services()
