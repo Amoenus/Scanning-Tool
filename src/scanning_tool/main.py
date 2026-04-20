@@ -135,7 +135,7 @@ def _launch_gui(
 ) -> None:
     from scanning_tool.gui.provider import get_default_gui_provider
 
-    gui_provider = get_default_gui_provider()
+    gui_provider = get_default_gui_provider(config)
     gui_provider.launch_gui(
         config=config,
         scan_state=scan_state,

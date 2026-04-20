@@ -46,6 +46,7 @@ class ConfigData(BaseModel):
     web_server_config: WebServerConfig = Field(
         default_factory=lambda: WebServerConfig("0.0.0.0", 5000)
     )
+    gui_backend: str = "tk"
 
 
 class ConfigSaver(Protocol):
