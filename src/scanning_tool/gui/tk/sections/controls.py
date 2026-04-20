@@ -46,7 +46,10 @@ class ControlsSection:
                 ("Update Overlay", update_overlay_region),
                 ("Set Label Color", choose_label_color),
                 ("Save Config", ctx.config_service.save),
-                ("Toggle Border", toggle_border),
+                (
+                    "Toggle Border",
+                    lambda: toggle_border(self._ctx.overlay_state),
+                ),
             ],
         )
 
