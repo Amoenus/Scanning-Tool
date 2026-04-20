@@ -129,19 +129,21 @@ class CaptureOverlay:
 
         safe_tk(self._schedule_animation)
 
-    def show(self, overlay_state: OverlayState, capture_region: CaptureRegion) -> None:
+    def _destroy_existing_overlay(self) -> None:
         if self.root and safe_tk(self.root.winfo_exists, False):
             try:
                 self.stop_animation()
                 self.root.destroy()
             except tk.TclError:
                 pass
-            self.canvas = None
-            self.rect_id = None
-            self.border_canvas = None
+        self._clear_overlay_references()
 
-        self._capture_region = capture_region
-        layout = compute_capture_overlay_layout(capture_region)
+    def _clear_overlay_references(self) -> None:
+        self.canvas = None
+        self.rect_id = None
+        self.border_canvas = None
+
+    def _create_overlay(self, layout: CaptureOverlayLayout) -> None:
         self.root = create_overlay_window(
             layout.overlay_width, layout.overlay_height, layout.left, layout.top
         )
@@ -154,7 +156,6 @@ class CaptureOverlay:
         )
         self.canvas.pack()
         self.border_canvas = self.canvas
-
         self.rect_id = self.canvas.create_rectangle(
             layout.padding_x // 2,
             layout.padding_y,
@@ -165,10 +166,19 @@ class CaptureOverlay:
             tags=("border",),
         )
 
+    def _assign_overlay_state(self, overlay_state: OverlayState) -> None:
         overlay_state.capture_overlay_root = self.root
         overlay_state.capture_overlay_canvas = self.canvas
         overlay_state.capture_rect_id = self.rect_id
         overlay_state.border_canvas = self.border_canvas
+
+    def show(self, overlay_state: OverlayState, capture_region: CaptureRegion) -> None:
+        self._destroy_existing_overlay()
+
+        self._capture_region = capture_region
+        layout = compute_capture_overlay_layout(capture_region)
+        self._create_overlay(layout)
+        self._assign_overlay_state(overlay_state)
 
         self.start_animation(force=True)
 
