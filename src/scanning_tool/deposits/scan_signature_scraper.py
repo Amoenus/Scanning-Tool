@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, List, Optional, TypedDict
+from typing import Dict, List, Optional
+
+from pydantic import BaseModel, ConfigDict, Field
 
 COLOR_CATEGORY_MAP: dict[str, str] = {
     "rgb(255, 170, 51)": "legendary",
@@ -17,17 +19,21 @@ COLOR_CATEGORY_MAP: dict[str, str] = {
 }
 
 
-class RawScanValue(TypedDict, total=False):
-    text: Optional[str]
-    title: Optional[str]
-    amount: Optional[int]
-    value: Optional[int]
+class RawScanValue(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    text: Optional[str] = None
+    title: Optional[str] = None
+    amount: Optional[int] = None
+    value: Optional[int] = None
 
 
-class RawScanSignatureEntry(TypedDict, total=False):
-    mineral: Optional[str]
-    color: Optional[str]
-    values: List[RawScanValue]
+class RawScanSignatureEntry(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    mineral: Optional[str] = None
+    color: Optional[str] = None
+    values: List[RawScanValue] = Field(default_factory=list)
 
 
 CsvRow = Dict[str, Optional[str | int]]
@@ -123,27 +129,23 @@ def parse_color_to_category(color: str) -> str:
 
 class ScanSignatureEntryFactory:
     @staticmethod
-    def _as_optional_str(value: object | None) -> Optional[str]:
-        return value if isinstance(value, str) else None
-
-    @staticmethod
-    def _create_scan_value(raw_value: RawScanValue) -> ScanValue:
+    def _create_scan_value(raw_value: RawScanValue | dict[str, object]) -> ScanValue:
+        validated = RawScanValue.model_validate(raw_value)
         return ScanValue(
-            text=ScanSignatureEntryFactory._as_optional_str(raw_value.get("text")),
-            title=ScanSignatureEntryFactory._as_optional_str(raw_value.get("title")),
-            amount=raw_value.get("amount"),
-            value=raw_value.get("value"),
+            text=validated.text,
+            title=validated.title,
+            amount=validated.amount,
+            value=validated.value,
         )
 
     @classmethod
-    def from_raw_entry(cls, raw_entry: RawScanSignatureEntry) -> ScanSignatureEntry:
-        raw_values = raw_entry.get("values") or []
-        values = [cls._create_scan_value(raw_value) for raw_value in raw_values]
+    def from_raw_entry(cls, raw_entry: RawScanSignatureEntry | dict[str, object]) -> ScanSignatureEntry:
+        validated = RawScanSignatureEntry.model_validate(raw_entry)
+        values = [cls._create_scan_value(raw_value) for raw_value in validated.values]
 
-        color = cls._as_optional_str(raw_entry.get("color"))
         return ScanSignatureEntry(
-            mineral=cls._as_optional_str(raw_entry.get("mineral")),
-            color=color,
+            mineral=validated.mineral,
+            color=validated.color,
             values=values,
-            category=parse_color_to_category(color or ""),
+            category=parse_color_to_category(validated.color or ""),
         )

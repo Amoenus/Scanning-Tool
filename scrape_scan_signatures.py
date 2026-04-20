@@ -7,13 +7,12 @@ Outputs JSON and CSV formats.
 from __future__ import annotations
 
 import asyncio
-import json
-import csv
 from dataclasses import asdict
 from pathlib import Path
-from typing import Callable, List
+from typing import List
 import sys
 
+import pandas as pd
 from playwright.async_api import Page, async_playwright
 
 ROOT_DIR = Path(__file__).resolve().parent
@@ -21,7 +20,7 @@ SRC_DIR = ROOT_DIR / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from scanning_tool.deposits.scan_signature_scraper import (
+from scanning_tool.deposits.scan_signature_scraper import (  # noqa: E402
     CsvRow,
     RawScanSignatureEntry,
     ScanSignatureEntry,
@@ -34,7 +33,7 @@ OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 TARGET_URL = "https://scmdb.net/?page=mine"
 
 
-SCRAPE_SIGNATURES_SCRIPT = """() => {
+SCRAPE_SIGNATURES_SCRIPT = r"""() => {
             const rows = Array.from(document.querySelectorAll('.sigchart-row'));
             return rows.map(row => {
                 const labelDiv = row.querySelector('.sigchart-label');
@@ -106,41 +105,34 @@ SAVE_CSV_FIELDNAMES = [
 
 SUMMARY_CSV_FIELDNAMES = ["mineral", "category", "base_value", "max_multiplier"]
 
-RowFactory = Callable[[ScanSignatureEntry], List[CsvRow]]
-
-
-class ScanSignatureCsvWriter:
-    def _write_csv(self, path: Path, rows: List[CsvRow], fieldnames: list[str]) -> None:
-        with open(path, "w", encoding="utf-8", newline="") as f:
-            writer = csv.DictWriter(f, fieldnames=fieldnames)
-            writer.writeheader()
-            writer.writerows(rows)
-
-    def _collect_rows(self, data: List[ScanSignatureEntry], row_factory: RowFactory) -> List[CsvRow]:
-        rows: List[CsvRow] = []
-        for entry in data:
-            rows.extend(row_factory(entry))
-        return rows
-
-    def write(self, data: List[ScanSignatureEntry], path: Path, row_factory: RowFactory, fieldnames: list[str]) -> None:
-        rows = self._collect_rows(data, row_factory)
-        self._write_csv(path, rows, fieldnames)
-
 
 class ScanSignatureExporter:
     def __init__(self, output_dir: Path = OUTPUT_DIR) -> None:
         self.output_dir = output_dir
-        self._csv_writer = ScanSignatureCsvWriter()
+
+    def _write_dataframe(self, df: pd.DataFrame, path: Path, *, as_csv: bool = True) -> None:
+        if as_csv:
+            df.to_csv(path, index=False, encoding="utf-8")
+        else:
+            path.write_text(
+                df.to_json(orient="records", force_ascii=False, indent=2),
+                encoding="utf-8",
+            )
+
+    def _dataframe_from_rows(self, rows: List[CsvRow]) -> pd.DataFrame:
+        return pd.DataFrame.from_records(rows)
 
     def save_json(self, data: List[ScanSignatureEntry], path: Path) -> None:
-        with open(path, "w", encoding="utf-8") as f:
-            json.dump([asdict(entry) for entry in data], f, indent=2, ensure_ascii=False)
+        rows = [asdict(entry) for entry in data]
+        self._write_dataframe(pd.DataFrame.from_records(rows), path, as_csv=False)
 
     def save_csv(self, data: List[ScanSignatureEntry], path: Path) -> None:
-        self._csv_writer.write(data, path, lambda entry: entry.to_csv_rows(), SAVE_CSV_FIELDNAMES)
+        rows = [row for entry in data for row in entry.to_csv_rows()]
+        self._write_dataframe(self._dataframe_from_rows(rows), path)
 
     def save_summary_csv(self, data: List[ScanSignatureEntry], path: Path) -> None:
-        self._csv_writer.write(data, path, lambda entry: [entry.to_summary_row()], SUMMARY_CSV_FIELDNAMES)
+        rows = [entry.to_summary_row() for entry in data]
+        self._write_dataframe(self._dataframe_from_rows(rows), path)
 
     def export_all(self, data: List[ScanSignatureEntry]) -> None:
         self.save_json(data, self.output_dir / "scan_signatures.json")
