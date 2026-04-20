@@ -1,31 +1,7 @@
-"""Window lifecycle / teardown for the GUI."""
+"""Tkinter GUI wrapper module for backwards compatibility."""
 
-from typing import Callable
-import tkinter as tk
+from __future__ import annotations
 
-from scanning_tool.gui.overlays import (
-    destroy_all_overlays,
-    stop_capture_overlay_animation,
-)
-from scanning_tool.gui.overlay_state import OverlayState
+from scanning_tool.gui.tk.lifecycle import register_close_handler
 
-
-def register_close_handler(
-    root: tk.Tk,
-    overlay_state: OverlayState,
-    save_config: Callable[[], None],
-) -> None:
-    """Wire the root window's close button to a clean teardown sequence."""
-
-    def on_close() -> None:
-        stop_capture_overlay_animation()
-        save_config()
-        destroy_all_overlays()
-
-        overlay_state.capture.reset()
-        overlay_state.info.reset()
-        overlay_state.anchor.reset()
-
-        root.destroy()
-
-    root.protocol("WM_DELETE_WINDOW", on_close)
+__all__ = ["register_close_handler"]

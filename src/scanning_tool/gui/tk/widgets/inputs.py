@@ -6,7 +6,7 @@ import tkinter as tk
 from tkinter import ttk
 
 from .controls import create_section_row
-from scanning_tool.gui.theme import GlassPalette
+from ..theme import GlassPalette
 
 
 def create_labeled_spinbox(
@@ -34,7 +34,7 @@ def create_labeled_spinbox(
         command=command if command is not None else "",
     )
     spinbox.pack(side="left", padx=5)
-    from scanning_tool.gui.theme import style_spinbox
+    from ..theme import style_spinbox
 
     style_spinbox(spinbox, colors)
 

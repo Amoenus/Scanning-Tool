@@ -3,9 +3,9 @@
 import tkinter as tk
 from tkinter import ttk
 
-from scanning_tool.gui.sections.base import SectionContext
-from scanning_tool.gui.widgets import create_button_row, create_labeled_spinbox
-from scanning_tool.gui.overlays import (
+from .base import SectionContext
+from ..widgets import create_button_row, create_labeled_spinbox
+from ..overlays import (
     choose_label_color,
     toggle_border,
     update_overlay_region,

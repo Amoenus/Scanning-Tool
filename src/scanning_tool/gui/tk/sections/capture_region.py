@@ -2,9 +2,9 @@
 
 from tkinter import ttk
 
-from scanning_tool.gui.sections.base import SectionContext
-from scanning_tool.gui.widgets import create_glass_scale
-from scanning_tool.gui.overlays import (
+from .base import SectionContext
+from ..widgets import create_glass_scale
+from ..overlays import (
     register_capture_sliders,
     sync_capture_sliders,
     update_capture_overlay_region,

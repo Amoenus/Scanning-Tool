@@ -7,7 +7,7 @@ from typing import Optional
 from .base import CAPTURE_ANIMATION_INTERVAL_MS, create_overlay_window, safe_tk
 from .geometry import compute_capture_overlay_layout
 from scanning_tool.state.manager import overlay_state
-from scanning_tool.gui.layout import CaptureOverlayLayout
+from ..layout import CaptureOverlayLayout
 
 
 @dataclass(frozen=True)

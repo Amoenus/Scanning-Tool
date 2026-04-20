@@ -2,7 +2,7 @@
 
 import tkinter as tk
 
-from scanning_tool.gui.control_state import ScaleWidget
+from ..control_state import ScaleWidget
 from scanning_tool.state.manager import config, control_state
 from .base import safe_tk
 

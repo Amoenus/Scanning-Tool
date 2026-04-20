@@ -11,9 +11,9 @@ from tkinter import ttk
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from scanning_tool.gui.sections.base import SectionContext
+    from .base import SectionContext
 
-from scanning_tool.gui.widgets import (
+from ..widgets import (
     create_button_row,
     create_labeled_combobox,
     create_labeled_entry,

@@ -5,7 +5,7 @@ from typing import Optional
 import tkinter as tk
 from tkinter import ttk
 
-from scanning_tool.gui.theme import GlassPalette
+from ..theme import GlassPalette
 
 
 class ScrollableFrame:

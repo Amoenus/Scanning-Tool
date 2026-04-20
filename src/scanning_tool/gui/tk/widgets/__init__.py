@@ -1,17 +1,17 @@
-"""GUI widgets package wrapper for backwards compatibility."""
+"""Reusable GUI widgets for the scanning tool."""
 
-from __future__ import annotations
-
-from scanning_tool.gui.tk.widgets import (
+from .controls import (
     create_button_row,
     create_glass_scale,
     create_section_row,
+)
+from .inputs import (
     create_labeled_combobox,
     create_labeled_entry,
     create_labeled_spinbox,
     create_status_label,
-    ScrollableFrame,
 )
+from .scrollable import ScrollableFrame
 
 __all__ = [
     "create_glass_scale",

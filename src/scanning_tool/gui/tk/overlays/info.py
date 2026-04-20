@@ -10,7 +10,7 @@ from .capture import _capture_overlay
 from .geometry import compute_info_overlay_geometry
 from scanning_tool.state.manager import config, overlay_state
 from scanning_tool.domain.capture import DepositInfo
-from scanning_tool.gui.layout import InfoOverlayGeometry, InfoOverlayLayout
+from ..layout import InfoOverlayGeometry, InfoOverlayLayout
 
 
 class InfoOverlay:

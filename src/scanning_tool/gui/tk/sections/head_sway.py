@@ -12,13 +12,13 @@ from scanning_tool.core.anchor import AnchorRegionTracker
 from scanning_tool.domain.alignment import AlignmentRequest
 from scanning_tool.services.alignment_service import alignment_service
 from scanning_tool.config import ensure_anchor_directory
-from scanning_tool.gui.sections.base import SectionContext
-from scanning_tool.gui.widgets import (
+from .base import SectionContext
+from ..widgets import (
     create_button_row,
     create_glass_scale,
     create_labeled_spinbox,
 )
-from scanning_tool.gui.overlays import (
+from ..overlays import (
     hide_anchor_overlay,
     register_anchor_sliders,
     show_anchor_overlay,
@@ -236,7 +236,7 @@ class HeadSwaySection:
             self._status.set_anchor("Head sway compensation disabled.")
 
     def _run_auto_alignment(self) -> bool:
-        from scanning_tool.gui.overlays import sync_capture_sliders
+        from ..overlays import sync_capture_sliders
 
         return alignment_service.align(
             self._ctx.scan_state.anchor_tracker,
