@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, Field, field_validator
 
-from scanning_tool.domain.dtos import JsonObject
 from scanning_tool.domain.parsers import parse_float, parse_int
 
 if TYPE_CHECKING:
@@ -21,7 +20,7 @@ class OreStatisticsSchema(BaseModel):
 
     @field_validator("*", mode="before")
     @classmethod
-    def _coerce_to_float(cls, value):
+    def _coerce_to_float(cls, value: object | None) -> float:
         parsed_value = parse_float(value)
         return parsed_value if parsed_value is not None else 0.0
 
@@ -50,20 +49,18 @@ class DepositSchema(BaseModel):
 
     @field_validator("users", "scans", "clusters", mode="before")
     @classmethod
-    def _coerce_to_int(cls, value):
+    def _coerce_to_int(cls, value: object | None) -> int:
         parsed_value = parse_int(value)
         return parsed_value if parsed_value is not None else 0
 
     @field_validator("clusterCount", "mass", "inst", "res", mode="before")
     @classmethod
-    def _coerce_float_mapping(cls, value):
+    def _coerce_float_mapping(cls, value: dict[str, object] | None) -> dict[str, float]:
         if not isinstance(value, dict):
             return {}
 
         converted: dict[str, float] = {}
         for raw_key, raw_value in value.items():
-            if not isinstance(raw_key, str):
-                continue
             parsed_value = parse_float(raw_value)
             if parsed_value is None:
                 continue

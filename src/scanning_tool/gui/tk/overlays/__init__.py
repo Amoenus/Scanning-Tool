@@ -39,6 +39,7 @@ from scanning_tool.gui.overlay_state import OverlayState
 from scanning_tool.gui.control_state import ControlState
 
 __all__ = [
+    "ControlState",
     "choose_label_color",
     "create_overlay_window",
     "enforce_topmost",
