@@ -35,6 +35,7 @@ tests = ["pytest"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/scanning_tool"]
+include = ["src/scanning_tool/py.typed"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
