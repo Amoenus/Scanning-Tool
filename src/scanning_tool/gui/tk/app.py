@@ -33,7 +33,6 @@ from scanning_tool.state.scan_state import ScanState
 from scanning_tool.state.service_state import ServiceState
 from .control_state import ControlState
 
-
 SECTION_CLASSES: Sequence[Type[Section]] = (
     CaptureRegionSection,
     HeadSwaySection,

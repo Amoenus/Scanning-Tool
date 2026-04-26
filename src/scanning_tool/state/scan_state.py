@@ -7,7 +7,6 @@ from scanning_tool.core.anchor import AnchorRegionTracker
 from scanning_tool.domain.alignment import AlignmentInfo
 from scanning_tool.domain.capture import ScanResult
 
-
 ContinuousModeListener = Callable[[bool], None]
 ScanResultListener = Callable[[Optional[ScanResult]], None]
 AlignmentInfoListener = Callable[[AlignmentInfo], None]

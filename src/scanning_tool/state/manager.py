@@ -19,12 +19,12 @@ if TYPE_CHECKING:
     from scanning_tool.gui.control_state import ControlState
 
 _app_state_target: AppState | None = None
-_config_target: "ConfigData" | None = None
-_config_service_target: "ConfigSaver" | None = None
-_scan_state_target: "ScanState" | None = None
-_service_state_target: "ServiceState" | None = None
-_overlay_state_target: "OverlayState" | None = None
-_control_state_target: "ControlState" | None = None
+_config_target: ConfigData | None = None
+_config_service_target: ConfigSaver | None = None
+_scan_state_target: ScanState | None = None
+_service_state_target: ServiceState | None = None
+_overlay_state_target: OverlayState | None = None
+_control_state_target: ControlState | None = None
 
 app_state: AppState = cast(AppState, None)
 config: ConfigData = cast(ConfigData, None)

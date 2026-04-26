@@ -15,7 +15,6 @@ from scanning_tool.domain.scan_signature import (
     SignatureRegistry,
 )
 
-
 SCAN_SIG_CSV = (
     Path(__file__).resolve().parents[3]
     / "csv"
