@@ -35,14 +35,14 @@ def parse_scan_signature_row(
 
 def load_scan_signatures(path: Path) -> SignatureRegistry:
     registry = SignatureRegistry()
-    if not path.exists():
+    try:
+        df = pd.read_csv(path)
+    except FileNotFoundError:
         logger.warning(
             "Scan signature CSV not found",
             path=str(path),
         )
         return registry
-    try:
-        df = pd.read_csv(path)
     except Exception as exc:
         logger.warning(
             "Failed to load scan signature CSV",
@@ -75,7 +75,7 @@ def bootstrap_scan_signature_registry(
         path = Path(path)
 
     loaded_registry = load_scan_signatures(path)
-    SCAN_SIGNATURE_REGISTRY._signatures = loaded_registry.get_all()
+    SCAN_SIGNATURE_REGISTRY.replace_signatures(loaded_registry.get_all())
     _scan_signature_registry_loaded = True
     return SCAN_SIGNATURE_REGISTRY
 

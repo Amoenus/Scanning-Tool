@@ -86,6 +86,9 @@ class SignatureRegistry:
     def get_all(self) -> dict[int, ScanSignature]:
         return self._signatures.copy()
 
+    def replace_signatures(self, signatures: dict[int, ScanSignature]) -> None:
+        self._signatures = signatures.copy()
+
     @classmethod
     def load_from_csv(cls, path: str | Path) -> "SignatureRegistry":
         from pathlib import Path

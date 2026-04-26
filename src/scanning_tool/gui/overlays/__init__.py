@@ -2,7 +2,108 @@
 
 from __future__ import annotations
 
-from scanning_tool.gui.tk.overlays import *  # noqa: F401,F403
-from scanning_tool.gui.tk.overlays import __all__ as __tk_all__
+from typing import Optional
 
-__all__ = __tk_all__
+from scanning_tool.config.service import ConfigData
+from scanning_tool.gui.overlay_state import OverlayState
+from scanning_tool.gui.tk.overlays import (
+    choose_label_color,
+    configure_capture_slider_sync,
+    create_overlay_window,
+    enforce_topmost,
+    hide_anchor_overlay,
+    hide_capture_overlay,
+    hide_info_overlay,
+    register_anchor_sliders,
+    register_capture_sliders,
+    register_overlay_sliders,
+    reposition_info_overlay,
+    safe_tk,
+    show_anchor_overlay,
+    show_capture_overlay,
+    show_info_overlay,
+    start_capture_overlay_animation,
+    start_label_timeout,
+    stop_capture_overlay_animation,
+    sync_anchor_sliders,
+    sync_capture_sliders,
+    sync_capture_sliders_callback,
+    sync_overlay_sliders,
+    toggle_border,
+    update_anchor_overlay_region,
+    update_capture_overlay_region,
+    update_overlay_label,
+)
+
+__all__ = [
+    "choose_label_color",
+    "create_overlay_window",
+    "enforce_topmost",
+    "hide_anchor_overlay",
+    "register_anchor_sliders",
+    "register_capture_sliders",
+    "register_overlay_sliders",
+    "reposition_info_overlay",
+    "show_anchor_overlay",
+    "show_capture_overlay",
+    "hide_capture_overlay",
+    "show_info_overlay",
+    "hide_info_overlay",
+    "show_overlay",
+    "start_capture_overlay_animation",
+    "toggle_border",
+    "start_label_timeout",
+    "stop_capture_overlay_animation",
+    "sync_anchor_sliders",
+    "sync_capture_sliders",
+    "sync_capture_sliders_callback",
+    "configure_capture_slider_sync",
+    "sync_overlay_sliders",
+    "update_capture_overlay_region",
+    "update_overlay_label",
+    "update_anchor_overlay_region",
+    "update_overlay_region",
+    "destroy_all_overlays",
+]
+
+
+def show_overlay(
+    overlay_state: OverlayState,
+    config: ConfigData,
+    screen_width: Optional[int] = None,
+    screen_height: Optional[int] = None,
+) -> None:
+    show_anchor_overlay(overlay_state, config.anchor_template)
+    show_capture_overlay(overlay_state, config.capture_region)
+
+    if screen_width is None or screen_height is None:
+        if overlay_state.capture_overlay_root and safe_tk(
+            overlay_state.capture_overlay_root.winfo_exists, False
+        ):
+            screen_width = (
+                safe_tk(overlay_state.capture_overlay_root.winfo_screenwidth, 1920)
+                or 1920
+            )
+            screen_height = (
+                safe_tk(overlay_state.capture_overlay_root.winfo_screenheight, 1080)
+                or 1080
+            )
+
+    if screen_width is not None and screen_height is not None:
+        show_info_overlay(
+            screen_width,
+            screen_height,
+            overlay_state,
+            config.overlay_config,
+        )
+
+
+def update_overlay_region(overlay_state: OverlayState) -> None:
+    update_anchor_overlay_region(overlay_state)
+    update_capture_overlay_region()
+
+
+def destroy_all_overlays(overlay_state: OverlayState) -> None:
+    hide_anchor_overlay(overlay_state)
+    hide_capture_overlay(overlay_state)
+    hide_info_overlay(overlay_state)

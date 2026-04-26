@@ -4,12 +4,38 @@ This module preserves old import paths while routing users to the
 new explicit domain submodules.
 """
 
-from .alignment import *
-from .capture import *
-from .common import *
-from .ore import *
-from .scan_signature import *
-from .dtos import *
+from .alignment import (
+    AlignmentInfo,
+    AlignmentRequest,
+    AnchorDetection,
+    CaptureRegion,
+)
+from .capture import CodeExtraction, DepositInfo, ScanResult
+from .common import (
+    DepositTable,
+    MssMonitor,
+    Offset2D,
+    OreTableEntry,
+    OreTier,
+    OreValueInfo,
+    RegionDepositTables,
+)
+from .ore import (
+    Deposit,
+    OreStatistics,
+    OreTierInfo,
+    Region,
+    RockData,
+    RockDataCollection,
+)
+from .scan_signature import ScanSignature, ScanSignatureCSVRow, SignatureRegistry
+from .dtos import (
+    DepositData,
+    OreStatisticsData,
+    RegionData,
+    RockDataJSON,
+    ScanSignatureCSVRowData,
+)
 
 __all__ = [
     "AlignmentInfo",

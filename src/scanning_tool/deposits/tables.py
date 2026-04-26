@@ -52,7 +52,7 @@ def _create_ore_table_entry(ore_name: str, stats: OreStatistics) -> OreTableEntr
 
 def load_rock_data(service_state: ServiceState) -> None:
     """Load RockType.json and build deposit tables into service state."""
-    with open(ROCK_TYPE_FILE, "r") as f:
+    with ROCK_TYPE_FILE.open("r") as f:
         raw_data = json.load(f)
         service_state.rocks.rock_data = RockDataCollection.from_dict(raw_data)
 
