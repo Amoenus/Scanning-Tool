@@ -1,6 +1,6 @@
-# Star Citizen Deposit Scanner
+# ORCA — Ore Reconnaissance & Classification Assistant
 
-🚀 Read Star Citizen mining deposit codes automatically and see the results in-game or on another device.
+🐬 ORCA translates Star Citizen mining deposit scan codes on the fly and shows the actual mineral or salvage result in-game or on another device.
 
 [![GitHub release](https://img.shields.io/github/v/release/FrozenButton/Scanning-Tool)](https://github.com/FrozenButton/Scanning-Tool/releases)
 [![GitHub stars](https://img.shields.io/github/stars/FrozenButton/Scanning-Tool)](https://github.com/FrozenButton/Scanning-Tool/stargazers)

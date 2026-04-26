@@ -1,12 +1,12 @@
 # Launch Scripts Summary
 
-This document provides details about the launch scripts created for the Star Citizen Scanning Tool.
+This document provides details about the launch scripts created for ORCA — Ore Reconnaissance & Classification Assistant.
 
 ## Created Files
 
 ### Launch Scripts
 1. **`launch_linux.sh`** - Linux/Unix launch script
-2. **`launch_windows.bat`** - Windows batch script  
+2. **`launch_windows.bat`** - Windows batch script
 
 ### Support Files
 5. **`test_environment.py`** - Environment testing script

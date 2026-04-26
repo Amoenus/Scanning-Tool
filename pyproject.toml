@@ -3,9 +3,9 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "scanning-tool"
+name = "orca"
 version = "1.0.0"
-description = "Star Citizen deposit scanner with OCR and overlay"
+description = "ORCA: Star Citizen ore signature translator with OCR and overlay"
 requires-python = ">=3.10"
 dependencies = [
     "pillow",
@@ -28,6 +28,7 @@ dependencies = [
 
 [project.scripts]
 scanning-tool = "scanning_tool.main:main"
+orca = "scanning_tool.main:main"
 
 [project.optional-dependencies]
 tests = ["pytest"]

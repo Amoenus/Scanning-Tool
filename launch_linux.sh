@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Star Citizen Scanning Tool - Linux Launch Script
+# ORCA - Ore Reconnaissance & Classification Assistant - Linux Launch Script
 # This script sets up a virtual environment and launches the application
 
 set -e  # Exit on any error
@@ -9,7 +9,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 VENV_DIR="$SCRIPT_DIR/venv"
 PYTHON_CMD="python3"
 
-echo "=== Star Citizen Scanning Tool - Linux Setup ==="
+echo "=== ORCA - Ore Reconnaissance & Classification Assistant - Linux Setup ==="
 echo "Script directory: $SCRIPT_DIR"
 
 # Check if Python 3 is installed
@@ -72,7 +72,7 @@ if ! command -v ollama &> /dev/null; then
 fi
 
 # Launch the application
-echo "Launching Star Citizen Scanning Tool..."
+echo "Launching ORCA..."
 echo "Press Ctrl+C to stop the application"
 echo ""
 

@@ -1,10 +1,10 @@
 @echo off
 setlocal enabledelayedexpansion
 
-REM Star Citizen Scanning Tool - Windows Launch Script
+REM ORCA - Ore Reconnaissance & Classification Assistant - Windows Launch Script
 REM This script sets up a portable Python environment and launches the application
 
-echo === Star Citizen Scanning Tool - Windows Setup ===
+echo === ORCA - Ore Reconnaissance & Classification Assistant - Windows Setup ===
 
 set "SCRIPT_DIR=%~dp0"
 set "SCRIPT_DIR=%SCRIPT_DIR:~0,-1%"
@@ -32,17 +32,17 @@ if "%PYTHON_CMD%"=="%PYTHON_EXE%" (
     REM Check if portable Python exists
     if not exist "%PYTHON_EXE%" (
         echo Portable Python not found. Installing Python %PYTHON_VERSION%...
-        
+
         REM Create python directory
         if not exist "%PYTHON_DIR%" mkdir "%PYTHON_DIR%"
-        
+
         REM Download Python embedded distribution
         echo Downloading Python %PYTHON_VERSION% embedded distribution...
         echo This may take a few minutes depending on your internet connection...
-        
+
         REM Use PowerShell to download (available on Windows 7+ by default)
         powershell -Command "& {[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri '%PYTHON_URL%' -OutFile '%SCRIPT_DIR%\python.zip'}"
-        
+
         if not exist "%SCRIPT_DIR%\python.zip" (
             echo Error: Failed to download Python. Please check your internet connection.
             echo You can manually download Python from: %PYTHON_URL%
@@ -50,25 +50,25 @@ if "%PYTHON_CMD%"=="%PYTHON_EXE%" (
             pause
             exit /b 1
         )
-        
+
         REM Extract Python
         echo Extracting Python...
         powershell -Command "Expand-Archive -Path '%SCRIPT_DIR%\python.zip' -DestinationPath '%PYTHON_DIR%' -Force"
-        
+
         REM Clean up zip file
         del "%SCRIPT_DIR%\python.zip"
-        
+
         REM Enable pip by modifying python313._pth
         echo Configuring Python for pip support...
         if exist "%PYTHON_DIR%\python313._pth" (
             REM Remove the comment from import site line
             powershell -Command "(Get-Content '%PYTHON_DIR%\python313._pth') -replace '^#import site', 'import site' | Set-Content '%PYTHON_DIR%\python313._pth'"
         )
-        
+
         REM Install pip manually for embedded Python
         echo Installing pip...
         "%PYTHON_EXE%" -m ensurepip --default-pip
-        
+
         echo Portable Python installation completed!
     ) else (
         echo Portable Python found at: %PYTHON_EXE%
@@ -84,7 +84,7 @@ echo Found Python %CURRENT_VERSION%
 
 if "%PYTHON_CMD%"=="uv" (
     echo Launching with uv-managed Python and requirements.
-    echo Launching Star Citizen Scanning Tool...
+    echo Launching ORCA...
     echo Press Ctrl+C to stop the application
     echo.
 
@@ -145,7 +145,7 @@ if errorlevel 1 (
 )
 
 REM Launch the application
-echo Launching Star Citizen Scanning Tool...
+echo Launching ORCA...
 echo Press Ctrl+C to stop the application
 echo.
 

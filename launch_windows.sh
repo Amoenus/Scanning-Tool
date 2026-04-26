@@ -3,7 +3,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-echo "=== Star Citizen Scanning Tool - Git Bash Windows Launch ==="
+echo "=== ORCA - Ore Reconnaissance & Classification Assistant - Git Bash Windows Launch ==="
 echo "Project directory: $SCRIPT_DIR"
 
 if ! command -v uv >/dev/null 2>&1; then

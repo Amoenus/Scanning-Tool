@@ -1,7 +1,7 @@
-# PRD: Scanning Tool Overview
+# PRD: ORCA Overview
 
 ## Purpose
-The Star Citizen Deposit Scanner is a lightweight tool for automatically reading in-game mining deposit HUD codes, resolving deposit metadata, and presenting the results via a desktop GUI and browser-friendly overlay.
+ORCA is a lightweight tool for automatically reading in-game mining deposit HUD codes, resolving deposit metadata, and presenting the results via a desktop GUI and browser-friendly overlay.
 
 ## Problem Statement
 Star Citizen players need a fast, reliable way to capture deposit scan codes without manually typing values while in combat or mining. The scanner must tolerate ship movement and HUD sway, work with OCR, and provide a responsive overlay experience.
