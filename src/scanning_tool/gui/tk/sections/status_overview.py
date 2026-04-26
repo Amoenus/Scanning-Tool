@@ -32,9 +32,15 @@ class StatusOverviewSection:
 
         self._host_badge = self._create_badge(frame, "Ollama host", self._host_var)
         self._model_badge = self._create_badge(frame, "Model", self._model_var)
-        self._capture_badge = self._create_badge(frame, "Capture box", self._capture_var)
-        self._auto_scan_badge = self._create_badge(frame, "Auto scan", self._auto_scan_var)
-        self._auto_align_badge = self._create_badge(frame, "Auto align", self._auto_align_var)
+        self._capture_badge = self._create_badge(
+            frame, "Capture box", self._capture_var
+        )
+        self._auto_scan_badge = self._create_badge(
+            frame, "Auto scan", self._auto_scan_var
+        )
+        self._auto_align_badge = self._create_badge(
+            frame, "Auto align", self._auto_align_var
+        )
         create_status_label(frame, self._last_scan_var)
 
         hotkey_row = create_section_row(frame, pady=(0, 2))
@@ -50,12 +56,8 @@ class StatusOverviewSection:
         self._ctx.scan_state.add_continuous_mode_listener(
             self._on_continuous_mode_change
         )
-        self._ctx.scan_state.add_scan_result_listener(
-            self._on_scan_result_change
-        )
-        self._ctx.scan_state.add_alignment_info_listener(
-            self._on_alignment_info_change
-        )
+        self._ctx.scan_state.add_scan_result_listener(self._on_scan_result_change)
+        self._ctx.scan_state.add_alignment_info_listener(self._on_alignment_info_change)
         self._ctx.overlay_state.add_capture_overlay_root_listener(
             self._on_capture_overlay_visibility_change
         )
@@ -69,7 +71,9 @@ class StatusOverviewSection:
         variable: tk.StringVar,
     ) -> tk.Label:
         row = create_section_row(parent, pady=(0, 2))
-        ttk.Label(row, text=f"{label_text}: ", style="Glass.Small.TLabel").pack(side="left")
+        ttk.Label(row, text=f"{label_text}: ", style="Glass.Small.TLabel").pack(
+            side="left"
+        )
         badge = tk.Label(
             row,
             textvariable=variable,

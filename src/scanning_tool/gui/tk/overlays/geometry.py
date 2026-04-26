@@ -40,7 +40,9 @@ def compute_info_overlay_geometry(
     )
 
 
-def compute_capture_overlay_layout(capture_region: CaptureRegion) -> CaptureOverlayLayout:
+def compute_capture_overlay_layout(
+    capture_region: CaptureRegion,
+) -> CaptureOverlayLayout:
     cap_w = int(capture_region.width)
     cap_h = int(capture_region.height)
 
@@ -61,7 +63,9 @@ def compute_capture_overlay_layout(capture_region: CaptureRegion) -> CaptureOver
     )
 
 
-def compute_anchor_overlay_geometry(anchor_region: CaptureRegion) -> AnchorOverlayGeometry:
+def compute_anchor_overlay_geometry(
+    anchor_region: CaptureRegion,
+) -> AnchorOverlayGeometry:
     width = int(anchor_region.width) + ANCHOR_OVERLAY_PAD
     height = int(anchor_region.height) + ANCHOR_OVERLAY_PAD
     left = int(anchor_region.left) - (ANCHOR_OVERLAY_PAD // 2)

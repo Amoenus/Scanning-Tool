@@ -71,7 +71,9 @@ class AlignmentPoller:
     def _build_alignment_status_message(self, match_found: bool) -> Optional[str]:
         info = self._scan_state.last_alignment_info
         if info.matched:
-            capture_msg = f"Auto alignment adjusted CAP_REGION: {self._config.capture_region}"
+            capture_msg = (
+                f"Auto alignment adjusted CAP_REGION: {self._config.capture_region}"
+            )
             if self.status.status_var.get() != capture_msg:
                 self.status.set_status(capture_msg)
             return f"Anchor locked using {info.template} (score {info.score:.2f})."

@@ -40,13 +40,9 @@ class CaptureOverlay:
                 or last.overlay_width != layout.overlay_width
                 or last.overlay_height != layout.overlay_height
             ),
-            pos_changed=(
-                force or last.left != layout.left or last.top != layout.top
-            ),
+            pos_changed=(force or last.left != layout.left or last.top != layout.top),
             rect_changed=(
-                force
-                or last.cap_w != layout.cap_w
-                or last.cap_h != layout.cap_h
+                force or last.cap_w != layout.cap_w or last.cap_h != layout.cap_h
             ),
         )
 

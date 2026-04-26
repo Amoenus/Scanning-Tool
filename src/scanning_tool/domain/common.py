@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from enum import StrEnum
 from typing import Literal, TypedDict, TypeAlias
 
+
 class SpaceSystem(StrEnum):
     STANTON = "STANTON"
     PYRO = "PYRO"
@@ -15,6 +16,7 @@ class SpaceSystem(StrEnum):
             return cls(value.upper())
         except ValueError:
             return cls.STANTON
+
 
 OreTier = Literal["HIGHEST", "HIGH", "MEDIUM", "LOW", "OTHER"]
 

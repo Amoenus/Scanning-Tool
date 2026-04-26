@@ -86,7 +86,9 @@ class ControlsSection:
         safe_tk(
             lambda: self._ctx.root.after(
                 0,
-                lambda: self._continuous_button_text.set(self._build_continuous_button_label()),
+                lambda: self._continuous_button_text.set(
+                    self._build_continuous_button_label()
+                ),
             )
         )
 
@@ -99,9 +101,7 @@ class ControlsSection:
 
     def _build_capture_box_button_label(self) -> str:
         return (
-            "Hide Capture Box"
-            if self._is_capture_box_visible()
-            else "Show Capture Box"
+            "Hide Capture Box" if self._is_capture_box_visible() else "Show Capture Box"
         )
 
     def _is_capture_box_visible(self) -> bool:
@@ -135,5 +135,7 @@ class ControlsSection:
         self._ctx.capture_service.toggle_continuous()
         self._on_continuous_mode_change(self._ctx.scan_state.continuous_mode)
         self._status.set_status(
-            "Auto scan started." if self._ctx.scan_state.continuous_mode else "Auto scan stopped."
+            "Auto scan started."
+            if self._ctx.scan_state.continuous_mode
+            else "Auto scan stopped."
         )

@@ -51,19 +51,13 @@ class OllamaModelManager:
             return False, f"Model install failed: {exc}"
 
         running = log_model_running_status(model_value)
-        return True, OllamaModelManager._build_activation_message(
-            model_value, running
-        )
+        return True, OllamaModelManager._build_activation_message(model_value, running)
 
     @staticmethod
     def _build_activation_message(model_value: str, running: bool) -> str:
         if running:
-            return (
-                f"Ollama model set to {model_value} and is currently running."
-            )
-        return (
-            f"Ollama model set to {model_value}. It is not running yet and will start on first scan."
-        )
+            return f"Ollama model set to {model_value} and is currently running."
+        return f"Ollama model set to {model_value}. It is not running yet and will start on first scan."
 
 
 SUGGESTED_MODELS = (

@@ -97,7 +97,9 @@ class ScanSignatureEntry:
 
     def to_csv_rows(self) -> List[CsvRow]:
         return [
-            value.to_csv_row(mineral=self.mineral, category=self.category, color=self.color)
+            value.to_csv_row(
+                mineral=self.mineral, category=self.category, color=self.color
+            )
             for value in self.values
         ]
 
@@ -139,7 +141,9 @@ class ScanSignatureEntryFactory:
         )
 
     @classmethod
-    def from_raw_entry(cls, raw_entry: RawScanSignatureEntry | dict[str, object]) -> ScanSignatureEntry:
+    def from_raw_entry(
+        cls, raw_entry: RawScanSignatureEntry | dict[str, object]
+    ) -> ScanSignatureEntry:
         validated = RawScanSignatureEntry.model_validate(raw_entry)
         values = [cls._create_scan_value(raw_value) for raw_value in validated.values]
 

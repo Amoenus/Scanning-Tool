@@ -4,7 +4,12 @@ import json
 from typing import Dict
 
 from scanning_tool.config import ROCK_TYPE_FILE
-from scanning_tool.domain.common import DepositTable, OreTableEntry, OreValueInfo, SpaceSystem
+from scanning_tool.domain.common import (
+    DepositTable,
+    OreTableEntry,
+    OreValueInfo,
+    SpaceSystem,
+)
 from scanning_tool.state.service_state import ServiceState
 from scanning_tool.domain.ore import Deposit, Region, OreStatistics, RockDataCollection
 from scanning_tool.deposits.ore_tiers import ORE_VALUE_MAP, TIER_ORDER
@@ -27,9 +32,13 @@ class DepositTableBuilder:
             for ore_name, ore_stats in deposit.ores.items()
         ]
 
-    def _create_ore_table_entry(self, ore_name: str, stats: OreStatistics) -> OreTableEntry:
+    def _create_ore_table_entry(
+        self, ore_name: str, stats: OreStatistics
+    ) -> OreTableEntry:
         name_up = ore_name.upper()
-        value_info = ORE_VALUE_MAP.get(name_up, OreValueInfo(tier="OTHER", color="#888"))
+        value_info = ORE_VALUE_MAP.get(
+            name_up, OreValueInfo(tier="OTHER", color="#888")
+        )
         return OreTableEntry(
             name=ore_name.title(),
             prob=f"{stats.prob * 100:.0f}%",

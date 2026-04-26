@@ -50,8 +50,19 @@ __all__ = [
 def initialize_state(app_state_: AppState, config_service_: "ConfigSaver") -> None:
     """Initialize global runtime state from the bootstrapper."""
     global _app_state_target, _config_target, _config_service_target
-    global _scan_state_target, _service_state_target, _overlay_state_target, _control_state_target
-    global app_state, config, config_service, scan_state, service_state, overlay_state, control_state
+    global \
+        _scan_state_target, \
+        _service_state_target, \
+        _overlay_state_target, \
+        _control_state_target
+    global \
+        app_state, \
+        config, \
+        config_service, \
+        scan_state, \
+        service_state, \
+        overlay_state, \
+        control_state
 
     if _app_state_target is not None:
         raise RuntimeError("Runtime state has already been initialized")

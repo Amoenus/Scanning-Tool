@@ -1,4 +1,5 @@
 """Identify candidate dead Python code using import coverage and Vulture."""
+
 from __future__ import annotations
 
 import argparse
@@ -12,7 +13,7 @@ ROOT = Path(__file__).resolve().parent.parent
 SOURCE_ROOT = ROOT / "src" / "scanning_tool"
 IMPORT_PATTERNS = [
     re.compile(r"from\s+([\w\.]+)\s+import"),
-    re.compile(r"import\s+([\w\.]+)")
+    re.compile(r"import\s+([\w\.]+)"),
 ]
 
 
@@ -117,7 +118,10 @@ def main() -> None:
         raise SystemExit(f"Source root not found: {source_root}")
 
     module_candidates = find_unused_modules(source_root)
-    print_section("Candidate unused modules:", [f"{mod} -> {path}" for mod, path in module_candidates])
+    print_section(
+        "Candidate unused modules:",
+        [f"{mod} -> {path}" for mod, path in module_candidates],
+    )
     print(f"\nTotal module candidates: {len(module_candidates)}\n")
 
     if not args.no_vulture:

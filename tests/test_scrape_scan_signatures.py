@@ -80,8 +80,18 @@ def test_scan_signature_exporter_writes_files(tmp_path: Path):
         mineral="Quantainium",
         color="rgb(255, 170, 51)",
         values=[
-            ScanValue(text="Quantainium ×1 = 1,000", title="Quantainium ×1 = 1,000", amount=1, value=1000),
-            ScanValue(text="Quantainium ×2 = 2,000", title="Quantainium ×2 = 2,000", amount=2, value=2000),
+            ScanValue(
+                text="Quantainium ×1 = 1,000",
+                title="Quantainium ×1 = 1,000",
+                amount=1,
+                value=1000,
+            ),
+            ScanValue(
+                text="Quantainium ×2 = 2,000",
+                title="Quantainium ×2 = 2,000",
+                amount=2,
+                value=2000,
+            ),
         ],
         category="legendary",
     )

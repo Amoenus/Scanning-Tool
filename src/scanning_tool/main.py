@@ -47,7 +47,7 @@ def _initialize_anchor_tracking(config: ConfigData, scan_state: ScanState) -> No
     )
 
 
-def _start_hotkey_listener(capture_service: 'CaptureService') -> None:
+def _start_hotkey_listener(capture_service: "CaptureService") -> None:
     """Launch the global hotkey listener on a background thread."""
     from scanning_tool.services.hotkeys_service import hotkey_listener
 

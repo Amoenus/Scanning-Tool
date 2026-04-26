@@ -121,9 +121,9 @@ def lookup_deposit(
     if code_re is None:
         code_re = _default_code_re
 
-    return DepositLookupService(
-        get_scan_signature_registry(), code_re=code_re
-    ).lookup(code)
+    return DepositLookupService(get_scan_signature_registry(), code_re=code_re).lookup(
+        code
+    )
 
 
 def extract_code_from_text(

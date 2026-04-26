@@ -1,4 +1,4 @@
-﻿"""Compatibility wrapper for legacy domain model imports.
+"""Compatibility wrapper for legacy domain model imports.
 
 This module preserves old import paths while routing users to the
 new explicit domain submodules.

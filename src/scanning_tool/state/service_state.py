@@ -36,7 +36,9 @@ class CodePatterns:
 @dataclass
 class RockDataCache:
     rock_data: RockData = field(default_factory=RockDataCollection)
-    deposit_tables: RegionDepositTables = field(default_factory=_default_region_deposit_tables)
+    deposit_tables: RegionDepositTables = field(
+        default_factory=_default_region_deposit_tables
+    )
 
 
 @dataclass

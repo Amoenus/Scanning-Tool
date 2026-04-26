@@ -34,8 +34,7 @@ class GuiProvider(Protocol):
         control_state: ControlState,
         capture_service: CaptureController,
         config_service: ConfigSaver,
-    ) -> None:
-        ...
+    ) -> None: ...
 
 
 def get_default_gui_provider(config: ConfigData | None = None) -> GuiProvider:

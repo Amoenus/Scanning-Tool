@@ -91,8 +91,13 @@ class OllamaService(BaseService):
             reraise=True,
         )
         def wait_until_running() -> bool:
-            if self._daemon_process is not None and self._daemon_process.poll() is not None:
-                raise RuntimeError("'ollama serve' exited before the service became ready.")
+            if (
+                self._daemon_process is not None
+                and self._daemon_process.poll() is not None
+            ):
+                raise RuntimeError(
+                    "'ollama serve' exited before the service became ready."
+                )
             return self._is_running(host)
 
         try:

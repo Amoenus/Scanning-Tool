@@ -25,7 +25,7 @@ SCAN_SIG_CSV = (
 
 
 def parse_scan_signature_row(
-    row: ScanSignatureCSVRowData | Mapping[str, object] | pd.Series | None
+    row: ScanSignatureCSVRowData | Mapping[str, object] | pd.Series | None,
 ) -> Optional[ScanSignature]:
     if row is None or len(row) == 0:
         return None

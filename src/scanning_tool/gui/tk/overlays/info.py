@@ -34,7 +34,11 @@ class InfoOverlay:
     def _update_canvas_text(self) -> None:
         canvas = self.canvas
         text_id = self.text_id
-        if canvas is not None and text_id is not None and self._overlay_config is not None:
+        if (
+            canvas is not None
+            and text_id is not None
+            and self._overlay_config is not None
+        ):
             fill_color = self._overlay_config.label_color
             safe_tk(
                 lambda: canvas.itemconfig(
@@ -80,9 +84,7 @@ class InfoOverlay:
 
         geo = compute_info_overlay_geometry(screen_width, screen_height, overlay_config)
 
-        safe_tk(
-            lambda: root.geometry(f"{geo.width}x{geo.height}+{geo.left}+{geo.top}")
-        )
+        safe_tk(lambda: root.geometry(f"{geo.width}x{geo.height}+{geo.left}+{geo.top}"))
         safe_tk(lambda: canvas.config(width=geo.width, height=geo.height))
         safe_tk(lambda: canvas.coords(text_id, geo.width // 2, geo.height // 2))
         safe_tk(lambda: canvas.itemconfig(text_id, width=geo.width - 60))
@@ -104,7 +106,9 @@ class InfoOverlay:
 
         root = self.root
         if root is not None and safe_tk(root.winfo_exists, False):
-            safe_tk(lambda: root.after(500, lambda: self.start_label_timeout(overlay_state)))
+            safe_tk(
+                lambda: root.after(500, lambda: self.start_label_timeout(overlay_state))
+            )
 
     def _destroy_existing(self) -> None:
         if self.root and safe_tk(self.root.winfo_exists, False):

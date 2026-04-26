@@ -5,7 +5,11 @@ from typing import Protocol, Callable, Optional
 from PIL.Image import Image
 
 from scanning_tool.core.anchor import AnchorRegionTracker
-from scanning_tool.domain.alignment import AlignmentInfo, AlignmentRequest, CaptureRegion
+from scanning_tool.domain.alignment import (
+    AlignmentInfo,
+    AlignmentRequest,
+    CaptureRegion,
+)
 from scanning_tool.domain.capture import DepositInfo
 
 StatusCallback = Callable[[str], None]
@@ -14,22 +18,19 @@ StatusCallback = Callable[[str], None]
 class CaptureProvider(Protocol):
     """Provides a screen capture image for a given capture region."""
 
-    def capture(self, region: CaptureRegion) -> Image:
-        ...
+    def capture(self, region: CaptureRegion) -> Image: ...
 
 
 class OCRProvider(Protocol):
     """Extract text from an image."""
 
-    def extract_text(self, pil_img: Image) -> str:
-        ...
+    def extract_text(self, pil_img: Image) -> str: ...
 
 
 class DepositLookupProvider(Protocol):
     """Lookup deposit metadata from an OCR code."""
 
-    def lookup(self, code: Optional[str]) -> Optional[DepositInfo]:
-        ...
+    def lookup(self, code: Optional[str]) -> Optional[DepositInfo]: ...
 
 
 class AlignmentAdapter(Protocol):
@@ -40,5 +41,4 @@ class AlignmentAdapter(Protocol):
         anchor_tracker: AnchorRegionTracker | None,
         last_alignment_info: AlignmentInfo,
         alignment_request: AlignmentRequest,
-    ) -> bool:
-        ...
+    ) -> bool: ...

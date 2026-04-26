@@ -29,4 +29,3 @@ class AppState:
     service_state: ServiceState = field(default_factory=ServiceState)
     overlay_state: OverlayState = field(default_factory=OverlayState)
     control_state: ControlState = field(default_factory=ControlState)
-

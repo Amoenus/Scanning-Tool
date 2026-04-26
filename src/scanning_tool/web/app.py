@@ -49,7 +49,6 @@ class WebService:
             pass
         return "127.0.0.1"
 
-
     def _index(self) -> str:
         return render_template("overlay.html")
 

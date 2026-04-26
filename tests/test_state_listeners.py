@@ -27,9 +27,7 @@ def test_scan_state_alignment_info_listener_is_called() -> None:
     scan_state = ScanState()
     received: list[bool] = []
 
-    scan_state.add_alignment_info_listener(
-        lambda info: received.append(info.enabled)
-    )
+    scan_state.add_alignment_info_listener(lambda info: received.append(info.enabled))
 
     scan_state.last_alignment_info.enabled = True
     scan_state.notify_alignment_info_listeners()

@@ -1,6 +1,5 @@
 """Configuration package wrapper for the scanning tool."""
 
-
 from .loader import (
     CONFIG_FILE,
     PROJECT_ROOT,

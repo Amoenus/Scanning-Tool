@@ -83,9 +83,7 @@ class AnchorOverlay:
         assert root is not None and canvas is not None and rect_id is not None
 
         geometry = compute_anchor_overlay_geometry(anchor_template)
-        safe_tk(
-            lambda: canvas.config(width=geometry.width, height=geometry.height)
-        )
+        safe_tk(lambda: canvas.config(width=geometry.width, height=geometry.height))
         safe_tk(
             lambda: canvas.coords(
                 rect_id,
@@ -122,7 +120,9 @@ class AnchorOverlay:
 _anchor_overlay = AnchorOverlay()
 
 
-def show_anchor_overlay(overlay_state: OverlayState, anchor_template: CaptureRegion) -> None:
+def show_anchor_overlay(
+    overlay_state: OverlayState, anchor_template: CaptureRegion
+) -> None:
     _anchor_overlay.show(overlay_state, anchor_template)
 
 

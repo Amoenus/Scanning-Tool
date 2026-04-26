@@ -124,7 +124,9 @@ class OverlayState:
     border_canvas: Optional[Any] = None
     show_border: bool = True
 
-    _capture_overlay_root_signal: Signal = field(default_factory=Signal, init=False, repr=False)
+    _capture_overlay_root_signal: Signal = field(
+        default_factory=Signal, init=False, repr=False
+    )
 
     @property
     def capture_overlay_root(self) -> Optional[Any]:
@@ -178,7 +180,9 @@ class OverlayState:
         return self.capture.last_layout
 
     @capture_overlay_last_layout.setter
-    def capture_overlay_last_layout(self, value: Optional[CaptureOverlayLayout]) -> None:
+    def capture_overlay_last_layout(
+        self, value: Optional[CaptureOverlayLayout]
+    ) -> None:
         self.capture.last_layout = value
 
     @property

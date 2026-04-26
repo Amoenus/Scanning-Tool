@@ -69,4 +69,6 @@ class ResultDisplaySection:
         self._status.set_status(
             f"Display offset updated: x={overlay_offset.x}, y={overlay_offset.y}"
         )
-        reposition_info_overlay(self._ctx.overlay_state, self._ctx.config.overlay_config)
+        reposition_info_overlay(
+            self._ctx.overlay_state, self._ctx.config.overlay_config
+        )

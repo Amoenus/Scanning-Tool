@@ -58,7 +58,9 @@ def test_alignment_service_updates_capture_region_and_callbacks():
     )
 
     sync_capture_sliders_signal.connect(sync_capture_sliders, weak=False)
-    update_capture_overlay_region_signal.connect(update_capture_overlay_region, weak=False)
+    update_capture_overlay_region_signal.connect(
+        update_capture_overlay_region, weak=False
+    )
     try:
         service = AlignmentService()
         result = service.align(

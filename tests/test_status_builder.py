@@ -7,7 +7,10 @@ from scanning_tool.domain.capture import DepositInfo, ScanResult
 from scanning_tool.state.scan_state import ScanState
 from scanning_tool.state.service_state import ServiceState
 from scanning_tool.web.schemas import StatusResponse
-from scanning_tool.web.status_builder import DefaultStatusResponseBuilder, DepositTableResolver
+from scanning_tool.web.status_builder import (
+    DefaultStatusResponseBuilder,
+    DepositTableResolver,
+)
 
 
 def test_deposit_table_resolver_uses_name_when_key_is_missing() -> None:
@@ -67,7 +70,9 @@ def test_deposit_table_resolver_returns_none_when_table_is_missing() -> None:
     assert table is None
 
 
-def test_default_status_response_builder_returns_empty_status_when_no_scan_exists() -> None:
+def test_default_status_response_builder_returns_empty_status_when_no_scan_exists() -> (
+    None
+):
     builder = DefaultStatusResponseBuilder()
     config = ConfigData()
     scan_state = ScanState()

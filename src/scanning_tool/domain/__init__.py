@@ -1,4 +1,4 @@
-﻿"""Domain package for business models and DTOs."""
+"""Domain package for business models and DTOs."""
 
 from . import alignment, capture, common, dtos, ore, scan_signature
 

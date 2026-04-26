@@ -47,6 +47,7 @@ def register_overlay_sliders(
     control_state.overlay.offset_x = offset_x
     control_state.overlay.offset_y = offset_y
 
+
 _control_state: ControlState | None = None
 _capture_region_getter: Callable[[], CaptureRegion] | None = None
 
@@ -107,7 +108,10 @@ def sync_anchor_sliders(
     height = widgets.height
     offset_x = widgets.offset_x
     offset_y = widgets.offset_y
-    if not (left and top and width and height and offset_x and offset_y) or control_state.syncing.anchor:
+    if (
+        not (left and top and width and height and offset_x and offset_y)
+        or control_state.syncing.anchor
+    ):
         return
 
     def _apply() -> None:

@@ -67,7 +67,9 @@ class HeadSwaySection:
         return frame
 
     def _build_interval_row(self, parent: ttk.Widget, ctx: SectionContext) -> None:
-        self._interval_var = tk.IntVar(value=int(self._ctx.config.alignment_poll_interval_ms))
+        self._interval_var = tk.IntVar(
+            value=int(self._ctx.config.alignment_poll_interval_ms)
+        )
         create_labeled_spinbox(
             parent,
             text="Alignment interval (ms)",
@@ -141,10 +143,31 @@ class HeadSwaySection:
         anchor_offset = self._ctx.config.anchor_offset
 
         slider_configs = [
-            ("Anchor Left", 0, 3840, anchor_region.left, self._on_region_change, (0, 4)),
+            (
+                "Anchor Left",
+                0,
+                3840,
+                anchor_region.left,
+                self._on_region_change,
+                (0, 4),
+            ),
             ("Anchor Top", 0, 2160, anchor_region.top, self._on_region_change, (0, 4)),
-            ("Anchor Width", 50, 1200, anchor_region.width, self._on_region_change, (0, 4)),
-            ("Anchor Height", 50, 800, anchor_region.height, self._on_region_change, (0, 4)),
+            (
+                "Anchor Width",
+                50,
+                1200,
+                anchor_region.width,
+                self._on_region_change,
+                (0, 4),
+            ),
+            (
+                "Anchor Height",
+                50,
+                800,
+                anchor_region.height,
+                self._on_region_change,
+                (0, 4),
+            ),
             ("Offset X", -300, 600, anchor_offset.x, self._on_offset_change, (0, 4)),
             ("Offset Y", -300, 600, anchor_offset.y, self._on_offset_change, (0, 0)),
         ]
@@ -156,10 +179,7 @@ class HeadSwaySection:
             self._anchor_height,
             self._offset_x,
             self._offset_y,
-        ) = [
-            self._create_anchor_slider(parent, *config)
-            for config in slider_configs
-        ]
+        ) = [self._create_anchor_slider(parent, *config) for config in slider_configs]
 
         register_anchor_sliders(
             self._anchor_left,
@@ -254,7 +274,9 @@ class HeadSwaySection:
     def _toggle_anchor_overlay_visibility(self) -> None:
         self._ctx.overlay_state.anchor_overlay_visible = self._anchor_overlay_var.get()
         if self._ctx.overlay_state.anchor_overlay_visible:
-            show_anchor_overlay(self._ctx.overlay_state, self._ctx.config.anchor_template)
+            show_anchor_overlay(
+                self._ctx.overlay_state, self._ctx.config.anchor_template
+            )
             self._status.set_anchor("Anchor overlay shown.")
         else:
             hide_anchor_overlay(self._ctx.overlay_state)

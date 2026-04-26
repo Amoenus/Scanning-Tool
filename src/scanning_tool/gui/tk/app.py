@@ -139,7 +139,9 @@ def _build_section_context(
     )
 
 
-def _build_main_panel(root: tk.Tk, colors: GlassPalette, ctx: SectionContext) -> tk.Widget:
+def _build_main_panel(
+    root: tk.Tk, colors: GlassPalette, ctx: SectionContext
+) -> tk.Widget:
     scroll = ScrollableFrame(root, colors)
     return scroll.inner
 

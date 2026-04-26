@@ -1,4 +1,3 @@
-
 from scanning_tool.ollama.host import (
     get_ollama_host,
     get_ollama_model,

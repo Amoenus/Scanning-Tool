@@ -49,13 +49,14 @@ class TestSecurity(unittest.TestCase):
     def tearDown(self):
         self._patcher.stop()
 
-
     def test_flask_binding_default(self):
         with patch("scanning_tool.web.app.WebService.create_app") as mock_create_app:
             with patch("scanning_tool.main.Thread") as mock_thread:
                 with patch("scanning_tool.main.logger") as mock_logger:
                     with patch("scanning_tool.main.get_local_ip") as mock_get_local_ip:
-                        with patch("scanning_tool.web.server.WebServer.run") as mock_web_run:
+                        with patch(
+                            "scanning_tool.web.server.WebServer.run"
+                        ) as mock_web_run:
                             mock_get_local_ip.return_value = "192.168.1.100"
                             from scanning_tool.main import _start_web_server
 
@@ -90,7 +91,9 @@ class TestSecurity(unittest.TestCase):
         with patch("scanning_tool.web.app.WebService.create_app") as mock_create_app:
             with patch("scanning_tool.main.Thread") as mock_thread:
                 with patch("scanning_tool.main.logger") as mock_logger:
-                    with patch("scanning_tool.web.server.WebServer.run") as mock_web_run:
+                    with patch(
+                        "scanning_tool.web.server.WebServer.run"
+                    ) as mock_web_run:
                         from scanning_tool.main import _start_web_server
 
                         mock_flask_app = MagicMock()

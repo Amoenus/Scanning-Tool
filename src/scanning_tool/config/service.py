@@ -56,13 +56,10 @@ class ConfigData(BaseSettings):
     gui_backend: str = "tk"
 
 
-
-
 class ConfigSaver(Protocol):
     """Minimal config persistence contract."""
 
-    def save(self) -> None:
-        ...
+    def save(self) -> None: ...
 
 
 class ConfigService:
