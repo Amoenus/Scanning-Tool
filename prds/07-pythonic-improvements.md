@@ -85,3 +85,10 @@ The current codebase is already largely modern, but it still contains a few Pyth
 3. Add or confirm `py.typed` packaging support.
 4. Standardize logging instead of `print()` in modules that emit diagnostic messages.
 5. Re-run `ruff check src/scanning_tool` and `mypy .` to validate the improvements.
+
+## Status
+- `src/scanning_tool/domain/models.py` already uses explicit exports and requires no star-import shim changes.
+- `src/scanning_tool/deposits/scan_signatures.py` has been updated to normalize `Path | str` inputs and use a resolved `Path` helper.
+- `src/scanning_tool/config/service.py` now uses EAFP semantics and a `with self.config_file.open(...)` context manager.
+- `py.typed` metadata support is present in `pyproject.toml` and `src/scanning_tool/py.typed`.
+- `src/scanning_tool` already avoids `print()` for diagnostics and uses logging consistently.

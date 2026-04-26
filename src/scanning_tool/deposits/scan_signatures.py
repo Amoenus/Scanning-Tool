@@ -17,7 +17,7 @@ from scanning_tool.domain.scan_signature import (
 
 
 SCAN_SIG_CSV = (
-    Path(__file__).parent.parent.parent.parent
+    Path(__file__).resolve().parents[3]
     / "csv"
     / "scansig"
     / "scan_signatures_summary.csv"
@@ -33,7 +33,8 @@ def parse_scan_signature_row(
     return ScanSignatureCSVRow.from_mapping(row).to_scan_signature()
 
 
-def load_scan_signatures(path: Path) -> SignatureRegistry:
+def load_scan_signatures(path: Path | str) -> SignatureRegistry:
+    path = Path(path)
     registry = SignatureRegistry()
     try:
         df = pd.read_csv(path)
