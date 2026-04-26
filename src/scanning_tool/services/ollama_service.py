@@ -4,27 +4,27 @@ import socket
 import shutil
 import subprocess
 import sys
-from typing import Optional
 
 from tenacity import RetryError, retry, retry_if_result, stop_after_delay, wait_fixed
 
 from scanning_tool.services.base_service import BaseService
 from scanning_tool.ollama.host import (
     get_ollama_host,
+    get_host_port,
     is_local_ollama_host,
-    _get_host_port,
 )
 
 
 class OllamaService(BaseService):
-    """Manages the Ollama process and model availability via encapsulated subprocess daemon."""
+    """Manages the Ollama process and model availability via encapsulated
+    subprocess daemon."""
 
     def __init__(self):
         super().__init__()
-        self._daemon_process: Optional[subprocess.Popen] = None
+        self._daemon_process: subprocess.Popen[bytes] | None = None
 
     def _is_running(self, host: str, timeout: float = 2.0) -> bool:
-        hostname, port = _get_host_port(host)
+        hostname, port = get_host_port(host)
         try:
             with socket.create_connection((hostname, port), timeout=timeout):
                 return True
