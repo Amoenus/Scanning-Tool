@@ -81,7 +81,12 @@ def _start_web_server(
 
     flask_app = _build_flask_app(config, scan_state, service_state)
     Thread(
-        target=lambda: WebServer.run(flask_app, host=host, port=port),
+        target=lambda: WebServer.run(
+            flask_app,
+            host=host,
+            port=port,
+            threads=web_config.threads,
+        ),
         daemon=True,
     ).start()
 

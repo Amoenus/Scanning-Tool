@@ -34,6 +34,7 @@ class MockConfig:
         self.web_server_config = MagicMock()
         self.web_server_config.host = "0.0.0.0"
         self.web_server_config.port = 5000
+        self.web_server_config.threads = 6
 
 
 class TestSecurity(unittest.TestCase):
@@ -78,6 +79,7 @@ class TestSecurity(unittest.TestCase):
                                 mock_flask_app,
                                 host="0.0.0.0",
                                 port=5000,
+                                threads=6,
                             )
 
                             mock_logger.info.assert_called_once()
@@ -113,6 +115,7 @@ class TestSecurity(unittest.TestCase):
                             mock_flask_app,
                             host="127.0.0.1",
                             port=8080,
+                            threads=6,
                         )
 
                         mock_logger.info.assert_called_once_with(

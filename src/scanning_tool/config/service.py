@@ -51,7 +51,7 @@ class ConfigData(BaseSettings):
     continuous_capture_interval: float = 2.0
     ollama_config: OllamaConfig = Field(default_factory=lambda: OllamaConfig("", None))
     web_server_config: WebServerConfig = Field(
-        default_factory=lambda: WebServerConfig("0.0.0.0", 5000),
+        default_factory=lambda: WebServerConfig("0.0.0.0", 5000, threads=6),
     )
     gui_backend: str = "tk"
 

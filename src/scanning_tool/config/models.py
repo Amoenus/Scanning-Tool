@@ -40,3 +40,4 @@ class WebServerConfig:
 
     host: str = "0.0.0.0"
     port: int = 5000
+    threads: int = 6
