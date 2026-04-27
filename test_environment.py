@@ -8,13 +8,32 @@ import sys
 import os
 
 
+def get_required_python_version():
+    """Read the required Python version from .python-version, defaulting to 3.14."""
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    version_file = os.path.join(script_dir, ".python-version")
+    if os.path.exists(version_file):
+        with open(version_file, "r", encoding="utf-8") as f:
+            return f.read().strip()
+    return "3.14"
+
+
+def parse_version(version_str):
+    parts = version_str.split(".")
+    return tuple(int(part) for part in parts[:2])
+
+
 def test_python_version():
     """Test Python version compatibility."""
+    required_version = get_required_python_version()
     print(f"Python version: {sys.version}")
+    print(f"Required Python version: {required_version} or newer")
     version_info = sys.version_info
+    current_version = (version_info.major, version_info.minor)
+    required_version_tuple = parse_version(required_version)
 
-    if version_info.major < 3 or (version_info.major == 3 and version_info.minor < 8):
-        print("❌ ERROR: Python 3.8+ required")
+    if current_version < required_version_tuple:
+        print(f"❌ ERROR: Python {required_version}+ required")
         return False
     else:
         print("✅ Python version OK")

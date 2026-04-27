@@ -17,18 +17,19 @@ This document provides details about the launch scripts created for ORCA — Ore
 ### Windows Script (`launch_windows.bat`)
 
 **Key Features:**
-- 🐍 **Portable Python Installation**: Automatically downloads and installs Python 3.13 embedded distribution
+- 🐍 **Portable Python Installation**: Automatically downloads and installs the version defined in `.python-version`
 - 📦 **No System Python Required**: Creates a completely isolated, portable environment
 - 🔧 **Automatic Setup**: Creates virtual environment and installs dependencies
 - 💾 **Smart Caching**: Only re-downloads/reinstalls when needed
 - 🛡️ **Error Handling**: Comprehensive error checking and user guidance
 
 **How it Works:**
-1. Downloads Python 3.13 embedded distribution (~11MB) to `./python/` folder
-2. Configures embedded Python to support pip
-3. Creates virtual environment in `./venv/` folder
-4. Installs requirements from `requirements.txt`
-5. Launches the application
+1. Reads required Python version from `.python-version`
+2. Downloads the matching embedded Python distribution to `./python/`
+3. Configures embedded Python to support pip
+4. Creates virtual environment in `./venv/` folder
+5. Installs requirements from `requirements.txt`
+6. Launches the application
 
 **Usage:**
 ```cmd
@@ -39,13 +40,13 @@ launch_windows.bat
 ### Linux Script (`launch_linux.sh`)
 
 **Key Features:**
-- 🔍 **Python Detection**: Automatically finds system Python 3.8+
+- 🔍 **Python Detection**: Automatically finds system Python 3.14+
 - 📋 **Dependency Guidance**: Provides install commands for different distributions
 - 🔧 **Virtual Environment**: Creates isolated environment
 - ⚡ **Fast Setup**: Reuses existing installations when possible
 
 **Requirements:**
-- Python 3.8+ installed on system
+- Python 3.14+ installed on system
 - pip and venv modules available
 
 **Usage:**
@@ -62,7 +63,7 @@ python test_environment.py
 ```
 
 **Tests Performed:**
-- ✅ Python version compatibility (3.8+)
+- ✅ Python version compatibility (3.14+)
 - ✅ Required package imports
 - ✅ File structure verification
 - ✅ Ollama availability check
@@ -119,7 +120,7 @@ pip install -r requirements.txt
 ## Technical Details
 
 ### Windows Portable Python
-- Downloads from: `https://www.python.org/ftp/python/3.13.0/python-3.13.0-embed-amd64.zip`
+- Downloads from the version defined in `.python-version`
 - Size: ~9MB download
 - No registry modifications
 - Completely portable and isolated

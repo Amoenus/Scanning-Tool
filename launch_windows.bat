@@ -11,8 +11,14 @@ set "SCRIPT_DIR=%SCRIPT_DIR:~0,-1%"
 set "PYTHON_DIR=%SCRIPT_DIR%\python"
 set "VENV_DIR=%SCRIPT_DIR%\venv"
 set "PYTHON_EXE=%PYTHON_DIR%\python.exe"
-set "PYTHON_VERSION=3.13.7"
-set "PYTHON_URL=https://www.python.org/ftp/python/3.13.7/python-3.13.7-embed-amd64.zip"
+set "PYTHON_VERSION_FILE=%SCRIPT_DIR%\.python-version"
+set "PYTHON_VERSION=3.14"
+if exist "%PYTHON_VERSION_FILE%" (
+    for /f "usebackq delims=" %%v in ("%PYTHON_VERSION_FILE%") do set "PYTHON_VERSION=%%v"
+)
+set "PYTHON_VERSION_SHORT=%PYTHON_VERSION:.=%"
+set "PYTHON_PTH=python%PYTHON_VERSION_SHORT%._pth"
+set "PYTHON_URL=https://www.python.org/ftp/python/%PYTHON_VERSION%/python-%PYTHON_VERSION%-embed-amd64.zip"
 set "PYTHON_CMD=%PYTHON_EXE%"
 set "PYTHON_ARGS="
 set "PYTHON_INVOKE=%PYTHON_CMD%"
@@ -58,11 +64,11 @@ if "%PYTHON_CMD%"=="%PYTHON_EXE%" (
         REM Clean up zip file
         del "%SCRIPT_DIR%\python.zip"
 
-        REM Enable pip by modifying python313._pth
+        REM Enable pip by modifying the Python embedded path file
         echo Configuring Python for pip support...
-        if exist "%PYTHON_DIR%\python313._pth" (
+        if exist "%PYTHON_DIR%\%PYTHON_PTH%" (
             REM Remove the comment from import site line
-            powershell -Command "(Get-Content '%PYTHON_DIR%\python313._pth') -replace '^#import site', 'import site' | Set-Content '%PYTHON_DIR%\python313._pth'"
+            powershell -Command "(Get-Content '%PYTHON_DIR%\%PYTHON_PTH%') -replace '^#import site', 'import site' | Set-Content '%PYTHON_DIR%\%PYTHON_PTH%'"
         )
 
         REM Install pip manually for embedded Python

@@ -8,6 +8,16 @@ set -e  # Exit on any error
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 VENV_DIR="$SCRIPT_DIR/venv"
 PYTHON_CMD="python3"
+PYTHON_VERSION_FILE="$SCRIPT_DIR/.python-version"
+DEFAULT_PYTHON_VERSION="3.14"
+
+if [[ -f "$PYTHON_VERSION_FILE" ]]; then
+    REQUIRED_PYTHON_VERSION=$(cat "$PYTHON_VERSION_FILE")
+else
+    REQUIRED_PYTHON_VERSION="$DEFAULT_PYTHON_VERSION"
+fi
+REQUIRED_PYTHON_MAJOR=$(echo "$REQUIRED_PYTHON_VERSION" | cut -d'.' -f1)
+REQUIRED_PYTHON_MINOR=$(echo "$REQUIRED_PYTHON_VERSION" | cut -d'.' -f2)
 
 echo "=== ORCA - Ore Reconnaissance & Classification Assistant - Linux Setup ==="
 echo "Script directory: $SCRIPT_DIR"
@@ -15,7 +25,7 @@ echo "Script directory: $SCRIPT_DIR"
 # Check if Python 3 is installed
 if ! command -v $PYTHON_CMD &> /dev/null; then
     echo "Error: Python 3 is not installed or not in PATH" >&2
-    echo "Please install Python 3.8 or newer:"
+    echo "Please install Python $REQUIRED_PYTHON_VERSION or newer:"
     echo "  Ubuntu/Debian: sudo apt update && sudo apt install python3 python3-pip python3-venv"
     echo "  Fedora/RHEL: sudo dnf install python3 python3-pip"
     echo "  Arch: sudo pacman -S python python-pip"
@@ -29,8 +39,8 @@ PYTHON_MINOR=$(echo $PYTHON_VERSION | cut -d'.' -f2)
 
 echo "Found Python $PYTHON_VERSION"
 
-if [[ "$PYTHON_MAJOR" -lt 3 ]] || ([[ "$PYTHON_MAJOR" -eq 3 ]] && [[ "$PYTHON_MINOR" -lt 8 ]]); then
-    echo "Error: Python 3.8 or newer is required (found $PYTHON_VERSION)" >&2
+if [[ "$PYTHON_MAJOR" -lt $REQUIRED_PYTHON_MAJOR ]] || ([[ "$PYTHON_MAJOR" -eq $REQUIRED_PYTHON_MAJOR ]] && [[ "$PYTHON_MINOR" -lt $REQUIRED_PYTHON_MINOR ]]); then
+    echo "Error: Python $REQUIRED_PYTHON_VERSION or newer is required (found $PYTHON_VERSION)" >&2
     exit 1
 fi
 
