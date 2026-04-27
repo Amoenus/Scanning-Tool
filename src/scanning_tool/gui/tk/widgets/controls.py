@@ -1,16 +1,21 @@
 """Control widgets for the scanning tool GUI."""
 
-from typing import Callable, Optional, Tuple
-
 import tkinter as tk
+from collections.abc import Callable
 from tkinter import ttk
+from typing import Optional
 
 GlassScaleCommand = Callable[[str], None]
 
+GLASS_SECTION_TFRAME_STYLE = "Glass.Section.TFrame"
+GLASS_SMALL_TLABEL_STYLE = "Glass.Small.TLabel"
+GLASS_HORIZONTAL_TSCALE_STYLE = "Glass.Horizontal.TScale"
+GLASS_TBUTTON_STYLE = "Glass.TButton"
 
-def create_section_row(parent: ttk.Widget, pady: Tuple[int, int] = (0, 5)) -> ttk.Frame:
+
+def create_section_row(parent: ttk.Widget, pady: tuple[int, int] = (0, 5)) -> ttk.Frame:
     """Create a styled row container for section controls."""
-    row = ttk.Frame(parent, style="Glass.Section.TFrame")
+    row = ttk.Frame(parent, style=GLASS_SECTION_TFRAME_STYLE)
     row.pack(fill="x", padx=5, pady=pady)
     return row
 
@@ -28,13 +33,13 @@ class GlassScaleController:
         initial: float,
         command: Optional[GlassScaleCommand],
         resolution: float,
-        padding: Tuple[int, int],
+        padding: tuple[int, int],
     ) -> None:
         self._text = text
         self._command = command
         self._resolution = resolution
 
-        self._container = ttk.Frame(parent, style="Glass.Section.TFrame")
+        self._container = ttk.Frame(parent, style=GLASS_SECTION_TFRAME_STYLE)
         self._container.pack(fill="x", padx=4, pady=padding)
 
         self._value_var = tk.DoubleVar(value=initial)
@@ -42,7 +47,7 @@ class GlassScaleController:
         ttk.Label(
             self._container,
             textvariable=self._label_var,
-            style="Glass.Small.TLabel",
+            style=GLASS_SMALL_TLABEL_STYLE,
         ).pack(anchor="w", padx=2)
 
         self._scale = ttk.Scale(
@@ -52,7 +57,7 @@ class GlassScaleController:
             orient="horizontal",
             variable=self._value_var,
             command=self._on_change,
-            style="Glass.Horizontal.TScale",
+            style=GLASS_HORIZONTAL_TSCALE_STYLE,
         )
         self._scale.pack(fill="x", padx=2, pady=(2, 0))
 
@@ -116,7 +121,7 @@ def create_glass_scale(
     initial: float,
     command: Optional[GlassScaleCommand],
     resolution: float = 1.0,
-    padding: Tuple[int, int] = (0, 4),
+    padding: tuple[int, int] = (0, 4),
 ) -> ttk.Scale:
     """Create a labeled ttk.Scale with the custom glass styling."""
     controller = GlassScaleController(
@@ -137,7 +142,7 @@ class ResponsiveButtonRow(ttk.Frame):
 
     MIN_BUTTON_WIDTH = 140
 
-    def __init__(self, parent: ttk.Widget, style: str = "Glass.Section.TFrame") -> None:
+    def __init__(self, parent: ttk.Widget, style: str = GLASS_SECTION_TFRAME_STYLE) -> None:
         super().__init__(parent, style=style)
         self.pack(fill="x", padx=5, pady=(0, 5))
         self._buttons: list[ttk.Button] = []
@@ -195,7 +200,7 @@ class ResponsiveButtonRow(ttk.Frame):
 def create_button_row(
     parent: ttk.Widget,
     buttons: list[tuple[str | tk.StringVar, Callable[[], None]]],
-    style: str = "Glass.TButton",
+    style: str = GLASS_TBUTTON_STYLE,
 ) -> ttk.Frame:
     """Create a responsive row of buttons."""
     row = ResponsiveButtonRow(parent)

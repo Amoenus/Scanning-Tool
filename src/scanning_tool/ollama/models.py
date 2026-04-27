@@ -1,5 +1,5 @@
 from loguru import logger
-from typing import List, NoReturn, Optional
+from typing import NoReturn, Optional
 
 from .client import get_ollama_client
 from .host import get_ollama_host, get_ollama_model, is_local_ollama_host
@@ -83,7 +83,7 @@ def ensure_model_installed(
     ).ensure_installed()
 
 
-def list_running_ollama_models() -> List[str]:
+def list_running_ollama_models() -> list[str]:
     """Return a list of Ollama model names currently running on the active host."""
     client = get_ollama_client()
     try:

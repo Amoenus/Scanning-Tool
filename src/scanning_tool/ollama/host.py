@@ -1,5 +1,4 @@
 import os
-from typing import Tuple
 from urllib.parse import urlparse
 
 OLLAMA_DEFAULT_HOST = "http://127.0.0.1:11434"
@@ -85,7 +84,7 @@ def is_local_ollama_host(host: str) -> bool:
     return False
 
 
-def get_host_port(host: str) -> Tuple[str, int]:
+def get_host_port(host: str) -> tuple[str, int]:
     """Return hostname and port for the given Ollama host string."""
     parsed = urlparse(_normalize_for_parse(host))
     hostname = parsed.hostname or "127.0.0.1"

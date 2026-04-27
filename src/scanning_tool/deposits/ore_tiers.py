@@ -1,6 +1,6 @@
 """Ore tier definitions and value mappings."""
 
-from typing import Dict, List
+from typing import Dict
 
 from scanning_tool.domain.common import OreTier, OreValueInfo
 from scanning_tool.domain.ore import OreTierInfo
@@ -34,4 +34,4 @@ for _tier, _data in ORE_TIERS.items():
     for _ore in _data.ores:
         ORE_VALUE_MAP[_ore.upper()] = OreValueInfo(tier=_tier, color=_data.color)
 
-TIER_ORDER: List[OreTier] = ["HIGHEST", "HIGH", "MEDIUM", "LOW", "OTHER"]
+TIER_ORDER: list[OreTier] = ["HIGHEST", "HIGH", "MEDIUM", "LOW", "OTHER"]

@@ -1,23 +1,24 @@
-from .anchor_template_loader import AnchorTemplate
-from scanning_tool.domain.alignment import AnchorDetection
+from __future__ import annotations
 
+from typing import TYPE_CHECKING, Optional
 
 import cv2
-import numpy as np
-from mss.models import Monitor
+from scanning_tool.domain.alignment import AnchorDetection
 
-
-from typing import List, Optional, Tuple
+if TYPE_CHECKING:
+    import numpy as np
+    from mss.models import Monitor
+    from scanning_tool.core.anchor.anchor_template_loader import AnchorTemplate
 
 
 class AnchorMatcher:
     """Find the best anchor template match in a captured image."""
 
     def find_best_match(
-        self, anchor_gray: np.ndarray, templates: List[AnchorTemplate]
-    ) -> Tuple[float, Optional[Tuple[int, int]], Optional[AnchorTemplate]]:
+        self, anchor_gray: np.ndarray, templates: list[AnchorTemplate]
+    ) -> tuple[float, Optional[tuple[int, int]], Optional[AnchorTemplate]]:
         best_score = -1.0
-        best_loc: Optional[Tuple[int, int]] = None
+        best_loc: Optional[tuple[int, int]] = None
         best_template: Optional[AnchorTemplate] = None
 
         for template in templates:
@@ -38,7 +39,7 @@ class AnchorMatcher:
     def build_detection(
         self,
         monitor: Monitor,
-        best_loc: Tuple[int, int],
+        best_loc: tuple[int, int],
         best_template: AnchorTemplate,
         best_score: float,
     ) -> AnchorDetection:

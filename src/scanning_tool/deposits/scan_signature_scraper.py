@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -33,7 +33,7 @@ class RawScanSignatureEntry(BaseModel):
 
     mineral: Optional[str] = None
     color: Optional[str] = None
-    values: List[RawScanValue] = Field(default_factory=list)
+    values: list[RawScanValue] = Field(default_factory=list)
 
 
 CsvRow = Dict[str, Optional[str | int]]
@@ -92,10 +92,10 @@ class ScanSignatureSummary:
 class ScanSignatureEntry:
     mineral: Optional[str]
     color: Optional[str]
-    values: List[ScanValue]
+    values: list[ScanValue]
     category: str
 
-    def to_csv_rows(self) -> List[CsvRow]:
+    def to_csv_rows(self) -> list[CsvRow]:
         return [
             value.to_csv_row(
                 mineral=self.mineral, category=self.category, color=self.color

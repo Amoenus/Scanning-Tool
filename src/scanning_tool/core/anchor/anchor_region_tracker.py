@@ -8,7 +8,7 @@ import numpy as np
 from loguru import logger
 
 
-from typing import List, Optional
+from typing import Optional
 
 
 class AnchorRegionTracker:
@@ -35,7 +35,7 @@ class AnchorRegionTracker:
         return self.template_loader.load_templates()
 
     @property
-    def templates(self) -> List[AnchorTemplate]:
+    def templates(self) -> list[AnchorTemplate]:
         return self.template_loader.templates
 
     @property

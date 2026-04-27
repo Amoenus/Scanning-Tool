@@ -9,7 +9,6 @@ from __future__ import annotations
 import asyncio
 from dataclasses import asdict
 from pathlib import Path
-from typing import List
 import sys
 
 import pandas as pd
@@ -66,20 +65,20 @@ class ScanSignatureScraper:
 
     async def _evaluate_scan_signature_overlay(
         self, page: Page
-    ) -> List[RawScanSignatureEntry]:
+    ) -> list[RawScanSignatureEntry]:
         await page.click('button[title^="Scan Signature Identifier"]')
         await page.wait_for_selector(".sigchart-overlay", timeout=10000)
         return await page.evaluate(SCRAPE_SIGNATURES_SCRIPT)
 
     def _build_scan_signature_entries(
-        self, raw_data: List[RawScanSignatureEntry]
-    ) -> List[ScanSignatureEntry]:
+        self, raw_data: list[RawScanSignatureEntry]
+    ) -> list[ScanSignatureEntry]:
         return [
             ScanSignatureEntryFactory.from_raw_entry(raw_entry)
             for raw_entry in raw_data
         ]
 
-    async def scrape(self) -> List[ScanSignatureEntry]:
+    async def scrape(self) -> list[ScanSignatureEntry]:
         async with async_playwright() as p:
             browser = await p.chromium.launch(headless=True)
             page = await browser.new_page()
@@ -92,7 +91,7 @@ class ScanSignatureScraper:
             return entries
 
 
-async def scrape_scan_signatures() -> List[ScanSignatureEntry]:
+async def scrape_scan_signatures() -> list[ScanSignatureEntry]:
     return await ScanSignatureScraper().scrape()
 
 
@@ -124,22 +123,22 @@ class ScanSignatureExporter:
                 encoding="utf-8",
             )
 
-    def _dataframe_from_rows(self, rows: List[CsvRow]) -> pd.DataFrame:
+    def _dataframe_from_rows(self, rows: list[CsvRow]) -> pd.DataFrame:
         return pd.DataFrame.from_records(rows)
 
-    def save_json(self, data: List[ScanSignatureEntry], path: Path) -> None:
+    def save_json(self, data: list[ScanSignatureEntry], path: Path) -> None:
         rows = [asdict(entry) for entry in data]
         self._write_dataframe(pd.DataFrame.from_records(rows), path, as_csv=False)
 
-    def save_csv(self, data: List[ScanSignatureEntry], path: Path) -> None:
+    def save_csv(self, data: list[ScanSignatureEntry], path: Path) -> None:
         rows = [row for entry in data for row in entry.to_csv_rows()]
         self._write_dataframe(self._dataframe_from_rows(rows), path)
 
-    def save_summary_csv(self, data: List[ScanSignatureEntry], path: Path) -> None:
+    def save_summary_csv(self, data: list[ScanSignatureEntry], path: Path) -> None:
         rows = [entry.to_summary_row() for entry in data]
         self._write_dataframe(self._dataframe_from_rows(rows), path)
 
-    def export_all(self, data: List[ScanSignatureEntry]) -> None:
+    def export_all(self, data: list[ScanSignatureEntry]) -> None:
         self.save_json(data, self.output_dir / "scan_signatures.json")
         self.save_csv(data, self.output_dir / "scan_signatures.csv")
         self.save_summary_csv(data, self.output_dir / "scan_signatures_summary.csv")
@@ -149,15 +148,15 @@ class ScanSignatureExporter:
 _default_exporter = ScanSignatureExporter()
 
 
-def save_json(data: List[ScanSignatureEntry], path: Path) -> None:
+def save_json(data: list[ScanSignatureEntry], path: Path) -> None:
     _default_exporter.save_json(data, path)
 
 
-def save_csv(data: List[ScanSignatureEntry], path: Path) -> None:
+def save_csv(data: list[ScanSignatureEntry], path: Path) -> None:
     _default_exporter.save_csv(data, path)
 
 
-def save_summary_csv(data: List[ScanSignatureEntry], path: Path) -> None:
+def save_summary_csv(data: list[ScanSignatureEntry], path: Path) -> None:
     _default_exporter.save_summary_csv(data, path)
 
 

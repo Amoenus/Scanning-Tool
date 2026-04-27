@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List
 
 from loguru import logger
 import cv2
@@ -24,7 +23,7 @@ class AnchorTemplateLoader:
 
     def __init__(self, template_dir: str) -> None:
         self.template_dir = template_dir
-        self.templates: List[AnchorTemplate] = []
+        self.templates: list[AnchorTemplate] = []
         self.last_loaded_count = 0
         self.load_templates()
 
@@ -46,8 +45,8 @@ class AnchorTemplateLoader:
         self._log_template_load_result(directory)
         return self.last_loaded_count
 
-    def _load_image_files(self, directory: Path) -> List[AnchorTemplate]:
-        loaded: List[AnchorTemplate] = []
+    def _load_image_files(self, directory: Path) -> list[AnchorTemplate]:
+        loaded: list[AnchorTemplate] = []
         for path in sorted(directory.glob("**/*")):
             if (
                 path.suffix.lower() not in self.SUPPORTED_EXTENSIONS
