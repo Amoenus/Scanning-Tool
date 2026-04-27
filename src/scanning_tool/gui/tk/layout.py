@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from scanning_tool.gui.layout_types import (
+from scanning_tool.gui.layout import (
     AnchorOverlayGeometry,
     CaptureOverlayLayout,
     InfoOverlayGeometry,
