@@ -46,3 +46,13 @@ def test_overlay_state_capture_root_listener_is_called() -> None:
     overlay_state.capture_overlay_root = None
 
     assert received == [root_object, None]
+
+
+def test_gui_overlays_imports_generic_api_without_tk() -> None:
+    from importlib import import_module
+
+    overlays = import_module("scanning_tool.gui.overlays")
+
+    assert hasattr(overlays, "toggle_border")
+    assert hasattr(overlays, "start_label_timeout")
+    assert hasattr(overlays, "show_overlay")
