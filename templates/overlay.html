@@ -1,6 +1,7 @@
 <!doctype html>
-<html>
+<html lang="en" xml:lang="en">
 <head>
+  <title>Overlay</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
     :root {
@@ -326,7 +327,7 @@ async function poll(){
   } catch(e){ console.error(e); }
   setTimeout(poll, 500);
 }
-poll();
+await poll();
 </script>
 </body>
 </html>
