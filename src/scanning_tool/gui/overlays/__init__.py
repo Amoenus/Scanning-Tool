@@ -13,7 +13,7 @@ from typing import Any, Optional
 from scanning_tool.config.service import ConfigData
 from scanning_tool.gui.overlay_state import OverlayState
 
-__all__ = [
+__all__ = (
     "choose_label_color",
     "create_overlay_window",
     "enforce_topmost",
@@ -42,7 +42,7 @@ __all__ = [
     "update_anchor_overlay_region",
     "update_overlay_region",
     "destroy_all_overlays",
-]
+)
 
 
 def _tk_overlays() -> Any:

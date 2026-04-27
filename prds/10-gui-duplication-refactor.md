@@ -12,6 +12,7 @@ The current codebase duplicates significant GUI state models, overlay state clas
 
 - Consolidate shared GUI state and overlay state models into a single backend-agnostic layer.
 - Preserve the Tk-specific implementation as a thin adapter with type narrowing only.
+- Keep generic GUI overlay APIs import-safe and Tk-agnostic so future PyQt6 or other backends can reuse them.
 - Remove duplicate wrapper functions that re-export the same overlay behavior.
 - Keep existing behavior intact while improving the architecture.
 
@@ -22,6 +23,7 @@ The current codebase duplicates significant GUI state models, overlay state clas
 - Consolidating shared GUI state dataclasses and models.
 - Refactoring overlay state accessors and wrapper APIs.
 - Simplifying layout module re-exports.
+- Keeping the shared GUI API Tk-agnostic wherever possible.
 - Leaving existing behavior nominally unchanged.
 
 ### Out of scope
@@ -76,6 +78,16 @@ Functionally identical helper modules:
 - `src/scanning_tool/gui/layout.py`
 - `src/scanning_tool/gui/tk/layout.py`
 
+## Progress and findings
+
+- The shared GUI state model in `src/scanning_tool/gui/state.py` now serves as the authoritative source for `ControlState` and related slider model definitions.
+- `src/scanning_tool/gui/tk/control_state.py` was simplified to import `ControlState` from the shared state module instead of declaring duplicate slider dataclasses.
+- `src/scanning_tool/gui/tk/overlay_state.py` now depends on shared `OverlayState` rather than redefining Tk-specific overlay state classes.
+- The generic overlay API in `src/scanning_tool/gui/overlays/__init__.py` was updated to remain Tk-agnostic at import time and lazily delegate to `scanning_tool.gui.tk.overlays` only when overlay functions are invoked.
+- `src/scanning_tool/gui/tk/layout.py` now re-exports shared backend-agnostic layout types from `src/scanning_tool/gui/layout.py`.
+- Regression coverage was added in `tests/test_state_listeners.py` to verify the generic overlay API import boundary and the availability of `toggle_border` and `start_label_timeout` through `scanning_tool.gui.overlays`.
+- `duplicate_scan.py` was rerun after the refactor; the previously duplicated GUI overlay wrapper blocks were eliminated. Remaining exact duplicate blocks are currently limited to unrelated test files (`tests/test_scrape_scan_signatures.py` and `tests/test_status_builder.py`).
+
 ## Success criteria
 
 - `gui/` contains a single shared definition for the common GUI state and overlay models.
@@ -98,10 +110,11 @@ Functionally identical helper modules:
 
 - [x] Confirm the shared models in `src/scanning_tool/gui/state.py` are complete and authoritative.
 - [x] Refactor or remove duplicate models in `src/scanning_tool/gui/tk/control_state.py`.
-- [ ] Consolidate overlay state classes in `src/scanning_tool/gui/overlay_state.py`.
+- [x] Consolidate overlay state classes in `src/scanning_tool/gui/overlay_state.py`.
 - [x] Refactor `src/scanning_tool/gui/tk/overlay_state.py` to depend on shared overlay state.
 - [x] Remove duplicated `show_overlay`, `update_overlay_region`, and `destroy_all_overlays` wrappers.
 - [x] Simplify the layout module re-export pair.
-- [ ] Add regression tests for overlay state and GUI state separation.
-- [ ] Document the shared GUI model and adapter responsibilities.
-- [ ] Validate existing behavior manually or via tests after refactor.
+- [x] Add regression tests for overlay state and GUI state separation.
+- [x] Document the shared GUI model and adapter responsibilities.
+- [x] Validate existing behavior manually or via tests after refactor.
+- [x] Re-run duplicate_scan.py to verify GUI overlay deduplication.

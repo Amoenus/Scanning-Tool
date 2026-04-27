@@ -35,10 +35,10 @@ from .slider_sync import (
     sync_overlay_sliders,
 )
 from scanning_tool.config.service import ConfigData
-from scanning_tool.gui.overlay_state import OverlayState
 from scanning_tool.gui.control_state import ControlState
+from scanning_tool.gui.overlay_state import OverlayState
 
-__all__ = [
+__all__ = (
     "ControlState",
     "choose_label_color",
     "create_overlay_window",
@@ -68,7 +68,7 @@ __all__ = [
     "update_anchor_overlay_region",
     "update_overlay_region",
     "destroy_all_overlays",
-]
+)
 
 
 def show_overlay(

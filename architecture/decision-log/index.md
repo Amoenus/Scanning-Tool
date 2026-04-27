@@ -10,6 +10,7 @@ This folder contains explicit architectural decisions and rationale for the Scan
 - [Decision 4: Document package boundaries and future refactor steps](2026-04-17-document-package-boundaries-and-future-refactor-steps.md)
 - [Decision 5: Preserve business behavior while improving structure](2026-04-17-preserve-business-behavior-while-improving-structure.md)
 - [Decision 6: Prefer explicit application context over broad global state](2026-04-17-prefer-explicit-application-context-over-broad-global-state.md)
+- [Decision 7: Preserve shared GUI state and keep overlay API Tk-agnostic](2026-04-27-preserve-gui-shared-state-and-tk-agnostic-overlay-api.md)
 
 ## Future decisions
 

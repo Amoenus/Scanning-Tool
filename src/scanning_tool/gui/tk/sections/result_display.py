@@ -50,15 +50,7 @@ class ResultDisplaySection:
         initial: float,
         padding: tuple[int, int] = (0, 4),
     ) -> ttk.Scale:
-        return create_glass_scale(
-            parent,
-            text=text,
-            minimum=minimum,
-            maximum=maximum,
-            initial=initial,
-            command=self._on_change,
-            padding=padding,
-        )
+        return create_glass_scale(parent, text=text, minimum=minimum, maximum=maximum, initial=initial, command=self._on_change, padding=padding)
 
     def _on_change(self, *_args: object) -> None:
         if self._ctx.control_state.syncing.overlay:
