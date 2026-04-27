@@ -44,6 +44,37 @@ testpaths = ["tests"]
 files = ["src"]
 exclude = "^src/"
 
+[tool.ruff]
+fixable = ["ALL"]
+select = ["ALL"]
+ignore = [
+    "D203",
+]
+line-length = 120
+show-fixes = true
+src = ["src"]
+target-version = "py314"
+
+[tool.ruff.flake8-quotes]
+docstring-quotes = "double"
+multiline-quotes = "double"
+
+[tool.ruff.mccabe]
+max-complexity = 10
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401", "F403", "F405"]
+"tests/*" = ["ANN", "ARG", "INP001", "S101"]
+
+[tool.ruff.pylint]
+max-args = 15
+max-branches = 20
+max-returns = 10
+max-statements = 80
+
+[tool.ruff.flake8-tidy-imports]
+ban-relative-imports = "all"
+
 [dependency-groups]
 dev = [
     "mypy>=1.20.2",
