@@ -30,7 +30,7 @@ class DepositCodeParser:
     """Parse deposit codes out of OCR text and normalize them."""
 
     _lookup_deposit_re: Pattern[str] = re.compile(r"(\d+)$")
-    _parse_alpha_code_re: Pattern[str] = re.compile(r"([A-Za-z]?-?)([\d,\.]+)")
+    _parse_alpha_code_re: Pattern[str] = re.compile(r"([A-Za-z]?-?)([\d.,]+)")
 
     def __init__(self, code_re: Pattern[str]) -> None:
         self.code_re = code_re

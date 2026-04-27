@@ -1,16 +1,22 @@
+"""State management classes and utilities for the scanning tool service.
+
+This module defines dataclasses and patterns for managing the state of
+Ollama client connections, code patterns, and rock data caches.
+"""
 from __future__ import annotations
 
 import re
-import subprocess
 from dataclasses import dataclass, field
 from re import Pattern
 from typing import TYPE_CHECKING
 
-import ollama
-
 from scanning_tool.domain.ore import RockData, RockDataCollection
 
 if TYPE_CHECKING:
+    import subprocess
+
+    import ollama
+
     from scanning_tool.domain.common import RegionDepositTables
 def _default_region_deposit_tables() -> RegionDepositTables:
     return {}
@@ -18,6 +24,11 @@ def _default_region_deposit_tables() -> RegionDepositTables:
 
 @dataclass
 class OllamaClientState:
+    """Holds the state for the Ollama client connection.
+
+    Includes the client instance, the client host, and the server process.
+    """
+
     client: ollama.Client | None = None
     client_host: str = ""
     server_process: subprocess.Popen[bytes] | None = field(default=None, repr=False)
@@ -25,9 +36,20 @@ class OllamaClientState:
 
 @dataclass
 class CodePatterns:
+    """Regular expression patterns used for code and host scheme matching.
+
+    Attributes
+    ----------
+    code_re : Pattern[str]
+        Compiled regex for matching code patterns.
+    host_scheme_re : Pattern[str]
+        Compiled regex for matching host scheme patterns.
+
+    """
+
     code_re: Pattern[str] = field(
         default_factory=lambda: re.compile(
-            r"(?:[A-Za-z]?-?\d[\d,\.]{1,10}|\d{2,10})",
+            r"(?:[A-Za-z]?-?\d[\d.,]{1,10}|\d{2,10})",
             re.IGNORECASE,
         ),
     )
