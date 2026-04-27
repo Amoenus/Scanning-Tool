@@ -8,16 +8,19 @@ from threading import Thread
 from loguru import logger
 
 from scanning_tool.application.capture import CaptureUseCase
-from scanning_tool.config.service import ConfigData
 from scanning_tool.interfaces import CaptureController, StatusCallback
 from scanning_tool.services.alignment_adapter import UIAlignmentAdapter
 from scanning_tool.services.capture_provider import ScreenCaptureProvider
 from scanning_tool.services.deposit_lookup_adapter import DepositLookupAdapter
 from scanning_tool.services.ocr_provider import OllamaOCRProvider
-from scanning_tool.state.scan_state import ScanState
-from scanning_tool.state.service_state import ServiceState
 
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from scanning_tool.state.service_state import ServiceState
+    from scanning_tool.state.scan_state import ScanState
+    from scanning_tool.config.service import ConfigData
 class CaptureService(CaptureController):
     """Service for capturing screen regions and processing OCR results."""
 

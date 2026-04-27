@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING, cast
 from scanning_tool.config.service import ConfigData, ConfigSaver
 from scanning_tool.gui.control_state import ControlState
 from scanning_tool.gui.overlay_state import OverlayState
-from scanning_tool.state.app_state import AppState
 from scanning_tool.state.scan_state import ScanState
 from scanning_tool.state.service_state import ServiceState
 
@@ -18,6 +17,7 @@ if TYPE_CHECKING:
     from scanning_tool.state.scan_state import ScanState
     from scanning_tool.state.service_state import ServiceState
 
+    from scanning_tool.state.app_state import AppState
 _app_state_target: AppState | None = None
 _config_target: ConfigData | None = None
 _config_service_target: ConfigSaver | None = None

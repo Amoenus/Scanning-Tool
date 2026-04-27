@@ -39,7 +39,7 @@
     "continuous_capture_interval": 2.0,
     "ollama_config": {
         "model": "qwen2.5vl:3b",
-        "host": ""
+        "host": null
     },
     "web_server_config": {
         "host": "0.0.0.0",

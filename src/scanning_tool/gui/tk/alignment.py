@@ -1,19 +1,24 @@
 """Periodic anchor-alignment polling for the GUI."""
+from __future__ import annotations
+
 
 import tkinter as tk
 
-from scanning_tool.config.service import ConfigData
 from scanning_tool.domain.alignment import AlignmentRequest
 from scanning_tool.services.alignment_service import (
     alignment_service,
     reset_alignment_info,
 )
-from scanning_tool.state.scan_state import ScanState
 
 from .overlays.base import safe_tk
-from .status import StatusBar
 
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .status import StatusBar
+    from scanning_tool.state.scan_state import ScanState
+    from scanning_tool.config.service import ConfigData
 class AlignmentPoller:
     """Runs ``alignment_service.align`` on a Tk ``after`` cadence."""
 

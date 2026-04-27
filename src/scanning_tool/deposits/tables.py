@@ -1,4 +1,6 @@
 """Build deposit ore tables from rock data."""
+from __future__ import annotations
+
 
 import json
 
@@ -11,9 +13,12 @@ from scanning_tool.domain.common import (
     SpaceSystem,
 )
 from scanning_tool.domain.ore import Deposit, OreStatistics, Region, RockDataCollection
-from scanning_tool.state.service_state import ServiceState
 
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from scanning_tool.state.service_state import ServiceState
 class DepositTableBuilder:
     """Build deposit ore tables from rock data."""
 

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import re
 import subprocess
 from dataclasses import dataclass, field
@@ -5,10 +7,13 @@ from re import Pattern
 
 import ollama
 
-from scanning_tool.domain.common import RegionDepositTables
 from scanning_tool.domain.ore import RockData, RockDataCollection
 
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from scanning_tool.domain.common import RegionDepositTables
 def _default_region_deposit_tables() -> RegionDepositTables:
     return {}
 

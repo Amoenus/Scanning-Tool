@@ -1,14 +1,19 @@
 """Scan state management."""
+from __future__ import annotations
+
 
 from collections.abc import Callable
 from dataclasses import dataclass, field
 
 from blinker import Signal
 
-from scanning_tool.core.anchor import AnchorRegionTracker
 from scanning_tool.domain.alignment import AlignmentInfo
 from scanning_tool.domain.capture import ScanResult
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from scanning_tool.core.anchor import AnchorRegionTracker
 ContinuousModeListener = Callable[[bool], None]
 ScanResultListener = Callable[[ScanResult | None], None]
 AlignmentInfoListener = Callable[[AlignmentInfo], None]

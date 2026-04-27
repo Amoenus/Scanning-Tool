@@ -1,11 +1,16 @@
 """Scrollable container widget for the scanning tool GUI."""
+from __future__ import annotations
+
 
 import tkinter as tk
 from tkinter import ttk
 
-from ..theme import GlassPalette
 
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ..theme import GlassPalette
 class ScrollableFrame:
     """A vertically scrollable container with a glass background.
 

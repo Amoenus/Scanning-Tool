@@ -1,15 +1,20 @@
 """Slider registration and synchronization helpers for overlays."""
+from __future__ import annotations
+
 
 import tkinter as tk
 from collections.abc import Callable
 
-from scanning_tool.domain.alignment import CaptureRegion
-from scanning_tool.domain.common import Offset2D
 
-from ..control_state import ControlState, ScaleWidget
 from .base import safe_tk
 
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ..control_state import ControlState, ScaleWidget
+    from scanning_tool.domain.common import Offset2D
+    from scanning_tool.domain.alignment import CaptureRegion
 def register_capture_sliders(
     left: ScaleWidget,
     top: ScaleWidget,

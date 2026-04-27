@@ -1,7 +1,12 @@
-from scanning_tool.domain.alignment import AnchorDetection, CaptureRegion
-from scanning_tool.domain.common import Offset2D
+from __future__ import annotations
 
 
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from scanning_tool.domain.common import Offset2D
+    from scanning_tool.domain.alignment import AnchorDetection, CaptureRegion
 class AlignmentCalculator:
     @staticmethod
     def calculate_aligned_position(

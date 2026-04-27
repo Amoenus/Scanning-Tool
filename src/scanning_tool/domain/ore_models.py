@@ -4,10 +4,13 @@ from dataclasses import dataclass, field
 
 from pydantic import ValidationError
 
-from scanning_tool.domain.dtos import JsonObject
 from scanning_tool.domain.ore_schemas import DepositSchema, OreStatisticsSchema
 
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from scanning_tool.domain.dtos import JsonObject
 @dataclass
 class OreStatistics:
     """Per-ore stats inside a Deposit's `ores` map (loaded from RockType.json)."""

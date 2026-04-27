@@ -1,14 +1,19 @@
+from __future__ import annotations
+
 
 import numpy as np
 from loguru import logger
 
-from scanning_tool.domain.alignment import AnchorDetection, CaptureRegion
-from scanning_tool.interfaces.capture import CaptureProvider
 
 from .anchor_matcher import AnchorMatcher
 from .anchor_template_loader import AnchorTemplate, AnchorTemplateLoader
 
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from scanning_tool.interfaces.capture import CaptureProvider
+    from scanning_tool.domain.alignment import AnchorDetection, CaptureRegion
 class AnchorRegionTracker:
     """Manage template loading and anchor matching for auto alignment."""
 

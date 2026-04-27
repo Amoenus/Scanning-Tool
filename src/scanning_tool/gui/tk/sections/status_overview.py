@@ -6,15 +6,18 @@ import tkinter as tk
 from tkinter import ttk
 from typing import Any
 
-from scanning_tool.domain.alignment import AlignmentInfo
-from scanning_tool.domain.capture import ScanResult
 from scanning_tool.ollama import get_ollama_host, get_ollama_model, is_model_running
 
 from ..overlays.base import safe_tk
 from ..widgets import create_section_row, create_status_label
-from .base import SectionContext
 
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .base import SectionContext
+    from scanning_tool.domain.capture import ScanResult
+    from scanning_tool.domain.alignment import AlignmentInfo
 class StatusOverviewSection:
     """Status panel that keeps key runtime state visible in the GUI."""
 

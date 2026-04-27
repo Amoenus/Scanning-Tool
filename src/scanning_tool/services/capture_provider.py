@@ -8,10 +8,13 @@ from mss.screenshot import ScreenShot
 from PIL import Image as PILModule
 from PIL.Image import Image
 
-from scanning_tool.domain.alignment import CaptureRegion
 from scanning_tool.interfaces.capture import CaptureProvider
 
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from scanning_tool.domain.alignment import CaptureRegion
 class ScreenCaptureProvider(CaptureProvider):
     """Capture a PIL image from a screen region."""
 

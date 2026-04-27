@@ -7,13 +7,13 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, cast
 
-from scanning_tool.domain.dtos import ScanSignatureCSVRowData
 from scanning_tool.domain.parsers import parse_int, parse_str
 
 if TYPE_CHECKING:
     import pandas as pd
 
 
+    from scanning_tool.domain.dtos import ScanSignatureCSVRowData
 @dataclass(frozen=True)
 class ScanSignature:
     """An entry in SCAN_SIGNATURES, keyed by base_value."""

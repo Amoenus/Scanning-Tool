@@ -5,7 +5,6 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-from scanning_tool.config.service import ConfigData
 from scanning_tool.gui.control_state import ControlState
 from scanning_tool.gui.overlay_state import OverlayState
 from scanning_tool.state.service_state import ServiceState
@@ -14,6 +13,7 @@ if TYPE_CHECKING:
     from scanning_tool.state.scan_state import ScanState
 
 
+    from scanning_tool.config.service import ConfigData
 def _create_scan_state() -> ScanState:
     from scanning_tool.state.scan_state import ScanState
 

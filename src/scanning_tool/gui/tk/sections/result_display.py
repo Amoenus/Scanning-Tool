@@ -1,4 +1,6 @@
 """Result Display section — offset sliders for the on-screen info overlay via AppContext overlay settings."""
+from __future__ import annotations
+
 
 from tkinter import ttk
 
@@ -8,9 +10,12 @@ from ..overlays import (
     sync_overlay_sliders,
 )
 from ..widgets import create_glass_scale
-from .base import SectionContext
 
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .base import SectionContext
 class ResultDisplaySection:
     """Display offset X/Y sliders bound to ``app_state.info_overlay_offset``."""
 

@@ -1,16 +1,21 @@
 """Capture overlay window lifecycle and animation."""
+from __future__ import annotations
+
 
 import tkinter as tk
 from dataclasses import dataclass
 
-from scanning_tool.domain.alignment import CaptureRegion
-from scanning_tool.gui.overlay_state import OverlayState
 
-from ..layout import CaptureOverlayLayout
 from .base import CAPTURE_ANIMATION_INTERVAL_MS, create_overlay_window, safe_tk
 from .geometry import compute_capture_overlay_layout
 
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ..layout import CaptureOverlayLayout
+    from scanning_tool.gui.overlay_state import OverlayState
+    from scanning_tool.domain.alignment import CaptureRegion
 @dataclass(frozen=True)
 class _CaptureOverlayLayoutChange:
     size_changed: bool

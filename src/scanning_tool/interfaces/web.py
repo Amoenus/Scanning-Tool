@@ -2,15 +2,15 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Protocol
 
-from scanning_tool.config.service import ConfigData
-from scanning_tool.domain.common import SpaceSystem
-from scanning_tool.state.scan_state import ScanState
-from scanning_tool.state.service_state import ServiceState
 
 if TYPE_CHECKING:
     from scanning_tool.web.schemas import StatusResponse
 
 
+    from scanning_tool.state.service_state import ServiceState
+    from scanning_tool.state.scan_state import ScanState
+    from scanning_tool.domain.common import SpaceSystem
+    from scanning_tool.config.service import ConfigData
 class StatusResponseBuilder(Protocol):
     """Builds a web response payload from application state."""
 

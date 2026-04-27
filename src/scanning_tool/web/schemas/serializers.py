@@ -2,20 +2,15 @@
 
 from __future__ import annotations
 
-from scanning_tool.domain.alignment import AlignmentInfo, CaptureRegion
-from scanning_tool.domain.capture import DepositInfo, ScanResult
-from scanning_tool.domain.common import MssMonitor, OreTableEntry
-from scanning_tool.web.schemas.types import (
-    AlignmentInfoDict,
-    DepositInfoDict,
-    DepositTable,
-    OreTableEntryDict,
-    ScanResultDict,
-    StatusResponse,
-    StatusResponseDict,
-)
 
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from scanning_tool.web.schemas.types import AlignmentInfoDict, DepositInfoDict, DepositTable, OreTableEntryDict, ScanResultDict, StatusResponse, StatusResponseDict
+    from scanning_tool.domain.common import MssMonitor, OreTableEntry
+    from scanning_tool.domain.capture import DepositInfo, ScanResult
+    from scanning_tool.domain.alignment import AlignmentInfo, CaptureRegion
 class CaptureRegionSerializer:
     @staticmethod
     def to_dict(region: CaptureRegion) -> MssMonitor:

@@ -2,9 +2,12 @@ from __future__ import annotations
 
 from typing import Protocol
 
-from scanning_tool.interfaces.capture import StatusCallback
 
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from scanning_tool.interfaces.capture import StatusCallback
 class CaptureController(Protocol):
     """Control interface for capture operations exposed to the UI."""
 

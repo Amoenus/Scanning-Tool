@@ -5,12 +5,12 @@ from typing import TYPE_CHECKING
 
 from mss.models import Monitor
 
-from scanning_tool.domain.common import MssMonitor, Offset2D
 
 if TYPE_CHECKING:
     from scanning_tool.config.service import ConfigData
 
 
+    from scanning_tool.domain.common import MssMonitor, Offset2D
 @dataclass
 class CaptureRegion:
     """Represents a capture region on the screen."""

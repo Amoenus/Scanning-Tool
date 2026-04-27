@@ -10,9 +10,12 @@ from __future__ import annotations
 from importlib import import_module
 from typing import Any, Optional
 
-from scanning_tool.config.service import ConfigData
-from scanning_tool.gui.overlay_state import OverlayState
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from scanning_tool.gui.overlay_state import OverlayState
+    from scanning_tool.config.service import ConfigData
 __all__ = (
     "choose_label_color",
     "configure_capture_slider_sync",

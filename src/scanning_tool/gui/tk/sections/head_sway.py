@@ -1,4 +1,6 @@
 """Head Sway Compensation section — anchor tracking and auto-alignment."""
+from __future__ import annotations
+
 
 import os
 import subprocess
@@ -25,9 +27,12 @@ from ..widgets import (
     create_glass_scale,
     create_labeled_spinbox,
 )
-from .base import SectionContext
 
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .base import SectionContext
 class HeadSwaySection:
     """Anchor region + offset sliders, threshold, and alignment controls."""
 

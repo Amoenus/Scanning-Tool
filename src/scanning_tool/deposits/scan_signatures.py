@@ -8,13 +8,16 @@ from pathlib import Path
 import pandas as pd  # type: ignore[import]
 from loguru import logger
 
-from scanning_tool.domain.dtos import ScanSignatureCSVRowData
 from scanning_tool.domain.scan_signature import (
     ScanSignature,
     ScanSignatureCSVRow,
     SignatureRegistry,
 )
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from scanning_tool.domain.dtos import ScanSignatureCSVRowData
 SCAN_SIG_CSV = (
     Path(__file__).resolve().parents[3]
     / "csv"

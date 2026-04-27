@@ -1,13 +1,18 @@
 """Input widgets for the scanning tool GUI."""
+from __future__ import annotations
+
 
 import tkinter as tk
 from collections.abc import Callable
 from tkinter import ttk
 
-from ..theme import GlassPalette
 from .controls import create_section_row
 
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ..theme import GlassPalette
 def create_labeled_spinbox(
     parent: ttk.Widget,
     text: str,

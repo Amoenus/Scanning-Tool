@@ -1,7 +1,7 @@
 """Pure overlay geometry helpers."""
+from __future__ import annotations
 
-from scanning_tool.config.models import OverlayConfig
-from scanning_tool.domain.alignment import CaptureRegion
+
 
 from ..layout import AnchorOverlayGeometry, CaptureOverlayLayout, InfoOverlayLayout
 from .base import (
@@ -15,6 +15,11 @@ from .base import (
 )
 
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from scanning_tool.domain.alignment import CaptureRegion
+    from scanning_tool.config.models import OverlayConfig
 def compute_info_overlay_geometry(
     screen_width: int,
     screen_height: int,

@@ -1,4 +1,6 @@
 """Controls section — continuous capture interval + primary action buttons."""
+from __future__ import annotations
+
 
 import tkinter as tk
 from threading import Thread
@@ -16,9 +18,12 @@ from ..widgets import (
     create_button_row,
     create_labeled_spinbox,
 )
-from .base import SectionContext
 
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .base import SectionContext
 class ControlsSection:
     """Capture-interval spinbox and the six primary action buttons."""
 
