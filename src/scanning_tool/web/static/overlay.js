@@ -28,6 +28,7 @@ function getElement(id) {
 function initElements() {
   elements.name = getElement("name");
   elements.code = getElement("code");
+  elements.category = getElement("category");
   elements.raw = getElement("raw");
   elements.minerals = getElement("minerals");
   elements.statusMessage = getElement("status-message");
@@ -156,6 +157,7 @@ function renderPayload(payload) {
     setStatus("Waiting for the next scan result…", "warning");
     elements.name.textContent = "No scan available";
     elements.code.textContent = "";
+    elements.category.textContent = "";
     elements.raw.textContent = "";
     elements.minerals.innerHTML = "";
     renderUpdatedAt(payload.updated_at);
@@ -166,6 +168,7 @@ function renderPayload(payload) {
     setStatus("OCR detected a code, but no deposit metadata was found.", "warning");
     elements.name.textContent = "Invalid scan result";
     elements.code.textContent = payload.code_raw ? `Code: ${payload.code_raw}` : "";
+    elements.category.textContent = "";
     elements.raw.textContent = "";
     elements.minerals.innerHTML = "";
     renderUpdatedAt(payload.updated_at);
@@ -177,6 +180,9 @@ function renderPayload(payload) {
     ? `${title} x${payload.info.deposits}`
     : title;
   elements.code.textContent = `Code: ${payload.code ?? ""}`;
+  elements.category.textContent = payload.info.category
+    ? payload.info.category.toUpperCase()
+    : "";
   elements.raw.textContent = payload.code_raw
     ? `(raw: ${payload.code_raw})`
     : "";
