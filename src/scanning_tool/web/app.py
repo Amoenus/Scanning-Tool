@@ -6,6 +6,7 @@ import socket
 from typing import TYPE_CHECKING
 
 from flask import Flask, Response, jsonify, render_template, request
+from loguru import logger
 
 from scanning_tool.config import resource_path
 from scanning_tool.domain.common import SpaceSystem
@@ -18,6 +19,8 @@ if TYPE_CHECKING:
     from scanning_tool.interfaces.web import StatusResponseBuilder
     from scanning_tool.state.scan_state import ScanState
     from scanning_tool.state.service_state import ServiceState
+    from scanning_tool.web.schemas.types import StatusResponse
+
 DEFAULT_SELECTED_REGION = SpaceSystem.STANTON
 
 
@@ -47,8 +50,10 @@ class WebService:
                 ip_address = sock.getsockname()[0]
                 if ip_address:
                     return ip_address
-        except Exception:
-            pass
+        except OSError:
+            logger.opt(exception=True).debug(
+                "Unable to detect local IP address, falling back to 127.0.0.1",
+            )
         return "127.0.0.1"
 
     def _index(self) -> str:
@@ -64,7 +69,7 @@ class WebService:
         requested_region = request.args.get("region", DEFAULT_SELECTED_REGION.value)
         return SpaceSystem.normalize(requested_region)
 
-    def _build_status_response(self, selected_region: SpaceSystem):
+    def _build_status_response(self, selected_region: SpaceSystem) -> StatusResponse:
         return self._status_response_builder.build_status_response(
             self.config,
             self.scan_state,
