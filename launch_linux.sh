@@ -14,7 +14,7 @@ echo "Script directory: $SCRIPT_DIR"
 
 # Check if Python 3 is installed
 if ! command -v $PYTHON_CMD &> /dev/null; then
-    echo "Error: Python 3 is not installed or not in PATH"
+    echo "Error: Python 3 is not installed or not in PATH" >&2
     echo "Please install Python 3.8 or newer:"
     echo "  Ubuntu/Debian: sudo apt update && sudo apt install python3 python3-pip python3-venv"
     echo "  Fedora/RHEL: sudo dnf install python3 python3-pip"
