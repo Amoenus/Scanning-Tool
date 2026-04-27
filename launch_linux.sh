@@ -29,13 +29,13 @@ PYTHON_MINOR=$(echo $PYTHON_VERSION | cut -d'.' -f2)
 
 echo "Found Python $PYTHON_VERSION"
 
-if [ "$PYTHON_MAJOR" -lt 3 ] || ([ "$PYTHON_MAJOR" -eq 3 ] && [ "$PYTHON_MINOR" -lt 8 ]); then
-    echo "Error: Python 3.8 or newer is required (found $PYTHON_VERSION)"
+if [[ "$PYTHON_MAJOR" -lt 3 ]] || ([[ "$PYTHON_MAJOR" -eq 3 ]] && [[ "$PYTHON_MINOR" -lt 8 ]]); then
+    echo "Error: Python 3.8 or newer is required (found $PYTHON_VERSION)" >&2
     exit 1
 fi
 
 # Check if virtual environment exists
-if [ ! -d "$VENV_DIR" ]; then
+if [[ ! -d "$VENV_DIR" ]]; then
     echo "Creating virtual environment..."
     $PYTHON_CMD -m venv "$VENV_DIR"
     echo "Virtual environment created at: $VENV_DIR"
@@ -52,7 +52,7 @@ echo "Upgrading pip..."
 pip install --upgrade pip
 
 # Install requirements if they don't exist or if requirements.txt is newer
-if [ ! -f "$VENV_DIR/.requirements_installed" ] || [ "$SCRIPT_DIR/requirements.txt" -nt "$VENV_DIR/.requirements_installed" ]; then
+if [[ ! -f "$VENV_DIR/.requirements_installed" ]] || [[ "$SCRIPT_DIR/requirements.txt" -nt "$VENV_DIR/.requirements_installed" ]]; then
     echo "Installing Python requirements..."
     pip install -r "$SCRIPT_DIR/requirements.txt"
     touch "$VENV_DIR/.requirements_installed"
