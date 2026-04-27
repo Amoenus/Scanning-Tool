@@ -51,6 +51,10 @@ function onRegionChange(event) {
   schedulePoll(0);
 }
 
+function isCompactLayout() {
+  return globalThis.matchMedia("(max-width: 520px)").matches;
+}
+
 function setStatus(text, type = "info") {
   elements.statusMessage.textContent = text;
   elements.statusMessage.className = "hud-status";
@@ -83,9 +87,39 @@ function renderUpdatedAt(timestamp) {
   elements.updatedAt.textContent = formatted ? `Updated ${formatted}` : "";
 }
 
+function renderCardList(data) {
+  const cards = data
+    .map(
+      (row) => `
+      <div class="rounded-3xl border border-sky-400/10 bg-slate-900/70 p-4 shadow-sm shadow-sky-500/10">
+        <div class="flex items-center justify-between gap-3">
+          <p class="font-semibold uppercase tracking-[0.2em] text-slate-100" style="color:${row.color};">${row.name}</p>
+          <span class="rounded-full bg-slate-800/80 px-3 py-1 text-[11px] uppercase tracking-[0.24em] text-slate-300">${row.prob}</span>
+        </div>
+        <div class="mt-3 grid grid-cols-2 gap-3 text-[11px] uppercase tracking-[0.24em] text-slate-300">
+          <div class="rounded-2xl bg-slate-950/70 p-3">
+            <p class="text-[10px] text-slate-400">Min</p>
+            <p class="mt-1 font-semibold text-slate-100">${row.min}</p>
+          </div>
+          <div class="rounded-2xl bg-slate-950/70 p-3">
+            <p class="text-[10px] text-slate-400">Max</p>
+            <p class="mt-1 font-semibold text-slate-100">${row.max}</p>
+          </div>
+          <div class="col-span-2 rounded-2xl bg-slate-950/70 p-3">
+            <p class="text-[10px] text-slate-400">Median</p>
+            <p class="mt-1 font-semibold text-slate-100">${row.med}</p>
+          </div>
+        </div>
+      </div>`,
+    )
+    .join("");
+
+  elements.minerals.innerHTML = `<div class="space-y-3">${cards}</div>`;
+}
+
 function renderTable(data) {
-  if (!Array.isArray(data) || !data.length) {
-    elements.minerals.innerHTML = "";
+  if (isCompactLayout()) {
+    renderCardList(data);
     return;
   }
 
@@ -187,10 +221,10 @@ function schedulePoll(delay) {
   if (state.timerId) {
     clearTimeout(state.timerId);
   }
-  state.timerId = window.setTimeout(poll, delay);
+  state.timerId = globalThis.setTimeout(poll, delay);
 }
 
-window.addEventListener("DOMContentLoaded", () => {
+globalThis.addEventListener("DOMContentLoaded", () => {
   initElements();
   initRegionSelection();
   poll();

@@ -1,0 +1,164 @@
+:root {
+  --hud-bg: rgba(10, 24, 46, 0.72);
+  --hud-border: rgba(88, 212, 255, 0.65);
+  --hud-shadow: rgba(23, 122, 178, 0.45);
+  --hud-text: #def7ff;
+  --hud-muted: #7bb6d8;
+  --hud-accent: #5ee5ff;
+  --hud-accent-dark: rgba(39, 120, 205, 0.65);
+  --hud-table-bg: rgba(5, 18, 36, 0.75);
+}
+
+html, body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', 'Orbitron', 'Exo 2', sans-serif;
+  background-color: #02050f;
+  background-image: radial-gradient(circle at top, rgba(8, 24, 48, 0.85), rgba(0, 0, 0, 1) 55%);
+  color: var(--hud-text);
+}
+
+.hud-overlay {
+  position: relative;
+  overflow: hidden;
+}
+
+.hud-overlay::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, rgba(94, 229, 255, 0.12), transparent 45%);
+  pointer-events: none;
+}
+
+.hud-overlay::after {
+  content: "";
+  position: absolute;
+  left: -40%;
+  top: -60%;
+  width: 90%;
+  height: 220%;
+  transform: translateX(-30%) rotate(25deg);
+  background: linear-gradient(transparent 20%, rgba(94, 229, 255, 0.12) 40%, transparent 60%);
+  animation: sweep 8s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes sweep {
+  0% {
+    transform: translateX(-30%) rotate(25deg);
+  }
+  100% {
+    transform: translateX(120%) rotate(25deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hud-overlay::after {
+    animation: none;
+  }
+}
+
+.hud-table {
+  margin-top: 0.75rem;
+}
+
+.hud-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+  background: var(--hud-table-bg);
+  border-radius: 1rem;
+  overflow: hidden;
+  border: 1px solid rgba(94, 229, 255, 0.2);
+  box-shadow: inset 0 0 22px rgba(94, 229, 255, 0.08);
+}
+
+.hud-table th,
+.hud-table td {
+  padding: 0.75rem 0.75rem;
+  text-align: center;
+  border-bottom: 1px solid rgba(94, 229, 255, 0.12);
+  border-right: 1px solid rgba(94, 229, 255, 0.08);
+}
+
+.hud-table th:last-child,
+.hud-table td:last-child {
+  border-right: none;
+}
+
+.hud-table tr:last-child td {
+  border-bottom: none;
+}
+
+.hud-table th {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.75rem;
+  background: linear-gradient(120deg, rgba(39, 120, 205, 0.55), rgba(12, 40, 72, 0.8));
+  color: var(--hud-text);
+  text-shadow: 0 0 8px rgba(94, 229, 255, 0.6);
+}
+
+.hud-table td {
+  color: var(--hud-text);
+}
+
+.hud-empty {
+  margin-top: 1rem;
+  padding: 1rem 1rem;
+  border-radius: 1rem;
+  border: 1px dashed rgba(94, 229, 255, 0.35);
+  background: rgba(8, 26, 48, 0.55);
+  color: var(--hud-muted);
+  font-size: 0.8125rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-align: center;
+  box-shadow: inset 0 0 18px rgba(94, 229, 255, 0.1);
+}
+
+.hud-status {
+  margin-top: 0.75rem;
+  font-size: 0.875rem;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+  padding: 0.75rem 0.85rem;
+  border-radius: 1rem;
+  color: var(--hud-text);
+  background: rgba(8, 26, 48, 0.65);
+  border: 1px solid rgba(94, 229, 255, 0.15);
+  text-align: center;
+}
+
+.hud-status--success {
+  border-color: rgba(99, 230, 76, 0.5);
+  background: rgba(99, 230, 76, 0.1);
+}
+
+.hud-status--warning {
+  border-color: rgba(230, 225, 76, 0.5);
+  background: rgba(230, 225, 76, 0.12);
+}
+
+.hud-status--error {
+  border-color: rgba(232, 138, 255, 0.5);
+  background: rgba(232, 138, 255, 0.11);
+}
+
+.hud-status--loading {
+  border-color: rgba(94, 229, 255, 0.7);
+  background: rgba(94, 229, 255, 0.08);
+}
+
+.region-toggle {
+  min-height: 44px;
+}
+
+.status-note,
+.legend-text {
+  letter-spacing: 0.08em;
+}

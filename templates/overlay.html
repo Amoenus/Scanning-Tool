@@ -2,329 +2,60 @@
 <html lang="en" xml:lang="en">
 <head>
   <title>Overlay</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <style>
-    :root {
-      --hud-bg: rgba(10, 24, 46, 0.72);
-      --hud-border: rgba(88, 212, 255, 0.65);
-      --hud-shadow: rgba(23, 122, 178, 0.45);
-      --hud-text: #def7ff;
-      --hud-muted: #7bb6d8;
-      --hud-accent: #5ee5ff;
-      --hud-accent-dark: rgba(39, 120, 205, 0.65);
-      --hud-table-bg: rgba(5, 18, 36, 0.75);
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', 'Orbitron', 'Exo 2', sans-serif;
-      background-color: #02050f;
-      background-image: radial-gradient(circle at top, rgba(8, 24, 48, 0.85), rgba(0, 0, 0, 1) 55%);
-      color: var(--hud-text);
-    }
-
-    .hud-wrap {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-      backdrop-filter: blur(2px);
-    }
-
-    .hud-container {
-      position: relative;
-      width: min(420px, 100%);
-      padding: 18px 22px 24px;
-      background: var(--hud-bg);
-      border: 1px solid var(--hud-border);
-      border-radius: 18px;
-      box-shadow: 0 16px 45px var(--hud-shadow), inset 0 0 35px rgba(108, 208, 255, 0.08);
-      backdrop-filter: blur(22px) saturate(160%);
-      overflow: hidden;
-    }
-
-    .hud-container::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(120deg, rgba(94, 229, 255, 0.12), transparent 45%);
-      pointer-events: none;
-    }
-
-    .hud-container::after {
-      content: "";
-      position: absolute;
-      left: -40%;
-      top: -60%;
-      width: 90%;
-      height: 220%;
-      transform: translateX(-30%) rotate(25deg);
-      background: linear-gradient(transparent 20%, rgba(94, 229, 255, 0.12) 40%, transparent 60%);
-      animation: sweep 8s linear infinite;
-      pointer-events: none;
-    }
-
-    @keyframes sweep {
-      0% { transform: translateX(-30%) rotate(25deg); }
-      100% { transform: translateX(120%) rotate(25deg); }
-    }
-
-    h1 {
-      margin: 0;
-      font-size: 26px;
-      letter-spacing: 1.2px;
-      text-transform: uppercase;
-      text-shadow: 0 0 12px rgba(94, 229, 255, 0.65);
-    }
-
-    .hud-subtitle {
-      margin: 4px 0 2px;
-      font-size: 14px;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      color: var(--hud-muted);
-    }
-
-    .hud-raw {
-      margin-top: 6px;
-      font-size: 11px;
-      color: rgba(222, 247, 255, 0.65);
-      letter-spacing: 0.6px;
-    }
-
-    .hud-header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: flex-start;
-      gap: 16px;
-    }
-
-    .hud-region-row {
-      margin-top: 12px;
-      display: flex;
-      justify-content: center;
-    }
-
-    .toggle-group {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 8px;
-      background: rgba(10, 35, 61, 0.6);
-      padding: 6px;
-      border-radius: 999px;
-      border: 1px solid rgba(94, 229, 255, 0.2);
-      box-shadow: inset 0 0 12px rgba(94, 229, 255, 0.12);
-    }
-
-    .toggle-pill {
-      position: relative;
-    }
-
-    .toggle-pill input {
-      position: absolute;
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    .toggle-pill span {
-      display: inline-block;
-      padding: 6px 16px;
-      font-size: 12px;
-      letter-spacing: 1.2px;
-      text-transform: uppercase;
-      color: var(--hud-muted);
-      border-radius: 999px;
-      background: rgba(8, 26, 48, 0.55);
-      transition: all 0.25s ease;
-      border: 1px solid transparent;
-    }
-
-    .toggle-pill input:checked + span {
-      color: var(--hud-text);
-      border-color: rgba(94, 229, 255, 0.6);
-      background: linear-gradient(135deg, rgba(39, 120, 205, 0.6), rgba(94, 229, 255, 0.35));
-      box-shadow: 0 0 14px rgba(94, 229, 255, 0.55);
-    }
-
-    .legend {
-      margin-top: 12px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      font-size: 11px;
-      letter-spacing: 1.2px;
-      text-transform: uppercase;
-      color: var(--hud-muted);
-    }
-
-    .legend span {
-      padding: 4px 10px;
-      border-radius: 999px;
-      font-weight: 600;
-      color: #02131f;
-      box-shadow: 0 0 10px rgba(94, 229, 255, 0.25);
-    }
-
-    .hud-empty {
-      margin-top: 16px;
-      padding: 14px 16px;
-      border-radius: 12px;
-      border: 1px dashed rgba(94, 229, 255, 0.35);
-      background: rgba(8, 26, 48, 0.5);
-      color: var(--hud-muted);
-      font-size: 12px;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      text-align: center;
-      box-shadow: inset 0 0 18px rgba(94, 229, 255, 0.1);
-    }
-
-    .hud-status {
-      margin-top: 12px;
-      font-size: 12px;
-      letter-spacing: 0.6px;
-      line-height: 1.35;
-      padding: 10px 12px;
-      border-radius: 12px;
-      color: var(--hud-text);
-      background: rgba(8, 26, 48, 0.55);
-      border: 1px solid rgba(94, 229, 255, 0.15);
-      text-align: center;
-    }
-
-    .hud-status--success {
-      border-color: rgba(99, 230, 76, 0.5);
-      background: rgba(99, 230, 76, 0.1);
-    }
-
-    .hud-status--warning {
-      border-color: rgba(230, 225, 76, 0.5);
-      background: rgba(230, 225, 76, 0.12);
-    }
-
-    .hud-status--error {
-      border-color: rgba(232, 138, 255, 0.5);
-      background: rgba(232, 138, 255, 0.11);
-    }
-
-    .hud-status--loading {
-      border-color: rgba(94, 229, 255, 0.7);
-      background: rgba(94, 229, 255, 0.08);
-    }
-
-    .hud-updated {
-      margin-top: 4px;
-      font-size: 11px;
-      color: var(--hud-muted);
-      text-align: center;
-    }
-
-    .hud-note {
-      margin-top: 14px;
-      font-size: 11px;
-      letter-spacing: 0.6px;
-      color: var(--hud-muted);
-      text-align: center;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 14px;
-      font-size: 13px;
-      background: var(--hud-table-bg);
-      border-radius: 12px;
-      overflow: hidden;
-      border: 1px solid rgba(94, 229, 255, 0.2);
-      box-shadow: inset 0 0 22px rgba(94, 229, 255, 0.08);
-    }
-
-    th, td {
-      padding: 10px 8px;
-      text-align: center;
-      border-bottom: 1px solid rgba(94, 229, 255, 0.12);
-      border-right: 1px solid rgba(94, 229, 255, 0.08);
-    }
-
-    th:last-child, td:last-child {
-      border-right: none;
-    }
-
-    tr:last-child td {
-      border-bottom: none;
-    }
-
-    th {
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      font-size: 11px;
-      background: linear-gradient(120deg, rgba(39, 120, 205, 0.55), rgba(12, 40, 72, 0.8));
-      color: var(--hud-text);
-      text-shadow: 0 0 8px rgba(94, 229, 255, 0.6);
-    }
-
-    td {
-      color: var(--hud-text);
-    }
-
-    @media (max-width: 520px) {
-      .hud-container {
-        padding: 16px;
-      }
-
-      h1 {
-        font-size: 22px;
-      }
-
-      .hud-header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .toggle-group {
-        align-self: flex-start;
-      }
-    }
-    </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='overlay.css') }}">
 </head>
-<body>
-<div class="hud-wrap">
-  <div class="hud-container" id="box">
-    <div class="hud-header">
-      <div>
-        <h1 id="name">No code</h1>
-        <p id="code" class="hud-subtitle"></p>
+<body class="min-h-screen bg-slate-950 text-slate-100">
+  <div class="min-h-screen flex items-center justify-center p-4">
+    <main class="hud-overlay relative w-full max-w-[420px] rounded-[26px] border border-sky-400/20 bg-slate-950/80 p-5 shadow-[0_16px_45px_rgba(23,122,178,0.45)] backdrop-blur-xl">
+      <div class="relative space-y-4">
+        <section class="space-y-3">
+          <div class="space-y-2">
+            <div>
+              <h1 id="name" class="text-3xl font-semibold uppercase tracking-[0.3em] text-white drop-shadow-[0_0_12px_rgba(94,229,255,0.65)]">No code</h1>
+              <p id="code" class="mt-2 text-sm uppercase tracking-[0.24em] text-slate-200/80"></p>
+            </div>
+            <p id="raw" class="text-xs leading-5 text-slate-300/75"></p>
+          </div>
+        </section>
+
+        <section class="flex min-h-[56px] items-center justify-center rounded-full border border-sky-400/20 bg-slate-900/70 px-3 py-2 shadow-inner shadow-sky-400/10">
+          <fieldset class="flex w-full items-center justify-center">
+            <legend class="sr-only">Select scan region</legend>
+            <div class="flex flex-wrap items-center justify-center gap-2">
+              {% for region in region_options %}
+              <label class="inline-flex items-center">
+                <input class="sr-only peer" type="radio" name="region" value="{{ region }}" {{ "checked" if region == default_region else "" }}>
+                <span class="inline-flex h-11 min-h-[44px] items-center justify-center rounded-full border border-transparent bg-slate-900/70 px-4 text-xs font-semibold uppercase tracking-[0.22em] text-slate-300 transition duration-200 hover:border-sky-300/40 hover:text-white peer-checked:border-sky-500/80 peer-checked:bg-sky-500/20 peer-checked:text-white peer-focus-visible:border-sky-300/80 peer-focus-visible:ring-2 peer-focus-visible:ring-sky-300/80 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-slate-950 focus-visible:outline-none">
+                  {{ region.title() }}
+                </span>
+              </label>
+              {% endfor %}
+            </div>
+          </fieldset>
+        </section>
+
+        <section id="status-container">
+          <div id="status-message" class="hud-status" role="status" aria-live="polite">
+            Waiting for overlay data…
+          </div>
+          <p id="updated-at" class="mt-2 text-[11px] uppercase tracking-[0.22em] text-slate-400"></p>
+        </section>
+
+        <section id="minerals" class="hud-table"></section>
+
+        <div class="flex flex-wrap justify-center gap-2 text-[11px] uppercase tracking-[0.22em] text-slate-300/80">
+          <span class="rounded-full bg-[#E88AFF]/15 px-3 py-1 font-semibold text-[#E88AFF]">Highest</span>
+          <span class="rounded-full bg-[#63E64C]/15 px-3 py-1 font-semibold text-[#63E64C]">High</span>
+          <span class="rounded-full bg-[#E6E14C]/15 px-3 py-1 font-semibold text-[#E6E14C]">Medium</span>
+          <span class="rounded-full bg-[#E69E4C]/15 px-3 py-1 font-semibold text-[#E69E4C]">Low</span>
+        </div>
+
+        <p class="text-xs text-slate-400">Tip: open this overlay on another device (phone or tablet) using your local network link.</p>
       </div>
-    </div>
-    <div class="hud-region-row">
-      <div class="toggle-group">
-        {% for region in region_options %}
-        <label class="toggle-pill">
-          <input type="radio" name="region" value="{{ region }}" {{ "checked" if region == default_region else "" }}>
-          <span>{{ region.title() }}</span>
-        </label>
-        {% endfor %}
-      </div>
-    </div>
-    <p id="raw" class="hud-raw"></p>
-    <p id="status-message" class="hud-status"></p>
-    <p id="updated-at" class="hud-updated"></p>
-    <div class="legend">
-      <span style="background:#E88AFF;">Highest</span>
-      <span style="background:#63E64C;">High</span>
-      <span style="background:#E6E14C;">Medium</span>
-      <span style="background:#E69E4C;">Low</span>
-    </div>
-    <div id="minerals" class="hud-table"></div>
-    <p class="hud-note">Tip: open this overlay on another device (phone or tablet) using your local network link.</p>
+    </main>
   </div>
-</div>
-<script src="{{ url_for('static', filename='overlay.js') }}"></script>
+  <script src="{{ url_for('static', filename='overlay.js') }}"></script>
 </body>
 </html>
