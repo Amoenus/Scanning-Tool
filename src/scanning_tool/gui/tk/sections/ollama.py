@@ -2,16 +2,11 @@
 
 from __future__ import annotations
 
-import io
 import tkinter as tk
-import webbrowser
 from tkinter import ttk
 from typing import TYPE_CHECKING
 
 from loguru import logger
-
-import segno
-from PIL import Image, ImageTk
 
 if TYPE_CHECKING:
     from .base import SectionContext
@@ -31,12 +26,6 @@ from ..widgets import (
     create_labeled_entry,
     create_status_label,
 )
-
-
-def get_local_ip() -> str:
-    from scanning_tool.web import get_local_ip as web_get_local_ip
-
-    return web_get_local_ip()
 
 
 class OllamaModelManager:
@@ -94,7 +83,7 @@ class OllamaSection:
         self._active_model_var = tk.StringVar()
 
         self._build_model_row(frame)
-        self._build_host_row(frame, ctx)
+        self._build_host_row(frame)
         self._build_action_row(frame)
         self._build_active_labels(frame)
 
@@ -110,7 +99,7 @@ class OllamaSection:
             width=48,
         )
 
-    def _build_host_row(self, parent: ttk.Widget, ctx: SectionContext) -> None:
+    def _build_host_row(self, parent: ttk.Widget) -> None:
         create_labeled_entry(
             parent,
             text="Remote Ollama host (IPv4/hostname with optional port). Leave blank to use this PC.",
@@ -124,8 +113,6 @@ class OllamaSection:
                 ("Apply Host", self._apply_host),
                 ("Apply Model", self._apply_model),
                 ("Use Localhost", self._use_localhost),
-                ("Open Mobile UI", self._open_mobile_overlay),
-                ("Mobile QR Code", self._show_mobile_qr),
             ],
         )
 
@@ -164,68 +151,3 @@ class OllamaSection:
         message = f"Ollama host cleared. Using {get_ollama_host()}."
         self._status.set_status(message)
         logger.info(message)
-
-    def _open_mobile_overlay(self) -> None:
-        url = self._build_mobile_overlay_url()
-
-        try:
-            webbrowser.open_new_tab(url)
-        except Exception as exc:
-            self._status.set_status(f"Unable to open browser: {exc}")
-            logger.warning("Failed to open mobile overlay URL {}: {}", url, exc)
-        else:
-            self._status.set_status(f"Opening overlay in browser: {url}")
-            logger.info("Opened mobile overlay URL: {}", url)
-
-    def _show_mobile_qr(self) -> None:
-        url = self._build_mobile_overlay_url()
-
-        try:
-            qr = segno.make(url, error="h")
-        except Exception as exc:
-            self._status.set_status(f"Unable to generate QR code: {exc}")
-            logger.warning("Failed to generate QR code for {}: {}", url, exc)
-            return
-
-        with io.BytesIO() as buffer:
-            qr.save(buffer, kind="png", scale=8, border=2)
-            buffer.seek(0)
-            image = Image.open(buffer)
-            photo = ImageTk.PhotoImage(image)
-
-        self._display_mobile_qr(photo, url)
-
-    def _display_mobile_qr(self, photo: ImageTk.PhotoImage, url: str) -> None:
-        window = tk.Toplevel()
-        window.title("Scan to Open Mobile UI")
-        window.resizable(False, False)
-        window.attributes("-topmost", True)
-
-        image_label = ttk.Label(window, image=photo)
-        image_label.image = photo
-        image_label.pack(padx=12, pady=(12, 6))
-
-        url_label = ttk.Label(window, text=url, wraplength=380, justify="center")
-        url_label.pack(padx=12, pady=(0, 12))
-
-        close_button = ttk.Button(window, text="Close", command=window.destroy)
-        close_button.pack(padx=12, pady=(0, 12))
-
-        self._status.set_status("Mobile overlay QR code displayed. Scan it with your phone.")
-        logger.info("Displayed mobile overlay QR code for {}.", url)
-
-    def _build_mobile_overlay_url(self) -> str:
-        if hasattr(self, "_ctx"):
-            web_config = self._ctx.config.web_server_config
-        else:
-            from scanning_tool.state.manager import config
-
-            web_config = config.web_server_config
-
-        display_host = self._resolve_mobile_overlay_display_host(web_config.host)
-        return f"http://{display_host}:{web_config.port}"
-
-    def _resolve_mobile_overlay_display_host(self, host: str) -> str:
-        if host == "0.0.0.0":
-            return get_local_ip()
-        return host or "127.0.0.1"

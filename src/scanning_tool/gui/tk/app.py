@@ -18,6 +18,7 @@ from .sections import (
     CaptureRegionSection,
     ControlsSection,
     HeadSwaySection,
+    MobileOverlaySection,
     OllamaSection,
     ResultDisplaySection,
     Section,
@@ -43,6 +44,7 @@ SECTION_CLASSES: Sequence[type[Section]] = (
     StatusOverviewSection,
     ResultDisplaySection,
     ControlsSection,
+    MobileOverlaySection,
 )
 
 

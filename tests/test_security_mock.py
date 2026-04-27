@@ -124,14 +124,16 @@ class TestSecurity(unittest.TestCase):
 
     def test_mobile_overlay_url_default(self):
         # Already set to 0.0.0.0 in setUp
-        with patch("scanning_tool.gui.sections.ollama.webbrowser") as mock_webbrowser:
+        with patch("scanning_tool.gui.tk.sections.mobile_overlay.webbrowser") as mock_webbrowser:
             with patch(
-                "scanning_tool.gui.sections.ollama.get_local_ip"
+                "scanning_tool.gui.tk.sections.mobile_overlay.get_local_ip"
             ) as mock_get_local_ip:
                 mock_get_local_ip.return_value = "192.168.1.100"
-                from scanning_tool.gui.sections.ollama import OllamaSection
+                from scanning_tool.gui.tk.sections.mobile_overlay import MobileOverlaySection
 
-                section = OllamaSection()
+                section = MobileOverlaySection()
+                section._ctx = MagicMock()
+                section._ctx.config.web_server_config = self.mock_state_manager.config.web_server_config
                 section._status = MagicMock()
                 section._open_mobile_overlay()
 
@@ -143,10 +145,12 @@ class TestSecurity(unittest.TestCase):
         self.mock_state_manager.config.web_server_config.host = "127.0.0.1"
         self.mock_state_manager.config.web_server_config.port = 8080
 
-        with patch("scanning_tool.gui.sections.ollama.webbrowser") as mock_webbrowser:
-            from scanning_tool.gui.sections.ollama import OllamaSection
+        with patch("scanning_tool.gui.tk.sections.mobile_overlay.webbrowser") as mock_webbrowser:
+            from scanning_tool.gui.tk.sections.mobile_overlay import MobileOverlaySection
 
-            section = OllamaSection()
+            section = MobileOverlaySection()
+            section._ctx = MagicMock()
+            section._ctx.config.web_server_config = self.mock_state_manager.config.web_server_config
             section._status = MagicMock()
             section._open_mobile_overlay()
 

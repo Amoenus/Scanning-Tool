@@ -9,6 +9,7 @@ from scanning_tool.gui.tk.sections import (
     CaptureRegionSection,
     ControlsSection,
     HeadSwaySection,
+    MobileOverlaySection,
     OllamaSection,
     ResultDisplaySection,
     Section,
@@ -20,6 +21,7 @@ __all__ = [
     "CaptureRegionSection",
     "ControlsSection",
     "HeadSwaySection",
+    "MobileOverlaySection",
     "OllamaSection",
     "ResultDisplaySection",
     "Section",
@@ -28,6 +30,7 @@ __all__ = [
 ]
 
 _SECTION_MODULE_MAP = {
+    "mobile_overlay": "scanning_tool.gui.tk.sections.mobile_overlay",
     "ollama": "scanning_tool.gui.tk.sections.ollama",
 }
 
