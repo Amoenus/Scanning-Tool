@@ -2,12 +2,16 @@
 
 from __future__ import annotations
 
+import io
 import tkinter as tk
 import webbrowser
 from tkinter import ttk
 from typing import TYPE_CHECKING
 
 from loguru import logger
+
+import segno
+from PIL import Image, ImageTk
 
 if TYPE_CHECKING:
     from .base import SectionContext
@@ -121,6 +125,7 @@ class OllamaSection:
                 ("Apply Model", self._apply_model),
                 ("Use Localhost", self._use_localhost),
                 ("Open Mobile UI", self._open_mobile_overlay),
+                ("Mobile QR Code", self._show_mobile_qr),
             ],
         )
 
@@ -171,6 +176,43 @@ class OllamaSection:
         else:
             self._status.set_status(f"Opening overlay in browser: {url}")
             logger.info("Opened mobile overlay URL: {}", url)
+
+    def _show_mobile_qr(self) -> None:
+        url = self._build_mobile_overlay_url()
+
+        try:
+            qr = segno.make(url, error="h")
+        except Exception as exc:
+            self._status.set_status(f"Unable to generate QR code: {exc}")
+            logger.warning("Failed to generate QR code for {}: {}", url, exc)
+            return
+
+        with io.BytesIO() as buffer:
+            qr.save(buffer, kind="png", scale=8, border=2)
+            buffer.seek(0)
+            image = Image.open(buffer)
+            photo = ImageTk.PhotoImage(image)
+
+        self._display_mobile_qr(photo, url)
+
+    def _display_mobile_qr(self, photo: ImageTk.PhotoImage, url: str) -> None:
+        window = tk.Toplevel()
+        window.title("Scan to Open Mobile UI")
+        window.resizable(False, False)
+        window.attributes("-topmost", True)
+
+        image_label = ttk.Label(window, image=photo)
+        image_label.image = photo
+        image_label.pack(padx=12, pady=(12, 6))
+
+        url_label = ttk.Label(window, text=url, wraplength=380, justify="center")
+        url_label.pack(padx=12, pady=(0, 12))
+
+        close_button = ttk.Button(window, text="Close", command=window.destroy)
+        close_button.pack(padx=12, pady=(0, 12))
+
+        self._status.set_status("Mobile overlay QR code displayed. Scan it with your phone.")
+        logger.info("Displayed mobile overlay QR code for {}.", url)
 
     def _build_mobile_overlay_url(self) -> str:
         if hasattr(self, "_ctx"):
