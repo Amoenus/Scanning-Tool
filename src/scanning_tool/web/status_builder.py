@@ -1,12 +1,16 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from scanning_tool.config.service import ConfigData
 from scanning_tool.domain.capture import DepositInfo
 from scanning_tool.domain.common import SpaceSystem
 from scanning_tool.interfaces.web import StatusResponseBuilder
 from scanning_tool.state.scan_state import ScanState
-from scanning_tool.state.service_state import ServiceState
 from scanning_tool.web.schemas import DepositTable, StatusResponse
+
+if TYPE_CHECKING:
+    from scanning_tool.state.service_state import ServiceState
 
 SUPPORTED_DEPOSIT_CATEGORIES = {"rock deposits", "gems"}
 
