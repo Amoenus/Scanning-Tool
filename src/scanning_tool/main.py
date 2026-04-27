@@ -40,9 +40,11 @@ def _initialize_services() -> None:
 def _initialize_anchor_tracking(config: ConfigData, scan_state: ScanState) -> None:
     """Create and register the anchor region tracker."""
     from scanning_tool.core.anchor import AnchorRegionTracker
+    from scanning_tool.services.capture_provider import ScreenCaptureProvider
 
     scan_state.anchor_tracker = AnchorRegionTracker(
         config.anchor_template_dir,
+        ScreenCaptureProvider(),
         config.anchor_threshold,
     )
 

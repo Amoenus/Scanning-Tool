@@ -1,14 +1,11 @@
 from .anchor_matcher import AnchorMatcher
 from .anchor_template_loader import AnchorTemplate, AnchorTemplateLoader
 from scanning_tool.domain.alignment import AnchorDetection, CaptureRegion
-from scanning_tool.domain.common import MssMonitor
+from scanning_tool.interfaces.capture import CaptureProvider
 
 
-import cv2
-import mss
 import numpy as np
 from loguru import logger
-from mss.models import Monitor
 
 
 from typing import List, Optional
@@ -17,10 +14,16 @@ from typing import List, Optional
 class AnchorRegionTracker:
     """Manage template loading and anchor matching for auto alignment."""
 
-    def __init__(self, template_dir: str, threshold: float = 0.82) -> None:
+    def __init__(
+        self,
+        template_dir: str,
+        capture_provider: CaptureProvider,
+        threshold: float = 0.82,
+    ) -> None:
         self.template_loader = AnchorTemplateLoader(template_dir)
         self.matcher = AnchorMatcher()
         self.threshold = threshold
+        self.capture_provider = capture_provider
 
     def set_threshold(self, threshold: float) -> None:
         self.threshold = threshold
@@ -47,11 +50,8 @@ class AnchorRegionTracker:
         if not self._has_templates():
             return None
 
-        mss_monitor = region.to_mss_monitor()
-        monitor = self._to_library_monitor(mss_monitor)
-        anchor_gray = self._grab_anchor_screenshot(monitor)
-        if anchor_gray is None:
-            return None
+        monitor = region.to_monitor()
+        anchor_gray = self._grab_anchor_screenshot(region)
 
         best_score, best_loc, best_template = self.matcher.find_best_match(
             anchor_gray, self.template_loader.templates
@@ -69,23 +69,6 @@ class AnchorRegionTracker:
             monitor, best_loc, best_template, best_score
         )
 
-    def _grab_anchor_screenshot(self, monitor: Monitor) -> Optional[np.ndarray]:
-        with mss.mss() as sct:
-            try:
-                screenshot = sct.grab(monitor)
-            except Exception as exc:
-                logger.error(f"Anchor capture failed: {exc}")
-                return None
-
-        anchor_image = np.array(screenshot)
-        if anchor_image.ndim == 3 and anchor_image.shape[2] == 4:
-            return cv2.cvtColor(anchor_image, cv2.COLOR_BGRA2GRAY)
-        return cv2.cvtColor(anchor_image, cv2.COLOR_BGR2GRAY)
-
-    def _to_library_monitor(self, monitor: MssMonitor) -> Monitor:
-        return {
-            "left": monitor["left"],
-            "top": monitor["top"],
-            "width": monitor["width"],
-            "height": monitor["height"],
-        }
+    def _grab_anchor_screenshot(self, region: CaptureRegion) -> np.ndarray:
+        screenshot = self.capture_provider.capture(region)
+        return np.array(screenshot.convert("L"))

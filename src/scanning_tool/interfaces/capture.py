@@ -3,8 +3,11 @@ from __future__ import annotations
 from typing import Protocol, Callable, Optional
 
 from PIL.Image import Image
+from typing import TYPE_CHECKING
 
-from scanning_tool.core.anchor import AnchorRegionTracker
+if TYPE_CHECKING:
+    from scanning_tool.core.anchor import AnchorRegionTracker
+
 from scanning_tool.domain.alignment import (
     AlignmentInfo,
     AlignmentRequest,
@@ -38,7 +41,7 @@ class AlignmentAdapter(Protocol):
 
     def align(
         self,
-        anchor_tracker: AnchorRegionTracker | None,
+        anchor_tracker: "AnchorRegionTracker | None",
         last_alignment_info: AlignmentInfo,
         alignment_request: AlignmentRequest,
     ) -> bool: ...

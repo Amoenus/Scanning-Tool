@@ -11,6 +11,7 @@ from tkinter import ttk
 from scanning_tool.core.anchor import AnchorRegionTracker
 from scanning_tool.domain.alignment import AlignmentRequest
 from scanning_tool.services.alignment_service import alignment_service
+from scanning_tool.services.capture_provider import ScreenCaptureProvider
 from scanning_tool.config import ensure_anchor_directory
 from .base import SectionContext
 from ..widgets import (
@@ -314,6 +315,7 @@ class HeadSwaySection:
         if self._ctx.scan_state.anchor_tracker is None:
             self._ctx.scan_state.anchor_tracker = AnchorRegionTracker(
                 self._ctx.config.anchor_template_dir,
+                ScreenCaptureProvider(),
                 self._ctx.config.anchor_threshold,
             )
         count = self._ctx.scan_state.anchor_tracker.set_directory(

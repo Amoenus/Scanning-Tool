@@ -27,9 +27,8 @@ class StatusBar:
         self.status_var.set(message)
 
     def set_status_async(self, sender: object, message: str) -> None:
-        """Set status and pump idle tasks — used by background scanning callbacks."""
-        self.status_var.set(message)
-        self.root.update_idletasks()
+        """Set status from any thread by scheduling it on the Tk event loop."""
+        self.root.after(0, lambda: self.status_var.set(message))
 
     def set_anchor(self, message: str, hold: float = 1.5) -> None:
         self.anchor_status_var.set(message)

@@ -1,6 +1,7 @@
 """Controls section — continuous capture interval + primary action buttons."""
 
 import tkinter as tk
+from threading import Thread
 from tkinter import ttk
 from typing import Any, Optional
 
@@ -54,7 +55,7 @@ class ControlsSection:
         create_button_row(
             frame,
             [
-                ("Single Scan", ctx.capture_service.capture_once),
+                ("Single Scan", self._start_single_scan),
                 (self._continuous_button_text, self._toggle_continuous_capture),
                 (self._capture_box_button_text, self._toggle_capture_box),
                 ("Update Overlay", update_overlay_region),
@@ -81,6 +82,10 @@ class ControlsSection:
         self._status.set_status(
             f"Continuous capture interval set to {self._ctx.config.continuous_capture_interval:.1f}s"
         )
+
+    def _start_single_scan(self) -> None:
+        self._status.set_status("Single scan started — loading model if needed...")
+        Thread(target=self._ctx.capture_service.capture_once, daemon=True).start()
 
     def _on_continuous_mode_change(self, continuous_mode: bool) -> None:
         safe_tk(
