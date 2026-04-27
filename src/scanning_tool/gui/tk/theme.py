@@ -1,8 +1,8 @@
 """Glass theme styling for the Tkinter GUI."""
 
 import tkinter as tk
-from tkinter import ttk
 from dataclasses import dataclass
+from tkinter import ttk
 
 from PIL import Image, ImageDraw, ImageTk
 
@@ -58,7 +58,7 @@ def _configure_frame_styles(style: ttk.Style, colors: GlassPalette) -> None:
             bordercolor=colors.border,
             lightcolor=colors.border,
             darkcolor=colors.background,
-        )
+        ),
     )
     style.configure(
         "Glass.TLabelframe.Label",
@@ -122,7 +122,7 @@ def _configure_checkbox_styles(style: ttk.Style, colors: GlassPalette) -> None:
 
 
 def _configure_slider_styles(
-    style: ttk.Style, root: tk.Tk, colors: GlassPalette
+    style: ttk.Style, root: tk.Tk, colors: GlassPalette,
 ) -> None:
     slider_normal = _make_slider_image(colors.knob, colors.knob_outline)
     slider_active = _make_slider_image(colors.knob_active, colors.accent)
@@ -135,7 +135,7 @@ def _configure_slider_styles(
             slider_normal,
             ("active", slider_active),
             ("pressed", slider_active),
-        )
+        ),
     )
 
     style.layout(
@@ -149,10 +149,10 @@ def _configure_slider_styles(
                         (
                             "Glass.Horizontal.Scale.slider",
                             {"side": "left", "sticky": ""},
-                        )
+                        ),
                     ],
                 },
-            )
+            ),
         ],
     )
     style.configure(
@@ -208,6 +208,6 @@ def style_spinbox(spinbox: tk.Spinbox, colors: GlassPalette) -> None:
             highlightthickness=0,
             relief="flat",
             buttonbackground=colors.button,
-        )
+        ),
     ):
         spinbox.configure(bg=colors.panel, fg=colors.text)

@@ -1,13 +1,15 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 import cv2
+
 from scanning_tool.domain.alignment import AnchorDetection
 
 if TYPE_CHECKING:
     import numpy as np
     from mss.models import Monitor
+
     from scanning_tool.core.anchor.anchor_template_loader import AnchorTemplate
 
 
@@ -15,11 +17,11 @@ class AnchorMatcher:
     """Find the best anchor template match in a captured image."""
 
     def find_best_match(
-        self, anchor_gray: np.ndarray, templates: list[AnchorTemplate]
-    ) -> tuple[float, Optional[tuple[int, int]], Optional[AnchorTemplate]]:
+        self, anchor_gray: np.ndarray, templates: list[AnchorTemplate],
+    ) -> tuple[float, tuple[int, int] | None, AnchorTemplate | None]:
         best_score = -1.0
-        best_loc: Optional[tuple[int, int]] = None
-        best_template: Optional[AnchorTemplate] = None
+        best_loc: tuple[int, int] | None = None
+        best_template: AnchorTemplate | None = None
 
         for template in templates:
             if (

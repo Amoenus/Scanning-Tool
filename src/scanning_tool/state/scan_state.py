@@ -1,14 +1,16 @@
 """Scan state management."""
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Callable, Optional
+
 from blinker import Signal
+
 from scanning_tool.core.anchor import AnchorRegionTracker
 from scanning_tool.domain.alignment import AlignmentInfo
 from scanning_tool.domain.capture import ScanResult
 
 ContinuousModeListener = Callable[[bool], None]
-ScanResultListener = Callable[[Optional[ScanResult]], None]
+ScanResultListener = Callable[[ScanResult | None], None]
 AlignmentInfoListener = Callable[[AlignmentInfo], None]
 
 
@@ -18,23 +20,23 @@ class ScanState:
 
     is_scanning: bool = False
     continuous_mode: bool = False
-    anchor_tracker: Optional["AnchorRegionTracker"] = None
+    anchor_tracker: AnchorRegionTracker | None = None
     last_alignment_info: AlignmentInfo = field(default_factory=AlignmentInfo)
-    _last_result: Optional[ScanResult] = field(default=None, init=False, repr=False)
+    _last_result: ScanResult | None = field(default=None, init=False, repr=False)
     _continuous_mode_signal: Signal = field(
-        default_factory=Signal, init=False, repr=False
+        default_factory=Signal, init=False, repr=False,
     )
     _scan_result_signal: Signal = field(default_factory=Signal, init=False, repr=False)
     _alignment_info_signal: Signal = field(
-        default_factory=Signal, init=False, repr=False
+        default_factory=Signal, init=False, repr=False,
     )
 
     @property
-    def last_result(self) -> Optional[ScanResult]:
+    def last_result(self) -> ScanResult | None:
         return self._last_result
 
     @last_result.setter
-    def last_result(self, value: Optional[ScanResult]) -> None:
+    def last_result(self, value: ScanResult | None) -> None:
         self._last_result = value
         self._notify_scan_result_listeners()
 
@@ -45,7 +47,7 @@ class ScanState:
         self._continuous_mode_signal.connect(receiver, weak=False)
 
     def add_scan_result_listener(self, listener: ScanResultListener) -> None:
-        def receiver(sender: object, scan_result: Optional[ScanResult]) -> None:
+        def receiver(sender: object, scan_result: ScanResult | None) -> None:
             listener(scan_result)
 
         self._scan_result_signal.connect(receiver, weak=False)

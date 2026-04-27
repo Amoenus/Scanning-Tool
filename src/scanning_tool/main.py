@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 from flask import Flask
 from loguru import logger
 
+from scanning_tool.bootstrap import bootstrap
 from scanning_tool.config import resource_path
 from scanning_tool.logging_setup import setup_logging
 from scanning_tool.ollama import (
@@ -16,7 +17,6 @@ from scanning_tool.ollama import (
     log_model_running_status,
 )
 from scanning_tool.state import manager
-from scanning_tool.bootstrap import bootstrap
 
 if TYPE_CHECKING:
     from scanning_tool.config.service import ConfigData
@@ -49,7 +49,7 @@ def _initialize_anchor_tracking(config: ConfigData, scan_state: ScanState) -> No
     )
 
 
-def _start_hotkey_listener(capture_service: "CaptureService") -> None:
+def _start_hotkey_listener(capture_service: CaptureService) -> None:
     """Launch the global hotkey listener on a background thread."""
     from scanning_tool.services.hotkeys_service import hotkey_listener
 
@@ -67,7 +67,6 @@ def _start_web_server(
     fatal startup error because the overlay server cannot operate correctly
     without the configuration and shared state objects.
     """
-
     web_config = config.web_server_config
     host = web_config.host
     port = web_config.port
@@ -123,7 +122,7 @@ def _create_capture_service(
     config: ConfigData,
     scan_state: ScanState,
     service_state: ServiceState,
-) -> "CaptureService":
+) -> CaptureService:
     from scanning_tool.services.capture_service import CaptureService
 
     return CaptureService(config, scan_state, service_state)
@@ -133,7 +132,7 @@ def _launch_gui(
     config: ConfigData,
     scan_state: ScanState,
     service_state: ServiceState,
-    capture_service: "CaptureService",
+    capture_service: CaptureService,
 ) -> None:
     from scanning_tool.gui.provider import get_default_gui_provider
 

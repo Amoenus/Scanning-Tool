@@ -2,6 +2,10 @@
 
 from typing import Optional
 
+from scanning_tool.config.service import ConfigData
+from scanning_tool.gui.control_state import ControlState
+from scanning_tool.gui.overlay_state import OverlayState
+
 from .anchor import (
     hide_anchor_overlay,
     show_anchor_overlay,
@@ -17,12 +21,12 @@ from .capture import (
 )
 from .info import (
     choose_label_color,
+    hide_info_overlay,
     reposition_info_overlay,
     show_info_overlay,
     start_label_timeout,
     toggle_border,
     update_overlay_label,
-    hide_info_overlay,
 )
 from .slider_sync import (
     configure_capture_slider_sync,
@@ -34,55 +38,52 @@ from .slider_sync import (
     sync_capture_sliders_callback,
     sync_overlay_sliders,
 )
-from scanning_tool.config.service import ConfigData
-from scanning_tool.gui.control_state import ControlState
-from scanning_tool.gui.overlay_state import OverlayState
 
 __all__ = (
     "ControlState",
     "choose_label_color",
+    "configure_capture_slider_sync",
     "create_overlay_window",
+    "destroy_all_overlays",
     "enforce_topmost",
     "hide_anchor_overlay",
+    "hide_capture_overlay",
+    "hide_info_overlay",
     "register_anchor_sliders",
     "register_capture_sliders",
     "register_overlay_sliders",
     "reposition_info_overlay",
     "show_anchor_overlay",
     "show_capture_overlay",
-    "hide_capture_overlay",
     "show_info_overlay",
-    "hide_info_overlay",
     "show_overlay",
     "start_capture_overlay_animation",
-    "toggle_border",
     "start_label_timeout",
     "stop_capture_overlay_animation",
     "sync_anchor_sliders",
     "sync_capture_sliders",
     "sync_capture_sliders_callback",
-    "configure_capture_slider_sync",
     "sync_overlay_sliders",
+    "toggle_border",
+    "update_anchor_overlay_region",
     "update_capture_overlay_region",
     "update_overlay_label",
-    "update_anchor_overlay_region",
     "update_overlay_region",
-    "destroy_all_overlays",
 )
 
 
 def show_overlay(
     overlay_state: OverlayState,
     config: ConfigData,
-    screen_width: Optional[int] = None,
-    screen_height: Optional[int] = None,
+    screen_width: int | None = None,
+    screen_height: int | None = None,
 ) -> None:
     show_anchor_overlay(overlay_state, config.anchor_template)
     show_capture_overlay(overlay_state, config.capture_region)
 
     if screen_width is None or screen_height is None:
         if overlay_state.capture_overlay_root and safe_tk(
-            overlay_state.capture_overlay_root.winfo_exists, False
+            overlay_state.capture_overlay_root.winfo_exists, False,
         ):
             screen_width = (
                 safe_tk(overlay_state.capture_overlay_root.winfo_screenwidth, 1920)

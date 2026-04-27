@@ -3,22 +3,16 @@
 import os
 import subprocess
 import sys
-from typing import Callable
-
 import tkinter as tk
+from collections.abc import Callable
 from tkinter import ttk
 
+from scanning_tool.config import ensure_anchor_directory
 from scanning_tool.core.anchor import AnchorRegionTracker
 from scanning_tool.domain.alignment import AlignmentRequest
 from scanning_tool.services.alignment_service import alignment_service
 from scanning_tool.services.capture_provider import ScreenCaptureProvider
-from scanning_tool.config import ensure_anchor_directory
-from .base import SectionContext
-from ..widgets import (
-    create_button_row,
-    create_glass_scale,
-    create_labeled_spinbox,
-)
+
 from ..overlays import (
     hide_anchor_overlay,
     register_anchor_sliders,
@@ -26,6 +20,12 @@ from ..overlays import (
     sync_anchor_sliders,
     update_anchor_overlay_region,
 )
+from ..widgets import (
+    create_button_row,
+    create_glass_scale,
+    create_labeled_spinbox,
+)
+from .base import SectionContext
 
 
 class HeadSwaySection:
@@ -33,7 +33,7 @@ class HeadSwaySection:
 
     def build(self, parent: ttk.Widget, ctx: SectionContext) -> ttk.LabelFrame:
         frame = ttk.LabelFrame(
-            parent, text="Head Sway Compensation", style="Glass.TLabelframe"
+            parent, text="Head Sway Compensation", style="Glass.TLabelframe",
         )
         frame.pack(fill="x", padx=5, pady=8)
 
@@ -50,7 +50,7 @@ class HeadSwaySection:
         ).pack(anchor="w", padx=5, pady=(5, 0))
 
         self._anchor_overlay_var = tk.BooleanVar(
-            value=ctx.overlay_state.anchor_overlay_visible
+            value=ctx.overlay_state.anchor_overlay_visible,
         )
         ttk.Checkbutton(
             frame,
@@ -69,7 +69,7 @@ class HeadSwaySection:
 
     def _build_interval_row(self, parent: ttk.Widget, ctx: SectionContext) -> None:
         self._interval_var = tk.IntVar(
-            value=int(self._ctx.config.alignment_poll_interval_ms)
+            value=int(self._ctx.config.alignment_poll_interval_ms),
         )
         create_labeled_spinbox(
             parent,
@@ -276,7 +276,7 @@ class HeadSwaySection:
         self._ctx.overlay_state.anchor_overlay_visible = self._anchor_overlay_var.get()
         if self._ctx.overlay_state.anchor_overlay_visible:
             show_anchor_overlay(
-                self._ctx.overlay_state, self._ctx.config.anchor_template
+                self._ctx.overlay_state, self._ctx.config.anchor_template,
             )
             self._status.set_anchor("Anchor overlay shown.")
         else:
@@ -304,10 +304,10 @@ class HeadSwaySection:
         self._ctx.config.anchor_threshold = value
         if self._ctx.scan_state.anchor_tracker is not None:
             self._ctx.scan_state.anchor_tracker.set_threshold(
-                self._ctx.config.anchor_threshold
+                self._ctx.config.anchor_threshold,
             )
         self._status.set_anchor(
-            f"Anchor detection threshold set to {self._ctx.config.anchor_threshold:.2f}"
+            f"Anchor detection threshold set to {self._ctx.config.anchor_threshold:.2f}",
         )
 
     def _reload_anchor_templates(self) -> None:
@@ -319,10 +319,10 @@ class HeadSwaySection:
                 self._ctx.config.anchor_threshold,
             )
         count = self._ctx.scan_state.anchor_tracker.set_directory(
-            self._ctx.config.anchor_template_dir
+            self._ctx.config.anchor_template_dir,
         )
         self._status.set_anchor(
-            f"Loaded {count} anchor template(s) from {self._ctx.config.anchor_template_dir}."
+            f"Loaded {count} anchor template(s) from {self._ctx.config.anchor_template_dir}.",
         )
 
     def _manual_realign(self) -> None:
@@ -333,11 +333,11 @@ class HeadSwaySection:
                 hold=2.5,
             )
             self._status.set_status(
-                f"Auto alignment adjusted CAP_REGION: {self._ctx.config.capture_region}"
+                f"Auto alignment adjusted CAP_REGION: {self._ctx.config.capture_region}",
             )
         else:
             self._status.set_anchor(
-                "Anchor match not found. Adjust search region or add templates."
+                "Anchor match not found. Adjust search region or add templates.",
             )
 
     def _open_anchor_directory(self) -> None:

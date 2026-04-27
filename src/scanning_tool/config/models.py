@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional
 
 from scanning_tool.domain.alignment import CaptureRegion
 from scanning_tool.domain.common import Offset2D
@@ -23,7 +22,7 @@ class OllamaConfig:
     """Represents Ollama AI service configuration."""
 
     model: str
-    host: Optional[str]
+    host: str | None
 
 
 @dataclass

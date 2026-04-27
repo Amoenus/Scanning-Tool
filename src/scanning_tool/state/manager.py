@@ -13,10 +13,10 @@ from scanning_tool.state.service_state import ServiceState
 
 if TYPE_CHECKING:
     from scanning_tool.config.service import ConfigData, ConfigSaver
+    from scanning_tool.gui.control_state import ControlState
+    from scanning_tool.gui.overlay_state import OverlayState
     from scanning_tool.state.scan_state import ScanState
     from scanning_tool.state.service_state import ServiceState
-    from scanning_tool.gui.overlay_state import OverlayState
-    from scanning_tool.gui.control_state import ControlState
 
 _app_state_target: AppState | None = None
 _config_target: ConfigData | None = None
@@ -26,28 +26,28 @@ _service_state_target: ServiceState | None = None
 _overlay_state_target: OverlayState | None = None
 _control_state_target: ControlState | None = None
 
-app_state: AppState = cast(AppState, None)
-config: ConfigData = cast(ConfigData, None)
-config_service: ConfigSaver = cast(ConfigSaver, None)
-scan_state: ScanState = cast(ScanState, None)
-service_state: ServiceState = cast(ServiceState, None)
-overlay_state: OverlayState = cast(OverlayState, None)
-control_state: ControlState = cast(ControlState, None)
+app_state: AppState = cast("AppState", None)
+config: ConfigData = cast("ConfigData", None)
+config_service: ConfigSaver = cast("ConfigSaver", None)
+scan_state: ScanState = cast("ScanState", None)
+service_state: ServiceState = cast("ServiceState", None)
+overlay_state: OverlayState = cast("OverlayState", None)
+control_state: ControlState = cast("ControlState", None)
 
 __all__ = [
     "app_state",
     "config",
     "config_service",
-    "scan_state",
-    "service_state",
-    "overlay_state",
     "control_state",
     "initialize_state",
+    "overlay_state",
     "save_config",
+    "scan_state",
+    "service_state",
 ]
 
 
-def initialize_state(app_state_: AppState, config_service_: "ConfigSaver") -> None:
+def initialize_state(app_state_: AppState, config_service_: ConfigSaver) -> None:
     """Initialize global runtime state from the bootstrapper."""
     global _app_state_target, _config_target, _config_service_target
     global \

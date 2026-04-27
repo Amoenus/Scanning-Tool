@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+
 from pydantic import ValidationError
 
 from scanning_tool.domain.dtos import JsonObject
@@ -17,7 +18,7 @@ class OreStatistics:
     medPct: float
 
     @classmethod
-    def from_dict(cls, data: JsonObject) -> "OreStatistics":
+    def from_dict(cls, data: JsonObject) -> OreStatistics:
         try:
             validated = OreStatisticsSchema.model_validate(data)
         except ValidationError:
@@ -39,7 +40,7 @@ class Deposit:
     ores: dict[str, OreStatistics]
 
     @classmethod
-    def from_dict(cls, data: JsonObject) -> "Deposit":
+    def from_dict(cls, data: JsonObject) -> Deposit:
         try:
             validated = DepositSchema.model_validate(data)
         except ValidationError:
@@ -69,7 +70,7 @@ class Region:
     deposits: dict[str, Deposit]
 
     @classmethod
-    def from_dict(cls, data: JsonObject) -> "Region":
+    def from_dict(cls, data: JsonObject) -> Region:
         deposits = {
             deposit_name: Deposit.from_dict(deposit_data)
             for deposit_name, deposit_data in data.items()
@@ -85,7 +86,7 @@ class RockDataCollection:
     regions: dict[str, Region] = field(default_factory=dict)
 
     @classmethod
-    def from_dict(cls, data: JsonObject) -> "RockDataCollection":
+    def from_dict(cls, data: JsonObject) -> RockDataCollection:
         regions = {
             region_name: Region.from_dict(region_data)
             for region_name, region_data in data.items()
@@ -106,10 +107,10 @@ class OreTierInfo:
 
 
 __all__ = [
-    "OreStatistics",
     "Deposit",
-    "Region",
-    "RockDataCollection",
-    "RockData",
+    "OreStatistics",
     "OreTierInfo",
+    "Region",
+    "RockData",
+    "RockDataCollection",
 ]

@@ -2,44 +2,46 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Any, Callable, Optional
+from typing import Any
+
 from blinker import Signal
 
 from scanning_tool.gui.layout_types import CaptureOverlayLayout, InfoOverlayGeometry
 
 ScaleWidget = Any
-OverlayCaptureRootListener = Callable[[Optional[Any]], None]
+OverlayCaptureRootListener = Callable[[Any | None], None]
 
 
 @dataclass
 class CaptureSliders:
     """Slider widgets for the capture region controls."""
 
-    left: Optional[ScaleWidget] = None
-    top: Optional[ScaleWidget] = None
-    width: Optional[ScaleWidget] = None
-    height: Optional[ScaleWidget] = None
+    left: ScaleWidget | None = None
+    top: ScaleWidget | None = None
+    width: ScaleWidget | None = None
+    height: ScaleWidget | None = None
 
 
 @dataclass
 class AnchorSliders:
     """Slider widgets for the anchor region and offset controls."""
 
-    left: Optional[ScaleWidget] = None
-    top: Optional[ScaleWidget] = None
-    width: Optional[ScaleWidget] = None
-    height: Optional[ScaleWidget] = None
-    offset_x: Optional[ScaleWidget] = None
-    offset_y: Optional[ScaleWidget] = None
+    left: ScaleWidget | None = None
+    top: ScaleWidget | None = None
+    width: ScaleWidget | None = None
+    height: ScaleWidget | None = None
+    offset_x: ScaleWidget | None = None
+    offset_y: ScaleWidget | None = None
 
 
 @dataclass
 class OverlaySliders:
     """Slider widgets for the info overlay offset controls."""
 
-    offset_x: Optional[ScaleWidget] = None
-    offset_y: Optional[ScaleWidget] = None
+    offset_x: ScaleWidget | None = None
+    offset_y: ScaleWidget | None = None
 
 
 @dataclass
@@ -65,11 +67,11 @@ class ControlState:
 class CaptureOverlayState:
     """State for the capture region overlay."""
 
-    root: Optional[Any] = None
-    canvas: Optional[Any] = None
-    rect_id: Optional[int] = None
-    animation_job: Optional[str] = None
-    last_layout: Optional[CaptureOverlayLayout] = None
+    root: Any | None = None
+    canvas: Any | None = None
+    rect_id: int | None = None
+    animation_job: str | None = None
+    last_layout: CaptureOverlayLayout | None = None
 
     def reset(self) -> None:
         """Null all references for teardown."""
@@ -84,9 +86,9 @@ class CaptureOverlayState:
 class InfoOverlayState:
     """State for the info/label overlay."""
 
-    root: Optional[Any] = None
-    canvas: Optional[Any] = None
-    text_id: Optional[int] = None
+    root: Any | None = None
+    canvas: Any | None = None
+    text_id: int | None = None
     geometry: InfoOverlayGeometry = field(default_factory=InfoOverlayGeometry)
     overlay_text: str = ""
     last_overlay_time: float = 0.0
@@ -102,9 +104,9 @@ class InfoOverlayState:
 class AnchorOverlayState:
     """State for the anchor template overlay."""
 
-    root: Optional[Any] = None
-    canvas: Optional[Any] = None
-    rect_id: Optional[int] = None
+    root: Any | None = None
+    canvas: Any | None = None
+    rect_id: int | None = None
     visible: bool = True
 
     def reset(self) -> None:
@@ -121,19 +123,19 @@ class OverlayState:
     capture: CaptureOverlayState = field(default_factory=CaptureOverlayState)
     info: InfoOverlayState = field(default_factory=InfoOverlayState)
     anchor: AnchorOverlayState = field(default_factory=AnchorOverlayState)
-    border_canvas: Optional[Any] = None
+    border_canvas: Any | None = None
     show_border: bool = True
 
     _capture_overlay_root_signal: Signal = field(
-        default_factory=Signal, init=False, repr=False
+        default_factory=Signal, init=False, repr=False,
     )
 
     @property
-    def capture_overlay_root(self) -> Optional[Any]:
+    def capture_overlay_root(self) -> Any | None:
         return self.capture.root
 
     @capture_overlay_root.setter
-    def capture_overlay_root(self, value: Optional[Any]) -> None:
+    def capture_overlay_root(self, value: Any | None) -> None:
         if self.capture.root is value:
             return
         self.capture.root = value
@@ -143,7 +145,7 @@ class OverlayState:
         self,
         listener: OverlayCaptureRootListener,
     ) -> None:
-        def receiver(sender: object, capture_root: Optional[Any]) -> None:
+        def receiver(sender: object, capture_root: Any | None) -> None:
             listener(capture_root)
 
         self._capture_overlay_root_signal.connect(receiver, weak=False)
@@ -152,61 +154,61 @@ class OverlayState:
         self._capture_overlay_root_signal.send(self, capture_root=self.capture.root)
 
     @property
-    def capture_overlay_canvas(self) -> Optional[Any]:
+    def capture_overlay_canvas(self) -> Any | None:
         return self.capture.canvas
 
     @capture_overlay_canvas.setter
-    def capture_overlay_canvas(self, value: Optional[Any]) -> None:
+    def capture_overlay_canvas(self, value: Any | None) -> None:
         self.capture.canvas = value
 
     @property
-    def capture_rect_id(self) -> Optional[int]:
+    def capture_rect_id(self) -> int | None:
         return self.capture.rect_id
 
     @capture_rect_id.setter
-    def capture_rect_id(self, value: Optional[int]) -> None:
+    def capture_rect_id(self, value: int | None) -> None:
         self.capture.rect_id = value
 
     @property
-    def capture_overlay_animation_job(self) -> Optional[str]:
+    def capture_overlay_animation_job(self) -> str | None:
         return self.capture.animation_job
 
     @capture_overlay_animation_job.setter
-    def capture_overlay_animation_job(self, value: Optional[str]) -> None:
+    def capture_overlay_animation_job(self, value: str | None) -> None:
         self.capture.animation_job = value
 
     @property
-    def capture_overlay_last_layout(self) -> Optional[CaptureOverlayLayout]:
+    def capture_overlay_last_layout(self) -> CaptureOverlayLayout | None:
         return self.capture.last_layout
 
     @capture_overlay_last_layout.setter
     def capture_overlay_last_layout(
-        self, value: Optional[CaptureOverlayLayout]
+        self, value: CaptureOverlayLayout | None,
     ) -> None:
         self.capture.last_layout = value
 
     @property
-    def info_overlay_root(self) -> Optional[Any]:
+    def info_overlay_root(self) -> Any | None:
         return self.info.root
 
     @info_overlay_root.setter
-    def info_overlay_root(self, value: Optional[Any]) -> None:
+    def info_overlay_root(self, value: Any | None) -> None:
         self.info.root = value
 
     @property
-    def info_overlay_canvas(self) -> Optional[Any]:
+    def info_overlay_canvas(self) -> Any | None:
         return self.info.canvas
 
     @info_overlay_canvas.setter
-    def info_overlay_canvas(self, value: Optional[Any]) -> None:
+    def info_overlay_canvas(self, value: Any | None) -> None:
         self.info.canvas = value
 
     @property
-    def info_text_id(self) -> Optional[int]:
+    def info_text_id(self) -> int | None:
         return self.info.text_id
 
     @info_text_id.setter
-    def info_text_id(self, value: Optional[int]) -> None:
+    def info_text_id(self, value: int | None) -> None:
         self.info.text_id = value
 
     @property
@@ -234,27 +236,27 @@ class OverlayState:
         self.info.last_overlay_time = value
 
     @property
-    def anchor_overlay_root(self) -> Optional[Any]:
+    def anchor_overlay_root(self) -> Any | None:
         return self.anchor.root
 
     @anchor_overlay_root.setter
-    def anchor_overlay_root(self, value: Optional[Any]) -> None:
+    def anchor_overlay_root(self, value: Any | None) -> None:
         self.anchor.root = value
 
     @property
-    def anchor_overlay_canvas(self) -> Optional[Any]:
+    def anchor_overlay_canvas(self) -> Any | None:
         return self.anchor.canvas
 
     @anchor_overlay_canvas.setter
-    def anchor_overlay_canvas(self, value: Optional[Any]) -> None:
+    def anchor_overlay_canvas(self, value: Any | None) -> None:
         self.anchor.canvas = value
 
     @property
-    def anchor_rect_id(self) -> Optional[int]:
+    def anchor_rect_id(self) -> int | None:
         return self.anchor.rect_id
 
     @anchor_rect_id.setter
-    def anchor_rect_id(self, value: Optional[int]) -> None:
+    def anchor_rect_id(self, value: int | None) -> None:
         self.anchor.rect_id = value
 
     @property

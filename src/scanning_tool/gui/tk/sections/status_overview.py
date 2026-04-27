@@ -4,15 +4,15 @@ from __future__ import annotations
 
 import tkinter as tk
 from tkinter import ttk
-from typing import Any, Optional
+from typing import Any
 
 from scanning_tool.domain.alignment import AlignmentInfo
 from scanning_tool.domain.capture import ScanResult
+from scanning_tool.ollama import get_ollama_host, get_ollama_model, is_model_running
 
-from .base import SectionContext
 from ..overlays.base import safe_tk
 from ..widgets import create_section_row, create_status_label
-from scanning_tool.ollama import get_ollama_host, get_ollama_model, is_model_running
+from .base import SectionContext
 
 
 class StatusOverviewSection:
@@ -33,13 +33,13 @@ class StatusOverviewSection:
         self._host_badge = self._create_badge(frame, "Ollama host", self._host_var)
         self._model_badge = self._create_badge(frame, "Model", self._model_var)
         self._capture_badge = self._create_badge(
-            frame, "Capture box", self._capture_var
+            frame, "Capture box", self._capture_var,
         )
         self._auto_scan_badge = self._create_badge(
-            frame, "Auto scan", self._auto_scan_var
+            frame, "Auto scan", self._auto_scan_var,
         )
         self._auto_align_badge = self._create_badge(
-            frame, "Auto align", self._auto_align_var
+            frame, "Auto align", self._auto_align_var,
         )
         create_status_label(frame, self._last_scan_var)
 
@@ -54,12 +54,12 @@ class StatusOverviewSection:
 
         self._refresh_status()
         self._ctx.scan_state.add_continuous_mode_listener(
-            self._on_continuous_mode_change
+            self._on_continuous_mode_change,
         )
         self._ctx.scan_state.add_scan_result_listener(self._on_scan_result_change)
         self._ctx.scan_state.add_alignment_info_listener(self._on_alignment_info_change)
         self._ctx.overlay_state.add_capture_overlay_root_listener(
-            self._on_capture_overlay_visibility_change
+            self._on_capture_overlay_visibility_change,
         )
         self._schedule_host_model_refresh()
         return frame
@@ -72,7 +72,7 @@ class StatusOverviewSection:
     ) -> tk.Label:
         row = create_section_row(parent, pady=(0, 2))
         ttk.Label(row, text=f"{label_text}: ", style="Glass.Small.TLabel").pack(
-            side="left"
+            side="left",
         )
         badge = tk.Label(
             row,
@@ -114,15 +114,15 @@ class StatusOverviewSection:
             lambda: self._ctx.root.after(
                 0,
                 lambda: self._refresh_auto_scan_badge(continuous_mode),
-            )
+            ),
         )
 
-    def _on_scan_result_change(self, scan_result: Optional[ScanResult]) -> None:
+    def _on_scan_result_change(self, scan_result: ScanResult | None) -> None:
         safe_tk(
             lambda: self._ctx.root.after(
                 0,
                 lambda: self._refresh_last_scan_badge(scan_result),
-            )
+            ),
         )
 
     def _on_alignment_info_change(self, alignment_info: AlignmentInfo) -> None:
@@ -130,18 +130,18 @@ class StatusOverviewSection:
             lambda: self._ctx.root.after(
                 0,
                 lambda: self._refresh_auto_align_badge(alignment_info),
-            )
+            ),
         )
 
     def _on_capture_overlay_visibility_change(
         self,
-        capture_root: Optional[Any],
+        capture_root: Any | None,
     ) -> None:
         safe_tk(
             lambda: self._ctx.root.after(
                 0,
                 self._refresh_capture_badge,
-            )
+            ),
         )
 
     def _refresh_capture_badge(self) -> None:
@@ -158,7 +158,7 @@ class StatusOverviewSection:
         self._auto_align_var.set(self._build_auto_align_text(alignment_info))
         self._update_badge_color(self._auto_align_badge, self._auto_align_var.get())
 
-    def _refresh_last_scan_badge(self, result: Optional[ScanResult]) -> None:
+    def _refresh_last_scan_badge(self, result: ScanResult | None) -> None:
         if result is None:
             self._last_scan_var.set("Last scan: none")
             return
@@ -166,7 +166,7 @@ class StatusOverviewSection:
         if result.info is None:
             if result.code_raw:
                 self._last_scan_var.set(
-                    f"Last scan: no deposit metadata for {result.code_raw}"
+                    f"Last scan: no deposit metadata for {result.code_raw}",
                 )
                 return
             self._last_scan_var.set("Last scan: no code extracted")

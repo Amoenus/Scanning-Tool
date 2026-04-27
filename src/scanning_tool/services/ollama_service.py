@@ -1,23 +1,24 @@
 """Ollama lifecycle management service."""
 
-import socket
 import shutil
+import socket
 import subprocess
 import sys
 
 from tenacity import RetryError, retry, retry_if_result, stop_after_delay, wait_fixed
 
-from scanning_tool.services.base_service import BaseService
 from scanning_tool.ollama.host import (
-    get_ollama_host,
     get_host_port,
+    get_ollama_host,
     is_local_ollama_host,
 )
+from scanning_tool.services.base_service import BaseService
 
 
 class OllamaService(BaseService):
     """Manages the Ollama process and model availability via encapsulated
-    subprocess daemon."""
+    subprocess daemon.
+    """
 
     def __init__(self):
         super().__init__()
@@ -46,7 +47,7 @@ class OllamaService(BaseService):
     def _should_use_remote_host(self, host: str) -> bool:
         if not is_local_ollama_host(host):
             self.logger.info(
-                f"Using remote Ollama host at {host}; assuming it is managed externally."
+                f"Using remote Ollama host at {host}; assuming it is managed externally.",
             )
             return True
         return False
@@ -60,10 +61,10 @@ class OllamaService(BaseService):
     def _start_local_ollama(self, host: str) -> None:
         if not shutil.which("ollama"):
             self.logger.warning(
-                "Cannot start Ollama automatically because it is not installed."
+                "Cannot start Ollama automatically because it is not installed.",
             )
             sys.exit(
-                "Unable to reach a local Ollama service. Please start 'ollama serve' and rerun."
+                "Unable to reach a local Ollama service. Please start 'ollama serve' and rerun.",
             )
 
         self._spawn_ollama_daemon()
@@ -96,7 +97,7 @@ class OllamaService(BaseService):
                 and self._daemon_process.poll() is not None
             ):
                 raise RuntimeError(
-                    "'ollama serve' exited before the service became ready."
+                    "'ollama serve' exited before the service became ready.",
                 )
             return self._is_running(host)
 

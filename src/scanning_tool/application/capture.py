@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-from typing import Optional, Pattern
+from re import Pattern
 
 from loguru import logger
 from PIL.Image import Image
 
+from scanning_tool.application.scan_result_reporter import ScanResultReporter
 from scanning_tool.config.service import ConfigData
 from scanning_tool.deposits import extract_code_from_text
 from scanning_tool.domain.alignment import AlignmentRequest, CaptureRegion
@@ -19,7 +20,6 @@ from scanning_tool.interfaces.capture import (
 from scanning_tool.state.scan_state import ScanState
 from scanning_tool.state.service_state import ServiceState
 from scanning_tool.state.signals import status_updated
-from scanning_tool.application.scan_result_reporter import ScanResultReporter
 
 
 class ScanPipeline:
@@ -43,7 +43,7 @@ class ScanPipeline:
         deposit_info = self._deposit_lookup.lookup(extraction.code)
 
         return ScanResult(
-            label=extraction.code if extraction.code else "UNKNOWN",
+            label=extraction.code or "UNKNOWN",
             region=self._capture_region,
             info=deposit_info,
             code_raw=extraction.raw,
@@ -77,7 +77,7 @@ class CaptureUseCase:
             code_re=code_re or ServiceState().code_re,
         )
 
-    def capture_once(self, status_callback: Optional[StatusCallback] = None) -> None:
+    def capture_once(self, status_callback: StatusCallback | None = None) -> None:
         """Capture a single scan and populate the shared scan state."""
         if status_callback is None:
             self._do_capture()

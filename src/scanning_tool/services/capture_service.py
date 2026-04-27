@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import time
 from threading import Thread
-from typing import Optional
 
 from loguru import logger
 
@@ -40,7 +39,7 @@ class CaptureService(CaptureController):
             code_re=service_state.code_re,
         )
 
-    def capture_once(self, status_callback: Optional[StatusCallback] = None) -> None:
+    def capture_once(self, status_callback: StatusCallback | None = None) -> None:
         """Capture one scan from the capture region and update overlay."""
         self._capture_use_case.capture_once(status_callback=status_callback)
 

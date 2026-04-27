@@ -9,11 +9,11 @@ from flask import Flask, Response, jsonify, render_template, request
 from scanning_tool.config import resource_path
 from scanning_tool.config.service import ConfigData
 from scanning_tool.domain.common import SpaceSystem
+from scanning_tool.interfaces.web import StatusResponseBuilder
 from scanning_tool.logging_setup import configure_flask_logging
 from scanning_tool.state import manager
 from scanning_tool.state.scan_state import ScanState
 from scanning_tool.state.service_state import ServiceState
-from scanning_tool.interfaces.web import StatusResponseBuilder
 from scanning_tool.web.status_builder import DefaultStatusResponseBuilder
 
 DEFAULT_SELECTED_REGION = SpaceSystem.STANTON

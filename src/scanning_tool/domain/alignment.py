@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from mss.models import Monitor
 
@@ -61,12 +61,12 @@ class AlignmentInfo:
 
     enabled: bool = True
     matched: bool = False
-    template: Optional[str] = None
+    template: str | None = None
     score: float = 0.0
-    match_left: Optional[int] = None
-    match_top: Optional[int] = None
-    capture_left: Optional[int] = None
-    capture_top: Optional[int] = None
+    match_left: int | None = None
+    match_top: int | None = None
+    capture_left: int | None = None
+    capture_top: int | None = None
 
     def reset(self) -> None:
         """Clear the alignment result state for a fresh evaluation."""
@@ -79,7 +79,7 @@ class AlignmentInfo:
         self.capture_top = None
 
     def update_from_detection(
-        self, detection: "AnchorDetection", capture_region: "CaptureRegion"
+        self, detection: AnchorDetection, capture_region: CaptureRegion,
     ) -> None:
         """Update this alignment state from a successful anchor detection."""
         self.matched = True
@@ -98,11 +98,11 @@ class AlignmentRequest:
     enabled: bool
     threshold: float
     anchor_template: CaptureRegion
-    anchor_offset: "Offset2D"
+    anchor_offset: Offset2D
     capture_region: CaptureRegion
 
     @classmethod
-    def from_config(cls, config: "ConfigData") -> "AlignmentRequest":
+    def from_config(cls, config: ConfigData) -> AlignmentRequest:
         return cls(
             enabled=config.auto_alignment.enabled,
             threshold=float(config.anchor_threshold),

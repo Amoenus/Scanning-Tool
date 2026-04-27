@@ -4,9 +4,10 @@ This package avoids importing capture service eagerly because that module depend
 runtime state and can create circular imports during application bootstrap.
 """
 
+from scanning_tool.config.service import ConfigService
+
 from .alignment_service import alignment_service
 from .ollama_service import ollama_service
-from scanning_tool.config.service import ConfigService
 
 config_service = ConfigService()
 

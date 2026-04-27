@@ -2,6 +2,7 @@
 
 import sys
 from pathlib import Path
+
 from loguru import logger
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]

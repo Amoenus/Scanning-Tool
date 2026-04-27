@@ -2,12 +2,13 @@
 
 import tkinter as tk
 
+from scanning_tool.config.service import ConfigSaver
+
+from .overlay_state import OverlayState
 from .overlays import (
     destroy_all_overlays,
     stop_capture_overlay_animation,
 )
-from .overlay_state import OverlayState
-from scanning_tool.config.service import ConfigSaver
 
 
 def register_close_handler(

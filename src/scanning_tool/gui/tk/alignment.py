@@ -1,17 +1,17 @@
 """Periodic anchor-alignment polling for the GUI."""
 
 import tkinter as tk
-from typing import Optional
 
+from scanning_tool.config.service import ConfigData
+from scanning_tool.domain.alignment import AlignmentRequest
 from scanning_tool.services.alignment_service import (
     alignment_service,
     reset_alignment_info,
 )
-from scanning_tool.config.service import ConfigData
-from scanning_tool.domain.alignment import AlignmentRequest
+from scanning_tool.state.scan_state import ScanState
+
 from .overlays.base import safe_tk
 from .status import StatusBar
-from scanning_tool.state.scan_state import ScanState
 
 
 class AlignmentPoller:
@@ -42,10 +42,10 @@ class AlignmentPoller:
             lambda: self.root.after(
                 max(100, int(self._config.alignment_poll_interval_ms)),
                 self._tick,
-            )
+            ),
         )
 
-    def _poll(self) -> Optional[str]:
+    def _poll(self) -> str | None:
         if not self._config.auto_alignment.enabled:
             reset_alignment_info(self._scan_state.last_alignment_info)
             return "Head sway compensation disabled."
@@ -68,7 +68,7 @@ class AlignmentPoller:
             AlignmentRequest.from_config(self._config),
         )
 
-    def _build_alignment_status_message(self, match_found: bool) -> Optional[str]:
+    def _build_alignment_status_message(self, match_found: bool) -> str | None:
         info = self._scan_state.last_alignment_info
         if info.matched:
             capture_msg = (

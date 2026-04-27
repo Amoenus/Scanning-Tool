@@ -1,8 +1,9 @@
-from loguru import logger
 import shutil
 import subprocess
 import sys
 import webbrowser
+
+from loguru import logger
 
 from .host import get_ollama_host, is_local_ollama_host
 
@@ -10,7 +11,7 @@ from .host import get_ollama_host, is_local_ollama_host
 def show_installation_message(system_name: str) -> None:
     """Present a final installation message, using a GUI prompt on Windows."""
     import tkinter as tk
-    import tkinter.messagebox as messagebox
+    from tkinter import messagebox
 
     message = (
         f"Ollama installation initiated for {system_name.title()}.\n\n"
@@ -51,11 +52,11 @@ def _install_ollama_windows() -> None:
         opened = webbrowser.open(download_url)
         if opened:
             logger.info(
-                "Browser opened successfully. Follow the prompts to install Ollama."
+                "Browser opened successfully. Follow the prompts to install Ollama.",
             )
         else:
             logger.warning(
-                "The browser did not report success. Please open the link manually if nothing happens."
+                "The browser did not report success. Please open the link manually if nothing happens.",
             )
     except Exception as e:
         logger.error(f"Unable to open browser automatically: {e}")
@@ -64,21 +65,21 @@ def _install_ollama_windows() -> None:
 
 def _detect_linux_distro() -> tuple:
     try:
-        with open("/etc/os-release", "r") as f:
+        with open("/etc/os-release") as f:
             os_release = f.read().lower()
 
         if "debian" in os_release or "ubuntu" in os_release or "mint" in os_release:
             return "Debian/Ubuntu/Mint", "curl -fsSL https://ollama.com/install.sh | sh"
-        elif "arch" in os_release or "manjaro" in os_release:
+        if "arch" in os_release or "manjaro" in os_release:
             return "Arch/Manjaro", "sudo pacman -S ollama"
-        elif "fedora" in os_release or "rhel" in os_release or "centos" in os_release:
+        if "fedora" in os_release or "rhel" in os_release or "centos" in os_release:
             return (
                 "RedHat/Fedora/CentOS",
                 "curl -fsSL https://ollama.com/install.sh | sh",
             )
-        elif "gentoo" in os_release or "funtoo" in os_release:
+        if "gentoo" in os_release or "funtoo" in os_release:
             return "Gentoo/Funtoo", "sudo emerge --ask ollama"
-        elif "suse" in os_release or "opensuse" in os_release:
+        if "suse" in os_release or "opensuse" in os_release:
             return "SUSE/openSUSE", "sudo zypper install ollama"
     except Exception:
         pass
@@ -143,7 +144,7 @@ def ensure_ollama_installed() -> None:
     host = get_ollama_host()
     if not is_local_ollama_host(host):
         logger.info(
-            f"Using remote Ollama host at {host}; skipping local installation check."
+            f"Using remote Ollama host at {host}; skipping local installation check.",
         )
         return
 

@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Mapping, TypedDict
+from collections.abc import Mapping
+from typing import TypedDict
 
 JsonValue = bool | int | float | str | None | list["JsonValue"] | dict[str, "JsonValue"]
 JsonObject = dict[str, JsonValue]

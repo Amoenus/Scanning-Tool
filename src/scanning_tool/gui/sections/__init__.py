@@ -17,14 +17,14 @@ from scanning_tool.gui.tk.sections import (
 )
 
 __all__ = [
-    "Section",
-    "SectionContext",
     "CaptureRegionSection",
     "ControlsSection",
     "HeadSwaySection",
     "OllamaSection",
-    "StatusOverviewSection",
     "ResultDisplaySection",
+    "Section",
+    "SectionContext",
+    "StatusOverviewSection",
 ]
 
 _SECTION_MODULE_MAP = {

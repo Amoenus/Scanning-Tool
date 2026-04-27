@@ -2,23 +2,16 @@
 
 from __future__ import annotations
 
-from loguru import logger
-import webbrowser
-
 import tkinter as tk
+import webbrowser
 from tkinter import ttk
-
 from typing import TYPE_CHECKING
+
+from loguru import logger
 
 if TYPE_CHECKING:
     from .base import SectionContext
 
-from ..widgets import (
-    create_button_row,
-    create_labeled_combobox,
-    create_labeled_entry,
-    create_status_label,
-)
 from scanning_tool.ollama import (
     ensure_model_installed,
     get_ollama_host,
@@ -26,6 +19,13 @@ from scanning_tool.ollama import (
     log_model_running_status,
     set_configured_ollama_host,
     set_configured_ollama_model,
+)
+
+from ..widgets import (
+    create_button_row,
+    create_labeled_combobox,
+    create_labeled_entry,
+    create_status_label,
 )
 
 
@@ -78,7 +78,7 @@ class OllamaSection:
 
     def build(self, parent: ttk.Widget, ctx: SectionContext) -> ttk.LabelFrame:
         frame = ttk.LabelFrame(
-            parent, text="Ollama Connection", style="Glass.TLabelframe"
+            parent, text="Ollama Connection", style="Glass.TLabelframe",
         )
         frame.pack(fill="x", padx=5, pady=8)
 
@@ -186,4 +186,4 @@ class OllamaSection:
     def _resolve_mobile_overlay_display_host(self, host: str) -> str:
         if host == "0.0.0.0":
             return get_local_ip()
-        return host if host else "127.0.0.1"
+        return host or "127.0.0.1"

@@ -1,14 +1,24 @@
 """Main application entry: launches the Tkinter GUI and builds its sections."""
 
-from typing import Sequence, Type
-
 import tkinter as tk
+from collections.abc import Sequence
 from tkinter import ttk
 
 from scanning_tool.config.service import ConfigData, ConfigSaver
+from scanning_tool.interfaces import CaptureController
+from scanning_tool.state.scan_state import ScanState
+from scanning_tool.state.service_state import ServiceState
+
 from .alignment import AlignmentPoller
+from .control_state import ControlState
 from .lifecycle import register_close_handler
 from .overlay_state import OverlayState
+from .overlays import (
+    configure_capture_slider_sync,
+    show_overlay,
+    sync_capture_sliders_callback,
+    update_capture_overlay_region,
+)
 from .sections import (
     CaptureRegionSection,
     ControlsSection,
@@ -22,18 +32,8 @@ from .sections import (
 from .status import StatusBar
 from .theme import GlassPalette, apply_glass_theme
 from .widgets import ScrollableFrame
-from .overlays import (
-    configure_capture_slider_sync,
-    show_overlay,
-    sync_capture_sliders_callback,
-    update_capture_overlay_region,
-)
-from scanning_tool.interfaces import CaptureController
-from scanning_tool.state.scan_state import ScanState
-from scanning_tool.state.service_state import ServiceState
-from .control_state import ControlState
 
-SECTION_CLASSES: Sequence[Type[Section]] = (
+SECTION_CLASSES: Sequence[type[Section]] = (
     CaptureRegionSection,
     HeadSwaySection,
     OllamaSection,
@@ -139,7 +139,7 @@ def _build_section_context(
 
 
 def _build_main_panel(
-    root: tk.Tk, colors: GlassPalette, ctx: SectionContext
+    root: tk.Tk, colors: GlassPalette, ctx: SectionContext,
 ) -> tk.Widget:
     scroll = ScrollableFrame(root, colors)
     return scroll.inner

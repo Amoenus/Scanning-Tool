@@ -2,7 +2,7 @@
 
 import re
 from dataclasses import dataclass
-from typing import Optional, Pattern
+from re import Pattern
 
 from scanning_tool.domain.capture import CodeExtraction, DepositInfo
 from scanning_tool.domain.scan_signature import ScanSignature, SignatureRegistry
@@ -53,7 +53,7 @@ class DepositCodeParser:
             return prefix + digits
         return raw
 
-    def extract_numeric_suffix(self, code: str) -> Optional[int]:
+    def extract_numeric_suffix(self, code: str) -> int | None:
         """Return the last numeric segment of a deposit code, if present."""
         match = self._lookup_deposit_re.search(code)
         if not match:
@@ -68,10 +68,10 @@ class DepositCodeParser:
 class DepositSignatureMatcher:
     """Encapsulates deposit signature matching and DepositInfo creation."""
 
-    def __init__(self, registry: "SignatureRegistry") -> None:
+    def __init__(self, registry: SignatureRegistry) -> None:
         self._registry = registry
 
-    def match(self, numeric_code: int) -> Optional[DepositSignatureMatch]:
+    def match(self, numeric_code: int) -> DepositSignatureMatch | None:
         for base_value, signature in self._registry.get_all().items():
             if numeric_code % base_value == 0:
                 return DepositSignatureMatch(base_value=base_value, signature=signature)
@@ -86,14 +86,14 @@ class DepositLookupService:
 
     def __init__(
         self,
-        registry: "SignatureRegistry",
+        registry: SignatureRegistry,
         code_re: Pattern[str],
-        matcher: Optional[DepositSignatureMatcher] = None,
+        matcher: DepositSignatureMatcher | None = None,
     ) -> None:
         self._parser = DepositCodeParser(code_re)
         self._matcher = matcher or DepositSignatureMatcher(registry)
 
-    def lookup(self, code: Optional[str]) -> Optional[DepositInfo]:
+    def lookup(self, code: str | None) -> DepositInfo | None:
         """Return deposit metadata when the code matches a known signature."""
         if not code:
             return None
@@ -108,13 +108,13 @@ class DepositLookupService:
 
         return signature_match.to_deposit_info(numeric_code)
 
-    def _extract_numeric_code(self, code: str) -> Optional[int]:
+    def _extract_numeric_code(self, code: str) -> int | None:
         return self._parser.extract_numeric_suffix(code)
 
 
 def lookup_deposit(
-    code: Optional[str], code_re: Pattern[str] | None = None
-) -> Optional[DepositInfo]:
+    code: str | None, code_re: Pattern[str] | None = None,
+) -> DepositInfo | None:
     """Look up a deposit by its numeric code using scraped scan signature data."""
     from scanning_tool.deposits.scan_signatures import get_scan_signature_registry
 
@@ -122,12 +122,12 @@ def lookup_deposit(
         code_re = _default_code_re
 
     return DepositLookupService(get_scan_signature_registry(), code_re=code_re).lookup(
-        code
+        code,
     )
 
 
 def extract_code_from_text(
-    raw_text: str, code_re: Pattern[str] | None = None
+    raw_text: str, code_re: Pattern[str] | None = None,
 ) -> CodeExtraction:
     """Extract a deposit code from OCR text."""
     if code_re is None:

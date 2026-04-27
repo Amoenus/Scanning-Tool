@@ -1,12 +1,12 @@
 """Common types for GUI sections."""
 
+import tkinter as tk
 from dataclasses import dataclass
+from tkinter import ttk
 from typing import Protocol
 
-import tkinter as tk
-from tkinter import ttk
-
 from scanning_tool.gui.context import GuiSectionDependencies
+
 from ..status import StatusBar
 from ..theme import GlassPalette
 

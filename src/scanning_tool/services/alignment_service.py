@@ -1,8 +1,6 @@
 """Auto-alignment background service."""
 
-from typing import Optional
-from scanning_tool.services.alignment_calculator import AlignmentCalculator
-from scanning_tool.services.base_service import BaseService
+
 from scanning_tool.core.anchor import AnchorRegionTracker
 from scanning_tool.domain.alignment import (
     AlignmentInfo,
@@ -10,6 +8,8 @@ from scanning_tool.domain.alignment import (
     AnchorDetection,
     CaptureRegion,
 )
+from scanning_tool.services.alignment_calculator import AlignmentCalculator
+from scanning_tool.services.base_service import BaseService
 from scanning_tool.state.signals import (
     sync_capture_sliders_signal,
     update_capture_overlay_region_signal,
@@ -31,7 +31,7 @@ class AlignmentService(BaseService):
 
     def align(
         self,
-        anchor_tracker: Optional[AnchorRegionTracker],
+        anchor_tracker: AnchorRegionTracker | None,
         last_alignment_info: AlignmentInfo,
         alignment_request: AlignmentRequest,
     ) -> bool:
@@ -43,7 +43,7 @@ class AlignmentService(BaseService):
 
         if anchor_tracker is None:
             self.logger.debug(
-                "Anchor tracker not initialised; skipping auto alignment."
+                "Anchor tracker not initialised; skipping auto alignment.",
             )
             return False
 
@@ -79,7 +79,7 @@ class AlignmentService(BaseService):
         alignment_request.capture_region.top = max(0, new_top)
 
         last_alignment_info.update_from_detection(
-            detection, alignment_request.capture_region
+            detection, alignment_request.capture_region,
         )
         sync_capture_sliders_signal.send(self)
         update_capture_overlay_region_signal.send(self)

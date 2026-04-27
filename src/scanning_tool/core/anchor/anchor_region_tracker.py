@@ -1,14 +1,12 @@
-from .anchor_matcher import AnchorMatcher
-from .anchor_template_loader import AnchorTemplate, AnchorTemplateLoader
-from scanning_tool.domain.alignment import AnchorDetection, CaptureRegion
-from scanning_tool.interfaces.capture import CaptureProvider
-
 
 import numpy as np
 from loguru import logger
 
+from scanning_tool.domain.alignment import AnchorDetection, CaptureRegion
+from scanning_tool.interfaces.capture import CaptureProvider
 
-from typing import Optional
+from .anchor_matcher import AnchorMatcher
+from .anchor_template_loader import AnchorTemplate, AnchorTemplateLoader
 
 
 class AnchorRegionTracker:
@@ -45,7 +43,7 @@ class AnchorRegionTracker:
     def _has_templates(self) -> bool:
         return bool(self.template_loader.templates)
 
-    def locate_anchor(self, region: "CaptureRegion") -> Optional[AnchorDetection]:
+    def locate_anchor(self, region: CaptureRegion) -> AnchorDetection | None:
         """Locate the best matching anchor template within *region*."""
         if not self._has_templates():
             return None
@@ -54,19 +52,19 @@ class AnchorRegionTracker:
         anchor_gray = self._grab_anchor_screenshot(region)
 
         best_score, best_loc, best_template = self.matcher.find_best_match(
-            anchor_gray, self.template_loader.templates
+            anchor_gray, self.template_loader.templates,
         )
         if best_loc is None or best_template is None:
             return None
 
         if best_score < self.threshold:
             logger.debug(
-                f"Anchor match below threshold ({best_score:.3f} < {self.threshold:.3f}) using template {best_template.name}"
+                f"Anchor match below threshold ({best_score:.3f} < {self.threshold:.3f}) using template {best_template.name}",
             )
             return None
 
         return self.matcher.build_detection(
-            monitor, best_loc, best_template, best_score
+            monitor, best_loc, best_template, best_score,
         )
 
     def _grab_anchor_screenshot(self, region: CaptureRegion) -> np.ndarray:

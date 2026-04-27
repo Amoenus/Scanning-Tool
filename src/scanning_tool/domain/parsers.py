@@ -1,9 +1,7 @@
 from __future__ import annotations
 
-from typing import Optional
 
-
-def parse_int(value: object | None) -> Optional[int]:
+def parse_int(value: object | None) -> int | None:
     if value is None:
         return None
     if isinstance(value, bool):
@@ -25,7 +23,7 @@ def parse_int(value: object | None) -> Optional[int]:
     return None
 
 
-def parse_float(value: object | None) -> Optional[float]:
+def parse_float(value: object | None) -> float | None:
     if isinstance(value, (int, float)):
         return float(value)
     if isinstance(value, str):
@@ -36,12 +34,12 @@ def parse_float(value: object | None) -> Optional[float]:
     return None
 
 
-def parse_str(value: object | None) -> Optional[str]:
+def parse_str(value: object | None) -> str | None:
     if value is None:
         return None
     if isinstance(value, str):
         cleaned = value.strip()
-        return cleaned if cleaned else None
+        return cleaned or None
     if isinstance(value, (int, float)):
         return str(value)
     return None

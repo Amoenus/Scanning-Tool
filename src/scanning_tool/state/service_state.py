@@ -1,7 +1,7 @@
-from dataclasses import dataclass, field
-from typing import Optional, Pattern
 import re
 import subprocess
+from dataclasses import dataclass, field
+from re import Pattern
 
 import ollama
 
@@ -15,9 +15,9 @@ def _default_region_deposit_tables() -> RegionDepositTables:
 
 @dataclass
 class OllamaClientState:
-    client: Optional[ollama.Client] = None
+    client: ollama.Client | None = None
     client_host: str = ""
-    server_process: Optional[subprocess.Popen[bytes]] = field(default=None, repr=False)
+    server_process: subprocess.Popen[bytes] | None = field(default=None, repr=False)
 
 
 @dataclass
@@ -26,10 +26,10 @@ class CodePatterns:
         default_factory=lambda: re.compile(
             r"(?:[A-Za-z]?-?\d[\d,\.]{1,10}|\d{2,10})",
             re.IGNORECASE,
-        )
+        ),
     )
     host_scheme_re: Pattern[str] = field(
-        default_factory=lambda: re.compile(r"^[a-zA-Z][a-zA-Z0-9+.-]*://")
+        default_factory=lambda: re.compile(r"^[a-zA-Z][a-zA-Z0-9+.-]*://"),
     )
 
 
@@ -37,7 +37,7 @@ class CodePatterns:
 class RockDataCache:
     rock_data: RockData = field(default_factory=RockDataCollection)
     deposit_tables: RegionDepositTables = field(
-        default_factory=_default_region_deposit_tables
+        default_factory=_default_region_deposit_tables,
     )
 
 
@@ -49,11 +49,11 @@ class ServiceState:
 
     # Convenience accessors for migration — keeps existing attribute paths working
     @property
-    def ollama_client(self) -> Optional[ollama.Client]:
+    def ollama_client(self) -> ollama.Client | None:
         return self.ollama_state.client
 
     @ollama_client.setter
-    def ollama_client(self, value: Optional[ollama.Client]) -> None:
+    def ollama_client(self, value: ollama.Client | None) -> None:
         self.ollama_state.client = value
 
     @property
@@ -65,11 +65,11 @@ class ServiceState:
         self.ollama_state.client_host = value
 
     @property
-    def ollama_server_process(self) -> Optional[subprocess.Popen[bytes]]:
+    def ollama_server_process(self) -> subprocess.Popen[bytes] | None:
         return self.ollama_state.server_process
 
     @ollama_server_process.setter
-    def ollama_server_process(self, value: Optional[subprocess.Popen[bytes]]) -> None:
+    def ollama_server_process(self, value: subprocess.Popen[bytes] | None) -> None:
         self.ollama_state.server_process = value
 
     @property

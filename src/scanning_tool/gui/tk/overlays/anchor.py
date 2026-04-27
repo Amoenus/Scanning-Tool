@@ -1,20 +1,20 @@
 """Anchor overlay display and region updates."""
 
 import tkinter as tk
-from typing import Optional
+
+from scanning_tool.domain.alignment import CaptureRegion
+from scanning_tool.gui.overlay_state import OverlayState
 
 from .base import ANCHOR_OVERLAY_PAD, create_overlay_window, safe_tk
 from .geometry import compute_anchor_overlay_geometry
-from scanning_tool.domain.alignment import CaptureRegion
-from scanning_tool.gui.overlay_state import OverlayState
 
 
 class AnchorOverlay:
     def __init__(self) -> None:
-        self.root: Optional[tk.Toplevel] = None
-        self.canvas: Optional[tk.Canvas] = None
-        self.rect_id: Optional[int] = None
-        self._anchor_template: Optional[CaptureRegion] = None
+        self.root: tk.Toplevel | None = None
+        self.canvas: tk.Canvas | None = None
+        self.rect_id: int | None = None
+        self._anchor_template: CaptureRegion | None = None
 
     def show(self, overlay_state: OverlayState, anchor_template: CaptureRegion) -> None:
         if not overlay_state.anchor_overlay_visible:
@@ -31,7 +31,7 @@ class AnchorOverlay:
         self._anchor_template = anchor_template
         geometry = compute_anchor_overlay_geometry(anchor_template)
         self.root = create_overlay_window(
-            geometry.width, geometry.height, geometry.left, geometry.top
+            geometry.width, geometry.height, geometry.left, geometry.top,
         )
         self.canvas = tk.Canvas(
             self.root,
@@ -91,12 +91,12 @@ class AnchorOverlay:
                 ANCHOR_OVERLAY_PAD // 2,
                 ANCHOR_OVERLAY_PAD // 2 + int(anchor_template.width),
                 ANCHOR_OVERLAY_PAD // 2 + int(anchor_template.height),
-            )
+            ),
         )
         safe_tk(
             lambda: root.geometry(
-                f"{geometry.width}x{geometry.height}+{geometry.left}+{geometry.top}"
-            )
+                f"{geometry.width}x{geometry.height}+{geometry.left}+{geometry.top}",
+            ),
         )
         safe_tk(lambda: root.lift())
 
@@ -121,7 +121,7 @@ _anchor_overlay = AnchorOverlay()
 
 
 def show_anchor_overlay(
-    overlay_state: OverlayState, anchor_template: CaptureRegion
+    overlay_state: OverlayState, anchor_template: CaptureRegion,
 ) -> None:
     _anchor_overlay.show(overlay_state, anchor_template)
 

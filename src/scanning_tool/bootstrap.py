@@ -2,14 +2,12 @@
 
 from __future__ import annotations
 
-from typing import Optional
-
 from scanning_tool.config.service import ConfigService
 from scanning_tool.state.app_state import AppState
 from scanning_tool.state.manager import initialize_state
 
 
-def bootstrap(config_service: Optional[ConfigService] = None) -> AppState:
+def bootstrap(config_service: ConfigService | None = None) -> AppState:
     """Load configuration and initialize shared runtime state."""
     config_service = config_service or ConfigService()
     config = config_service.load()

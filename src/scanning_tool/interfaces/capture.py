@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from typing import Protocol, Callable, Optional
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Protocol
 
 from PIL.Image import Image
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from scanning_tool.core.anchor import AnchorRegionTracker
@@ -33,7 +33,7 @@ class OCRProvider(Protocol):
 class DepositLookupProvider(Protocol):
     """Lookup deposit metadata from an OCR code."""
 
-    def lookup(self, code: Optional[str]) -> Optional[DepositInfo]: ...
+    def lookup(self, code: str | None) -> DepositInfo | None: ...
 
 
 class AlignmentAdapter(Protocol):
@@ -41,7 +41,7 @@ class AlignmentAdapter(Protocol):
 
     def align(
         self,
-        anchor_tracker: "AnchorRegionTracker | None",
+        anchor_tracker: AnchorRegionTracker | None,
         last_alignment_info: AlignmentInfo,
         alignment_request: AlignmentRequest,
     ) -> bool: ...

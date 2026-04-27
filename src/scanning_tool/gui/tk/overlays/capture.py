@@ -2,13 +2,13 @@
 
 import tkinter as tk
 from dataclasses import dataclass
-from typing import Optional
 
-from .base import CAPTURE_ANIMATION_INTERVAL_MS, create_overlay_window, safe_tk
-from .geometry import compute_capture_overlay_layout
 from scanning_tool.domain.alignment import CaptureRegion
 from scanning_tool.gui.overlay_state import OverlayState
+
 from ..layout import CaptureOverlayLayout
+from .base import CAPTURE_ANIMATION_INTERVAL_MS, create_overlay_window, safe_tk
+from .geometry import compute_capture_overlay_layout
 
 
 @dataclass(frozen=True)
@@ -20,16 +20,16 @@ class _CaptureOverlayLayoutChange:
 
 class CaptureOverlay:
     def __init__(self) -> None:
-        self.root: Optional[tk.Toplevel] = None
-        self.canvas: Optional[tk.Canvas] = None
-        self.rect_id: Optional[int] = None
-        self.border_canvas: Optional[tk.Canvas] = None
-        self.animation_job: Optional[str] = None
-        self.last_layout: Optional[CaptureOverlayLayout] = None
-        self._capture_region: Optional[CaptureRegion] = None
+        self.root: tk.Toplevel | None = None
+        self.canvas: tk.Canvas | None = None
+        self.rect_id: int | None = None
+        self.border_canvas: tk.Canvas | None = None
+        self.animation_job: str | None = None
+        self.last_layout: CaptureOverlayLayout | None = None
+        self._capture_region: CaptureRegion | None = None
 
     def _compute_layout_change(
-        self, layout: CaptureOverlayLayout, force: bool
+        self, layout: CaptureOverlayLayout, force: bool,
     ) -> _CaptureOverlayLayoutChange:
         last = self.last_layout
         if last is None:
@@ -51,8 +51,8 @@ class CaptureOverlay:
         assert canvas is not None
         safe_tk(
             lambda: canvas.config(
-                width=layout.overlay_width, height=layout.overlay_height
-            )
+                width=layout.overlay_width, height=layout.overlay_height,
+            ),
         )
 
     def _apply_overlay_rectangle(self, layout: CaptureOverlayLayout) -> None:
@@ -66,7 +66,7 @@ class CaptureOverlay:
                 layout.padding_y,
                 layout.padding_x // 2 + layout.cap_w,
                 layout.padding_y + layout.cap_h,
-            )
+            ),
         )
 
     def _apply_overlay_position(self, layout: CaptureOverlayLayout) -> None:
@@ -74,8 +74,8 @@ class CaptureOverlay:
         assert root is not None
         safe_tk(
             lambda: root.geometry(
-                f"{layout.overlay_width}x{layout.overlay_height}+{layout.left}+{layout.top}"
-            )
+                f"{layout.overlay_width}x{layout.overlay_height}+{layout.left}+{layout.top}",
+            ),
         )
         safe_tk(lambda: root.lift())
 
@@ -104,7 +104,7 @@ class CaptureOverlay:
             return
 
         self.animation_job = self.root.after(
-            CAPTURE_ANIMATION_INTERVAL_MS, self._animate_overlay
+            CAPTURE_ANIMATION_INTERVAL_MS, self._animate_overlay,
         )
 
     def _animate_overlay(self) -> None:
@@ -152,7 +152,7 @@ class CaptureOverlay:
 
     def _create_overlay(self, layout: CaptureOverlayLayout) -> None:
         self.root = create_overlay_window(
-            layout.overlay_width, layout.overlay_height, layout.left, layout.top
+            layout.overlay_width, layout.overlay_height, layout.left, layout.top,
         )
         self.canvas = tk.Canvas(
             self.root,
@@ -230,7 +230,7 @@ def update_capture_overlay_region() -> None:
 
 
 def show_capture_overlay(
-    overlay_state: OverlayState, capture_region: CaptureRegion
+    overlay_state: OverlayState, capture_region: CaptureRegion,
 ) -> None:
     _capture_overlay.show(overlay_state, capture_region)
 

@@ -1,25 +1,24 @@
 """Build deposit ore tables from rock data."""
 
 import json
-from typing import Dict
 
 from scanning_tool.config import ROCK_TYPE_FILE
+from scanning_tool.deposits.ore_tiers import ORE_VALUE_MAP, TIER_ORDER
 from scanning_tool.domain.common import (
     DepositTable,
     OreTableEntry,
     OreValueInfo,
     SpaceSystem,
 )
+from scanning_tool.domain.ore import Deposit, OreStatistics, Region, RockDataCollection
 from scanning_tool.state.service_state import ServiceState
-from scanning_tool.domain.ore import Deposit, Region, OreStatistics, RockDataCollection
-from scanning_tool.deposits.ore_tiers import ORE_VALUE_MAP, TIER_ORDER
 
 
 class DepositTableBuilder:
     """Build deposit ore tables from rock data."""
 
-    def build_deposit_tables(self, region: Region) -> Dict[str, DepositTable]:
-        deposit_tables: Dict[str, DepositTable] = {}
+    def build_deposit_tables(self, region: Region) -> dict[str, DepositTable]:
+        deposit_tables: dict[str, DepositTable] = {}
         for deposit_name, deposit in region.deposits.items():
             table = self._build_deposit_table(deposit)
             table.sort(key=lambda entry: TIER_ORDER.index(entry.tier))
@@ -33,11 +32,11 @@ class DepositTableBuilder:
         ]
 
     def _create_ore_table_entry(
-        self, ore_name: str, stats: OreStatistics
+        self, ore_name: str, stats: OreStatistics,
     ) -> OreTableEntry:
         name_up = ore_name.upper()
         value_info = ORE_VALUE_MAP.get(
-            name_up, OreValueInfo(tier="OTHER", color="#888")
+            name_up, OreValueInfo(tier="OTHER", color="#888"),
         )
         return OreTableEntry(
             name=ore_name.title(),
@@ -50,7 +49,7 @@ class DepositTableBuilder:
         )
 
 
-def build_deposit_tables(region: Region) -> Dict[str, DepositTable]:
+def build_deposit_tables(region: Region) -> dict[str, DepositTable]:
     """Build per-deposit ore tables for one region's rock data."""
     return DepositTableBuilder().build_deposit_tables(region)
 

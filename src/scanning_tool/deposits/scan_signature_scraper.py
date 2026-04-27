@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -22,35 +21,35 @@ COLOR_CATEGORY_MAP: dict[str, str] = {
 class RawScanValue(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
-    text: Optional[str] = None
-    title: Optional[str] = None
-    amount: Optional[int] = None
-    value: Optional[int] = None
+    text: str | None = None
+    title: str | None = None
+    amount: int | None = None
+    value: int | None = None
 
 
 class RawScanSignatureEntry(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
-    mineral: Optional[str] = None
-    color: Optional[str] = None
+    mineral: str | None = None
+    color: str | None = None
     values: list[RawScanValue] = Field(default_factory=list)
 
 
-CsvRow = Dict[str, Optional[str | int]]
+CsvRow = dict[str, str | int | None]
 
 
 @dataclass(frozen=True)
 class ScanValue:
-    text: Optional[str]
-    title: Optional[str]
-    amount: Optional[int]
-    value: Optional[int]
+    text: str | None
+    title: str | None
+    amount: int | None
+    value: int | None
 
     def to_csv_row(
         self,
-        mineral: Optional[str],
+        mineral: str | None,
         category: str,
-        color: Optional[str],
+        color: str | None,
     ) -> CsvRow:
         return {
             "mineral": mineral,
@@ -65,10 +64,10 @@ class ScanValue:
 
 @dataclass(frozen=True)
 class ScanSignatureSummary:
-    mineral: Optional[str]
+    mineral: str | None
     category: str
-    base_value: Optional[int]
-    max_multiplier: Optional[int]
+    base_value: int | None
+    max_multiplier: int | None
 
     def to_csv_row(self) -> CsvRow:
         return {
@@ -79,7 +78,7 @@ class ScanSignatureSummary:
         }
 
     @classmethod
-    def from_entry(cls, entry: "ScanSignatureEntry") -> "ScanSignatureSummary":
+    def from_entry(cls, entry: ScanSignatureEntry) -> ScanSignatureSummary:
         return cls(
             mineral=entry.mineral,
             category=entry.category,
@@ -90,15 +89,15 @@ class ScanSignatureSummary:
 
 @dataclass(frozen=True)
 class ScanSignatureEntry:
-    mineral: Optional[str]
-    color: Optional[str]
+    mineral: str | None
+    color: str | None
     values: list[ScanValue]
     category: str
 
     def to_csv_rows(self) -> list[CsvRow]:
         return [
             value.to_csv_row(
-                mineral=self.mineral, category=self.category, color=self.color
+                mineral=self.mineral, category=self.category, color=self.color,
             )
             for value in self.values
         ]
@@ -107,15 +106,15 @@ class ScanSignatureEntry:
         return ScanSignatureSummary.from_entry(self).to_csv_row()
 
     @property
-    def base_value(self) -> Optional[int]:
+    def base_value(self) -> int | None:
         for value in self.values:
             if value.amount == 1:
                 return value.value
         return self.values[0].value if self.values else None
 
     @property
-    def max_multiplier(self) -> Optional[int]:
-        max_multiplier: Optional[int] = None
+    def max_multiplier(self) -> int | None:
+        max_multiplier: int | None = None
         for value in self.values:
             if value.amount is not None and (
                 max_multiplier is None or value.amount > max_multiplier
@@ -142,7 +141,7 @@ class ScanSignatureEntryFactory:
 
     @classmethod
     def from_raw_entry(
-        cls, raw_entry: RawScanSignatureEntry | dict[str, object]
+        cls, raw_entry: RawScanSignatureEntry | dict[str, object],
     ) -> ScanSignatureEntry:
         validated = RawScanSignatureEntry.model_validate(raw_entry)
         values = [cls._create_scan_value(raw_value) for raw_value in validated.values]

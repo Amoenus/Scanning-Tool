@@ -1,5 +1,6 @@
+from typing import NoReturn
+
 from loguru import logger
-from typing import NoReturn, Optional
 
 from .client import get_ollama_client
 from .host import get_ollama_host, get_ollama_model, is_local_ollama_host
@@ -8,7 +9,7 @@ from .host import get_ollama_host, get_ollama_model, is_local_ollama_host
 class OllamaModelInstaller:
     """Encapsulates Ollama host detection and model installation state."""
 
-    def __init__(self, model: Optional[str] = None, exit_on_error: bool = True) -> None:
+    def __init__(self, model: str | None = None, exit_on_error: bool = True) -> None:
         self.model = model or get_ollama_model()
         self.exit_on_error = exit_on_error
         self.host = get_ollama_host()
@@ -18,7 +19,7 @@ class OllamaModelInstaller:
     def ensure_installed(self) -> bool:
         if not self.model:
             logger.info(
-                "No Ollama model configured. Skipping model installation check."
+                "No Ollama model configured. Skipping model installation check.",
             )
             return False
 
@@ -27,7 +28,7 @@ class OllamaModelInstaller:
         available_models = self._load_available_models()
         if self.model in available_models:
             logger.info(
-                f"Model {self.model} already available on Ollama host {self.host}."
+                f"Model {self.model} already available on Ollama host {self.host}.",
             )
             return True
 
@@ -45,7 +46,7 @@ class OllamaModelInstaller:
 
     def _pull_model(self) -> bool:
         logger.info(
-            f"Model {self.model} not found on Ollama host {self.host}. Pulling now..."
+            f"Model {self.model} not found on Ollama host {self.host}. Pulling now...",
         )
         try:
             progress = self.client.pull(self.model)
@@ -75,11 +76,11 @@ class OllamaModelInstaller:
 
 
 def ensure_model_installed(
-    model: Optional[str] = None, exit_on_error: bool = True
+    model: str | None = None, exit_on_error: bool = True,
 ) -> bool:
     """Ensure the Ollama model exists on the configured host."""
     return OllamaModelInstaller(
-        model=model, exit_on_error=exit_on_error
+        model=model, exit_on_error=exit_on_error,
     ).ensure_installed()
 
 
@@ -94,13 +95,13 @@ def list_running_ollama_models() -> list[str]:
         return []
 
 
-def is_model_running(model: Optional[str] = None) -> bool:
+def is_model_running(model: str | None = None) -> bool:
     """Return whether the given Ollama model is currently running."""
     model = model or get_ollama_model()
     return model in list_running_ollama_models()
 
 
-def log_model_running_status(model: Optional[str] = None) -> bool:
+def log_model_running_status(model: str | None = None) -> bool:
     """Log the running state of the given Ollama model."""
     model = model or get_ollama_model()
     running_models = list_running_ollama_models()

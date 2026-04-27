@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-from typing import Union
-
 import tkinter as tk
 from tkinter import ttk
+from typing import Union
 
 from scanning_tool.gui.state import ControlState
 

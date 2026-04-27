@@ -3,7 +3,6 @@
 import tkinter as tk
 from collections.abc import Callable
 from tkinter import ttk
-from typing import Optional
 
 GlassScaleCommand = Callable[[str], None]
 
@@ -31,7 +30,7 @@ class GlassScaleController:
         minimum: float,
         maximum: float,
         initial: float,
-        command: Optional[GlassScaleCommand],
+        command: GlassScaleCommand | None,
         resolution: float,
         padding: tuple[int, int],
     ) -> None:
@@ -119,7 +118,7 @@ def create_glass_scale(
     minimum: float,
     maximum: float,
     initial: float,
-    command: Optional[GlassScaleCommand],
+    command: GlassScaleCommand | None,
     resolution: float = 1.0,
     padding: tuple[int, int] = (0, 4),
 ) -> ttk.Scale:

@@ -1,10 +1,8 @@
 from __future__ import annotations
 
-from typing import Optional
-
 from scanning_tool.config.service import ConfigData
-from scanning_tool.domain.common import SpaceSystem
 from scanning_tool.domain.capture import DepositInfo
+from scanning_tool.domain.common import SpaceSystem
 from scanning_tool.interfaces.web import StatusResponseBuilder
 from scanning_tool.state.scan_state import ScanState
 from scanning_tool.state.service_state import ServiceState
@@ -18,10 +16,10 @@ class DepositTableResolver:
 
     def resolve(
         self,
-        info: Optional[DepositInfo],
+        info: DepositInfo | None,
         selected_region: SpaceSystem,
         service_state: ServiceState,
-    ) -> Optional[DepositTable]:
+    ) -> DepositTable | None:
         if info is None:
             return None
 
@@ -42,7 +40,7 @@ class DepositTableResolver:
 
     @staticmethod
     def _is_supported_deposit_category(
-        table: Optional[DepositTable],
+        table: DepositTable | None,
         category: str,
     ) -> bool:
         return bool(table) and category in SUPPORTED_DEPOSIT_CATEGORIES
@@ -52,7 +50,7 @@ class DefaultStatusResponseBuilder(StatusResponseBuilder):
     """Builds the overlay status response from runtime state."""
 
     def __init__(
-        self, deposit_table_resolver: Optional[DepositTableResolver] = None
+        self, deposit_table_resolver: DepositTableResolver | None = None,
     ) -> None:
         self._deposit_table_resolver = deposit_table_resolver or DepositTableResolver()
 
@@ -81,10 +79,10 @@ class DefaultStatusResponseBuilder(StatusResponseBuilder):
 
     def _lookup_deposit_table(
         self,
-        info: Optional[DepositInfo],
+        info: DepositInfo | None,
         selected_region: SpaceSystem,
         service_state: ServiceState,
-    ) -> Optional[DepositTable]:
+    ) -> DepositTable | None:
         return self._deposit_table_resolver.resolve(
-            info, selected_region, service_state
+            info, selected_region, service_state,
         )

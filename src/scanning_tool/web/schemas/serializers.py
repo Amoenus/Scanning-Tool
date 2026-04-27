@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Optional
-
 from scanning_tool.domain.alignment import AlignmentInfo, CaptureRegion
 from scanning_tool.domain.capture import DepositInfo, ScanResult
 from scanning_tool.domain.common import MssMonitor, OreTableEntry
@@ -31,7 +29,7 @@ class CaptureRegionSerializer:
 
 class DepositInfoSerializer:
     @staticmethod
-    def to_dict(info: Optional[DepositInfo]) -> DepositInfoDict | None:
+    def to_dict(info: DepositInfo | None) -> DepositInfoDict | None:
         if info is None:
             return None
         return {
@@ -48,7 +46,7 @@ class DepositInfoSerializer:
 
 class ScanResultSerializer:
     @classmethod
-    def to_dict(cls, result: Optional[ScanResult]) -> ScanResultDict | None:
+    def to_dict(cls, result: ScanResult | None) -> ScanResultDict | None:
         if result is None:
             return None
         return {
@@ -91,7 +89,7 @@ class OreTableEntrySerializer:
 
 class DepositTableSerializer:
     @classmethod
-    def to_dict(cls, table: Optional[DepositTable]) -> list[OreTableEntryDict] | None:
+    def to_dict(cls, table: DepositTable | None) -> list[OreTableEntryDict] | None:
         if table is None:
             return None
         return [OreTableEntrySerializer.to_dict(entry) for entry in table]

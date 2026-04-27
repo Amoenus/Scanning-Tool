@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import logging
 import sys
+from collections.abc import Sequence
 from types import FrameType
-from typing import TYPE_CHECKING, Sequence
+from typing import TYPE_CHECKING
 
 from flask import Flask
 from loguru import logger

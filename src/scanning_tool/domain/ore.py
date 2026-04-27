@@ -11,12 +11,12 @@ from .ore_models import (
 from .ore_schemas import DepositSchema, OreStatisticsSchema
 
 __all__ = [
-    "OreStatisticsSchema",
+    "Deposit",
     "DepositSchema",
     "OreStatistics",
-    "Deposit",
-    "Region",
-    "RockDataCollection",
-    "RockData",
+    "OreStatisticsSchema",
     "OreTierInfo",
+    "Region",
+    "RockData",
+    "RockDataCollection",
 ]

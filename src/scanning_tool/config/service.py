@@ -2,7 +2,7 @@
 
 import json
 from pathlib import Path
-from typing import Optional, Protocol
+from typing import Protocol
 
 from loguru import logger
 from pydantic import Field, ValidationError
@@ -31,18 +31,18 @@ class ConfigData(BaseSettings):
     )
 
     capture_region: CaptureRegion = Field(
-        default_factory=lambda: CaptureRegion(1260, 310, 160, 30)
+        default_factory=lambda: CaptureRegion(1260, 310, 160, 30),
     )
     overlay_config: OverlayConfig = Field(
-        default_factory=lambda: OverlayConfig(Offset2D(0, 0), "yellow", True)
+        default_factory=lambda: OverlayConfig(Offset2D(0, 0), "yellow", True),
     )
     auto_alignment: AutoAlignmentConfig = Field(
         default_factory=lambda: AutoAlignmentConfig(
-            True, 500, CaptureRegion(1100, 240, 320, 140)
-        )
+            True, 500, CaptureRegion(1100, 240, 320, 140),
+        ),
     )
     anchor_template: CaptureRegion = Field(
-        default_factory=lambda: CaptureRegion(1100, 240, 320, 140)
+        default_factory=lambda: CaptureRegion(1100, 240, 320, 140),
     )
     anchor_offset: Offset2D = Field(default_factory=lambda: Offset2D(36, 56))
     anchor_threshold: float = 0.82
@@ -51,7 +51,7 @@ class ConfigData(BaseSettings):
     continuous_capture_interval: float = 2.0
     ollama_config: OllamaConfig = Field(default_factory=lambda: OllamaConfig("", None))
     web_server_config: WebServerConfig = Field(
-        default_factory=lambda: WebServerConfig("0.0.0.0", 5000)
+        default_factory=lambda: WebServerConfig("0.0.0.0", 5000),
     )
     gui_backend: str = "tk"
 
@@ -65,9 +65,9 @@ class ConfigSaver(Protocol):
 class ConfigService:
     """Service for loading, saving, and managing configuration."""
 
-    def __init__(self, config_file: Optional[Path] = None):
+    def __init__(self, config_file: Path | None = None):
         self.config_file = config_file or DEFAULT_CONFIG_FILE
-        self._config: Optional[ConfigData] = None
+        self._config: ConfigData | None = None
 
     def load(self) -> ConfigData:
         """Load configuration from file."""

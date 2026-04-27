@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import importlib
-from typing import Protocol, TYPE_CHECKING
+from typing import TYPE_CHECKING, Protocol
 
 from loguru import logger
+
 from scanning_tool.config.service import ConfigData, ConfigSaver
 from scanning_tool.interfaces import CaptureController
 

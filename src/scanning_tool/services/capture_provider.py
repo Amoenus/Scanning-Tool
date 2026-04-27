@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from mss import mss
-from mss.base import MSS
 import numpy as np
 from loguru import logger
+from mss import mss
+from mss.base import MSS
 from mss.screenshot import ScreenShot
 from PIL import Image as PILModule
 from PIL.Image import Image

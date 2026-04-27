@@ -1,7 +1,5 @@
 """Scrollable container widget for the scanning tool GUI."""
 
-from typing import Optional
-
 import tkinter as tk
 from tkinter import ttk
 
@@ -25,7 +23,7 @@ class ScrollableFrame:
             borderwidth=0,
         )
         scrollbar = ttk.Scrollbar(
-            self.container, orient="vertical", command=self.canvas.yview
+            self.container, orient="vertical", command=self.canvas.yview,
         )
         self.canvas.configure(yscrollcommand=scrollbar.set)
         scrollbar.pack(side="right", fill="y")
@@ -33,7 +31,7 @@ class ScrollableFrame:
 
         self.inner = ttk.Frame(self.canvas, style="Glass.Main.TFrame", padding=20)
         self._window_id = self.canvas.create_window(
-            (15, 15), window=self.inner, anchor="nw"
+            (15, 15), window=self.inner, anchor="nw",
         )
 
         self.inner.bind("<Configure>", self._sync_scroll_region)
@@ -42,7 +40,7 @@ class ScrollableFrame:
         self.canvas.bind_all("<Button-4>", lambda _e: self._scroll_linux(-1))
         self.canvas.bind_all("<Button-5>", lambda _e: self._scroll_linux(1))
 
-    def _sync_scroll_region(self, _event: Optional[tk.Event] = None) -> None:
+    def _sync_scroll_region(self, _event: tk.Event | None = None) -> None:
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
         self.canvas.itemconfigure(self._window_id, width=self.canvas.winfo_width())
 

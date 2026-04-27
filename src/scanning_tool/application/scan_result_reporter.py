@@ -38,7 +38,7 @@ class ScanResultReporter:
     @staticmethod
     def format_status_message(result: ScanResult) -> str:
         return ScanResultMessageFormatter.highlight_numbers(
-            ScanResultMessageFormatter.format(result)
+            ScanResultMessageFormatter.format(result),
         )
 
     @staticmethod

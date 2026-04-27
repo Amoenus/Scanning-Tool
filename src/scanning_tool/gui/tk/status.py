@@ -2,7 +2,6 @@
 
 import time
 import tkinter as tk
-from typing import Optional
 
 from scanning_tool.state.signals import status_updated
 
@@ -20,7 +19,7 @@ class StatusBar:
         self.root = root
         self.status_var = tk.StringVar(value="Ready.")
         self.anchor_status_var = tk.StringVar(value="Head sway compensation ready.")
-        self._last_alignment_message: Optional[str] = None
+        self._last_alignment_message: str | None = None
         self._anchor_hold_until: float = 0.0
 
     def set_status(self, message: str) -> None:

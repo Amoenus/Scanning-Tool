@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional
 
 from scanning_tool.domain.alignment import CaptureRegion
 
@@ -10,14 +9,14 @@ from scanning_tool.domain.alignment import CaptureRegion
 class DepositInfo:
     """Structured metadata for a detected deposit or scan signature."""
 
-    key: Optional[str] = None
-    name: Optional[str] = None
-    category: Optional[str] = None
-    type: Optional[str] = None
-    id: Optional[str | int] = None
-    base_code: Optional[int] = None
-    deposits: Optional[int] = None
-    max_multiplier: Optional[int] = None
+    key: str | None = None
+    name: str | None = None
+    category: str | None = None
+    type: str | None = None
+    id: str | int | None = None
+    base_code: int | None = None
+    deposits: int | None = None
+    max_multiplier: int | None = None
 
 
 @dataclass
@@ -26,14 +25,14 @@ class ScanResult:
 
     label: str
     region: CaptureRegion
-    info: Optional[DepositInfo] = None
-    code_raw: Optional[str] = None
-    raw_text: Optional[str] = None
+    info: DepositInfo | None = None
+    code_raw: str | None = None
+    raw_text: str | None = None
 
 
 @dataclass
 class CodeExtraction:
     """Output of parsing a deposit code from OCR text."""
 
-    code: Optional[str]
-    raw: Optional[str]
+    code: str | None
+    raw: str | None

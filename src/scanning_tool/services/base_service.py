@@ -2,6 +2,7 @@
 
 import logging
 from abc import ABC, abstractmethod
+
 from scanning_tool.interfaces.services import IService
 
 
@@ -28,9 +29,7 @@ class BaseService(IService, ABC):
     @abstractmethod
     def _on_start(self) -> None:
         """Internal start implementation."""
-        pass
 
     @abstractmethod
     def _on_stop(self) -> None:
         """Internal stop implementation."""
-        pass

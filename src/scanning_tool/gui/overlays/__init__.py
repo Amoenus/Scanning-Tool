@@ -15,33 +15,33 @@ from scanning_tool.gui.overlay_state import OverlayState
 
 __all__ = (
     "choose_label_color",
+    "configure_capture_slider_sync",
     "create_overlay_window",
+    "destroy_all_overlays",
     "enforce_topmost",
     "hide_anchor_overlay",
+    "hide_capture_overlay",
+    "hide_info_overlay",
     "register_anchor_sliders",
     "register_capture_sliders",
     "register_overlay_sliders",
     "reposition_info_overlay",
     "show_anchor_overlay",
     "show_capture_overlay",
-    "hide_capture_overlay",
     "show_info_overlay",
-    "hide_info_overlay",
     "show_overlay",
     "start_capture_overlay_animation",
-    "toggle_border",
     "start_label_timeout",
     "stop_capture_overlay_animation",
     "sync_anchor_sliders",
     "sync_capture_sliders",
     "sync_capture_sliders_callback",
-    "configure_capture_slider_sync",
     "sync_overlay_sliders",
+    "toggle_border",
+    "update_anchor_overlay_region",
     "update_capture_overlay_region",
     "update_overlay_label",
-    "update_anchor_overlay_region",
     "update_overlay_region",
-    "destroy_all_overlays",
 )
 
 
@@ -152,8 +152,8 @@ def update_anchor_overlay_region(*args: Any, **kwargs: Any) -> Any:
 def show_overlay(
     overlay_state: OverlayState,
     config: ConfigData,
-    screen_width: Optional[int] = None,
-    screen_height: Optional[int] = None,
+    screen_width: int | None = None,
+    screen_height: int | None = None,
 ) -> Any:
     return _tk_overlays().show_overlay(
         overlay_state,

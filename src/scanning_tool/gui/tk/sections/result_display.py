@@ -2,13 +2,13 @@
 
 from tkinter import ttk
 
-from .base import SectionContext
-from ..widgets import create_glass_scale
 from ..overlays import (
     register_overlay_sliders,
     reposition_info_overlay,
     sync_overlay_sliders,
 )
+from ..widgets import create_glass_scale
+from .base import SectionContext
 
 
 class ResultDisplaySection:
@@ -24,10 +24,10 @@ class ResultDisplaySection:
         overlay_offset = ctx.config.overlay_config.info_offset
 
         self._offset_x = self._make_offset_scale(
-            frame, "Display offset X", -800, 800, overlay_offset.x
+            frame, "Display offset X", -800, 800, overlay_offset.x,
         )
         self._offset_y = self._make_offset_scale(
-            frame, "Display offset Y", -600, 600, overlay_offset.y, padding=(0, 0)
+            frame, "Display offset Y", -600, 600, overlay_offset.y, padding=(0, 0),
         )
 
         register_overlay_sliders(
@@ -59,8 +59,8 @@ class ResultDisplaySection:
         overlay_offset.x = int(self._offset_x.get())
         overlay_offset.y = int(self._offset_y.get())
         self._status.set_status(
-            f"Display offset updated: x={overlay_offset.x}, y={overlay_offset.y}"
+            f"Display offset updated: x={overlay_offset.x}, y={overlay_offset.y}",
         )
         reposition_info_overlay(
-            self._ctx.overlay_state, self._ctx.config.overlay_config
+            self._ctx.overlay_state, self._ctx.config.overlay_config,
         )

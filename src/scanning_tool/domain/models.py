@@ -20,6 +20,13 @@ from .common import (
     OreValueInfo,
     RegionDepositTables,
 )
+from .dtos import (
+    DepositData,
+    OreStatisticsData,
+    RegionData,
+    RockDataJSON,
+    ScanSignatureCSVRowData,
+)
 from .ore import (
     Deposit,
     OreStatistics,
@@ -29,13 +36,6 @@ from .ore import (
     RockDataCollection,
 )
 from .scan_signature import ScanSignature, ScanSignatureCSVRow, SignatureRegistry
-from .dtos import (
-    DepositData,
-    OreStatisticsData,
-    RegionData,
-    RockDataJSON,
-    ScanSignatureCSVRowData,
-)
 
 __all__ = [
     "AlignmentInfo",
@@ -43,27 +43,27 @@ __all__ = [
     "AnchorDetection",
     "CaptureRegion",
     "CodeExtraction",
+    "Deposit",
+    "DepositData",
     "DepositInfo",
-    "ScanResult",
+    "DepositTable",
     "MssMonitor",
     "Offset2D",
-    "OreTier",
-    "OreValueInfo",
-    "OreTableEntry",
-    "DepositTable",
-    "RegionDepositTables",
     "OreStatistics",
-    "Deposit",
-    "Region",
-    "RockDataCollection",
-    "RockData",
+    "OreStatisticsData",
+    "OreTableEntry",
+    "OreTier",
     "OreTierInfo",
+    "OreValueInfo",
+    "Region",
+    "RegionData",
+    "RegionDepositTables",
+    "RockData",
+    "RockDataCollection",
+    "RockDataJSON",
+    "ScanResult",
     "ScanSignature",
     "ScanSignatureCSVRow",
-    "SignatureRegistry",
     "ScanSignatureCSVRowData",
-    "OreStatisticsData",
-    "DepositData",
-    "RegionData",
-    "RockDataJSON",
+    "SignatureRegistry",
 ]

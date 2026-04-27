@@ -1,5 +1,9 @@
 """Pure overlay geometry helpers."""
 
+from scanning_tool.config.models import OverlayConfig
+from scanning_tool.domain.alignment import CaptureRegion
+
+from ..layout import AnchorOverlayGeometry, CaptureOverlayLayout, InfoOverlayLayout
 from .base import (
     ANCHOR_OVERLAY_PAD,
     CAPTURE_OVERLAY_PADDING_X,
@@ -9,9 +13,6 @@ from .base import (
     MIN_INFO_OVERLAY_WIDTH,
     SCREEN_MARGIN,
 )
-from scanning_tool.config.models import OverlayConfig
-from scanning_tool.domain.alignment import CaptureRegion
-from ..layout import AnchorOverlayGeometry, CaptureOverlayLayout, InfoOverlayLayout
 
 
 def compute_info_overlay_geometry(
@@ -36,7 +37,7 @@ def compute_info_overlay_geometry(
     left = min(max(0, base_left + offset_x), max_left)
     top = min(max(0, base_top + offset_y), max_top)
     return InfoOverlayLayout(
-        width=overlay_width, height=overlay_height, left=left, top=top
+        width=overlay_width, height=overlay_height, left=left, top=top,
     )
 
 

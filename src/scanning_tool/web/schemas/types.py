@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Literal, Optional, TypedDict
+from typing import Literal, TypedDict
 
 from scanning_tool.domain.alignment import AlignmentInfo, CaptureRegion
 from scanning_tool.domain.capture import DepositInfo, ScanResult
@@ -72,14 +72,14 @@ class StatusResponse:
 
     region: CaptureRegion
     label_color: str
-    last: Optional[ScanResult]
+    last: ScanResult | None
     alignment: AlignmentInfo
     selected_region: SpaceSystem
-    info: Optional[DepositInfo]
-    code: Optional[str]
-    code_raw: Optional[str]
-    raw_text: Optional[str]
-    table: Optional[DepositTable]
+    info: DepositInfo | None
+    code: str | None
+    code_raw: str | None
+    raw_text: str | None
+    table: DepositTable | None
 
     def to_dict(self) -> StatusResponseDict:
         from scanning_tool.web.schemas.serializers import StatusResponseSerializer

@@ -2,7 +2,6 @@
 
 import io
 from dataclasses import dataclass
-from typing import Optional
 
 import ollama
 from loguru import logger
@@ -68,7 +67,7 @@ _MODEL_PROMPTS: tuple[ModelPromptProfile, ...] = (
 )
 
 
-def _select_prompt(model: Optional[str]) -> str:
+def _select_prompt(model: str | None) -> str:
     if not model:
         return _DEFAULT_PROMPT
     name = model.lower()
@@ -98,14 +97,14 @@ def _send_ollama_chat(model: str, prompt: str, image_bytes: bytes) -> str:
     return content.strip() if content else ""
 
 
-def ocr_with_ollama(pil_img: Image.Image, model: Optional[str] = None) -> str:
+def ocr_with_ollama(pil_img: Image.Image, model: str | None = None) -> str:
     """Send an image to Ollama for OCR and return the extracted text."""
     if model is None:
         model = get_ollama_model()
 
     if not model:
         logger.error(
-            "Ollama model is not configured. OCR cannot proceed until a model is set."
+            "Ollama model is not configured. OCR cannot proceed until a model is set.",
         )
         return ""
 

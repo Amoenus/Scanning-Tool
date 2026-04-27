@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 from pathlib import Path
 
-from loguru import logger
 import cv2
 import numpy as np
+from loguru import logger
 
 from scanning_tool.config import ensure_anchor_directory
 
@@ -63,9 +63,9 @@ class AnchorTemplateLoader:
     def _log_template_load_result(self, directory: Path) -> None:
         if self.last_loaded_count == 0:
             logger.warning(
-                "No anchor templates were loaded. Head sway compensation will remain disabled until templates are added."
+                "No anchor templates were loaded. Head sway compensation will remain disabled until templates are added.",
             )
         else:
             logger.info(
-                f"Loaded {self.last_loaded_count} anchor templates from {directory}"
+                f"Loaded {self.last_loaded_count} anchor templates from {directory}",
             )

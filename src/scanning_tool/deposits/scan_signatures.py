@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from pathlib import Path
-from typing import Mapping, Optional
 
-from loguru import logger
 import pandas as pd  # type: ignore[import]
+from loguru import logger
 
 from scanning_tool.domain.dtos import ScanSignatureCSVRowData
 from scanning_tool.domain.scan_signature import (
@@ -25,7 +25,7 @@ SCAN_SIG_CSV = (
 
 def parse_scan_signature_row(
     row: ScanSignatureCSVRowData | Mapping[str, object] | pd.Series | None,
-) -> Optional[ScanSignature]:
+) -> ScanSignature | None:
     if row is None or len(row) == 0:
         return None
 

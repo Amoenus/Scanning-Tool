@@ -23,5 +23,5 @@ def __getattr__(name: str) -> Any:
 
 def __dir__() -> list[str]:
     return sorted(
-        list(globals().keys()) + ["sections", "GuiProvider", "get_default_gui_provider"]
+        list(globals().keys()) + ["sections", "GuiProvider", "get_default_gui_provider"],
     )

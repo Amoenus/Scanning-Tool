@@ -3,28 +3,28 @@
 import time
 import tkinter as tk
 from tkinter import colorchooser
-from typing import Optional
 
-from .base import create_overlay_window, safe_tk
-from .capture import _capture_overlay
-from .geometry import compute_info_overlay_geometry
 from scanning_tool.config.models import OverlayConfig
 from scanning_tool.domain.capture import DepositInfo
 from scanning_tool.gui.overlay_state import OverlayState
+
 from ..layout import InfoOverlayGeometry, InfoOverlayLayout
+from .base import create_overlay_window, safe_tk
+from .capture import _capture_overlay
+from .geometry import compute_info_overlay_geometry
 
 
 class InfoOverlay:
     def __init__(self) -> None:
-        self.root: Optional[tk.Toplevel] = None
-        self.canvas: Optional[tk.Canvas] = None
-        self.text_id: Optional[int] = None
+        self.root: tk.Toplevel | None = None
+        self.canvas: tk.Canvas | None = None
+        self.text_id: int | None = None
         self.info_overlay_geometry: InfoOverlayGeometry = InfoOverlayGeometry()
         self.overlay_text: str = ""
         self.last_overlay_time: float = 0.0
-        self._overlay_config: Optional[OverlayConfig] = None
+        self._overlay_config: OverlayConfig | None = None
 
-    def _build_deposit_message(self, info: Optional[DepositInfo]) -> str:
+    def _build_deposit_message(self, info: DepositInfo | None) -> str:
         if not info:
             return ""
         name = info.name or ""
@@ -45,17 +45,17 @@ class InfoOverlay:
                     text_id,
                     text=self.overlay_text,
                     fill=fill_color,
-                )
+                ),
             )
 
     def update_label(
         self,
-        info: Optional[DepositInfo],
+        info: DepositInfo | None,
         overlay_state: OverlayState,
         overlay_config: OverlayConfig,
         *,
-        code: Optional[str] = None,
-        raw_text: Optional[str] = None,
+        code: str | None = None,
+        raw_text: str | None = None,
     ) -> None:
         self._overlay_config = overlay_config
         self.overlay_text = self._build_deposit_message(info)
@@ -107,7 +107,7 @@ class InfoOverlay:
         root = self.root
         if root is not None and safe_tk(root.winfo_exists, False):
             safe_tk(
-                lambda: root.after(500, lambda: self.start_label_timeout(overlay_state))
+                lambda: root.after(500, lambda: self.start_label_timeout(overlay_state)),
             )
 
     def _destroy_existing(self) -> None:
@@ -189,12 +189,12 @@ _info_overlay = InfoOverlay()
 
 
 def update_overlay_label(
-    info: Optional[DepositInfo],
+    info: DepositInfo | None,
     overlay_state: OverlayState,
     overlay_config: OverlayConfig,
     *,
-    code: Optional[str] = None,
-    raw_text: Optional[str] = None,
+    code: str | None = None,
+    raw_text: str | None = None,
 ) -> None:
     _info_overlay.update_label(
         info,
@@ -206,7 +206,7 @@ def update_overlay_label(
 
 
 def reposition_info_overlay(
-    overlay_state: OverlayState, overlay_config: OverlayConfig
+    overlay_state: OverlayState, overlay_config: OverlayConfig,
 ) -> None:
     _info_overlay.reposition(overlay_state, overlay_config)
 
@@ -227,7 +227,7 @@ def choose_label_color(overlay_config: OverlayConfig) -> None:
             lambda: canvas.itemconfig(
                 text_id,
                 fill=overlay_config.label_color,
-            )
+            ),
         )
 
 
@@ -237,8 +237,8 @@ def toggle_border(overlay_state: OverlayState) -> None:
     if border_canvas is not None:
         safe_tk(
             lambda: border_canvas.itemconfig(
-                "border", state="normal" if overlay_state.show_border else "hidden"
-            )
+                "border", state="normal" if overlay_state.show_border else "hidden",
+            ),
         )
 
 

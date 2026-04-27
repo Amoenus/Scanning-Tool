@@ -24,7 +24,7 @@ class OreStatisticsSchema(BaseModel):
         parsed_value = parse_float(value)
         return parsed_value if parsed_value is not None else 0.0
 
-    def to_domain(self) -> "OreStatistics":
+    def to_domain(self) -> OreStatistics:
         from scanning_tool.domain.ore_models import OreStatistics
 
         return OreStatistics(
@@ -68,4 +68,4 @@ class DepositSchema(BaseModel):
         return converted
 
 
-__all__ = ["OreStatisticsSchema", "DepositSchema"]
+__all__ = ["DepositSchema", "OreStatisticsSchema"]

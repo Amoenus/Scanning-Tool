@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import StrEnum
-from typing import Literal, TypedDict, TypeAlias
+from typing import Literal, TypeAlias, TypedDict
 
 
 class SpaceSystem(StrEnum):
@@ -11,7 +11,7 @@ class SpaceSystem(StrEnum):
     NYX = "NYX"
 
     @classmethod
-    def normalize(cls, value: str) -> "SpaceSystem":
+    def normalize(cls, value: str) -> SpaceSystem:
         try:
             return cls(value.upper())
         except ValueError:

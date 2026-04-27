@@ -3,13 +3,13 @@
 import tkinter as tk
 from tkinter import ttk
 
-from .base import SectionContext
-from ..widgets import create_glass_scale
 from ..overlays import (
     register_capture_sliders,
     sync_capture_sliders,
     update_capture_overlay_region,
 )
+from ..widgets import create_glass_scale
+from .base import SectionContext
 
 
 class CaptureRegionSection:
@@ -27,10 +27,10 @@ class CaptureRegionSection:
         self._left = self._make_capture_scale(frame, "Left", 0, 3000, cap_region.left)
         self._top = self._make_capture_scale(frame, "Top", 0, 2000, cap_region.top)
         self._width = self._make_capture_scale(
-            frame, "Width", 50, 1000, cap_region.width
+            frame, "Width", 50, 1000, cap_region.width,
         )
         self._height = self._make_capture_scale(
-            frame, "Height", 20, 500, cap_region.height, padding=(0, 0)
+            frame, "Height", 20, 500, cap_region.height, padding=(0, 0),
         )
 
         register_capture_sliders(

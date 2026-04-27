@@ -10,8 +10,8 @@ from scanning_tool.gui.layout_types import (
 )
 
 __all__ = [
+    "AnchorOverlayGeometry",
     "CaptureOverlayLayout",
     "InfoOverlayGeometry",
     "InfoOverlayLayout",
-    "AnchorOverlayGeometry",
 ]

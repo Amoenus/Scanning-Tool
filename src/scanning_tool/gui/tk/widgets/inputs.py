@@ -1,12 +1,11 @@
 """Input widgets for the scanning tool GUI."""
 
-from typing import Callable
-
 import tkinter as tk
+from collections.abc import Callable
 from tkinter import ttk
 
-from .controls import create_section_row
 from ..theme import GlassPalette
+from .controls import create_section_row
 
 
 def create_labeled_spinbox(
@@ -59,7 +58,7 @@ def create_status_label(parent: ttk.Widget, variable: tk.Variable) -> ttk.Label:
     """Create a styled status label row for section text feedback."""
     row = create_section_row(parent, pady=(0, 2))
     label = ttk.Label(
-        row, textvariable=variable, style="Glass.Small.TLabel", justify="left"
+        row, textvariable=variable, style="Glass.Small.TLabel", justify="left",
     )
     label.pack(fill="x", padx=5)
     return label
