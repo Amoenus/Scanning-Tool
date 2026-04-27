@@ -2,13 +2,8 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import TYPE_CHECKING, cast
-
-from scanning_tool.config.service import ConfigData, ConfigSaver
-from scanning_tool.gui.control_state import ControlState
-from scanning_tool.gui.overlay_state import OverlayState
-from scanning_tool.state.scan_state import ScanState
-from scanning_tool.state.service_state import ServiceState
 
 if TYPE_CHECKING:
     from scanning_tool.config.service import ConfigData, ConfigSaver
@@ -17,13 +12,18 @@ if TYPE_CHECKING:
     from scanning_tool.state.app_state import AppState
     from scanning_tool.state.scan_state import ScanState
     from scanning_tool.state.service_state import ServiceState
-_app_state_target: AppState | None = None
-_config_target: ConfigData | None = None
-_config_service_target: ConfigSaver | None = None
-_scan_state_target: ScanState | None = None
-_service_state_target: ServiceState | None = None
-_overlay_state_target: OverlayState | None = None
-_control_state_target: ControlState | None = None
+
+@dataclass(frozen=True)
+class _RuntimeState:
+    app_state: AppState
+    config: ConfigData
+    config_service: ConfigSaver
+    scan_state: ScanState
+    service_state: ServiceState
+    overlay_state: OverlayState
+    control_state: ControlState
+
+_runtime_state: _RuntimeState | None = None
 
 app_state: AppState = cast("AppState", None)
 config: ConfigData = cast("ConfigData", None)
@@ -46,45 +46,47 @@ __all__ = [
 ]
 
 
+def _assert_uninitialized() -> None:
+    if _runtime_state is not None:
+        message = "Runtime state has already been initialized"
+        raise RuntimeError(message)
+
+
+def _get_config_service() -> ConfigSaver:
+    if _runtime_state is None:
+        message = "Config service is not initialized"
+        raise RuntimeError(message)
+    return _runtime_state.config_service
+
+
 def initialize_state(app_state_: AppState, config_service_: ConfigSaver) -> None:
     """Initialize global runtime state from the bootstrapper."""
-    global _app_state_target, _config_target, _config_service_target
-    global \
-        _scan_state_target, \
-        _service_state_target, \
-        _overlay_state_target, \
-        _control_state_target
-    global \
-        app_state, \
-        config, \
-        config_service, \
-        scan_state, \
-        service_state, \
-        overlay_state, \
-        control_state
+    _assert_uninitialized()
 
-    if _app_state_target is not None:
-        raise RuntimeError("Runtime state has already been initialized")
+    state = _RuntimeState(
+        app_state=app_state_,
+        config=app_state_.config,
+        config_service=config_service_,
+        scan_state=app_state_.scan_state,
+        service_state=app_state_.service_state,
+        overlay_state=app_state_.overlay_state,
+        control_state=app_state_.control_state,
+    )
 
-    _app_state_target = app_state_
-    _config_service_target = config_service_
-    _config_target = app_state_.config
-    _scan_state_target = app_state_.scan_state
-    _service_state_target = app_state_.service_state
-    _overlay_state_target = app_state_.overlay_state
-    _control_state_target = app_state_.control_state
-
-    app_state = app_state_
-    config_service = config_service_
-    config = app_state_.config
-    scan_state = app_state_.scan_state
-    service_state = app_state_.service_state
-    overlay_state = app_state_.overlay_state
-    control_state = app_state_.control_state
+    globals().update(
+        {
+            "app_state": state.app_state,
+            "config": state.config,
+            "config_service": state.config_service,
+            "scan_state": state.scan_state,
+            "service_state": state.service_state,
+            "overlay_state": state.overlay_state,
+            "control_state": state.control_state,
+        },
+    )
+    globals()["_runtime_state"] = state
 
 
 def save_config() -> None:
     """Persist the current configuration."""
-    if _config_service_target is None:
-        raise RuntimeError("Config service is not initialized")
-    _config_service_target.save()
+    _get_config_service().save()
