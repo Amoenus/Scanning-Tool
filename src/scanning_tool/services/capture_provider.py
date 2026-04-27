@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import numpy as np
 from loguru import logger
 from mss import mss
@@ -9,9 +11,6 @@ from PIL import Image as PILModule
 from PIL.Image import Image
 
 from scanning_tool.interfaces.capture import CaptureProvider
-
-
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from scanning_tool.domain.alignment import CaptureRegion

@@ -3,15 +3,13 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Literal, TypedDict
+from typing import TYPE_CHECKING, Literal, TypedDict
 
 from scanning_tool.domain.common import MssMonitor, OreTableEntry, SpaceSystem
 
-from typing import TYPE_CHECKING
-
 if TYPE_CHECKING:
-    from scanning_tool.domain.capture import DepositInfo, ScanResult
     from scanning_tool.domain.alignment import AlignmentInfo, CaptureRegion
+    from scanning_tool.domain.capture import DepositInfo, ScanResult
 DepositTable = list[OreTableEntry]
 OreTier = Literal["HIGHEST", "HIGH", "MEDIUM", "LOW", "OTHER"]
 

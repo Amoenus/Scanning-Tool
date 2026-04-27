@@ -1,21 +1,16 @@
 """Common types for GUI sections."""
 from __future__ import annotations
 
-
 import tkinter as tk
 from dataclasses import dataclass
 from tkinter import ttk
-from typing import Protocol
+from typing import TYPE_CHECKING, Protocol
 
 from scanning_tool.gui.context import GuiSectionDependencies
 
-
-
-from typing import TYPE_CHECKING
-
 if TYPE_CHECKING:
-    from ..theme import GlassPalette
     from ..status import StatusBar
+    from ..theme import GlassPalette
 @dataclass(frozen=True)
 class SectionContext(GuiSectionDependencies):
     """Tk-specific section context built on shared GUI dependencies."""

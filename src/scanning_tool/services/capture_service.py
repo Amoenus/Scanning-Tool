@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import time
 from threading import Thread
+from typing import TYPE_CHECKING
 
 from loguru import logger
 
@@ -14,13 +15,10 @@ from scanning_tool.services.capture_provider import ScreenCaptureProvider
 from scanning_tool.services.deposit_lookup_adapter import DepositLookupAdapter
 from scanning_tool.services.ocr_provider import OllamaOCRProvider
 
-
-from typing import TYPE_CHECKING
-
 if TYPE_CHECKING:
-    from scanning_tool.state.service_state import ServiceState
-    from scanning_tool.state.scan_state import ScanState
     from scanning_tool.config.service import ConfigData
+    from scanning_tool.state.scan_state import ScanState
+    from scanning_tool.state.service_state import ServiceState
 class CaptureService(CaptureController):
     """Service for capturing screen regions and processing OCR results."""
 

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from re import Pattern
+from typing import TYPE_CHECKING
 
 from loguru import logger
 from PIL.Image import Image
@@ -12,13 +13,16 @@ from scanning_tool.domain.capture import CodeExtraction, ScanResult
 from scanning_tool.state.service_state import ServiceState
 from scanning_tool.state.signals import status_updated
 
-
-from typing import TYPE_CHECKING
-
 if TYPE_CHECKING:
-    from scanning_tool.state.scan_state import ScanState
-    from scanning_tool.interfaces.capture import AlignmentAdapter, CaptureProvider, DepositLookupProvider, OCRProvider, StatusCallback
     from scanning_tool.config.service import ConfigData
+    from scanning_tool.interfaces.capture import (
+        AlignmentAdapter,
+        CaptureProvider,
+        DepositLookupProvider,
+        OCRProvider,
+        StatusCallback,
+    )
+    from scanning_tool.state.scan_state import ScanState
 class ScanPipeline:
     """Builds a scan result by running OCR and resolving deposit metadata."""
 

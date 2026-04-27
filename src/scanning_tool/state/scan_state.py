@@ -1,16 +1,14 @@
 """Scan state management."""
 from __future__ import annotations
 
-
 from collections.abc import Callable
 from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
 
 from blinker import Signal
 
 from scanning_tool.domain.alignment import AlignmentInfo
 from scanning_tool.domain.capture import ScanResult
-
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from scanning_tool.core.anchor import AnchorRegionTracker

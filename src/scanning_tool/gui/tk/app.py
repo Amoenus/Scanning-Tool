@@ -1,11 +1,10 @@
 """Main application entry: launches the Tkinter GUI and builds its sections."""
 from __future__ import annotations
 
-
 import tkinter as tk
 from collections.abc import Sequence
 from tkinter import ttk
-
+from typing import TYPE_CHECKING
 
 from .alignment import AlignmentPoller
 from .lifecycle import register_close_handler
@@ -29,15 +28,14 @@ from .status import StatusBar
 from .theme import GlassPalette, apply_glass_theme
 from .widgets import ScrollableFrame
 
-from typing import TYPE_CHECKING
-
 if TYPE_CHECKING:
-    from .overlay_state import OverlayState
-    from .control_state import ControlState
-    from scanning_tool.state.service_state import ServiceState
-    from scanning_tool.state.scan_state import ScanState
-    from scanning_tool.interfaces import CaptureController
     from scanning_tool.config.service import ConfigData, ConfigSaver
+    from scanning_tool.interfaces import CaptureController
+    from scanning_tool.state.scan_state import ScanState
+    from scanning_tool.state.service_state import ServiceState
+
+    from .control_state import ControlState
+    from .overlay_state import OverlayState
 SECTION_CLASSES: Sequence[type[Section]] = (
     CaptureRegionSection,
     HeadSwaySection,

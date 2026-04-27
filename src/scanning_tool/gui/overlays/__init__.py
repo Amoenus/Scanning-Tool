@@ -8,14 +8,11 @@ so non-Tk consumers can import the shared GUI API without pulling Tk into the GU
 from __future__ import annotations
 
 from importlib import import_module
-from typing import Any, Optional
-
-
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Optional
 
 if TYPE_CHECKING:
-    from scanning_tool.gui.overlay_state import OverlayState
     from scanning_tool.config.service import ConfigData
+    from scanning_tool.gui.overlay_state import OverlayState
 __all__ = (
     "choose_label_color",
     "configure_capture_slider_sync",

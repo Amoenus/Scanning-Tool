@@ -5,16 +5,13 @@ from typing import TYPE_CHECKING, Protocol
 
 from loguru import logger
 
-
 if TYPE_CHECKING:
+    from scanning_tool.config.service import ConfigData, ConfigSaver
     from scanning_tool.gui.control_state import ControlState
     from scanning_tool.gui.overlay_state import OverlayState
+    from scanning_tool.interfaces import CaptureController
     from scanning_tool.state.scan_state import ScanState
     from scanning_tool.state.service_state import ServiceState
-
-
-    from scanning_tool.interfaces import CaptureController
-    from scanning_tool.config.service import ConfigData, ConfigSaver
 DEFAULT_GUI_BACKEND = "tk"
 GUI_PROVIDER_REGISTRY: dict[str, tuple[str, str]] = {
     "tk": ("scanning_tool.gui.tk.provider", "TkGuiProvider"),

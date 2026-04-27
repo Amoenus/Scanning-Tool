@@ -1,24 +1,20 @@
 """Floating info overlay and label management."""
 from __future__ import annotations
 
-
 import time
 import tkinter as tk
 from tkinter import colorchooser
-
+from typing import TYPE_CHECKING
 
 from ..layout import InfoOverlayGeometry, InfoOverlayLayout
 from .base import create_overlay_window, safe_tk
 from .capture import _capture_overlay
 from .geometry import compute_info_overlay_geometry
 
-
-from typing import TYPE_CHECKING
-
 if TYPE_CHECKING:
-    from scanning_tool.gui.overlay_state import OverlayState
-    from scanning_tool.domain.capture import DepositInfo
     from scanning_tool.config.models import OverlayConfig
+    from scanning_tool.domain.capture import DepositInfo
+    from scanning_tool.gui.overlay_state import OverlayState
 class InfoOverlay:
     def __init__(self) -> None:
         self.root: tk.Toplevel | None = None

@@ -7,10 +7,8 @@ from PIL.Image import Image
 
 if TYPE_CHECKING:
     from scanning_tool.core.anchor import AnchorRegionTracker
-
-
-    from scanning_tool.domain.capture import DepositInfo
     from scanning_tool.domain.alignment import AlignmentInfo, AlignmentRequest, CaptureRegion
+    from scanning_tool.domain.capture import DepositInfo
 StatusCallback = Callable[[str], None]
 
 

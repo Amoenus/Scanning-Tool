@@ -1,19 +1,15 @@
 """Anchor overlay display and region updates."""
 from __future__ import annotations
 
-
 import tkinter as tk
-
+from typing import TYPE_CHECKING
 
 from .base import ANCHOR_OVERLAY_PAD, create_overlay_window, safe_tk
 from .geometry import compute_anchor_overlay_geometry
 
-
-from typing import TYPE_CHECKING
-
 if TYPE_CHECKING:
-    from scanning_tool.gui.overlay_state import OverlayState
     from scanning_tool.domain.alignment import CaptureRegion
+    from scanning_tool.gui.overlay_state import OverlayState
 class AnchorOverlay:
     def __init__(self) -> None:
         self.root: tk.Toplevel | None = None

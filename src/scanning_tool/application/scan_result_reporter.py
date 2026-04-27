@@ -1,14 +1,10 @@
 """Scan result reporting helpers for logs and UI status messages."""
 from __future__ import annotations
 
-
 import re
+from typing import TYPE_CHECKING
 
 from loguru import logger
-
-
-
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from scanning_tool.domain.capture import ScanResult

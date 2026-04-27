@@ -1,13 +1,13 @@
 """Head Sway Compensation section — anchor tracking and auto-alignment."""
 from __future__ import annotations
 
-
 import os
 import subprocess
 import sys
 import tkinter as tk
 from collections.abc import Callable
 from tkinter import ttk
+from typing import TYPE_CHECKING
 
 from scanning_tool.config import ensure_anchor_directory
 from scanning_tool.core.anchor import AnchorRegionTracker
@@ -27,9 +27,6 @@ from ..widgets import (
     create_glass_scale,
     create_labeled_spinbox,
 )
-
-
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .base import SectionContext

@@ -1,14 +1,13 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from scanning_tool.interfaces.capture import AlignmentAdapter
 from scanning_tool.services.alignment_service import alignment_service
 
-
-from typing import TYPE_CHECKING
-
 if TYPE_CHECKING:
-    from scanning_tool.domain.alignment import AlignmentInfo, AlignmentRequest
     from scanning_tool.core.anchor import AnchorRegionTracker
+    from scanning_tool.domain.alignment import AlignmentInfo, AlignmentRequest
 class UIAlignmentAdapter(AlignmentAdapter):
     """Adapter that forwards alignment requests to the service."""
 

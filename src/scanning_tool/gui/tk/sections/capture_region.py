@@ -1,9 +1,9 @@
 """Capture Region section — 4 sliders controlling the OCR capture rectangle via AppContext capture settings."""
 from __future__ import annotations
 
-
 import tkinter as tk
 from tkinter import ttk
+from typing import TYPE_CHECKING
 
 from ..overlays import (
     register_capture_sliders,
@@ -11,9 +11,6 @@ from ..overlays import (
     update_capture_overlay_region,
 )
 from ..widgets import create_glass_scale
-
-
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .base import SectionContext

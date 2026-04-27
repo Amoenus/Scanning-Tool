@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pandas as pd  # type: ignore[import]
 from loguru import logger
@@ -13,8 +14,6 @@ from scanning_tool.domain.scan_signature import (
     ScanSignatureCSVRow,
     SignatureRegistry,
 )
-
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from scanning_tool.domain.dtos import ScanSignatureCSVRowData

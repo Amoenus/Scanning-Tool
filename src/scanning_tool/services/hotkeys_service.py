@@ -1,15 +1,13 @@
 """Global hotkey service."""
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
 
 import keyboard
 from loguru import logger
 
 from scanning_tool.gui.overlays import toggle_border
 from scanning_tool.state import manager
-
-
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from scanning_tool.services.capture_service import CaptureService

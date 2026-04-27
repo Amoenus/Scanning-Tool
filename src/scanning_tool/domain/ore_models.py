@@ -1,13 +1,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
 
 from pydantic import ValidationError
 
 from scanning_tool.domain.ore_schemas import DepositSchema, OreStatisticsSchema
-
-
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from scanning_tool.domain.dtos import JsonObject

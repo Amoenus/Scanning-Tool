@@ -1,8 +1,8 @@
 """Build deposit ore tables from rock data."""
 from __future__ import annotations
 
-
 import json
+from typing import TYPE_CHECKING
 
 from scanning_tool.config import ROCK_TYPE_FILE
 from scanning_tool.deposits.ore_tiers import ORE_VALUE_MAP, TIER_ORDER
@@ -13,9 +13,6 @@ from scanning_tool.domain.common import (
     SpaceSystem,
 )
 from scanning_tool.domain.ore import Deposit, OreStatistics, Region, RockDataCollection
-
-
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from scanning_tool.state.service_state import ServiceState

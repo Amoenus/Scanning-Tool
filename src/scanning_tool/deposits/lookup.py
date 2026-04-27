@@ -1,16 +1,13 @@
 """Deposit lookup and code extraction from OCR text."""
 from __future__ import annotations
 
-
 import re
 from dataclasses import dataclass
 from re import Pattern
+from typing import TYPE_CHECKING
 
 from scanning_tool.domain.capture import CodeExtraction, DepositInfo
 from scanning_tool.state.service_state import ServiceState
-
-
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from scanning_tool.domain.scan_signature import ScanSignature, SignatureRegistry

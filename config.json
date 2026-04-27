@@ -10,7 +10,7 @@
             "x": 0,
             "y": 0
         },
-        "label_color": "#4bf569",
+        "label_color": "#ff0080",
         "show_debug": true
     },
     "auto_alignment": {
@@ -39,7 +39,7 @@
     "continuous_capture_interval": 2.0,
     "ollama_config": {
         "model": "qwen2.5vl:3b",
-        "host": null
+        "host": ""
     },
     "web_server_config": {
         "host": "0.0.0.0",

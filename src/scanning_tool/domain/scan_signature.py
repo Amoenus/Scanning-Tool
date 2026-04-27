@@ -12,7 +12,6 @@ from scanning_tool.domain.parsers import parse_int, parse_str
 if TYPE_CHECKING:
     import pandas as pd
 
-
     from scanning_tool.domain.dtos import ScanSignatureCSVRowData
 @dataclass(frozen=True)
 class ScanSignature:

@@ -1,7 +1,7 @@
 """Auto-alignment background service."""
 from __future__ import annotations
 
-
+from typing import TYPE_CHECKING
 
 from scanning_tool.services.alignment_calculator import AlignmentCalculator
 from scanning_tool.services.base_service import BaseService
@@ -10,12 +10,9 @@ from scanning_tool.state.signals import (
     update_capture_overlay_region_signal,
 )
 
-
-from typing import TYPE_CHECKING
-
 if TYPE_CHECKING:
-    from scanning_tool.domain.alignment import AlignmentInfo, AlignmentRequest, AnchorDetection, CaptureRegion
     from scanning_tool.core.anchor import AnchorRegionTracker
+    from scanning_tool.domain.alignment import AlignmentInfo, AlignmentRequest, AnchorDetection, CaptureRegion
 def reset_alignment_info(info: AlignmentInfo) -> None:
     info.reset()
 

@@ -1,11 +1,10 @@
 """Controls section — continuous capture interval + primary action buttons."""
 from __future__ import annotations
 
-
 import tkinter as tk
 from threading import Thread
 from tkinter import ttk
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from ..overlays import (
     choose_label_color,
@@ -18,9 +17,6 @@ from ..widgets import (
     create_button_row,
     create_labeled_spinbox,
 )
-
-
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .base import SectionContext
@@ -63,8 +59,14 @@ class ControlsSection:
                 ("Single Scan", self._start_single_scan),
                 (self._continuous_button_text, self._toggle_continuous_capture),
                 (self._capture_box_button_text, self._toggle_capture_box),
-                ("Update Overlay", update_overlay_region),
-                ("Set Label Color", choose_label_color),
+                (
+                    "Update Overlay",
+                    lambda: update_overlay_region(self._ctx.overlay_state),
+                ),
+                (
+                    "Set Label Color",
+                    lambda: choose_label_color(self._ctx.config.overlay_config),
+                ),
                 ("Save Config", ctx.config_service.save),
             ],
         )

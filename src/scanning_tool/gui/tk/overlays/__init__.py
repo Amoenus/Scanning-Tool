@@ -1,8 +1,7 @@
 """Overlay package API."""
 from __future__ import annotations
 
-
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 from scanning_tool.gui.control_state import ControlState
 
@@ -39,11 +38,9 @@ from .slider_sync import (
     sync_overlay_sliders,
 )
 
-from typing import TYPE_CHECKING
-
 if TYPE_CHECKING:
-    from scanning_tool.gui.overlay_state import OverlayState
     from scanning_tool.config.service import ConfigData
+    from scanning_tool.gui.overlay_state import OverlayState
 __all__ = (
     "ControlState",
     "choose_label_color",
