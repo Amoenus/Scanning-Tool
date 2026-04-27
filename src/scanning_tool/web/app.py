@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import socket
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from flask import Flask, Response, jsonify, render_template, request
@@ -57,13 +58,22 @@ class WebService:
         return "127.0.0.1"
 
     def _index(self) -> str:
-        return render_template("overlay.html")
+        return render_template(
+            "overlay.html",
+            region_options=[region.value for region in SpaceSystem],
+            default_region=DEFAULT_SELECTED_REGION.value,
+        )
 
     def _status(self) -> Response:
         """Return the latest scan information for the overlay UI."""
         selected_region = self._selected_region()
         response = self._build_status_response(selected_region)
-        return jsonify(response.to_dict())
+        flask_response = jsonify(response.to_dict())
+        flask_response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+        return flask_response
+
+    def _health(self) -> Response:
+        return jsonify({"status": "ok"})
 
     def _selected_region(self) -> SpaceSystem:
         requested_region = request.args.get("region", DEFAULT_SELECTED_REGION.value)
@@ -79,10 +89,16 @@ class WebService:
 
     def create_app(self) -> Flask:
         """Create and configure the Flask application."""
-        app = Flask(__name__, template_folder=self.template_folder)
+        app = Flask(
+            __name__,
+            template_folder=self.template_folder,
+            static_folder=str(Path(__file__).resolve().parent / "static"),
+            static_url_path="/static",
+        )
         configure_flask_logging(app)
         app.add_url_rule("/", endpoint="index", view_func=self._index)
         app.add_url_rule("/status", endpoint="status", view_func=self._status)
+        app.add_url_rule("/health", endpoint="health", view_func=self._health)
         return app
 
 

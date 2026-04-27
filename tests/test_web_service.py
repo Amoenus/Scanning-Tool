@@ -39,6 +39,28 @@ def test_web_service_status_exposes_latest_scan_result():
     assert response.json["info"]["name"] == "Ore 123"
     assert response.json["code_raw"] == "ORE123"
     assert response.json["selected_region"] == "STANTON"
+    assert response.json["status"] == "ok"
+    assert response.json["updated_at"] is not None
+    assert response.headers["Cache-Control"] == "no-store, no-cache, must-revalidate, max-age=0"
+
+
+def test_web_service_health_endpoint_returns_ok():
+    config = ConfigData()
+    scan_state = ScanState()
+    service_state = ServiceState()
+    web_service = WebService(
+        config=config,
+        scan_state=scan_state,
+        service_state=service_state,
+        template_folder=resource_path("templates"),
+        status_response_builder=DefaultStatusResponseBuilder(),
+    )
+
+    app = web_service.create_app()
+    response = app.test_client().get("/health")
+
+    assert response.status_code == 200
+    assert response.json == {"status": "ok"}
 
 
 def test_status_response_builder_includes_supported_deposit_table():

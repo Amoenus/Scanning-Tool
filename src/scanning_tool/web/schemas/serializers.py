@@ -2,13 +2,15 @@
 
 from __future__ import annotations
 
+from datetime import datetime
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from scanning_tool.domain.alignment import AlignmentInfo, CaptureRegion
     from scanning_tool.domain.capture import DepositInfo, ScanResult
     from scanning_tool.domain.common import MssMonitor, OreTableEntry
-    from scanning_tool.web.schemas.types import (
+
+from scanning_tool.web.schemas.types import (
         AlignmentInfoDict,
         DepositInfoDict,
         DepositTable,
@@ -97,6 +99,10 @@ class DepositTableSerializer:
 
 
 class StatusResponseSerializer:
+    @staticmethod
+    def _format_datetime(value: datetime) -> str:
+        return value.replace(microsecond=0).isoformat() + "Z"
+
     @classmethod
     def to_dict(cls, status_response: StatusResponse) -> StatusResponseDict:
         return {
@@ -105,6 +111,8 @@ class StatusResponseSerializer:
             "last": ScanResultSerializer.to_dict(status_response.last),
             "alignment": AlignmentInfoSerializer.to_dict(status_response.alignment),
             "selected_region": status_response.selected_region.value,
+            "status": status_response.status,
+            "updated_at": cls._format_datetime(status_response.updated_at),
             "info": DepositInfoSerializer.to_dict(status_response.info),
             "code": status_response.code,
             "code_raw": status_response.code_raw,

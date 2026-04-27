@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime
 from typing import TYPE_CHECKING, Literal, TypedDict
 
 from scanning_tool.domain.common import MssMonitor, OreTableEntry, SpaceSystem
@@ -54,12 +55,17 @@ class OreTableEntryDict(TypedDict):
     color: str
 
 
+StatusKind = Literal["ok", "no_scan", "invalid_scan", "error"]
+
+
 class StatusResponseDict(TypedDict):
     region: MssMonitor
     label_color: str
     last: ScanResultDict | None
     alignment: AlignmentInfoDict
     selected_region: str
+    status: StatusKind
+    updated_at: str
     info: DepositInfoDict | None
     code: str | None
     code_raw: str | None
@@ -76,6 +82,8 @@ class StatusResponse:
     last: ScanResult | None
     alignment: AlignmentInfo
     selected_region: SpaceSystem
+    status: StatusKind
+    updated_at: datetime
     info: DepositInfo | None
     code: str | None
     code_raw: str | None

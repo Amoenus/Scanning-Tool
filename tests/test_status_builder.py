@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from datetime import datetime
+
 from scanning_tool.config.service import ConfigData
 from scanning_tool.domain.alignment import AlignmentInfo
 from scanning_tool.domain.common import OreTableEntry, SpaceSystem
@@ -91,6 +93,35 @@ def test_default_status_response_builder_returns_empty_status_when_no_scan_exist
     assert response.raw_text is None
     assert response.table is None
     assert response.selected_region == SpaceSystem.STANTON
+    assert response.status == "no_scan"
+    assert isinstance(response.updated_at, datetime)
+
+
+def test_default_status_response_builder_returns_invalid_scan_when_info_missing() -> None:
+    builder = DefaultStatusResponseBuilder()
+    config = ConfigData()
+    scan_state = ScanState()
+    scan_state.last_result = ScanResult(
+        label="1234567890",
+        region=config.capture_region,
+        info=None,
+        code_raw="1234567890",
+        raw_text="1234567890",
+    )
+    service_state = ServiceState()
+
+    response = builder.build_status_response(
+        config=config,
+        scan_state=scan_state,
+        service_state=service_state,
+        selected_region=SpaceSystem.STANTON,
+    )
+
+    assert response.last is not None
+    assert response.status == "invalid_scan"
+    assert response.info is None
+    assert response.code_raw == "1234567890"
+    assert isinstance(response.updated_at, datetime)
 
 
 def test_status_response_to_dict_serializes_nested_objects() -> None:
@@ -138,6 +169,8 @@ def test_status_response_to_dict_serializes_nested_objects() -> None:
         last=scan_result,
         alignment=alignment,
         selected_region=SpaceSystem.STANTON,
+        status="ok",
+        updated_at=datetime(2024, 1, 1, 0, 0),
         info=info,
         code="ORE123",
         code_raw="ORE123",
@@ -148,6 +181,8 @@ def test_status_response_to_dict_serializes_nested_objects() -> None:
     serialized = status.to_dict()
 
     assert serialized["selected_region"] == SpaceSystem.STANTON.value
+    assert serialized["status"] == "ok"
+    assert serialized["updated_at"] == "2024-01-01T00:00:00Z"
     assert serialized["last"]["label"] == "ORE123"
     assert serialized["info"]["category"] == "rock deposits"
     assert serialized["alignment"]["template"] == "template.png"

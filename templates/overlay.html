@@ -100,12 +100,20 @@
     .hud-header {
       display: flex;
       align-items: flex-start;
-      justify-content: space-between;
+      justify-content: flex-start;
       gap: 16px;
+    }
+
+    .hud-region-row {
+      margin-top: 12px;
+      display: flex;
+      justify-content: center;
     }
 
     .toggle-group {
       display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
       gap: 8px;
       background: rgba(10, 35, 61, 0.6);
       padding: 6px;
@@ -175,6 +183,46 @@
       text-transform: uppercase;
       text-align: center;
       box-shadow: inset 0 0 18px rgba(94, 229, 255, 0.1);
+    }
+
+    .hud-status {
+      margin-top: 12px;
+      font-size: 12px;
+      letter-spacing: 0.6px;
+      line-height: 1.35;
+      padding: 10px 12px;
+      border-radius: 12px;
+      color: var(--hud-text);
+      background: rgba(8, 26, 48, 0.55);
+      border: 1px solid rgba(94, 229, 255, 0.15);
+      text-align: center;
+    }
+
+    .hud-status--success {
+      border-color: rgba(99, 230, 76, 0.5);
+      background: rgba(99, 230, 76, 0.1);
+    }
+
+    .hud-status--warning {
+      border-color: rgba(230, 225, 76, 0.5);
+      background: rgba(230, 225, 76, 0.12);
+    }
+
+    .hud-status--error {
+      border-color: rgba(232, 138, 255, 0.5);
+      background: rgba(232, 138, 255, 0.11);
+    }
+
+    .hud-status--loading {
+      border-color: rgba(94, 229, 255, 0.7);
+      background: rgba(94, 229, 255, 0.08);
+    }
+
+    .hud-updated {
+      margin-top: 4px;
+      font-size: 11px;
+      color: var(--hud-muted);
+      text-align: center;
     }
 
     .hud-note {
@@ -253,13 +301,20 @@
         <h1 id="name">No code</h1>
         <p id="code" class="hud-subtitle"></p>
       </div>
+    </div>
+    <div class="hud-region-row">
       <div class="toggle-group">
-        <label class="toggle-pill"><input type="radio" name="region" value="STANTON" checked><span>Stanton</span></label>
-        <label class="toggle-pill"><input type="radio" name="region" value="PYRO"><span>Pyro</span></label>
-        <label class="toggle-pill"><input type="radio" name="region" value="NYX"><span>Nyx</span></label>
+        {% for region in region_options %}
+        <label class="toggle-pill">
+          <input type="radio" name="region" value="{{ region }}" {{ "checked" if region == default_region else "" }}>
+          <span>{{ region.title() }}</span>
+        </label>
+        {% endfor %}
       </div>
     </div>
     <p id="raw" class="hud-raw"></p>
+    <p id="status-message" class="hud-status"></p>
+    <p id="updated-at" class="hud-updated"></p>
     <div class="legend">
       <span style="background:#E88AFF;">Highest</span>
       <span style="background:#63E64C;">High</span>
@@ -270,65 +325,6 @@
     <p class="hud-note">Tip: open this overlay on another device (phone or tablet) using your local network link.</p>
   </div>
 </div>
-<script>
-let region = "STANTON";
-document.querySelectorAll('input[name="region"]').forEach(el=>{
-  el.addEventListener("change", e=>{
-    region = e.target.value;
-    poll();
-  });
-});
-
-function renderTable(data){
-  if(!Array.isArray(data) || !data.length){
-    document.getElementById('minerals').innerHTML = '';
-    return;
-  }
-  let html = '<table><tr><th>Mineral</th><th>Prob</th><th>Min</th><th>Max</th><th>Med</th></tr>';
-  for(const row of data){
-    html += `<tr>
-      <td style="color:${row.color}; font-weight:bold;">${row.name}</td>
-      <td>${row.prob}</td>
-      <td>${row.min}</td>
-      <td>${row.max}</td>
-      <td>${row.med}</td>
-    </tr>`;
-  }
-  html += '</table>';
-  document.getElementById('minerals').innerHTML = html;
-}
-
-function showEmptyState(category){
-  const message = category && category.toLowerCase().includes('salvage')
-    ? 'No mineral composition available for salvage targets.'
-    : '';
-  document.getElementById('minerals').innerHTML = message
-    ? `<div class="hud-empty">${message}</div>`
-    : '';
-}
-
-async function poll(){
-  try {
-    const r = await fetch('/status?region='+region);
-    const j = await r.json();
-    if(j.info){
-      let text = j.info.name;
-      if(j.info.deposits){ text += " x" + j.info.deposits; }
-      document.getElementById('name').textContent = text;
-      document.getElementById('code').textContent = "Code: " + (j.code ?? "");
-      document.getElementById('raw').textContent = j.code_raw ? ("(raw: " + j.code_raw + ")") : "";
-      const info = j.info || {};
-      const category = info.category || '';
-      if(Array.isArray(j.table) && j.table.length){
-        renderTable(j.table);
-      } else {
-        showEmptyState(category);
-      }
-    }
-  } catch(e){ console.error(e); }
-  setTimeout(poll, 500);
-}
-await poll();
-</script>
+<script src="{{ url_for('static', filename='overlay.js') }}"></script>
 </body>
 </html>

@@ -2,12 +2,14 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from datetime import datetime
+
 from scanning_tool.interfaces.web import StatusResponseBuilder
 from scanning_tool.web.schemas import DepositTable, StatusResponse
 
 if TYPE_CHECKING:
     from scanning_tool.config.service import ConfigData
-    from scanning_tool.domain.capture import DepositInfo
+    from scanning_tool.domain.capture import DepositInfo, ScanResult
     from scanning_tool.domain.common import SpaceSystem
     from scanning_tool.state.scan_state import ScanState
     from scanning_tool.state.service_state import ServiceState
@@ -78,7 +80,17 @@ class DefaultStatusResponseBuilder(StatusResponseBuilder):
             code_raw=result.code_raw if result else None,
             raw_text=result.raw_text if result else None,
             table=table,
+            status=self._derive_status(result),
+            updated_at=datetime.utcnow().replace(microsecond=0),
         )
+
+    @staticmethod
+    def _derive_status(result: ScanResult | None) -> str:
+        if result is None:
+            return "no_scan"
+        if result.info is None:
+            return "invalid_scan"
+        return "ok"
 
     def _lookup_deposit_table(
         self,
