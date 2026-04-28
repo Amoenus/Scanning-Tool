@@ -3,7 +3,7 @@ from __future__ import annotations
 from threading import Thread
 from typing import TYPE_CHECKING
 
-from scanning_tool.gui.actions import UiActionType
+from scanning_tool.gui.action_types import UiActionType
 from scanning_tool.state.signals import status_updated
 
 if TYPE_CHECKING:

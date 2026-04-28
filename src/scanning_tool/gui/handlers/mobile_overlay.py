@@ -5,7 +5,7 @@ import logging
 import webbrowser
 from typing import TYPE_CHECKING
 
-from scanning_tool.gui.actions import UiActionType
+from scanning_tool.gui.action_types import UiActionType
 from scanning_tool.state.signals import mobile_qr_ready, status_updated
 
 if TYPE_CHECKING:

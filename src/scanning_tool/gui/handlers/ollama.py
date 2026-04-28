@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
 
-from scanning_tool.gui.actions import UiActionType
+from scanning_tool.gui.action_types import UiActionType
 from scanning_tool.ollama import (
     ensure_model_installed,
     get_ollama_host,

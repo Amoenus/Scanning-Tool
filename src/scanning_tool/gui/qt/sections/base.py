@@ -9,7 +9,7 @@ from PyQt6.QtWidgets import QWidget
 from scanning_tool.gui.context import GuiSectionDependencies
 
 if TYPE_CHECKING:
-    from .status import StatusBar
+    from scanning_tool.gui.qt.sections.status import StatusBar
 
 
 @dataclass(frozen=True)

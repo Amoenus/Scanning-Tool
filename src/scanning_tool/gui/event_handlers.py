@@ -25,6 +25,26 @@ def install_ui_action_handlers(
     capture_service: CaptureController,
     config_service: ConfigSaver,
 ) -> None:
+    """Connect UI action handlers to their corresponding UI action signals.
+
+    Parameters
+    ----------
+    config : ConfigData
+        The configuration data object.
+    scan_state : ScanState
+        The scan state object.
+    service_state : ServiceState
+        The service state object.
+    overlay_state : OverlayState
+        The overlay state object.
+    control_state : ControlState
+        The control state object.
+    capture_service : CaptureController
+        The capture controller/service.
+    config_service : ConfigSaver
+        The configuration saver/service.
+
+    """
     def _receiver(
         handler,
         sender: object,

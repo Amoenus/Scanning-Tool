@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 from scanning_tool.config import ensure_anchor_directory
 from scanning_tool.core.anchor import AnchorRegionTracker
 from scanning_tool.domain.alignment import AlignmentRequest
-from scanning_tool.gui.actions import UiActionType
+from scanning_tool.gui.action_types import UiActionType
 from scanning_tool.gui.overlays import (
     hide_anchor_overlay,
     show_anchor_overlay,

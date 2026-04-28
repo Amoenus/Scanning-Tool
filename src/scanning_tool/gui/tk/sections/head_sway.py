@@ -6,7 +6,8 @@ from collections.abc import Callable
 from tkinter import ttk
 from typing import TYPE_CHECKING
 
-from scanning_tool.gui.actions import UiActionType, publish_ui_action
+from scanning_tool.gui.action_types import UiActionType
+from scanning_tool.gui.actions import publish_ui_action
 
 from ..overlays import (
     register_anchor_sliders,

@@ -13,7 +13,8 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-from scanning_tool.gui.actions import UiActionType, publish_ui_action
+from scanning_tool.gui.action_types import UiActionType
+from scanning_tool.gui.actions import publish_ui_action
 
 from .base import SectionContext
 

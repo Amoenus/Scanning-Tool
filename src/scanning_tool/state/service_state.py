@@ -60,6 +60,17 @@ class CodePatterns:
 
 @dataclass
 class RockDataCache:
+    """Cache for rock data and region deposit tables.
+
+    Attributes
+    ----------
+    rock_data : RockData
+        The cached rock data collection.
+    deposit_tables : RegionDepositTables
+        The cached region deposit tables.
+
+    """
+
     rock_data: RockData = field(default_factory=RockDataCollection)
     deposit_tables: RegionDepositTables = field(
         default_factory=_default_region_deposit_tables,
@@ -68,6 +79,21 @@ class RockDataCache:
 
 @dataclass
 class ServiceState:
+    """Aggregates and manages the overall state for the scanning tool service.
+
+    Attributes
+    ----------
+    ollama_state : OllamaClientState
+        State for the Ollama client connection.
+    patterns : CodePatterns
+        Regular expression patterns for code and host scheme matching.
+    rocks : RockDataCache
+        Cache for rock data and region deposit tables.
+
+    Provides convenience accessors for migration to keep existing attribute paths working.
+
+    """
+
     ollama_state: OllamaClientState = field(default_factory=OllamaClientState)
     patterns: CodePatterns = field(default_factory=CodePatterns)
     rocks: RockDataCache = field(default_factory=RockDataCache)
@@ -75,6 +101,14 @@ class ServiceState:
     # Convenience accessors for migration — keeps existing attribute paths working
     @property
     def ollama_client(self) -> ollama.Client | None:
+        """Get the Ollama client instance.
+
+        Returns
+        -------
+        ollama.Client | None
+            The current Ollama client instance, or None if not set.
+
+        """
         return self.ollama_state.client
 
     @ollama_client.setter

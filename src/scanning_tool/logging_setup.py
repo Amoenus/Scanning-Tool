@@ -4,14 +4,15 @@ from __future__ import annotations
 
 import logging
 import sys
-from collections.abc import Sequence
 from types import FrameType
 from typing import TYPE_CHECKING
 
-from flask import Flask
 from loguru import logger
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from flask import Flask
     from loguru import Logger
 
 LOG_FILE_NAME = "scanning_tool.log"

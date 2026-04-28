@@ -2,17 +2,17 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from scanning_tool.gui.actions import UiActionType
+from scanning_tool.gui.action_types import UiActionType
 from scanning_tool.gui.overlays import (
     hide_capture_overlay,
     show_capture_overlay,
     toggle_border,
 )
-from scanning_tool.gui.state import OverlayState
 from scanning_tool.state.signals import status_updated
 
 if TYPE_CHECKING:
     from scanning_tool.config.service import ConfigSaver
+    from scanning_tool.gui.state import OverlayState
     from scanning_tool.interfaces import CaptureController
 
 
