@@ -11,6 +11,7 @@ from scanning_tool.state.signals import ollama_status_updated
 
 from ..overlays.base import safe_tk
 from ..widgets import create_section_row, create_status_label
+from ..widgets.controls import ResponsivePairRow
 
 if TYPE_CHECKING:
     from scanning_tool.domain.alignment import AlignmentInfo
@@ -81,10 +82,8 @@ class StatusOverviewSection:
         label_text: str,
         variable: tk.StringVar,
     ) -> tk.Label:
-        row = create_section_row(parent, pady=(0, 2))
-        ttk.Label(row, text=f"{label_text}: ", style="Glass.Small.TLabel").pack(
-            side="left",
-        )
+        row = ResponsivePairRow(parent, pady=(0, 2))
+        label = ttk.Label(row, text=f"{label_text}: ", style="Glass.Small.TLabel")
         badge = tk.Label(
             row,
             textvariable=variable,
@@ -98,7 +97,7 @@ class StatusOverviewSection:
             justify="left",
             font=("Segoe UI", 9, "bold"),
         )
-        badge.pack(side="left", fill="x", expand=True)
+        row.set_widgets(label, badge)
         return badge
 
     def _schedule_host_model_refresh(self) -> None:
