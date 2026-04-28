@@ -1,11 +1,14 @@
 from dataclasses import dataclass
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import cv2
-import numpy as np
 from loguru import logger
 
 from scanning_tool.config import ensure_anchor_directory
+
+if TYPE_CHECKING:
+    import numpy as np
 
 
 @dataclass(frozen=True)

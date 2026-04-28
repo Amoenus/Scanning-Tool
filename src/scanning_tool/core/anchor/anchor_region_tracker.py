@@ -5,8 +5,8 @@ from typing import TYPE_CHECKING
 import numpy as np
 from loguru import logger
 
-from .anchor_matcher import AnchorMatcher
-from .anchor_template_loader import AnchorTemplate, AnchorTemplateLoader
+from scanning_tool.core.anchor.anchor_matcher import AnchorMatcher
+from scanning_tool.core.anchor.anchor_template_loader import AnchorTemplate, AnchorTemplateLoader
 
 if TYPE_CHECKING:
     from scanning_tool.domain.alignment import AnchorDetection, CaptureRegion

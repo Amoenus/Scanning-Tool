@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
-from scanning_tool.domain.alignment import CaptureRegion
-from scanning_tool.domain.common import Offset2D
+if TYPE_CHECKING:
+    from scanning_tool.domain.alignment import CaptureRegion
+    from scanning_tool.domain.common import Offset2D
 
 
 @dataclass
