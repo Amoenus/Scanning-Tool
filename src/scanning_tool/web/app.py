@@ -91,18 +91,26 @@ class WebService:
         )
 
     def _stream_status_events(self, selected_region: SpaceSystem):
-        message_queue: queue.Queue[str] = queue.Queue()
-        stop_event = threading.Event()
+        message_queue: queue.Queue[tuple[str, str]] = queue.Queue()
+
+        def queue_event(event_name: str, data: object) -> None:
+            message_queue.put((event_name, json.dumps(data)))
 
         def send_current_status() -> None:
             payload = self._build_status_response(selected_region).to_dict()
-            message_queue.put(json.dumps(payload))
+            queue_event("status", payload)
 
         def on_scan_result(sender: object, scan_result: object | None = None) -> None:
             send_current_status()
 
         def on_alignment_info(sender: object, alignment_info: object) -> None:
             send_current_status()
+
+        def on_status_updated(sender: object, message: str) -> None:
+            queue_event("status_message", {"message": message})
+
+        def on_continuous_mode(sender: object, continuous_mode: bool) -> None:
+            queue_event("continuous_mode", {"enabled": continuous_mode})
 
         scan_receiver = self.scan_state._scan_result_signal.connect(
             on_scan_result,
@@ -112,19 +120,26 @@ class WebService:
             on_alignment_info,
             weak=False,
         )
+        status_receiver = status_updated.connect(on_status_updated, weak=False)
+        continuous_receiver = self.scan_state._continuous_mode_signal.connect(
+            on_continuous_mode,
+            weak=False,
+        )
 
         send_current_status()
 
         try:
-            while not stop_event.is_set():
+            while True:
                 try:
-                    message = message_queue.get(timeout=15)
-                    yield f"event: status\ndata: {message}\n\n"
+                    event_name, message = message_queue.get(timeout=15)
+                    yield f"event: {event_name}\ndata: {message}\n\n"
                 except queue.Empty:
                     yield ": heartbeat\n\n"
         finally:
             self.scan_state._scan_result_signal.disconnect(scan_receiver)
             self.scan_state._alignment_info_signal.disconnect(alignment_receiver)
+            status_updated.disconnect(status_receiver)
+            self.scan_state._continuous_mode_signal.disconnect(continuous_receiver)
 
     def _manifest(self) -> Response:
         return send_from_directory(

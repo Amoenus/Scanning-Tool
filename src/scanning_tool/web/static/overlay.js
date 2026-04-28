@@ -382,6 +382,32 @@ function startEventStream() {
     }
   });
 
+  eventSource.addEventListener("status_message", (event) => {
+    try {
+      const payload = JSON.parse(event.data);
+      if (payload?.message) {
+        setStatus(payload.message, "info");
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      setStatus(`Message parse error: ${message}`, "error");
+    }
+  });
+
+  eventSource.addEventListener("continuous_mode", (event) => {
+    try {
+      const payload = JSON.parse(event.data);
+      const enabled = Boolean(payload?.enabled);
+      setStatus(
+        enabled ? "Auto scan enabled." : "Auto scan disabled.",
+        enabled ? "success" : "warning",
+      );
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      setStatus(`Auto scan event parse error: ${message}`, "error");
+    }
+  });
+
   eventSource.addEventListener("error", () => {
     if (eventSource.readyState === EventSource.CLOSED) {
       setStatus("Live update connection closed. Falling back to polling…", "warning");
