@@ -13,7 +13,9 @@ from .overlays import (
     show_overlay,
     sync_capture_sliders_callback,
     update_capture_overlay_region,
+    update_overlay_label,
 )
+from .overlays.base import safe_tk
 from .sections import (
     CaptureRegionSection,
     ControlsSection,
@@ -31,6 +33,7 @@ from .widgets import ScrollableFrame
 
 if TYPE_CHECKING:
     from scanning_tool.config.service import ConfigData, ConfigSaver
+    from scanning_tool.domain.capture import ScanResult
     from scanning_tool.interfaces import CaptureController
     from scanning_tool.state.scan_state import ScanState
     from scanning_tool.state.service_state import ServiceState
@@ -93,11 +96,29 @@ def launch_gui(
         weak=False,
     )
 
-    main = _build_main_panel(root, colors, ctx)
+    main = _build_main_panel(root, colors)
     _build_sections(main, ctx)
     _append_status_labels(main, status)
 
     root.update_idletasks()
+
+    def _refresh_overlay_label(scan_result: ScanResult | None) -> None:
+        update_overlay_label(
+            scan_result.info if scan_result else None,
+            ctx.overlay_state,
+            ctx.config.overlay_config,
+            code=scan_result.label if scan_result else None,
+            raw_text=scan_result.code_raw if scan_result else None,
+        )
+
+    def _on_scan_result_change(scan_result: ScanResult | None) -> None:
+        safe_tk(
+            lambda: root.after(0, lambda: _refresh_overlay_label(scan_result)),
+        )
+
+    scan_state.add_scan_result_listener(_on_scan_result_change)
+    _refresh_overlay_label(scan_state.last_result)
+
     show_overlay(
         ctx.overlay_state,
         ctx.config,
@@ -143,9 +164,7 @@ def _build_section_context(
     )
 
 
-def _build_main_panel(
-    root: tk.Tk, colors: GlassPalette, ctx: SectionContext,
-) -> tk.Widget:
+def _build_main_panel(root: tk.Tk, colors: GlassPalette) -> tk.Widget:
     scroll = ScrollableFrame(root, colors)
     return scroll.inner
 
