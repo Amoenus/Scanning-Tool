@@ -15,8 +15,7 @@ from PyQt6.QtWidgets import (
 
 from scanning_tool.gui.action_types import UiActionType
 from scanning_tool.gui.actions import publish_ui_action
-
-from .base import SectionContext
+from scanning_tool.gui.qt.sections.base import SectionContext
 
 
 class ControlsSection:
@@ -49,7 +48,7 @@ class ControlsSection:
         button_row.addWidget(self._continuous_button)
 
         self._save_button = QPushButton("Save Config", container)
-        self._save_button.clicked.connect(self._ctx.config_service.save)
+        self._save_button.clicked.connect(self._save_config)
         button_row.addWidget(self._save_button)
 
         layout.addLayout(button_row)
@@ -72,6 +71,9 @@ class ControlsSection:
 
     def _toggle_continuous_capture(self) -> None:
         publish_ui_action(UiActionType.TOGGLE_CONTINUOUS_CAPTURE)
+
+    def _save_config(self) -> None:
+        publish_ui_action(UiActionType.SAVE_CONFIG)
 
     def _on_continuous_mode_change(self, continuous_mode: bool) -> None:
         QTimer.singleShot(0, lambda: self._update_continuous_button_text(continuous_mode))

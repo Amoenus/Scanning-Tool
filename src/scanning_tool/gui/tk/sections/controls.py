@@ -67,7 +67,7 @@ class ControlsSection:
                     "Set Label Color",
                     lambda: choose_label_color(self._ctx.config.overlay_config),
                 ),
-                ("Save Config", ctx.config_service.save),
+                ("Save Config", self._save_config),
             ],
         )
 
@@ -139,3 +139,6 @@ class ControlsSection:
 
     def _toggle_continuous_capture(self) -> None:
         publish_ui_action(UiActionType.TOGGLE_CONTINUOUS_CAPTURE)
+
+    def _save_config(self) -> None:
+        publish_ui_action(UiActionType.SAVE_CONFIG)
