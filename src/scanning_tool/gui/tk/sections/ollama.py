@@ -9,24 +9,21 @@ from typing import TYPE_CHECKING
 from loguru import logger
 
 if TYPE_CHECKING:
-    from .base import SectionContext
+    from scanning_tool.gui.tk.sections.base import SectionContext
 
 from scanning_tool.ollama import (
     ensure_model_installed,
     get_ollama_host,
-    get_ollama_model,
     is_local_ollama_host,
     log_model_running_status,
     set_configured_ollama_host,
     set_configured_ollama_model,
 )
 from scanning_tool.services.ollama_service import ollama_service
-
-from ..widgets import (
+from scanning_tool.gui.tk.widgets import (
     create_button_row,
     create_labeled_combobox,
     create_labeled_entry,
-    create_status_label,
 )
 
 
@@ -69,7 +66,7 @@ SUGGESTED_MODELS = (
 
 
 class OllamaSection:
-    """Model selector, host entry, and active-status labels for Ollama."""
+    """Model selector, host entry, and action buttons for Ollama."""
 
     def build(self, parent: ttk.Widget, ctx: SectionContext) -> ttk.LabelFrame:
         frame = ttk.LabelFrame(
@@ -81,15 +78,10 @@ class OllamaSection:
         self._status = ctx.status
         self._host_var = tk.StringVar(value=ctx.config.ollama_config.host)
         self._model_var = tk.StringVar(value=ctx.config.ollama_config.model)
-        self._active_host_var = tk.StringVar()
-        self._active_model_var = tk.StringVar()
 
         self._build_model_row(frame)
         self._build_host_row(frame)
         self._build_action_row(frame)
-        self._build_active_labels(frame)
-
-        self._refresh_active_labels()
         return frame
 
     def _build_model_row(self, parent: ttk.Widget) -> None:
@@ -119,25 +111,15 @@ class OllamaSection:
             ],
         )
 
-    def _build_active_labels(self, parent: ttk.Widget) -> None:
-        create_status_label(parent, self._active_host_var)
-        create_status_label(parent, self._active_model_var)
-
-    def _refresh_active_labels(self) -> None:
-        self._active_host_var.set(f"Active host: {get_ollama_host()}")
-        self._active_model_var.set(f"Active model: {get_ollama_model()}")
-
     def _apply_model(self) -> None:
         model_value = self._model_var.get().strip()
         success, message = OllamaModelManager.apply_model(model_value)
         if success:
-            self._refresh_active_labels()
             logger.info("Ollama model set to {}.", model_value)
         self._status.set_status(message)
 
     def _apply_host(self) -> None:
         sanitized = set_configured_ollama_host(self._host_var.get())
-        self._refresh_active_labels()
         active_host = get_ollama_host()
         if sanitized:
             self._host_var.set(sanitized)
@@ -150,7 +132,6 @@ class OllamaSection:
     def _use_localhost(self) -> None:
         self._host_var.set("")
         set_configured_ollama_host("")
-        self._refresh_active_labels()
         message = f"Ollama host cleared. Using {get_ollama_host()}."
         self._status.set_status(message)
         logger.info(message)
@@ -166,7 +147,8 @@ class OllamaSection:
             logger.info(message)
             return
 
-        self._status.set_status("Restarting local Ollama service...")
+        message = "Restarting local Ollama service..."
+        self._status.set_status(message)
         try:
             if ollama_service.is_running:
                 ollama_service.stop()
@@ -181,5 +163,5 @@ class OllamaSection:
             message = "Local Ollama service restarted successfully."
             logger.info(message)
         finally:
-            self._refresh_active_labels()
             self._status.set_status(message)
+

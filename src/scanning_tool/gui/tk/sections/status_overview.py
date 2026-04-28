@@ -7,6 +7,7 @@ from tkinter import ttk
 from typing import TYPE_CHECKING, Any
 
 from scanning_tool.ollama import get_ollama_host, get_ollama_model, is_model_running
+from scanning_tool.state.signals import ollama_status_updated
 
 from ..overlays.base import safe_tk
 from ..widgets import create_section_row, create_status_label
@@ -33,6 +34,8 @@ class StatusOverviewSection:
 
         self._host_badge = self._create_badge(frame, "Ollama host", self._host_var)
         self._model_badge = self._create_badge(frame, "Model", self._model_var)
+        self._ollama_status_var = tk.StringVar()
+        self._ollama_status_badge = self._create_badge(frame, "Ollama status", self._ollama_status_var)
         self._capture_badge = self._create_badge(
             frame, "Capture box", self._capture_var,
         )
@@ -62,6 +65,7 @@ class StatusOverviewSection:
         self._ctx.overlay_state.add_capture_overlay_root_listener(
             self._on_capture_overlay_visibility_change,
         )
+        ollama_status_updated.connect(self._on_ollama_status_updated, weak=False)
         self._schedule_host_model_refresh()
         return frame
 
@@ -100,6 +104,7 @@ class StatusOverviewSection:
 
     def _refresh_status(self) -> None:
         self._refresh_host_model_status()
+        self._refresh_ollama_status_badge("Waiting for Ollama status.")
         self._refresh_capture_badge()
         self._refresh_auto_scan_badge(self._ctx.scan_state.continuous_mode)
         self._refresh_auto_align_badge(self._ctx.scan_state.last_alignment_info)
@@ -159,6 +164,10 @@ class StatusOverviewSection:
         self._auto_align_var.set(self._build_auto_align_text(alignment_info))
         self._update_badge_color(self._auto_align_badge, self._auto_align_var.get())
 
+    def _refresh_ollama_status_badge(self, status_text: str) -> None:
+        self._ollama_status_var.set(status_text)
+        self._update_badge_color(self._ollama_status_badge, status_text)
+
     def _refresh_last_scan_badge(self, result: ScanResult | None) -> None:
         if result is None:
             self._last_scan_var.set("Last scan: none")
@@ -180,6 +189,16 @@ class StatusOverviewSection:
         model = get_ollama_model() or "<not configured>"
         status = "running" if is_model_running(model) else "idle"
         return f"{model} ({status})"
+
+    def _on_ollama_status_updated(self, sender: object, **kwargs: object) -> None:
+        safe_tk(
+            lambda: self._ctx.root.after(
+                0,
+                lambda: self._refresh_ollama_status_badge(
+                    str(kwargs.get("message", "Ollama status updated.")),
+                ),
+            ),
+        )
 
     def _is_capture_visible(self) -> bool:
         return bool(self._ctx.overlay_state.capture_overlay_root)

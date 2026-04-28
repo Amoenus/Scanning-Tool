@@ -2,8 +2,9 @@ from typing import NoReturn
 
 from loguru import logger
 
-from .client import get_ollama_client
-from .host import get_ollama_host, get_ollama_model, is_local_ollama_host
+from scanning_tool.ollama.client import get_ollama_client
+from scanning_tool.ollama.host import get_ollama_host, get_ollama_model, is_local_ollama_host
+from scanning_tool.ollama.status import publish_ollama_status
 
 
 class OllamaModelInstaller:
@@ -23,12 +24,21 @@ class OllamaModelInstaller:
             )
             return False
 
+        publish_ollama_status(
+            f"Checking Ollama model availability for {self.model} on {self.host}.",
+            model=self.model,
+            host=self.host,
+            ready=None,
+        )
         self._log_host_mode()
 
         available_models = self._load_available_models()
         if self.model in available_models:
-            logger.info(
+            publish_ollama_status(
                 f"Model {self.model} already available on Ollama host {self.host}.",
+                model=self.model,
+                host=self.host,
+                ready=True,
             )
             return True
 
@@ -45,20 +55,40 @@ class OllamaModelInstaller:
             self._build_connection_error(exc)
 
     def _pull_model(self) -> bool:
-        logger.info(
+        publish_ollama_status(
             f"Model {self.model} not found on Ollama host {self.host}. Pulling now...",
+            model=self.model,
+            host=self.host,
+            ready=None,
         )
         try:
             progress = self.client.pull(self.model)
             if progress.status:
-                logger.info(f"Ollama pull status: {progress.status}")
-            logger.info(f"Model {self.model} installed successfully on {self.host}.")
+                publish_ollama_status(
+                    f"Ollama pull status: {progress.status}",
+                    model=self.model,
+                    host=self.host,
+                    ready=None,
+                )
+            publish_ollama_status(
+                f"Model {self.model} installed successfully on {self.host}.",
+                model=self.model,
+                host=self.host,
+                ready=True,
+            )
             return True
         except Exception as exc:
             self._build_installation_error(exc)
 
     def _build_connection_error(self, exc: Exception) -> NoReturn:
-        logger.error(f"Unable to communicate with Ollama at {self.host}: {exc}")
+        message = f"Unable to communicate with Ollama at {self.host}: {exc}"
+        logger.error(message)
+        publish_ollama_status(
+            message,
+            model=self.model,
+            host=self.host,
+            ready=False,
+        )
         guidance = (
             "Make sure the Ollama service is running on this PC."
             if self.host_mode == "local"
@@ -69,7 +99,14 @@ class OllamaModelInstaller:
         raise
 
     def _build_installation_error(self, exc: Exception) -> NoReturn:
-        logger.error(f"Error ensuring model {self.model} on {self.host}: {exc}")
+        message = f"Error ensuring model {self.model} on {self.host}: {exc}"
+        logger.error(message)
+        publish_ollama_status(
+            message,
+            model=self.model,
+            host=self.host,
+            ready=False,
+        )
         if self.exit_on_error:
             raise RuntimeError("Failed to ensure Ollama model.") from exc
         raise
@@ -106,12 +143,15 @@ def log_model_running_status(model: str | None = None) -> bool:
     model = model or get_ollama_model()
     running_models = list_running_ollama_models()
     if model in running_models:
-        logger.info("Ollama model {} is currently running.", model)
+        message = f"Ollama model {model} is currently running."
+        logger.info(message)
+        publish_ollama_status(message, model=model, ready=True)
         return True
-    logger.info(
-        "Ollama model {} is not currently running. It will start on first OCR request.",
-        model,
+    message = (
+        f"Ollama model {model} is not currently running. It will start on first OCR request."
     )
+    logger.info(message)
+    publish_ollama_status(message, model=model, ready=False)
     if running_models:
         logger.info("Currently running Ollama models: {}", ", ".join(running_models))
     else:

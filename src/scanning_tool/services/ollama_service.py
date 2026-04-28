@@ -12,6 +12,7 @@ from scanning_tool.ollama.host import (
     get_ollama_host,
     is_local_ollama_host,
 )
+from scanning_tool.ollama.status import publish_ollama_status
 from scanning_tool.services.base_service import BaseService
 
 
@@ -35,6 +36,11 @@ class OllamaService(BaseService):
     def _on_start(self) -> None:
         self.logger.info("Initializing Ollama backend logic...")
         host = get_ollama_host()
+        publish_ollama_status(
+            "Initializing Ollama backend logic...",
+            host=host,
+            ready=None,
+        )
 
         if self._should_use_remote_host(host):
             return
@@ -46,27 +52,38 @@ class OllamaService(BaseService):
 
     def _should_use_remote_host(self, host: str) -> bool:
         if not is_local_ollama_host(host):
-            self.logger.info(
-                f"Using remote Ollama host at {host}; assuming it is managed externally.",
+            message = (
+                f"Using remote Ollama host at {host}; assuming it is managed externally."
             )
+            self.logger.info(message)
+            publish_ollama_status(message, host=host, ready=None)
             return True
         return False
 
     def _ensure_local_ollama_running(self, host: str) -> bool:
         if self._is_running(host):
-            self.logger.info("Local Ollama service detected.")
+            message = "Local Ollama service detected."
+            self.logger.info(message)
+            publish_ollama_status(message, host=host, ready=True)
             return True
         return False
 
     def _start_local_ollama(self, host: str) -> None:
         if not shutil.which("ollama"):
-            self.logger.warning(
-                "Cannot start Ollama automatically because it is not installed.",
+            message = (
+                "Cannot start Ollama automatically because it is not installed."
             )
+            self.logger.warning(message)
+            publish_ollama_status(message, host=host, ready=False)
             sys.exit(
                 "Unable to reach a local Ollama service. Please start 'ollama serve' and rerun.",
             )
 
+        publish_ollama_status(
+            "Starting local Ollama service with 'ollama serve'...",
+            host=host,
+            ready=None,
+        )
         self._spawn_ollama_daemon()
         self._wait_for_readiness(host)
 
@@ -102,14 +119,25 @@ class OllamaService(BaseService):
             return self._is_running(host)
 
         try:
+            publish_ollama_status(
+                "Waiting for Ollama service readiness...",
+                host=host,
+                ready=None,
+            )
             wait_until_running()
-            self.logger.info("Ollama service is now running gracefully.")
+            message = "Ollama service is now running gracefully."
+            self.logger.info(message)
+            publish_ollama_status(message, host=host, ready=True)
         except RetryError:
-            self.logger.warning("Timed out waiting for Ollama service to start.")
+            message = "Timed out waiting for Ollama service to start."
+            self.logger.warning(message)
+            publish_ollama_status(message, host=host, ready=False)
             sys.exit("Ollama daemon timeout.")
 
     def _on_stop(self) -> None:
-        self.logger.info("Shutting down Ollama integration.")
+        message = "Shutting down Ollama integration."
+        self.logger.info(message)
+        publish_ollama_status(message, ready=False)
         if self._daemon_process and self._daemon_process.poll() is None:
             self._daemon_process.terminate()
             self._daemon_process.wait(timeout=3.0)
