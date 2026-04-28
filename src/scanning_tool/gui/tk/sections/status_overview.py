@@ -26,14 +26,12 @@ class StatusOverviewSection:
 
         self._ctx = ctx
         self._host_var = tk.StringVar()
-        self._model_var = tk.StringVar()
         self._capture_var = tk.StringVar()
         self._auto_scan_var = tk.StringVar()
         self._auto_align_var = tk.StringVar()
         self._last_scan_var = tk.StringVar()
 
         self._host_badge = self._create_badge(frame, "Ollama host", self._host_var)
-        self._model_badge = self._create_badge(frame, "Model", self._model_var)
         self._ollama_status_var = tk.StringVar()
         self._ollama_status_badge = self._create_badge(frame, "Ollama status", self._ollama_status_var)
         self._capture_badge = self._create_badge(
@@ -121,8 +119,6 @@ class StatusOverviewSection:
 
     def _refresh_host_model_status(self) -> None:
         self._host_var.set(get_ollama_host())
-        self._model_var.set(self._build_model_text())
-        self._update_badge_color(self._model_badge, self._model_var.get())
 
     def _on_continuous_mode_change(self, continuous_mode: bool) -> None:
         safe_tk(
@@ -220,11 +216,6 @@ class StatusOverviewSection:
 
         name = result.info.name or result.label or "Unknown"
         self._last_scan_var.set(f"Last scan: {name} ({result.label})")
-
-    def _build_model_text(self) -> str:
-        model = get_ollama_model() or "<not configured>"
-        status = "running" if is_model_running(model) else "idle"
-        return f"{model} ({status})"
 
     def _on_ollama_status_updated(self, sender: object, **kwargs: object) -> None:
         safe_tk(
