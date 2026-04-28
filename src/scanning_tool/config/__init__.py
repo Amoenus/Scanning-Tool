@@ -1,6 +1,6 @@
 """Configuration package wrapper for the scanning tool."""
 
-from .loader import (
+from scanning_tool.config.loader import (
     CONFIG_FILE,
     PROJECT_ROOT,
     ROCK_TYPE_FILE,
