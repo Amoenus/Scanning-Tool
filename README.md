@@ -34,6 +34,27 @@
 2) Run `./launch_linux.sh` (make it executable if needed: `chmod +x launch_linux.sh`).
 3) Follow any prompts. Ollama is auto-started the same way as on Windows.
 
+## Developer setup
+- Sync the dev environment using `uv`:
+  ```bash
+  uv sync
+  ```
+  If you need to install or update a dev package, use:
+  ```bash
+  uv add --dev <package>
+  ```
+  Keep `requirements-dev.txt` in sync for compatibility after dependency changes.
+- Install the local commit hooks:
+  ```bash
+  uv run --managed-python --with-requirements requirements-dev.txt -- pre-commit install
+  ```
+- Run formatting, linting, and tests:
+  ```bash
+  uv run --managed-python --with-requirements requirements-dev.txt -- taskipy format
+  uv run --managed-python --with-requirements requirements-dev.txt -- taskipy lint
+  uv run --managed-python --with-requirements requirements-dev.txt -- taskipy tests
+  ```
+
 ## Ollama setup
 - **Same PC (default):** Install Ollama from [ollama.com](https://ollama.com/) and restart/log back in once. The scanner will connect to `http://127.0.0.1:11434` by default and start the service automatically when needed.
 - **Remote PC:** Install and allow network access on the Ollama machine (`OLLAMA_HOST=0.0.0.0`, firewall port 11434 open). In the scanner GUI, enter the remote host (e.g., `http://192.168.1.42:11434`) in **Ollama Connection → Apply Host**. You can also set `OLLAMA_HOST` in `config.json` or as an environment variable before launching.

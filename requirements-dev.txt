@@ -1,6 +1,8 @@
 pytest>=9.0.3
 mypy>=1.20.1
 pandas-stubs
+pre-commit>=4.0.0
+taskipy>=1.14.1
 types-keyboard
 vulture
 ruff>=0.15.11
