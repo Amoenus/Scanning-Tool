@@ -1,5 +1,4 @@
-"""
-Crop an anchor template from a screenshot for Star Citizen Scanner Tool.
+"""Crop an anchor template from a screenshot for Star Citizen Scanner Tool.
 
 Usage:
     python crop_anchor.py screenshot.png x y w h output.png
@@ -12,6 +11,7 @@ Where:
 """
 
 import sys
+
 from PIL import Image
 
 

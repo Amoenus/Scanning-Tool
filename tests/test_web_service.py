@@ -7,7 +7,7 @@ from scanning_tool.domain.models import AlignmentInfo, DepositInfo, ScanResult
 from scanning_tool.logging_setup import InterceptHandler
 from scanning_tool.state.scan_state import ScanState
 from scanning_tool.state.service_state import ServiceState
-from scanning_tool.web.app import WebService, DefaultStatusResponseBuilder
+from scanning_tool.web.app import DefaultStatusResponseBuilder, WebService
 
 
 def test_web_service_status_exposes_latest_scan_result():
@@ -77,8 +77,8 @@ def test_status_response_builder_includes_supported_deposit_table():
                 med="50%",
                 tier="HIGH",
                 color="#fff",
-            )
-        ]
+            ),
+        ],
     }
 
     table = builder._lookup_deposit_table(info, SpaceSystem.STANTON, service_state)

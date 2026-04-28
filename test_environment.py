@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-"""
-Test script to verify the environment setup is working correctly.
+"""Test script to verify the environment setup is working correctly.
 This script tests all the major dependencies without launching the full GUI.
 """
 
-import sys
 import os
+import sys
 
 
 def get_required_python_version():
@@ -13,7 +12,7 @@ def get_required_python_version():
     script_dir = os.path.dirname(os.path.abspath(__file__))
     version_file = os.path.join(script_dir, ".python-version")
     if os.path.exists(version_file):
-        with open(version_file, "r", encoding="utf-8") as f:
+        with open(version_file, encoding="utf-8") as f:
             return f.read().strip()
     return "3.14"
 
@@ -35,9 +34,8 @@ def test_python_version():
     if current_version < required_version_tuple:
         print(f"❌ ERROR: Python {required_version}+ required")
         return False
-    else:
-        print("✅ Python version OK")
-        return True
+    print("✅ Python version OK")
+    return True
 
 
 def test_imports():
@@ -82,12 +80,11 @@ def test_file_structure():
         filepath = os.path.join(script_dir, filename)
         if os.path.exists(filepath):
             print(f"✅ {filename} found")
+        elif filename == "config.json":
+            print(f"⚠️  {filename} not found (will be created on first run)")
         else:
-            if filename == "config.json":
-                print(f"⚠️  {filename} not found (will be created on first run)")
-            else:
-                print(f"❌ {filename} missing")
-                missing_files.append(filename)
+            print(f"❌ {filename} missing")
+            missing_files.append(filename)
 
     return len(missing_files) == 0
 
@@ -102,14 +99,13 @@ def test_ollama_availability():
             import subprocess
 
             result = subprocess.run(
-                ["ollama", "--version"], capture_output=True, text=True, timeout=10
+                ["ollama", "--version"], capture_output=True, text=True, timeout=10,
             )
             if result.returncode == 0:
                 print(f"✅ Ollama version: {result.stdout.strip()}")
                 return True
-            else:
-                print("⚠️  Ollama found but not responding correctly")
-                return False
+            print("⚠️  Ollama found but not responding correctly")
+            return False
         except Exception as e:
             print(f"⚠️  Ollama found but error checking version: {e}")
             return False
@@ -155,9 +151,8 @@ def main():
     if all_passed:
         print("🎉 All tests passed! The environment is ready.")
         return 0
-    else:
-        print("⚠️  Some tests failed. Please check the issues above.")
-        return 1
+    print("⚠️  Some tests failed. Please check the issues above.")
+    return 1
 
 
 if __name__ == "__main__":

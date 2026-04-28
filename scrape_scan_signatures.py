@@ -1,5 +1,4 @@
-"""
-Scrape Scan Signature Identifier data from https://scmdb.net/?page=mine
+"""Scrape Scan Signature Identifier data from https://scmdb.net/?page=mine
 Extracts mineral name, scan values, rarity/color, and category from the overlay.
 Outputs JSON and CSV formats.
 """
@@ -7,9 +6,9 @@ Outputs JSON and CSV formats.
 from __future__ import annotations
 
 import asyncio
+import sys
 from dataclasses import asdict
 from pathlib import Path
-import sys
 
 import pandas as pd
 from playwright.async_api import Page, async_playwright
@@ -64,14 +63,14 @@ class ScanSignatureScraper:
         self._target_url = target_url
 
     async def _evaluate_scan_signature_overlay(
-        self, page: Page
+        self, page: Page,
     ) -> list[RawScanSignatureEntry]:
         await page.click('button[title^="Scan Signature Identifier"]')
         await page.wait_for_selector(".sigchart-overlay", timeout=10000)
         return await page.evaluate(SCRAPE_SIGNATURES_SCRIPT)
 
     def _build_scan_signature_entries(
-        self, raw_data: list[RawScanSignatureEntry]
+        self, raw_data: list[RawScanSignatureEntry],
     ) -> list[ScanSignatureEntry]:
         return [
             ScanSignatureEntryFactory.from_raw_entry(raw_entry)
@@ -113,7 +112,7 @@ class ScanSignatureExporter:
         self.output_dir = output_dir
 
     def _write_dataframe(
-        self, df: pd.DataFrame, path: Path, *, as_csv: bool = True
+        self, df: pd.DataFrame, path: Path, *, as_csv: bool = True,
     ) -> None:
         if as_csv:
             df.to_csv(path, index=False, encoding="utf-8")
@@ -164,7 +163,7 @@ def main() -> None:
     data = asyncio.run(scrape_scan_signatures())
     _default_exporter.export_all(data)
     print(
-        f"Saved {len(data)} minerals to {OUTPUT_DIR}/scan_signatures.json, .csv, and scan_signatures_summary.csv"
+        f"Saved {len(data)} minerals to {OUTPUT_DIR}/scan_signatures.json, .csv, and scan_signatures_summary.csv",
     )
 
 

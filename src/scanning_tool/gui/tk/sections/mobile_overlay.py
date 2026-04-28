@@ -8,13 +8,12 @@ import webbrowser
 from tkinter import ttk
 from typing import TYPE_CHECKING
 
-from loguru import logger
-
 import segno
+from loguru import logger
 from PIL import Image, ImageTk
 
-from scanning_tool.web import get_local_ip as get_local_ip_from_web
 from scanning_tool.gui.tk.widgets import create_button_row, create_status_label
+from scanning_tool.web import get_local_ip as get_local_ip_from_web
 
 if TYPE_CHECKING:
     from scanning_tool.gui.tk.sections.base import SectionContext

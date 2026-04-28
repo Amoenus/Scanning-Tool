@@ -11,6 +11,11 @@ from loguru import logger
 if TYPE_CHECKING:
     from scanning_tool.gui.tk.sections.base import SectionContext
 
+from scanning_tool.gui.tk.widgets import (
+    create_button_row,
+    create_labeled_combobox,
+    create_labeled_entry,
+)
 from scanning_tool.ollama import (
     ensure_model_installed,
     get_ollama_host,
@@ -20,11 +25,6 @@ from scanning_tool.ollama import (
     set_configured_ollama_model,
 )
 from scanning_tool.services.ollama_service import ollama_service
-from scanning_tool.gui.tk.widgets import (
-    create_button_row,
-    create_labeled_combobox,
-    create_labeled_entry,
-)
 
 
 class OllamaModelManager:

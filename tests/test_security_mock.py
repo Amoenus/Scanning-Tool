@@ -1,7 +1,7 @@
-import unittest
-from unittest.mock import patch, MagicMock
-import sys
 import os
+import sys
+import unittest
+from unittest.mock import MagicMock, patch
 
 # Add src to sys.path so local source packages are importable.
 sys.path.insert(0, os.path.abspath("src"))
@@ -56,7 +56,7 @@ class TestSecurity(unittest.TestCase):
                 with patch("scanning_tool.main.logger") as mock_logger:
                     with patch("scanning_tool.main.get_local_ip") as mock_get_local_ip:
                         with patch(
-                            "scanning_tool.web.server.WebServer.run"
+                            "scanning_tool.web.server.WebServer.run",
                         ) as mock_web_run:
                             mock_get_local_ip.return_value = "192.168.1.100"
                             from scanning_tool.main import _start_web_server
@@ -94,7 +94,7 @@ class TestSecurity(unittest.TestCase):
             with patch("scanning_tool.main.Thread") as mock_thread:
                 with patch("scanning_tool.main.logger") as mock_logger:
                     with patch(
-                        "scanning_tool.web.server.WebServer.run"
+                        "scanning_tool.web.server.WebServer.run",
                     ) as mock_web_run:
                         from scanning_tool.main import _start_web_server
 
@@ -119,27 +119,26 @@ class TestSecurity(unittest.TestCase):
                         )
 
                         mock_logger.info.assert_called_once_with(
-                            "Starting overlay server: http://127.0.0.1:8080"
+                            "Starting overlay server: http://127.0.0.1:8080",
                         )
 
     def test_mobile_overlay_url_default(self):
         # Already set to 0.0.0.0 in setUp
-        with patch("scanning_tool.gui.tk.sections.mobile_overlay.webbrowser") as mock_webbrowser:
-            with patch(
-                "scanning_tool.gui.tk.sections.mobile_overlay.get_local_ip"
-            ) as mock_get_local_ip:
-                mock_get_local_ip.return_value = "192.168.1.100"
-                from scanning_tool.gui.tk.sections.mobile_overlay import MobileOverlaySection
+        with patch("scanning_tool.gui.tk.sections.mobile_overlay.webbrowser") as mock_webbrowser, patch(
+            "scanning_tool.gui.tk.sections.mobile_overlay.get_local_ip",
+        ) as mock_get_local_ip:
+            mock_get_local_ip.return_value = "192.168.1.100"
+            from scanning_tool.gui.tk.sections.mobile_overlay import MobileOverlaySection
 
-                section = MobileOverlaySection()
-                section._ctx = MagicMock()
-                section._ctx.config.web_server_config = self.mock_state_manager.config.web_server_config
-                section._status = MagicMock()
-                section._open_mobile_overlay()
+            section = MobileOverlaySection()
+            section._ctx = MagicMock()
+            section._ctx.config.web_server_config = self.mock_state_manager.config.web_server_config
+            section._status = MagicMock()
+            section._open_mobile_overlay()
 
-                mock_webbrowser.open_new_tab.assert_called_once_with(
-                    "http://192.168.1.100:5000"
-                )
+            mock_webbrowser.open_new_tab.assert_called_once_with(
+                "http://192.168.1.100:5000",
+            )
 
     def test_mobile_overlay_url_custom(self):
         self.mock_state_manager.config.web_server_config.host = "127.0.0.1"
@@ -155,7 +154,7 @@ class TestSecurity(unittest.TestCase):
             section._open_mobile_overlay()
 
             mock_webbrowser.open_new_tab.assert_called_once_with(
-                "http://127.0.0.1:8080"
+                "http://127.0.0.1:8080",
             )
 
 

@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from scanning_tool.interfaces.web import StatusResponseBuilder
 from scanning_tool.web.schemas import DepositTable, StatusResponse

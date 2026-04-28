@@ -46,6 +46,8 @@ class StatusOverviewSection:
             frame, "Auto align", self._auto_align_var,
         )
         create_status_label(frame, self._last_scan_var)
+        create_status_label(frame, self._ctx.status.status_var)
+        create_status_label(frame, self._ctx.status.anchor_status_var)
 
         hotkey_row = create_section_row(frame, pady=(0, 2))
         ttk.Label(
@@ -66,6 +68,12 @@ class StatusOverviewSection:
             self._on_capture_overlay_visibility_change,
         )
         ollama_status_updated.connect(self._on_ollama_status_updated, weak=False)
+        from scanning_tool.state.signals import ollama_readiness_changed
+
+        ollama_readiness_changed.connect(
+            self._on_ollama_readiness_changed,
+            weak=False,
+        )
         self._schedule_host_model_refresh()
         return frame
 
@@ -100,11 +108,12 @@ class StatusOverviewSection:
 
     def _periodic_host_model_refresh(self) -> None:
         self._refresh_host_model_status()
+        self._refresh_ollama_status_badge(None)
         self._schedule_host_model_refresh()
 
     def _refresh_status(self) -> None:
         self._refresh_host_model_status()
-        self._refresh_ollama_status_badge("Waiting for Ollama status.")
+        self._refresh_ollama_status_badge(None)
         self._refresh_capture_badge()
         self._refresh_auto_scan_badge(self._ctx.scan_state.continuous_mode)
         self._refresh_auto_align_badge(self._ctx.scan_state.last_alignment_info)
@@ -164,9 +173,36 @@ class StatusOverviewSection:
         self._auto_align_var.set(self._build_auto_align_text(alignment_info))
         self._update_badge_color(self._auto_align_badge, self._auto_align_var.get())
 
-    def _refresh_ollama_status_badge(self, status_text: str) -> None:
+    def _refresh_ollama_status_badge(self, status_text: str | None) -> None:
+        if status_text is None:
+            status_text = self._build_default_ollama_status()
         self._ollama_status_var.set(status_text)
         self._update_badge_color(self._ollama_status_badge, status_text)
+
+    def _build_default_ollama_status(self) -> str:
+        model = get_ollama_model()
+        if model and is_model_running(model):
+            return f"Model {model} is currently running."
+        return "Waiting for Ollama status."
+
+    def _on_ollama_readiness_changed(
+        self,
+        sender: object,
+        **kwargs: object,
+    ) -> None:
+        def update() -> None:
+            self._refresh_host_model_status()
+            ready = kwargs.get("ready")
+            model = kwargs.get("model") or get_ollama_model()
+            if ready is True and model:
+                status = f"Model {model} is currently running."
+            elif ready is False and model:
+                status = f"Model {model} is not ready."
+            else:
+                status = self._build_default_ollama_status()
+            self._refresh_ollama_status_badge(status)
+
+        safe_tk(lambda: self._ctx.root.after(0, update))
 
     def _refresh_last_scan_badge(self, result: ScanResult | None) -> None:
         if result is None:

@@ -36,7 +36,7 @@ def test_send_ollama_chat_invokes_client_with_payload() -> None:
             self.chat_args: tuple[str, list[dict[str, object]]] | None = None
 
         def chat(
-            self, model: str, messages: list[dict[str, object]]
+            self, model: str, messages: list[dict[str, object]],
         ) -> SimpleNamespace:
             self.chat_called = True
             self.chat_args = (model, messages)
@@ -45,7 +45,7 @@ def test_send_ollama_chat_invokes_client_with_payload() -> None:
     fake_client = FakeClient()
 
     with patch(
-        "scanning_tool.services.ocr_service.get_ollama_client", return_value=fake_client
+        "scanning_tool.services.ocr_service.get_ollama_client", return_value=fake_client,
     ):
         result = _send_ollama_chat("dummy-model", "some prompt", b"dummy-bytes")
 
@@ -58,13 +58,13 @@ def test_send_ollama_chat_invokes_client_with_payload() -> None:
             "role": "user",
             "content": "some prompt",
             "images": [b"dummy-bytes"],
-        }
+        },
     ]
 
 
 def test_ocr_with_ollama_returns_empty_when_model_is_not_configured(monkeypatch):
     monkeypatch.setattr(
-        "scanning_tool.services.ocr_service.get_ollama_model", lambda: ""
+        "scanning_tool.services.ocr_service.get_ollama_model", lambda: "",
     )
     result = ocr_with_ollama(Image.new("RGB", (1, 1)), model=None)
 

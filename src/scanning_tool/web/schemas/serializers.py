@@ -11,14 +11,16 @@ if TYPE_CHECKING:
     from scanning_tool.domain.common import MssMonitor, OreTableEntry
 
 from scanning_tool.web.schemas.types import (
-        AlignmentInfoDict,
-        DepositInfoDict,
-        DepositTable,
-        OreTableEntryDict,
-        ScanResultDict,
-        StatusResponse,
-        StatusResponseDict,
-    )
+    AlignmentInfoDict,
+    DepositInfoDict,
+    DepositTable,
+    OreTableEntryDict,
+    ScanResultDict,
+    StatusResponse,
+    StatusResponseDict,
+)
+
+
 class CaptureRegionSerializer:
     @staticmethod
     def to_dict(region: CaptureRegion) -> MssMonitor:

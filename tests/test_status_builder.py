@@ -4,8 +4,8 @@ from datetime import datetime
 
 from scanning_tool.config.service import ConfigData
 from scanning_tool.domain.alignment import AlignmentInfo
-from scanning_tool.domain.common import OreTableEntry, SpaceSystem
 from scanning_tool.domain.capture import DepositInfo, ScanResult
+from scanning_tool.domain.common import OreTableEntry, SpaceSystem
 from scanning_tool.state.scan_state import ScanState
 from scanning_tool.state.service_state import ServiceState
 from scanning_tool.web.schemas import StatusResponse
@@ -29,8 +29,8 @@ def test_deposit_table_resolver_uses_name_when_key_is_missing() -> None:
                 med="50%",
                 tier="HIGH",
                 color="#ffffff",
-            )
-        ]
+            ),
+        ],
     }
 
     table = resolver.resolve(info, SpaceSystem.STANTON, service_state)
@@ -53,8 +53,8 @@ def test_deposit_table_resolver_returns_none_for_unsupported_category() -> None:
                 med="50%",
                 tier="HIGH",
                 color="#ffffff",
-            )
-        ]
+            ),
+        ],
     }
 
     table = resolver.resolve(info, SpaceSystem.STANTON, service_state)

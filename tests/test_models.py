@@ -1,13 +1,13 @@
+from scanning_tool.config.service import ConfigData
 from scanning_tool.domain.common import SpaceSystem
 from scanning_tool.domain.models import (
     AlignmentInfo,
     AlignmentRequest,
     AnchorDetection,
     Deposit,
-    RockDataCollection,
     OreStatistics,
+    RockDataCollection,
 )
-from scanning_tool.config.service import ConfigData
 
 
 def test_ore_statistics_from_dict():

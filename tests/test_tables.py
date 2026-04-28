@@ -1,9 +1,9 @@
+from scanning_tool.deposits.tables import _create_ore_table_entry, build_deposit_tables
 from scanning_tool.domain.models import (
     Deposit,
-    Region,
     OreStatistics,
+    Region,
 )
-from scanning_tool.deposits.tables import build_deposit_tables, _create_ore_table_entry
 
 
 def test_create_ore_table_entry():

@@ -1,5 +1,3 @@
-from typing import Dict
-
 from pathlib import Path
 
 from scanning_tool.deposits.scan_signatures import (
@@ -10,7 +8,7 @@ from scanning_tool.domain.models import ScanSignature
 
 
 def test_parse_scan_signature_row_parses_valid_csv_values():
-    row: Dict[str, object] = {
+    row: dict[str, object] = {
         "mineral": "Iron Ore",
         "category": "Metal",
         "base_value": "3",
@@ -35,7 +33,7 @@ def test_parse_scan_signature_row_rejects_incomplete_rows():
                 "category": "Metal",
                 "base_value": "3",
                 "max_multiplier": "7",
-            }
+            },
         )
         is None
     )
@@ -46,7 +44,7 @@ def test_parse_scan_signature_row_rejects_incomplete_rows():
                 "category": "",
                 "base_value": "3",
                 "max_multiplier": "7",
-            }
+            },
         )
         is None
     )
@@ -57,7 +55,7 @@ def test_parse_scan_signature_row_rejects_incomplete_rows():
                 "category": "Metal",
                 "base_value": "abc",
                 "max_multiplier": "7",
-            }
+            },
         )
         is None
     )
@@ -68,7 +66,7 @@ def test_parse_scan_signature_row_rejects_incomplete_rows():
                 "category": "Metal",
                 "base_value": "3",
                 "max_multiplier": "",
-            }
+            },
         )
         is None
     )

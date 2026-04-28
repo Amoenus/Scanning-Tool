@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 
 from scrape_scan_signatures import ScanSignatureExporter
+
 from scanning_tool.deposits.scan_signature_scraper import (
     ScanSignatureEntry,
     ScanValue,

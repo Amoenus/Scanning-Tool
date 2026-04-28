@@ -6,8 +6,8 @@ import argparse
 import re
 import subprocess
 import sys
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Iterable
 
 ROOT = Path(__file__).resolve().parent.parent
 SOURCE_ROOT = ROOT / "src" / "scanning_tool"
@@ -94,7 +94,7 @@ def print_section(title: str, lines: list[str]) -> None:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Scan the repository for dead Python code using import analysis and Vulture."
+        description="Scan the repository for dead Python code using import analysis and Vulture.",
     )
     parser.add_argument(
         "--path",

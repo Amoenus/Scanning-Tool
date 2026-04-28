@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import tkinter as tk
 from collections.abc import Sequence
-from tkinter import ttk
 from typing import TYPE_CHECKING
 
 from .alignment import AlignmentPoller
@@ -44,10 +43,10 @@ SECTION_CLASSES: Sequence[type[Section]] = (
     CaptureRegionSection,
     HeadSwaySection,
     OllamaSection,
-    StatusOverviewSection,
     ResultDisplaySection,
     ControlsSection,
     MobileOverlaySection,
+    StatusOverviewSection,
 )
 
 
@@ -95,7 +94,6 @@ def launch_gui(
 
     main = _build_main_panel(root, colors)
     _build_sections(main, ctx)
-    _append_status_labels(main, status)
 
     root.update_idletasks()
 
@@ -171,18 +169,3 @@ def _build_sections(main: tk.Widget, ctx: SectionContext) -> None:
         section_cls().build(main, ctx)
 
 
-def _append_status_labels(main: tk.Widget, status: StatusBar) -> None:
-    ttk.Label(
-        main,
-        textvariable=status.status_var,
-        anchor="w",
-        justify="left",
-        style="Glass.Status.TLabel",
-    ).pack(fill="x", padx=5, pady=(8, 0))
-    ttk.Label(
-        main,
-        textvariable=status.anchor_status_var,
-        anchor="w",
-        justify="left",
-        style="Glass.Subtle.TLabel",
-    ).pack(fill="x", padx=5, pady=(2, 5))

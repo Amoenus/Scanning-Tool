@@ -1,5 +1,5 @@
-import numpy as np
 import cv2
+import numpy as np
 
 from scanning_tool.core.anchor import AnchorRegionTracker
 from scanning_tool.domain.models import CaptureRegion
