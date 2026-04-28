@@ -16,7 +16,6 @@ from .overlays import (
 )
 from .overlays.base import safe_tk
 from .sections import (
-    CaptureRegionSection,
     ControlsSection,
     HeadSwaySection,
     MobileOverlaySection,
@@ -24,6 +23,7 @@ from .sections import (
     ResultDisplaySection,
     Section,
     SectionContext,
+    SettingsSection,
     StatusOverviewSection,
 )
 from .status import StatusBar
@@ -40,13 +40,10 @@ if TYPE_CHECKING:
     from .control_state import ControlState
     from .overlay_state import OverlayState
 SECTION_CLASSES: Sequence[type[Section]] = (
-    CaptureRegionSection,
-    HeadSwaySection,
-    OllamaSection,
-    ResultDisplaySection,
     ControlsSection,
     MobileOverlaySection,
     StatusOverviewSection,
+    SettingsSection,
 )
 
 

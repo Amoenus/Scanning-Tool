@@ -14,6 +14,7 @@ __all__ = [
     "ResultDisplaySection",
     "Section",
     "SectionContext",
+    "SettingsSection",
     "StatusOverviewSection",
 ]
 
@@ -25,8 +26,9 @@ _SECTION_MODULE_MAP = {
     "HeadSwaySection": "head_sway",
     "MobileOverlaySection": "mobile_overlay",
     "OllamaSection": "ollama",
-    "StatusOverviewSection": "status_overview",
     "ResultDisplaySection": "result_display",
+    "SettingsSection": "settings",
+    "StatusOverviewSection": "status_overview",
 }
 
 
