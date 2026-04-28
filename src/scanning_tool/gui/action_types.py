@@ -28,6 +28,8 @@ class UiActionType(StrEnum):
     UPDATE_CAPTURE_REGION = "update_capture_region"
     TOGGLE_CAPTURE_BOX = "toggle_capture_box"
     TOGGLE_CAPTURE_BORDER = "toggle_capture_border"
+    UPDATE_OVERLAY_REGION = "update_overlay_region"
+    CHOOSE_LABEL_COLOR = "choose_label_color"
     UPDATE_RESULT_DISPLAY_OFFSET = "update_result_display_offset"
 
 

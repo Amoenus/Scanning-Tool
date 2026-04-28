@@ -7,11 +7,6 @@ from typing import TYPE_CHECKING, Any
 
 from scanning_tool.gui.action_types import UiActionType
 from scanning_tool.gui.actions import publish_ui_action
-
-from ..overlays import (
-    choose_label_color,
-    update_overlay_region,
-)
 from ..overlays.base import safe_tk
 from ..widgets import (
     create_button_row,
@@ -59,14 +54,8 @@ class ControlsSection:
                 ("Single Scan", self._start_single_scan),
                 (self._continuous_button_text, self._toggle_continuous_capture),
                 (self._capture_box_button_text, self._toggle_capture_box),
-                (
-                    "Update Overlay",
-                    lambda: update_overlay_region(self._ctx.overlay_state),
-                ),
-                (
-                    "Set Label Color",
-                    lambda: choose_label_color(self._ctx.config.overlay_config),
-                ),
+                ("Update Overlay", self._update_overlay_region),
+                ("Set Label Color", self._choose_label_color),
                 ("Save Config", self._save_config),
             ],
         )
@@ -139,6 +128,12 @@ class ControlsSection:
 
     def _toggle_continuous_capture(self) -> None:
         publish_ui_action(UiActionType.TOGGLE_CONTINUOUS_CAPTURE)
+
+    def _update_overlay_region(self) -> None:
+        publish_ui_action(UiActionType.UPDATE_OVERLAY_REGION)
+
+    def _choose_label_color(self) -> None:
+        publish_ui_action(UiActionType.CHOOSE_LABEL_COLOR)
 
     def _save_config(self) -> None:
         publish_ui_action(UiActionType.SAVE_CONFIG)
