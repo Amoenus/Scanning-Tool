@@ -1,10 +1,10 @@
 const STORAGE_KEY = "overlay-selected-region";
 const DEFAULT_REGION = "STANTON";
-const POLL_INTERVAL_MS = 1000;
 
 const state = {
   region: DEFAULT_REGION,
-  timerId: 0,
+  eventSource: null,
+  fallbackTimerId: 0,
   wakeLock: null,
 };
 
@@ -157,7 +157,8 @@ async function releaseWakeLock() {
 function onRegionChange(event) {
   state.region = event.target.value;
   localStorage.setItem(STORAGE_KEY, state.region);
-  schedulePoll(0);
+  fetchStatus();
+  startEventStream();
 }
 
 function isCompactLayout() {
@@ -305,8 +306,9 @@ function renderPayload(payload) {
   renderUpdatedAt(payload.updated_at);
 }
 
-async function poll() {
-  setStatus("Updating overlay…", "loading");
+async function fetchStatus() {
+  setStatus("Loading overlay…", "loading");
+
   try {
     const response = await fetch(
       `/status?region=${encodeURIComponent(state.region)}`,
@@ -326,16 +328,70 @@ async function poll() {
     setStatus(`Connection error: ${message}`, "error");
     elements.minerals.innerHTML = "";
     renderUpdatedAt("");
-  } finally {
-    schedulePoll(POLL_INTERVAL_MS);
   }
 }
 
-function schedulePoll(delay) {
-  if (state.timerId) {
-    clearTimeout(state.timerId);
+function stopFallbackPolling() {
+  if (state.fallbackTimerId) {
+    clearTimeout(state.fallbackTimerId);
+    state.fallbackTimerId = 0;
   }
-  state.timerId = globalThis.setTimeout(poll, delay);
+}
+
+function startFallbackPolling() {
+  stopFallbackPolling();
+  state.fallbackTimerId = globalThis.setTimeout(async () => {
+    await fetchStatus();
+    startFallbackPolling();
+  }, 2000);
+}
+
+function closeEventSource() {
+  if (state.eventSource) {
+    state.eventSource.close();
+    state.eventSource = null;
+  }
+}
+
+function startEventStream() {
+  closeEventSource();
+  stopFallbackPolling();
+
+  if (!("EventSource" in window)) {
+    setStatus("Live updates are not supported by this browser.", "warning");
+    startFallbackPolling();
+    return;
+  }
+
+  const url = `/events?region=${encodeURIComponent(state.region)}`;
+  const eventSource = new EventSource(url);
+  state.eventSource = eventSource;
+
+  eventSource.addEventListener("open", () => {
+    stopFallbackPolling();
+    setStatus("Overlay connected.", "success");
+  });
+
+  eventSource.addEventListener("status", (event) => {
+    try {
+      const payload = JSON.parse(event.data);
+      renderPayload(payload);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      setStatus(`Stream parse error: ${message}`, "error");
+    }
+  });
+
+  eventSource.addEventListener("error", () => {
+    if (eventSource.readyState === EventSource.CLOSED) {
+      setStatus("Live update connection closed. Falling back to polling…", "warning");
+      state.eventSource = null;
+      fetchStatus();
+      startFallbackPolling();
+    } else {
+      setStatus("Live update connection lost. Reconnecting…", "warning");
+    }
+  });
 }
 
 globalThis.addEventListener("DOMContentLoaded", async () => {
@@ -343,5 +399,6 @@ globalThis.addEventListener("DOMContentLoaded", async () => {
   initRegionSelection();
   initFullscreenButton();
   await registerServiceWorker();
-  poll();
+  await fetchStatus();
+  startEventStream();
 });

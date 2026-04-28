@@ -2,17 +2,21 @@
 
 from __future__ import annotations
 
+import json
+import queue
 import socket
+import threading
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from flask import Flask, Response, jsonify, render_template, request, send_from_directory
+from flask import Flask, Response, jsonify, render_template, request, send_from_directory, stream_with_context
 from loguru import logger
 
 from scanning_tool.config import resource_path
 from scanning_tool.domain.common import SpaceSystem
 from scanning_tool.logging_setup import configure_flask_logging
 from scanning_tool.state import manager
+from scanning_tool.state.signals import status_updated
 from scanning_tool.web.status_builder import DefaultStatusResponseBuilder
 
 if TYPE_CHECKING:
@@ -75,6 +79,53 @@ class WebService:
     def _health(self) -> Response:
         return jsonify({"status": "ok"})
 
+    def _events(self) -> Response:
+        selected_region = self._selected_region()
+        return Response(
+            stream_with_context(self._stream_status_events(selected_region)),
+            content_type="text/event-stream",
+            headers={
+                "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+                "X-Accel-Buffering": "no",
+            },
+        )
+
+    def _stream_status_events(self, selected_region: SpaceSystem):
+        message_queue: queue.Queue[str] = queue.Queue()
+        stop_event = threading.Event()
+
+        def send_current_status() -> None:
+            payload = self._build_status_response(selected_region).to_dict()
+            message_queue.put(json.dumps(payload))
+
+        def on_scan_result(sender: object, scan_result: object | None = None) -> None:
+            send_current_status()
+
+        def on_alignment_info(sender: object, alignment_info: object) -> None:
+            send_current_status()
+
+        scan_receiver = self.scan_state._scan_result_signal.connect(
+            on_scan_result,
+            weak=False,
+        )
+        alignment_receiver = self.scan_state._alignment_info_signal.connect(
+            on_alignment_info,
+            weak=False,
+        )
+
+        send_current_status()
+
+        try:
+            while not stop_event.is_set():
+                try:
+                    message = message_queue.get(timeout=15)
+                    yield f"event: status\ndata: {message}\n\n"
+                except queue.Empty:
+                    yield ": heartbeat\n\n"
+        finally:
+            self.scan_state._scan_result_signal.disconnect(scan_receiver)
+            self.scan_state._alignment_info_signal.disconnect(alignment_receiver)
+
     def _manifest(self) -> Response:
         return send_from_directory(
             str(Path(__file__).resolve().parent / "static"),
@@ -113,6 +164,7 @@ class WebService:
         app.add_url_rule("/", endpoint="index", view_func=self._index)
         app.add_url_rule("/status", endpoint="status", view_func=self._status)
         app.add_url_rule("/health", endpoint="health", view_func=self._health)
+        app.add_url_rule("/events", endpoint="events", view_func=self._events)
         app.add_url_rule("/manifest.json", endpoint="manifest", view_func=self._manifest)
         app.add_url_rule("/service-worker.js", endpoint="service_worker", view_func=self._service_worker)
         return app
