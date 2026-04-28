@@ -93,8 +93,12 @@ class MobileOverlaySection:
         url_label = ttk.Label(window, text=url, wraplength=380, justify="center")
         url_label.pack(padx=12, pady=(0, 12))
 
-        close_button = ttk.Button(window, text="Close", command=window.destroy)
-        close_button.pack(padx=12, pady=(0, 12))
+        create_button_row(
+            window,
+            [
+                ("Close", window.destroy),
+            ],
+        )
 
         self._status.set_status("Mobile overlay QR code displayed. Scan it with your phone.")
         logger.info("Displayed mobile overlay QR code for {}.", url)
