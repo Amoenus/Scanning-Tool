@@ -78,6 +78,15 @@ Example:
 - Depend on abstractions, not concrete implementations.
 - Pass dependencies through constructors or factories instead of importing globals.
 - Keep dependencies explicit in class signatures and entrypoint wiring.
+- Assemble concrete adapters, services, and handler wiring once in the bootstrap/composition root, and override them with fakes or no-op adapters during tests.
+
+### Event-driven and command/query separation
+- Prefer explicit command and event message types for app entrypoints and internal workflows.
+- Keep commands as single-responsibility mutation requests and events as facts that trigger side effects or view updates.
+- Use small immutable data structures for messages and avoid embedding business logic in event payloads.
+- Wire command handlers, event handlers, and infrastructure adapters in one central bootstrap location, not through hidden global imports.
+- Treat side effects and read-model updates as event listeners, not part of core business logic.
+- Use `blinker` as the repository’s in-process event bus implementation for internal application signaling and handler dispatch.
 
 ## 5. Package and module structure
 
@@ -92,6 +101,13 @@ Example:
 - Keep domain models separate from runtime state and configuration models.
 - Organize code by responsibility, not by file size.
 - Keep testables separate from UI and runtime orchestration.
+- Prefer packages over single file utility modules. If a file name ends with `_utils.py`, it is usually hiding a structural problem.
+- Use a predictable package layout with `src/project_name/...`, a separate `tests/` folder, and explicit configuration files. This makes imports predictable and onboarding easier.
+
+### Application entrypoint
+- Keep `main.py` boring: it should orchestrate setup, build the application from components, and start the runtime.
+- Avoid putting business logic, setup conditionals, or environment-specific decisions in the entrypoint.
+- Use `main.py` as a conductor, not as the place where the actual work happens.
 
 ## 6. State management
 
@@ -107,7 +123,9 @@ Example:
 - Centralize dependency composition in bootstrap/entrypoint modules.
 - Keep business logic and services decoupled from the concrete environment.
 - Avoid hidden service locators; make required collaborators explicit.
+- Keep application logic separate from infrastructure details: business code should not directly know how the database, email, or side-effect adapters work.
 - Prefer small factory functions or assembler classes if wiring becomes complex.
+- Compose command buses, event handler registries, and adapters in one place whenever possible.
 - Declare abstract dependencies in project metadata and capture concrete environment dependencies in a lock file or pinned requirements file for reproducible installs.
 - Use minimum supported versions for dependencies where possible, but also maintain exact pinned environments for development and CI.
 - Prefer the repository's `uv` managed environment and `uv sync` for local development workflows when the repository is configured for uv.

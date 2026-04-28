@@ -77,11 +77,13 @@ Goals for this layer:
 - operate on domain objects, not raw dictionaries
 - accept dependencies explicitly through constructors or factory methods
 - isolate infrastructure adapters behind small service boundaries
+- separate command handling from event handling and keep workflow orchestration out of pure domain code
 
 Example artifacts:
 - `services/capture_service.py`
 - `services/alignment_service.py`
 - `services/ollama_service.py`
+- `services/message_bus.py`
 - `deposits/scan_signatures.py`
 - `deposits/lookup.py`
 - `core/anchor/anchor_matcher.py`
@@ -97,6 +99,7 @@ Goals for this layer:
 - avoid placing domain model business data here unless it is truly transient
 - keep state objects narrow and purpose-specific
 - make the state layer injectable or at least easier to replace/mocking in tests
+- keep runtime state separate from command handling and event-driven workflows
 
 Example artifacts:
 - `state/service_state.py`
@@ -121,6 +124,14 @@ Example artifacts:
 - `gui/sections/*.py`
 - `gui/overlays/*.py`
 - `web/app.py`
+
+### Commands and Events
+- Treat user-facing inputs and entrypoint requests as commands, and treat internal notifications as events.
+- Use explicit, immutable command and event data shapes rather than passing raw data around.
+- Keep command handlers responsible for state-changing work and event listeners responsible for side effects, logging, or read-model updates.
+- Register handlers and wire adapters in bootstrap/entrypoint code, not inside domain classes.
+- Prefer separate read-only views for queries, rather than reusing write-model workflows for presentation.
+- Use `blinker` as the standard in-process signal library for internal event wiring in this repo.
 
 ## Proposed package structure
 

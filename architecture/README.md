@@ -16,3 +16,5 @@ The architecture documentation captures the structural design, package boundarie
 - Read `AGENTS.md` for repository-specific conventions and workflow guidance.
 - Read `decision-log/index.md` for explicit decisions made during the recent architecture pass.
 - Read `coding-standards.md` for the agreed coding conventions and architecture-aligned development guidance.
+- This repository uses `blinker` for internal event signaling and in-process handler dispatch.
+- Consult `coding-standards.md` and `../prds/01-technical-architecture.md` for event-driven architecture, explicit bootstrap dependency composition, command/event separation, and adapter boundary guidance.

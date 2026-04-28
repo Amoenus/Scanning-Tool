@@ -11,6 +11,7 @@ This folder contains explicit architectural decisions and rationale for the Scan
 - [Decision 5: Preserve business behavior while improving structure](2026-04-17-preserve-business-behavior-while-improving-structure.md)
 - [Decision 6: Prefer explicit application context over broad global state](2026-04-17-prefer-explicit-application-context-over-broad-global-state.md)
 - [Decision 7: Preserve shared GUI state and keep overlay API Tk-agnostic](2026-04-27-preserve-gui-shared-state-and-tk-agnostic-overlay-api.md)
+- [Decision 8: Use blinker for in-process event signaling](2026-04-28-use-blinker-for-in-process-event-signaling.md)
 
 ## Future decisions
 

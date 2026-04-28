@@ -20,6 +20,10 @@ The application is organized into distinct layers:
 - **Single responsibility**: each package owns a focused concern.
 - **Strong typing**: domain models and config models use explicit dataclasses and Pydantic when needed.
 - **Minimal runtime coupling**: avoid broad global mutable state; prefer explicit application context and constructor injection for the capture pipeline.
+- **Structure first**: prefer packages to utility files, avoid `*_utils.py` as a design shortcut, and organize code by domain responsibility rather than by ad hoc helper modules.
+- **Explicit dependency composition**: assemble concrete adapters, command/event handlers, and runtime services once in bootstrap/entrypoint code, so business logic depends only on abstractions.
+- **Internal event bus**: use `blinker` for in-process event dispatch and signal handling, keeping internal messaging lightweight and consistent across runtime and UI components.
+- **Entrypoint simplicity**: keep `main.py` small and orchestration-only. It should load config, wire services, and launch the app without containing core logic.
 - **Backward-compatible refactoring**: `runtime/__init__.py` is retained temporarily as a compatibility shim while new import paths are stabilized; avoid shims as enduring architecture in this single-user refactor.
 
 ## Operation model
@@ -33,6 +37,7 @@ Configuration state is largely static once the session starts, while capture sta
 ## Runtime flow
 1. Start the application via `scanning-tool` entrypoint or `main.py`.
 2. `main.py` loads config, initializes services, creates anchor tracking, starts hotkey and web threads, then launches the GUI.
+2.5 `main.py` or `bootstrap.py` constructs concrete adapters and services, wires dependencies explicitly, and keeps runtime orchestration separate from domain logic.
 3. Capture service reads the configured screen region and passes image data to the OCR pipeline.
 4. Anchor alignment uses templates to adjust capture region and maintain stability.
 5. OCR results are mapped to structured `ScanResult` and `DepositInfo` domain objects.

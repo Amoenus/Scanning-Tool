@@ -16,6 +16,7 @@ This weakens conceptual separation and makes the system harder to test, extend, 
 - Keep domain models and business types isolated from runtime state and infrastructure concerns.
 - Separate configuration models from service runtime state and from external integration adapters.
 - Treat `deposits`, `ollama`, `capture`, and `web` as infrastructure adapters that depend on explicit domain and config inputs.
+- Use explicit bootstrap wiring for adapters and handler registration, rather than scattering runtime composition through domain or state modules.
 - Simplify `service_state` so it owns only runtime metadata and adapter state, not unrelated domain caches.
 
 ## Scope
@@ -36,6 +37,7 @@ This weakens conceptual separation and makes the system harder to test, extend, 
 - `deposits.lookup` consumes explicit repository interfaces and is independent of a global cache.
 - `service_state` is scoped to runtime adapter metadata, not a catch-all for unrelated state.
 - Infrastructure adapters expose clear, isolated interfaces that can be mocked or replaced in tests.
+- Adapter wiring and handler registration happen in bootstrap/entrypoint code rather than via hidden global imports in domain or runtime modules.
 - The existing Flask API and GUI rendering behavior remain unchanged.
 
 ## Quality Requirements
