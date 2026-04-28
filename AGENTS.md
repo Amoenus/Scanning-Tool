@@ -75,6 +75,11 @@ CONTRIBUTING.md        # Contribution guidelines
 
 - Group related functionality in `src/scanning_tool/`.
 - Prefer small modules over large monolithic files.
+- Keep app logic, models, and configuration separate when practical.
+- Use `__init__.py` files to make packages modular and importable.
+- Aim for one responsibility per file/module.
+- Keep the main entry point minimal and delegate behavior to package modules.
+- Prefer a flatter folder layout until the project needs more complexity.
 
 ### Safety and Permissions
 
