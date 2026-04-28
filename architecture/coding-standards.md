@@ -108,11 +108,12 @@ Example:
 - Keep business logic and services decoupled from the concrete environment.
 - Avoid hidden service locators; make required collaborators explicit.
 - Prefer small factory functions or assembler classes if wiring becomes complex.
-- Declare abstract dependencies in project metadata and capture concrete environment dependencies in a lock file or pinned `requirements.txt` for reproducible installs.
+- Declare abstract dependencies in project metadata and capture concrete environment dependencies in a lock file or pinned requirements file for reproducible installs.
 - Use minimum supported versions for dependencies where possible, but also maintain exact pinned environments for development and CI.
-- Use a dedicated virtual environment per project or the repository's `uv` managed environment to avoid dependency drift.
+- Prefer the repository's `uv` managed environment and `uv sync` for local development workflows when the repository is configured for uv.
+- Keep `requirements-dev.txt` in sync with repository dependency metadata when using requirements-based reproducible installs.
 - Prefer minimal external dependencies; add packages only when the maintenance cost is justified.
-- Pin production and development dependencies explicitly in `requirements.txt` or lock files so environments can be reproduced reliably.
+- Pin production and development dependencies explicitly in requirements files or lock files so environments can be reproduced reliably.
 - Use a dedicated virtual environment per project or the repository's `uv` managed environment to avoid dependency drift.
 
 ## 8. Error handling and logging

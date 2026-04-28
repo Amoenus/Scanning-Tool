@@ -8,12 +8,13 @@ Use this skill to run repository-level static analysis and linting in the `Scann
 - When you want a concise, actionable report of issues from `mypy`, `ruff`, and related tooling.
 
 ## How to run
-From the repository root, prefer the repo virtual environment commands:
+From the repository root, prefer the repo-managed `uv` workflow:
 
 ```bash
-.venv\Scripts\python.exe -m pyright .
-.venv\Scripts\python.exe -m mypy .
-.venv\Scripts\python.exe -m ruff check .
+uv sync
+uv run --managed-python --with-requirements requirements-dev.txt -- pyright .
+uv run --managed-python --with-requirements requirements-dev.txt -- mypy src
+uv run --managed-python --with-requirements requirements-dev.txt -- ruff check .
 ```
 
 `pyright` is the CLI type checker; `pylance` is a VS Code language extension and cannot be invoked with `python -m pylance`.
@@ -21,14 +22,18 @@ From the repository root, prefer the repo virtual environment commands:
 If you need formatting feedback as well:
 
 ```bash
-.venv\Scripts\python.exe -m ruff format . --check
+uv run --managed-python --with-requirements requirements-dev.txt -- ruff format . --check
 ```
 
-If the virtual environment is not set up or the commands fail, fall back to the repo's managed Python setup:
+If the repo-managed environment is not available, a manual virtual environment may be used as a fallback:
 
 ```bash
-uv run --managed-python --with-requirements requirements.txt -- python -m mypy .
-uv run --managed-python --with-requirements requirements.txt -- python -m ruff check .
+python -m venv .venv
+.venv\Scripts\activate    # Windows
+source .venv/bin/activate  # Linux/macOS
+python -m pip install -r requirements-dev.txt
+python -m mypy src
+python -m ruff check .
 ```
 
 ## What it does
@@ -60,6 +65,6 @@ uv run --managed-python --with-requirements requirements.txt -- python -m ruff c
 
 ## Notes for LLM agents
 - Use this skill whenever the task is about project-wide quality checks in `Scanning-Tool`.
-- Prefer `.venv\Scripts\python.exe -m mypy .` and `.venv\Scripts\python.exe -m ruff check .` over manual file-by-file scanning.
-- If the preferred commands fail, use the repo-managed `uv run --managed-python --with-requirements requirements.txt --` fallback.
+- Prefer `uv sync` and `uv run --managed-python --with-requirements requirements-dev.txt --` commands over manual venv commands.
+- If the preferred commands fail, use a manual virtual environment fallback or report the environment issue clearly.
 - If the user asks for a report, return actionable items grouped by tool and severity.

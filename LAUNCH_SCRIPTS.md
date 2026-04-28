@@ -103,12 +103,18 @@ Scanning-Tool/
 
 ### For Developers
 
+For developer workflows, prefer the repository-managed `uv` setup:
+```bash
+uv sync
+uv add --dev <package>
+```
+
 **Testing Environment:**
 ```bash
 python test_environment.py
 ```
 
-**Manual Virtual Environment:**
+**Manual Virtual Environment (fallback):**
 ```bash
 python3 -m venv venv
 source venv/bin/activate  # Linux/macOS

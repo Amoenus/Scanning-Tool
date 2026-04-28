@@ -13,5 +13,6 @@ The architecture documentation captures the structural design, package boundarie
 ## How to use this folder
 - Read `../prds/00-overview.md` for product goals and scope.
 - Read `../prds/01-technical-architecture.md` for the current system architecture and refactor plan.
+- Read `AGENTS.md` for repository-specific conventions and workflow guidance.
 - Read `decision-log/index.md` for explicit decisions made during the recent architecture pass.
 - Read `coding-standards.md` for the agreed coding conventions and architecture-aligned development guidance.
