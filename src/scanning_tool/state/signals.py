@@ -5,3 +5,4 @@ from blinker import Signal
 status_updated: Signal = Signal("status_updated")
 sync_capture_sliders_signal: Signal = Signal("sync_capture_sliders")
 update_capture_overlay_region_signal: Signal = Signal("update_capture_overlay_region")
+alignment_applied_signal: Signal = Signal("alignment_applied")

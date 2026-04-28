@@ -85,16 +85,13 @@ def launch_gui(
         lambda: ctx.config.capture_region,
     )
 
-    from scanning_tool.state.signals import (
-        sync_capture_sliders_signal,
-        update_capture_overlay_region_signal,
-    )
+    from scanning_tool.state.signals import alignment_applied_signal
 
-    sync_capture_sliders_signal.connect(sync_capture_sliders_callback, weak=False)
-    update_capture_overlay_region_signal.connect(
-        update_capture_overlay_region,
-        weak=False,
-    )
+    def _on_alignment_applied(sender: object, event: object | None = None) -> None:
+        sync_capture_sliders_callback()
+        update_capture_overlay_region()
+
+    alignment_applied_signal.connect(_on_alignment_applied, weak=False)
 
     main = _build_main_panel(root, colors)
     _build_sections(main, ctx)

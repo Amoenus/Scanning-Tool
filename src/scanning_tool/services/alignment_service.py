@@ -3,12 +3,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from scanning_tool.domain.alignment import AlignmentAppliedEvent
 from scanning_tool.services.alignment_calculator import AlignmentCalculator
 from scanning_tool.services.base_service import BaseService
-from scanning_tool.state.signals import (
-    sync_capture_sliders_signal,
-    update_capture_overlay_region_signal,
-)
+from scanning_tool.state.signals import alignment_applied_signal
 
 if TYPE_CHECKING:
     from scanning_tool.core.anchor import AnchorRegionTracker
@@ -78,8 +76,13 @@ class AlignmentService(BaseService):
         last_alignment_info.update_from_detection(
             detection, alignment_request.capture_region,
         )
-        sync_capture_sliders_signal.send(self)
-        update_capture_overlay_region_signal.send(self)
+        alignment_applied_signal.send(
+            self,
+            event=AlignmentAppliedEvent(
+                detection=detection,
+                capture_region=alignment_request.capture_region,
+            ),
+        )
         self._log_alignment_applied(detection, alignment_request.capture_region)
 
     def _log_alignment_applied(

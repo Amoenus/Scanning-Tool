@@ -89,6 +89,14 @@ class AlignmentInfo:
 
 
 @dataclass(frozen=True)
+class AlignmentAppliedEvent:
+    """Domain event payload emitted when an alignment update is applied."""
+
+    detection: AnchorDetection
+    capture_region: CaptureRegion
+
+
+@dataclass(frozen=True)
 class AlignmentRequest:
     """Request payload containing the inputs required for an alignment run."""
 

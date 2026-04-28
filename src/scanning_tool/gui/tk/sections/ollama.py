@@ -15,10 +15,12 @@ from scanning_tool.ollama import (
     ensure_model_installed,
     get_ollama_host,
     get_ollama_model,
+    is_local_ollama_host,
     log_model_running_status,
     set_configured_ollama_host,
     set_configured_ollama_model,
 )
+from scanning_tool.services.ollama_service import ollama_service
 
 from ..widgets import (
     create_button_row,
@@ -113,6 +115,7 @@ class OllamaSection:
                 ("Apply Host", self._apply_host),
                 ("Apply Model", self._apply_model),
                 ("Use Localhost", self._use_localhost),
+                ("Restart Ollama", self._restart_ollama),
             ],
         )
 
@@ -151,3 +154,32 @@ class OllamaSection:
         message = f"Ollama host cleared. Using {get_ollama_host()}."
         self._status.set_status(message)
         logger.info(message)
+
+    def _restart_ollama(self) -> None:
+        host = get_ollama_host()
+        if not is_local_ollama_host(host):
+            message = (
+                "Remote Ollama host configured; local service cannot be restarted. "
+                "Switch to localhost to use automatic restart."
+            )
+            self._status.set_status(message)
+            logger.info(message)
+            return
+
+        self._status.set_status("Restarting local Ollama service...")
+        try:
+            if ollama_service.is_running:
+                ollama_service.stop()
+            ollama_service.start()
+        except SystemExit as exc:
+            message = f"Failed to restart local Ollama service: {exc}"
+            logger.error(message)
+        except Exception as exc:
+            message = f"Failed to restart local Ollama service: {exc}"
+            logger.error(message)
+        else:
+            message = "Local Ollama service restarted successfully."
+            logger.info(message)
+        finally:
+            self._refresh_active_labels()
+            self._status.set_status(message)
