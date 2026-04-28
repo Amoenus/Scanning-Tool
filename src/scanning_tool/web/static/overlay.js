@@ -5,6 +5,8 @@ const POLL_INTERVAL_MS = 1000;
 const state = {
   region: DEFAULT_REGION,
   timerId: 0,
+  wakeLock: null,
+  installPromptEvent: null,
 };
 
 const elements = {
@@ -15,7 +17,22 @@ const elements = {
   statusMessage: null,
   updatedAt: null,
   regionInputs: [],
+  fullscreenToggle: null,
+  installButton: null,
 };
+
+globalThis.addEventListener("beforeinstallprompt", (event) => {
+  event.preventDefault();
+  state.installPromptEvent = event;
+  if (elements.installButton) {
+    showInstallButton();
+  }
+});
+
+globalThis.addEventListener("appinstalled", () => {
+  setStatus("Overlay installed as an app.", "success");
+  hideInstallButton();
+});
 
 function getElement(id) {
   const element = document.getElementById(id);
@@ -33,6 +50,8 @@ function initElements() {
   elements.minerals = getElement("minerals");
   elements.statusMessage = getElement("status-message");
   elements.updatedAt = getElement("updated-at");
+  elements.fullscreenToggle = document.getElementById("fullscreen-toggle");
+  elements.installButton = document.getElementById("install-pwa");
   elements.regionInputs = Array.from(document.querySelectorAll('input[name="region"]'));
 }
 
@@ -44,6 +63,146 @@ function initRegionSelection() {
     input.checked = input.value === state.region;
     input.addEventListener("change", onRegionChange);
   });
+}
+
+function initFullscreenButton() {
+  if (!elements.fullscreenToggle) {
+    return;
+  }
+
+  elements.fullscreenToggle.addEventListener("click", onFullscreenToggle);
+  document.addEventListener("fullscreenchange", setFullscreenButtonState);
+  document.addEventListener("visibilitychange", async () => {
+    if (document.visibilityState === "visible" && document.fullscreenElement) {
+      await requestWakeLock();
+    }
+  });
+
+  if (elements.installButton) {
+    elements.installButton.addEventListener("click", onInstallClick);
+  }
+
+  setFullscreenButtonState();
+
+  if (state.installPromptEvent) {
+    showInstallButton();
+  } else {
+    hideInstallButton();
+  }
+}
+
+async function onFullscreenToggle() {
+  if (document.fullscreenElement) {
+    await exitFullscreenMode();
+  } else {
+    await enterFullscreenMode();
+  }
+}
+
+async function enterFullscreenMode() {
+  try {
+    if (document.documentElement.requestFullscreen) {
+      await document.documentElement.requestFullscreen();
+    }
+
+    await requestWakeLock();
+  } catch (error) {
+    console.warn("Fullscreen or wake lock request failed:", error);
+  }
+}
+
+async function exitFullscreenMode() {
+  try {
+    if (document.exitFullscreen && document.fullscreenElement) {
+      await document.exitFullscreen();
+    }
+  } catch (error) {
+    console.warn("Exit fullscreen failed:", error);
+  } finally {
+    await releaseWakeLock();
+  }
+}
+
+function setFullscreenButtonState() {
+  if (!elements.fullscreenToggle) {
+    return;
+  }
+
+  if (document.fullscreenElement) {
+    elements.fullscreenToggle.textContent = "Exit fullscreen";
+  } else {
+    elements.fullscreenToggle.textContent = "Fullscreen";
+  }
+}
+
+function onBeforeInstallPrompt(event) {
+  event.preventDefault();
+  state.installPromptEvent = event;
+  showInstallButton();
+}
+
+async function onInstallClick() {
+  if (!state.installPromptEvent) {
+    return;
+  }
+
+  state.installPromptEvent.prompt();
+  const choice = await state.installPromptEvent.userChoice;
+
+  if (choice.outcome === "accepted") {
+    setStatus("Install accepted. The app may now be added to your home screen.", "success");
+  } else {
+    setStatus("Install dismissed.", "warning");
+  }
+
+  state.installPromptEvent = null;
+  hideInstallButton();
+}
+
+function onAppInstalled() {
+  setStatus("Overlay installed as an app.", "success");
+  hideInstallButton();
+}
+
+function showInstallButton() {
+  if (elements.installButton) {
+    elements.installButton.classList.remove("hidden");
+  }
+}
+
+function hideInstallButton() {
+  if (elements.installButton) {
+    elements.installButton.classList.add("hidden");
+  }
+}
+
+async function requestWakeLock() {
+  if (!("wakeLock" in navigator)) {
+    return;
+  }
+
+  try {
+    state.wakeLock = await navigator.wakeLock.request("screen");
+    state.wakeLock.addEventListener("release", () => {
+      state.wakeLock = null;
+    });
+  } catch (error) {
+    console.warn("Wake lock request failed:", error);
+  }
+}
+
+async function releaseWakeLock() {
+  if (!state.wakeLock) {
+    return;
+  }
+
+  try {
+    await state.wakeLock.release();
+  } catch (error) {
+    console.warn("Wake lock release failed:", error);
+  } finally {
+    state.wakeLock = null;
+  }
 }
 
 function onRegionChange(event) {
@@ -233,5 +392,6 @@ function schedulePoll(delay) {
 globalThis.addEventListener("DOMContentLoaded", () => {
   initElements();
   initRegionSelection();
+  initFullscreenButton();
   poll();
 });

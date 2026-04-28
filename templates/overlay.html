@@ -3,10 +3,22 @@
 <head>
   <title>Overlay</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#02050f">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="{{ url_for('manifest') }}">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="{{ url_for('static', filename='overlay.css') }}">
 </head>
 <body class="min-h-screen bg-slate-950 text-slate-100">
+  <div class="overlay-actions fixed right-4 top-4 z-50 flex flex-wrap items-center justify-end gap-2 rounded-full border border-slate-700/80 bg-slate-950/85 px-2 py-2 shadow-[0_12px_30px_rgba(15,23,42,0.35)] backdrop-blur-xl">
+    <button id="fullscreen-toggle" type="button" class="action-button inline-flex items-center justify-center rounded-full border border-slate-700/80 bg-slate-900/80 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300 transition duration-200 hover:border-sky-300/40 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300/80 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950">
+      Fullscreen
+    </button>
+    <button id="install-pwa" type="button" class="action-button hidden inline-flex items-center justify-center rounded-full border border-slate-700/80 bg-slate-900/80 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300 transition duration-200 hover:border-sky-300/40 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300/80 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950">
+      Install
+    </button>
+  </div>
   <div class="min-h-screen flex items-center justify-center p-4">
     <main class="hud-overlay relative w-full max-w-[420px] rounded-[26px] border border-sky-400/20 bg-slate-950/80 p-5 shadow-[0_16px_45px_rgba(23,122,178,0.45)] backdrop-blur-xl">
       <div class="relative space-y-4">

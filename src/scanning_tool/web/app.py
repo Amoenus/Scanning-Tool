@@ -6,7 +6,7 @@ import socket
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from flask import Flask, Response, jsonify, render_template, request
+from flask import Flask, Response, jsonify, render_template, request, send_from_directory
 from loguru import logger
 
 from scanning_tool.config import resource_path
@@ -75,6 +75,20 @@ class WebService:
     def _health(self) -> Response:
         return jsonify({"status": "ok"})
 
+    def _manifest(self) -> Response:
+        return send_from_directory(
+            str(Path(__file__).resolve().parent / "static"),
+            "manifest.json",
+            mimetype="application/manifest+json",
+        )
+
+    def _service_worker(self) -> Response:
+        return send_from_directory(
+            str(Path(__file__).resolve().parent / "static"),
+            "service-worker.js",
+            mimetype="application/javascript",
+        )
+
     def _selected_region(self) -> SpaceSystem:
         requested_region = request.args.get("region", DEFAULT_SELECTED_REGION.value)
         return SpaceSystem.normalize(requested_region)
@@ -99,6 +113,8 @@ class WebService:
         app.add_url_rule("/", endpoint="index", view_func=self._index)
         app.add_url_rule("/status", endpoint="status", view_func=self._status)
         app.add_url_rule("/health", endpoint="health", view_func=self._health)
+        app.add_url_rule("/manifest.json", endpoint="manifest", view_func=self._manifest)
+        app.add_url_rule("/service-worker.js", endpoint="service_worker", view_func=self._service_worker)
         return app
 
 
