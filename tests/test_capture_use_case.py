@@ -59,7 +59,7 @@ def test_capture_use_case_handles_locked_screen_gracefully():
     class LockedScreenCaptureProvider:
         def capture(self, region):
             raise ScreenCaptureUnavailableError(
-                "Screen capture unavailable: display may be locked."
+                "Screen capture unavailable: display may be locked.",
             )
 
     config = ConfigData()

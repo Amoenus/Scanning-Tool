@@ -5,10 +5,11 @@ import tkinter as tk
 from tkinter import ttk
 from typing import TYPE_CHECKING
 
+from scanning_tool.gui.actions import UiActionType, publish_ui_action
+
 from ..overlays import (
     register_capture_sliders,
     sync_capture_sliders,
-    update_capture_overlay_region,
 )
 from ..widgets import create_glass_scale
 
@@ -57,9 +58,7 @@ class CaptureRegionSection:
         ).pack(anchor="w", padx=5, pady=(0, 5))
 
     def _toggle_capture_border(self) -> None:
-        from ..overlays import toggle_border
-
-        toggle_border(self._ctx.overlay_state)
+        publish_ui_action(UiActionType.TOGGLE_CAPTURE_BORDER)
         self._border_var.set(self._ctx.overlay_state.show_border)
 
     def _make_capture_scale(
@@ -76,10 +75,12 @@ class CaptureRegionSection:
     def _on_change(self, *_args: object) -> None:
         if self._ctx.control_state.syncing.capture:
             return
-        cap_region = self._ctx.config.capture_region
-        cap_region.left = int(self._left.get())
-        cap_region.top = int(self._top.get())
-        cap_region.width = int(self._width.get())
-        cap_region.height = int(self._height.get())
-        self._status.set_status(f"CAP_REGION updated: {cap_region}")
-        update_capture_overlay_region()
+        publish_ui_action(
+            UiActionType.UPDATE_CAPTURE_REGION,
+            {
+                "left": int(self._left.get()),
+                "top": int(self._top.get()),
+                "width": int(self._width.get()),
+                "height": int(self._height.get()),
+            },
+        )

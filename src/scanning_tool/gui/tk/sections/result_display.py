@@ -4,9 +4,10 @@ from __future__ import annotations
 from tkinter import ttk
 from typing import TYPE_CHECKING
 
+from scanning_tool.gui.actions import UiActionType, publish_ui_action
+
 from ..overlays import (
     register_overlay_sliders,
-    reposition_info_overlay,
     sync_overlay_sliders,
 )
 from ..widgets import create_glass_scale
@@ -57,12 +58,10 @@ class ResultDisplaySection:
     def _on_change(self, *_args: object) -> None:
         if self._ctx.control_state.syncing.overlay:
             return
-        overlay_offset = self._ctx.config.overlay_config.info_offset
-        overlay_offset.x = int(self._offset_x.get())
-        overlay_offset.y = int(self._offset_y.get())
-        self._status.set_status(
-            f"Display offset updated: x={overlay_offset.x}, y={overlay_offset.y}",
-        )
-        reposition_info_overlay(
-            self._ctx.overlay_state, self._ctx.config.overlay_config,
+        publish_ui_action(
+            UiActionType.UPDATE_RESULT_DISPLAY_OFFSET,
+            {
+                "x": int(self._offset_x.get()),
+                "y": int(self._offset_y.get()),
+            },
         )

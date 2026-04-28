@@ -5,6 +5,8 @@ import tkinter as tk
 from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
+from scanning_tool.gui.event_handlers import install_ui_action_handlers
+
 from .alignment import AlignmentPoller
 from .lifecycle import register_close_handler
 from .overlays import (
@@ -17,10 +19,7 @@ from .overlays import (
 from .overlays.base import safe_tk
 from .sections import (
     ControlsSection,
-    HeadSwaySection,
     MobileOverlaySection,
-    OllamaSection,
-    ResultDisplaySection,
     Section,
     SectionContext,
     SettingsSection,
@@ -68,6 +67,16 @@ def launch_gui(
         root=root,
         colors=colors,
         status=status,
+        config=config,
+        scan_state=scan_state,
+        service_state=service_state,
+        overlay_state=overlay_state,
+        control_state=control_state,
+        capture_service=capture_service,
+        config_service=config_service,
+    )
+
+    install_ui_action_handlers(
         config=config,
         scan_state=scan_state,
         service_state=service_state,

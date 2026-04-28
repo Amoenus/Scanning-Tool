@@ -4,15 +4,14 @@ from __future__ import annotations
 
 import io
 import tkinter as tk
-import webbrowser
 from tkinter import ttk
 from typing import TYPE_CHECKING
 
-import segno
-from loguru import logger
 from PIL import Image, ImageTk
 
+from scanning_tool.gui.actions import UiActionType, publish_ui_action
 from scanning_tool.gui.tk.widgets import create_button_row, create_status_label
+from scanning_tool.state.signals import mobile_qr_ready
 from scanning_tool.web import get_local_ip as get_local_ip_from_web
 
 if TYPE_CHECKING:
@@ -39,6 +38,7 @@ class MobileOverlaySection:
         self._build_action_row(frame)
         create_status_label(frame, self._help_text)
 
+        mobile_qr_ready.connect(self._on_mobile_qr_ready, weak=False)
         return frame
 
     def _build_action_row(self, parent: ttk.Widget) -> None:
@@ -52,29 +52,17 @@ class MobileOverlaySection:
 
     def _open_mobile_overlay(self) -> None:
         url = self._build_mobile_overlay_url()
-
-        try:
-            webbrowser.open_new_tab(url)
-        except Exception as exc:
-            self._status.set_status(f"Unable to open browser: {exc}")
-            logger.warning("Failed to open mobile overlay URL {}: {}", url, exc)
-        else:
-            self._status.set_status(f"Opening overlay in browser: {url}")
-            logger.info("Opened mobile overlay URL: {}", url)
+        publish_ui_action(UiActionType.OPEN_MOBILE_UI, {"url": url})
 
     def _show_mobile_qr(self) -> None:
         url = self._build_mobile_overlay_url()
+        publish_ui_action(UiActionType.SHOW_MOBILE_QR, {"url": url})
 
-        try:
-            qr = segno.make(url, error="h")
-        except Exception as exc:
-            self._status.set_status(f"Unable to generate QR code: {exc}")
-            logger.warning("Failed to generate QR code for {}: {}", url, exc)
+    def _on_mobile_qr_ready(self, sender: object, url: str, png_bytes: bytes) -> None:
+        if url != self._build_mobile_overlay_url():
             return
 
-        with io.BytesIO() as buffer:
-            qr.save(buffer, kind="png", scale=8, border=2)
-            buffer.seek(0)
+        with io.BytesIO(png_bytes) as buffer:
             image = Image.open(buffer)
             photo = ImageTk.PhotoImage(image)
 

@@ -132,7 +132,7 @@ class CaptureUseCase:
         except ScreenCaptureUnavailableError:
             logger.warning("Screen capture unavailable. Pausing until display is unlocked.")
             self._set_status(
-                "Screen capture unavailable. Is the workstation locked? Waiting to retry..."
+                "Screen capture unavailable. Is the workstation locked? Waiting to retry...",
             )
         except Exception as exc:  # pragma: no cover
             logger.error("OCR/model error: {}", exc)

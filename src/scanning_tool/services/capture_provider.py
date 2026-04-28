@@ -32,7 +32,7 @@ class ScreenCaptureProvider(CaptureProvider):
                 logger.error(f"Screen capture failed: {exc}")
                 if "access is denied" in str(exc).lower():
                     raise ScreenCaptureUnavailableError(
-                        "Screen capture unavailable: display may be locked or unavailable."
+                        "Screen capture unavailable: display may be locked or unavailable.",
                     ) from exc
                 raise RuntimeError("Screen capture failed") from exc
             except Exception as exc:

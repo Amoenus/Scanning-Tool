@@ -2,14 +2,13 @@
 from __future__ import annotations
 
 import tkinter as tk
-from threading import Thread
 from tkinter import ttk
 from typing import TYPE_CHECKING, Any
 
+from scanning_tool.gui.actions import UiActionType, publish_ui_action
+
 from ..overlays import (
     choose_label_color,
-    hide_capture_overlay,
-    show_capture_overlay,
     update_overlay_region,
 )
 from ..overlays.base import safe_tk
@@ -85,14 +84,13 @@ class ControlsSection:
         except (tk.TclError, ValueError):
             return
         value = max(0.2, min(30.0, value))
-        self._ctx.config.continuous_capture_interval = value
-        self._status.set_status(
-            f"Continuous capture interval set to {self._ctx.config.continuous_capture_interval:.1f}s",
+        publish_ui_action(
+            UiActionType.UPDATE_CONTINUOUS_CAPTURE_INTERVAL,
+            {"value": value},
         )
 
     def _start_single_scan(self) -> None:
-        self._status.set_status("Single scan started — loading model if needed...")
-        Thread(target=self._ctx.capture_service.capture_once, daemon=True).start()
+        publish_ui_action(UiActionType.SINGLE_SCAN)
 
     def _on_continuous_mode_change(self, continuous_mode: bool) -> None:
         safe_tk(
@@ -120,15 +118,10 @@ class ControlsSection:
         return bool(self._ctx.overlay_state.capture_overlay_root)
 
     def _toggle_capture_box(self) -> None:
-        if self._is_capture_box_visible():
-            hide_capture_overlay(self._ctx.overlay_state)
-            self._status.set_status("Capture box hidden.")
-        else:
-            show_capture_overlay(
-                self._ctx.overlay_state,
-                self._ctx.config.capture_region,
-            )
-            self._status.set_status("Capture box shown.")
+        publish_ui_action(
+            UiActionType.TOGGLE_CAPTURE_BOX,
+            {"visible": not self._is_capture_box_visible()},
+        )
 
     def _on_capture_overlay_visibility_change(
         self,
@@ -144,10 +137,4 @@ class ControlsSection:
         )
 
     def _toggle_continuous_capture(self) -> None:
-        self._ctx.capture_service.toggle_continuous()
-        self._on_continuous_mode_change(self._ctx.scan_state.continuous_mode)
-        self._status.set_status(
-            "Auto scan started."
-            if self._ctx.scan_state.continuous_mode
-            else "Auto scan stopped.",
-        )
+        publish_ui_action(UiActionType.TOGGLE_CONTINUOUS_CAPTURE)

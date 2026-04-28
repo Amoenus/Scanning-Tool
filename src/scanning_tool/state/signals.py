@@ -8,3 +8,6 @@ update_capture_overlay_region_signal: Signal = Signal("update_capture_overlay_re
 alignment_applied_signal: Signal = Signal("alignment_applied")
 ollama_status_updated: Signal = Signal("ollama_status_updated")
 ollama_readiness_changed: Signal = Signal("ollama_readiness_changed")
+mobile_qr_ready: Signal = Signal("mobile_qr_ready")
+ui_action: Signal = Signal("ui_action")
+ui_action: Signal = Signal("ui_action")

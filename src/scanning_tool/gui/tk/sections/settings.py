@@ -6,11 +6,11 @@ import tkinter as tk
 from tkinter import ttk
 from typing import TYPE_CHECKING
 
+from ..widgets import create_button_row
 from .capture_region import CaptureRegionSection
 from .head_sway import HeadSwaySection
 from .ollama import OllamaSection
 from .result_display import ResultDisplaySection
-from ..widgets import create_button_row
 
 if TYPE_CHECKING:
     from .base import SectionContext

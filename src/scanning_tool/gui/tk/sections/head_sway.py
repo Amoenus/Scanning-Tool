@@ -1,26 +1,16 @@
 """Head Sway Compensation section — anchor tracking and auto-alignment."""
 from __future__ import annotations
 
-import os
-import subprocess
-import sys
 import tkinter as tk
 from collections.abc import Callable
 from tkinter import ttk
 from typing import TYPE_CHECKING
 
-from scanning_tool.config import ensure_anchor_directory
-from scanning_tool.core.anchor import AnchorRegionTracker
-from scanning_tool.domain.alignment import AlignmentRequest
-from scanning_tool.services.alignment_service import alignment_service
-from scanning_tool.services.capture_provider import ScreenCaptureProvider
+from scanning_tool.gui.actions import UiActionType, publish_ui_action
 
 from ..overlays import (
-    hide_anchor_overlay,
     register_anchor_sliders,
-    show_anchor_overlay,
     sync_anchor_sliders,
-    update_anchor_overlay_region,
 )
 from ..widgets import (
     create_button_row,
@@ -210,80 +200,42 @@ class HeadSwaySection:
         )
 
     def _on_region_change(self, *_args: object) -> None:
-        self._apply_anchor_change(
-            self._update_anchor_region,
-            lambda: f"Anchor region updated: {self._ctx.config.anchor_template}",
-            update_overlay=True,
-        )
-
-    def _on_offset_change(self, *_args: object) -> None:
-        self._apply_anchor_change(
-            self._update_anchor_offset,
-            lambda: f"Anchor offset updated: {self._ctx.config.anchor_offset}",
-        )
-
-    def _apply_anchor_change(
-        self,
-        update: Callable[[], None],
-        status_message: Callable[[], str],
-        update_overlay: bool = False,
-    ) -> None:
         if self._ctx.control_state.syncing.anchor:
             return
 
-        update()
-        self._status.set_anchor(status_message(), hold=2.0)
+        publish_ui_action(
+            UiActionType.UPDATE_ANCHOR_REGION,
+            {
+                "left": int(self._anchor_left.get()),
+                "top": int(self._anchor_top.get()),
+                "width": int(self._anchor_width.get()),
+                "height": int(self._anchor_height.get()),
+            },
+        )
 
-        if self._ctx.config.auto_alignment.enabled:
-            self._run_auto_alignment()
+    def _on_offset_change(self, *_args: object) -> None:
+        if self._ctx.control_state.syncing.anchor:
+            return
 
-        if update_overlay:
-            update_anchor_overlay_region(self._ctx.overlay_state)
-
-    def _update_anchor_region(self) -> None:
-        anchor_region = self._ctx.config.anchor_template
-        anchor_region.left = int(self._anchor_left.get())
-        anchor_region.top = int(self._anchor_top.get())
-        anchor_region.width = int(self._anchor_width.get())
-        anchor_region.height = int(self._anchor_height.get())
-
-    def _update_anchor_offset(self) -> None:
-        anchor_offset = self._ctx.config.anchor_offset
-        anchor_offset.x = int(self._offset_x.get())
-        anchor_offset.y = int(self._offset_y.get())
+        publish_ui_action(
+            UiActionType.UPDATE_ANCHOR_OFFSET,
+            {
+                "x": int(self._offset_x.get()),
+                "y": int(self._offset_y.get()),
+            },
+        )
 
     def _toggle_auto_align(self) -> None:
-        self._ctx.config.auto_alignment.enabled = self._auto_align_var.get()
-        self._ctx.scan_state.last_alignment_info.enabled = (
-            self._ctx.config.auto_alignment.enabled
+        publish_ui_action(
+            UiActionType.TOGGLE_AUTO_ALIGNMENT,
+            {"enabled": self._auto_align_var.get()},
         )
-        self._ctx.scan_state.notify_alignment_info_listeners()
-        if self._ctx.config.auto_alignment.enabled:
-            self._status.set_anchor("Head sway compensation enabled.")
-            self._run_auto_alignment()
-        else:
-            self._status.set_anchor("Head sway compensation disabled.")
-
-    def _run_auto_alignment(self) -> bool:
-
-        result = alignment_service.align(
-            self._ctx.scan_state.anchor_tracker,
-            self._ctx.scan_state.last_alignment_info,
-            AlignmentRequest.from_config(self._ctx.config),
-        )
-        self._ctx.scan_state.notify_alignment_info_listeners()
-        return result
 
     def _toggle_anchor_overlay_visibility(self) -> None:
-        self._ctx.overlay_state.anchor_overlay_visible = self._anchor_overlay_var.get()
-        if self._ctx.overlay_state.anchor_overlay_visible:
-            show_anchor_overlay(
-                self._ctx.overlay_state, self._ctx.config.anchor_template,
-            )
-            self._status.set_anchor("Anchor overlay shown.")
-        else:
-            hide_anchor_overlay(self._ctx.overlay_state)
-            self._status.set_anchor("Anchor overlay hidden.")
+        publish_ui_action(
+            UiActionType.TOGGLE_ANCHOR_OVERLAY,
+            {"visible": self._anchor_overlay_var.get()},
+        )
 
     def _update_alignment_interval(self, *_args: object) -> None:
         try:
@@ -291,10 +243,9 @@ class HeadSwaySection:
         except (tk.TclError, ValueError):
             return
         value = max(100, min(5000, value))
-        self._ctx.config.alignment_poll_interval_ms = value
-        self._status.set_anchor(
-            f"Alignment interval set to {self._ctx.config.alignment_poll_interval_ms} ms",
-            hold=2.0,
+        publish_ui_action(
+            UiActionType.UPDATE_ALIGNMENT_POLL_INTERVAL,
+            {"value": value},
         )
 
     def _update_threshold(self, *_args: object) -> None:
@@ -303,56 +254,16 @@ class HeadSwaySection:
         except (tk.TclError, ValueError):
             return
         value = max(0.1, min(0.99, value))
-        self._ctx.config.anchor_threshold = value
-        if self._ctx.scan_state.anchor_tracker is not None:
-            self._ctx.scan_state.anchor_tracker.set_threshold(
-                self._ctx.config.anchor_threshold,
-            )
-        self._status.set_anchor(
-            f"Anchor detection threshold set to {self._ctx.config.anchor_threshold:.2f}",
+        publish_ui_action(
+            UiActionType.UPDATE_ANCHOR_THRESHOLD,
+            {"value": value},
         )
 
     def _reload_anchor_templates(self) -> None:
-        ensure_anchor_directory(self._ctx.config.anchor_template_dir)
-        if self._ctx.scan_state.anchor_tracker is None:
-            self._ctx.scan_state.anchor_tracker = AnchorRegionTracker(
-                self._ctx.config.anchor_template_dir,
-                ScreenCaptureProvider(),
-                self._ctx.config.anchor_threshold,
-            )
-        count = self._ctx.scan_state.anchor_tracker.set_directory(
-            self._ctx.config.anchor_template_dir,
-        )
-        self._status.set_anchor(
-            f"Loaded {count} anchor template(s) from {self._ctx.config.anchor_template_dir}.",
-        )
+        publish_ui_action(UiActionType.RELOAD_ANCHOR_TEMPLATES)
 
     def _manual_realign(self) -> None:
-        if self._run_auto_alignment():
-            info = self._ctx.scan_state.last_alignment_info
-            self._status.set_anchor(
-                f"Anchor locked using {info.template} (score {info.score:.2f}).",
-                hold=2.5,
-            )
-            self._status.set_status(
-                f"Auto alignment adjusted CAP_REGION: {self._ctx.config.capture_region}",
-            )
-        else:
-            self._status.set_anchor(
-                "Anchor match not found. Adjust search region or add templates.",
-            )
+        publish_ui_action(UiActionType.MANUAL_REALIGN)
 
     def _open_anchor_directory(self) -> None:
-        path = os.path.abspath(self._ctx.config.anchor_template_dir)
-        ensure_anchor_directory(path)
-        try:
-            if sys.platform.startswith("win"):
-                os.startfile(path)  # type: ignore[attr-defined]
-            elif sys.platform.startswith("darwin"):
-                subprocess.Popen(["open", path])
-            else:
-                subprocess.Popen(["xdg-open", path])
-        except Exception as exc:
-            self._status.set_anchor(f"Unable to open template folder: {exc}", hold=3.0)
-        else:
-            self._status.set_anchor(f"Opened template folder: {path}")
+        publish_ui_action(UiActionType.OPEN_ANCHOR_DIRECTORY)

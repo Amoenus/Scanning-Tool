@@ -15,6 +15,7 @@ if TYPE_CHECKING:
 DEFAULT_GUI_BACKEND = "tk"
 GUI_PROVIDER_REGISTRY: dict[str, tuple[str, str]] = {
     "tk": ("scanning_tool.gui.tk.provider", "TkGuiProvider"),
+    "qt": ("scanning_tool.gui.qt.provider", "QtGuiProvider"),
 }
 
 

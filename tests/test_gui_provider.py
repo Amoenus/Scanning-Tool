@@ -15,6 +15,13 @@ def test_get_default_gui_provider_prefers_config():
     assert provider.provider_name == "tk"
 
 
+def test_get_default_gui_provider_prefers_qt_when_requested():
+    config = ConfigData(gui_backend="qt")
+    provider = get_default_gui_provider(config)
+
+    assert provider.provider_name == "qt"
+
+
 def test_get_default_gui_provider_fallbacks_to_tk_for_unknown_config_backend():
     config = ConfigData(gui_backend="unknown-backend")
 
