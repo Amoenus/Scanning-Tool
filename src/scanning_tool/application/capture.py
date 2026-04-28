@@ -10,6 +10,7 @@ from scanning_tool.application.scan_result_reporter import ScanResultReporter
 from scanning_tool.deposits import extract_code_from_text
 from scanning_tool.domain.alignment import AlignmentRequest, CaptureRegion
 from scanning_tool.domain.capture import CodeExtraction, ScanResult
+from scanning_tool.services.capture_provider import ScreenCaptureUnavailableError
 from scanning_tool.state.service_state import ServiceState
 from scanning_tool.state.signals import status_updated
 
@@ -121,13 +122,18 @@ class CaptureUseCase:
         return result
 
     def _do_capture(self) -> None:
-        self._align_before_capture()
-        pil_img = self._capture_screen_region()
-        self._set_status("Loading OCR model (may take a moment)...")
-        logger.info("Starting OCR capture pipeline.")
         try:
+            self._align_before_capture()
+            pil_img = self._capture_screen_region()
+            self._set_status("Loading OCR model (may take a moment)...")
+            logger.info("Starting OCR capture pipeline.")
             self._scan_state.last_result = self._capture_and_report(pil_img)
             self._set_status("Scan complete.")
+        except ScreenCaptureUnavailableError:
+            logger.warning("Screen capture unavailable. Pausing until display is unlocked.")
+            self._set_status(
+                "Screen capture unavailable. Is the workstation locked? Waiting to retry..."
+            )
         except Exception as exc:  # pragma: no cover
             logger.error("OCR/model error: {}", exc)
             self._set_status(f"OCR/model error: {exc}")

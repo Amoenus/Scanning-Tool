@@ -9,6 +9,7 @@ from scanning_tool.services.alignment_service import (
     alignment_service,
     reset_alignment_info,
 )
+from scanning_tool.services.capture_provider import ScreenCaptureUnavailableError
 
 from .overlays.base import safe_tk
 
@@ -57,7 +58,17 @@ class AlignmentPoller:
             reset_alignment_info(self._scan_state.last_alignment_info)
             return "Add anchor templates to enable head sway compensation."
 
-        match_found = self._run_alignment()
+        try:
+            match_found = self._run_alignment()
+        except ScreenCaptureUnavailableError:
+            reset_alignment_info(self._scan_state.last_alignment_info)
+            return (
+                "Screen capture unavailable. Auto alignment paused until the display is unlocked."
+            )
+        except Exception as exc:
+            logger.error("Auto alignment failed: %s", exc)
+            return "Auto alignment error. See log for details."
+
         return self._build_alignment_status_message(match_found)
 
     def _has_anchor_templates(self) -> bool:

@@ -19,6 +19,49 @@ def create_section_row(parent: ttk.Widget, pady: tuple[int, int] = (0, 5)) -> tt
     return row
 
 
+class ResponsivePairRow(ttk.Frame):
+    """A row that switches between horizontal and vertical layout for two widgets."""
+
+    MIN_HORIZONTAL_WIDTH = 520
+
+    def __init__(self, parent: ttk.Widget, pady: tuple[int, int] = (0, 5)) -> None:
+        super().__init__(parent, style=GLASS_SECTION_TFRAME_STYLE)
+        self.pack(fill="x", padx=5, pady=pady)
+        self._label: ttk.Label | None = None
+        self._widget: tk.Widget | None = None
+        self.bind("<Configure>", self._on_configure)
+
+    def set_widgets(self, label: ttk.Label, widget: tk.Widget) -> None:
+        self._label = label
+        self._widget = widget
+        self._label.grid(row=0, column=0, sticky="w")
+        self._widget.grid(row=0, column=1, sticky="ew")
+        self.columnconfigure(1, weight=1)
+        self._apply_layout(self.winfo_width())
+
+    def _on_configure(self, event: tk.Event) -> None:
+        self._apply_layout(event.width)
+
+    def _apply_layout(self, width: int) -> None:
+        if self._label is None or self._widget is None:
+            return
+
+        is_horizontal = width >= self.MIN_HORIZONTAL_WIDTH
+        if is_horizontal:
+            self._label.grid_configure(row=0, column=0, columnspan=1, sticky="w", padx=(0, 8), pady=0)
+            self._widget.grid_configure(row=0, column=1, columnspan=1, sticky="ew", pady=0)
+            self.columnconfigure(0, weight=0)
+            self.columnconfigure(1, weight=1)
+        else:
+            self._label.grid_configure(row=0, column=0, columnspan=2, sticky="w", padx=0, pady=(0, 2))
+            self._widget.grid_configure(row=1, column=0, columnspan=2, sticky="ew", pady=0)
+            self.columnconfigure(0, weight=1)
+            self.columnconfigure(1, weight=0)
+
+        wrap_length = max(width - 140, 120)
+        self._label.configure(wraplength=wrap_length)
+
+
 class GlassScaleController:
     """Encapsulate the custom glass scale widget and its label synchronization."""
 

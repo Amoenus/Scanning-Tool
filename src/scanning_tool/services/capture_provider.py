@@ -6,6 +6,7 @@ import numpy as np
 from loguru import logger
 from mss import mss
 from mss.base import MSS
+from mss.exception import ScreenShotError
 from mss.screenshot import ScreenShot
 from PIL import Image as PILModule
 from PIL.Image import Image
@@ -14,6 +15,10 @@ from scanning_tool.interfaces.capture import CaptureProvider
 
 if TYPE_CHECKING:
     from scanning_tool.domain.alignment import CaptureRegion
+
+class ScreenCaptureUnavailableError(RuntimeError):
+    """Raised when the display cannot be captured, such as on a locked workstation."""
+
 class ScreenCaptureProvider(CaptureProvider):
     """Capture a PIL image from a screen region."""
 
@@ -23,6 +28,13 @@ class ScreenCaptureProvider(CaptureProvider):
         with sct:
             try:    # The 'grab' method returns a ScreenShot object
                 screenshot: ScreenShot = sct.grab(region.to_monitor())
+            except ScreenShotError as exc:
+                logger.error(f"Screen capture failed: {exc}")
+                if "access is denied" in str(exc).lower():
+                    raise ScreenCaptureUnavailableError(
+                        "Screen capture unavailable: display may be locked or unavailable."
+                    ) from exc
+                raise RuntimeError("Screen capture failed") from exc
             except Exception as exc:
                 logger.error(f"Screen capture failed: {exc}")
                 raise RuntimeError("Screen capture failed") from exc
