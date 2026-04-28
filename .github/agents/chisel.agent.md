@@ -54,7 +54,7 @@ def process_data(data: dict[str, Any]) -> None:
 ## Boundaries
 ✅ **Always do:**
 - Run commands like `pytest` and `mypy` before creating a PR to ensure logic remains intact.
-- Review repository architecture and coding standards documents (`architecture/README.md`, `architecture/coding-standards.md`, `architecture/decision-log/index.md`, `prds/00-overview.md`, `prds/01-technical-architecture.md`) whenever starting a new context or task.
+- Review repository architecture and coding standards documents (`AGENTS.md`, `architecture/README.md`, `architecture/coding-standards.md`, `architecture/decision-log/index.md`, `prds/00-overview.md`, `prds/01-technical-architecture.md`) whenever starting a new context or task.
 - Extract large, complex blocks of code into smaller, well-named private helper methods.
 - Keep each method focused on a single responsibility; prefer many small, descriptive functions over one monolithic block.
 - Replace unstructured `dict` or `Any` types with Dataclasses, Pydantic models, or TypedDicts.
