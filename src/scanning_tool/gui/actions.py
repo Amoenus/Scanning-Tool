@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
-from scanning_tool.state.signals import ui_action
+from scanning_tool.state.signals import UI_ACTION_SIGNALS, ui_action
 
 
 @dataclass(frozen=True)
@@ -41,4 +41,9 @@ class UiActionType:
 
 
 def publish_ui_action(type: str, payload: dict[str, Any] | None = None) -> None:
-    ui_action.send(None, action=UiAction(type=type, payload=payload or {}))
+    payload = payload or {}
+    ui_action.send(None, action=UiAction(type=type, payload=payload))
+
+    signal = UI_ACTION_SIGNALS.get(type)
+    if signal is not None:
+        signal.send(None, payload=payload)

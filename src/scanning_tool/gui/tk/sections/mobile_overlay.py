@@ -7,6 +7,7 @@ import tkinter as tk
 from tkinter import ttk
 from typing import TYPE_CHECKING
 
+from loguru import logger
 from PIL import Image, ImageTk
 
 from scanning_tool.gui.actions import UiActionType, publish_ui_action
