@@ -6,7 +6,6 @@ const state = {
   region: DEFAULT_REGION,
   timerId: 0,
   wakeLock: null,
-  installPromptEvent: null,
 };
 
 const elements = {
@@ -18,21 +17,7 @@ const elements = {
   updatedAt: null,
   regionInputs: [],
   fullscreenToggle: null,
-  installButton: null,
 };
-
-globalThis.addEventListener("beforeinstallprompt", (event) => {
-  event.preventDefault();
-  state.installPromptEvent = event;
-  if (elements.installButton) {
-    showInstallButton();
-  }
-});
-
-globalThis.addEventListener("appinstalled", () => {
-  setStatus("Overlay installed as an app.", "success");
-  hideInstallButton();
-});
 
 function getElement(id) {
   const element = document.getElementById(id);
@@ -51,8 +36,19 @@ function initElements() {
   elements.statusMessage = getElement("status-message");
   elements.updatedAt = getElement("updated-at");
   elements.fullscreenToggle = document.getElementById("fullscreen-toggle");
-  elements.installButton = document.getElementById("install-pwa");
   elements.regionInputs = Array.from(document.querySelectorAll('input[name="region"]'));
+}
+
+async function registerServiceWorker() {
+  if (!("serviceWorker" in navigator)) {
+    return;
+  }
+
+  try {
+    await navigator.serviceWorker.register("/service-worker.js");
+  } catch (error) {
+    console.warn("Service worker registration failed:", error);
+  }
 }
 
 function initRegionSelection() {
@@ -78,17 +74,7 @@ function initFullscreenButton() {
     }
   });
 
-  if (elements.installButton) {
-    elements.installButton.addEventListener("click", onInstallClick);
-  }
-
   setFullscreenButtonState();
-
-  if (state.installPromptEvent) {
-    showInstallButton();
-  } else {
-    hideInstallButton();
-  }
 }
 
 async function onFullscreenToggle() {
@@ -135,45 +121,8 @@ function setFullscreenButtonState() {
   }
 }
 
-function onBeforeInstallPrompt(event) {
-  event.preventDefault();
-  state.installPromptEvent = event;
-  showInstallButton();
-}
-
-async function onInstallClick() {
-  if (!state.installPromptEvent) {
-    return;
-  }
-
-  state.installPromptEvent.prompt();
-  const choice = await state.installPromptEvent.userChoice;
-
-  if (choice.outcome === "accepted") {
-    setStatus("Install accepted. The app may now be added to your home screen.", "success");
-  } else {
-    setStatus("Install dismissed.", "warning");
-  }
-
-  state.installPromptEvent = null;
-  hideInstallButton();
-}
-
 function onAppInstalled() {
   setStatus("Overlay installed as an app.", "success");
-  hideInstallButton();
-}
-
-function showInstallButton() {
-  if (elements.installButton) {
-    elements.installButton.classList.remove("hidden");
-  }
-}
-
-function hideInstallButton() {
-  if (elements.installButton) {
-    elements.installButton.classList.add("hidden");
-  }
 }
 
 async function requestWakeLock() {
@@ -389,9 +338,10 @@ function schedulePoll(delay) {
   state.timerId = globalThis.setTimeout(poll, delay);
 }
 
-globalThis.addEventListener("DOMContentLoaded", () => {
+globalThis.addEventListener("DOMContentLoaded", async () => {
   initElements();
   initRegionSelection();
   initFullscreenButton();
+  await registerServiceWorker();
   poll();
 });
