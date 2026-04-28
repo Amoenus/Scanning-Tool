@@ -5,20 +5,31 @@ from __future__ import annotations
 from threading import Thread
 from typing import TYPE_CHECKING
 
-from flask import Flask
 from loguru import logger
 
 from scanning_tool.bootstrap import bootstrap
 from scanning_tool.config import resource_path
+from scanning_tool.core.anchor import AnchorRegionTracker
+from scanning_tool.deposits import load_rock_data
+from scanning_tool.gui.provider import get_default_gui_provider
 from scanning_tool.logging_setup import setup_logging
 from scanning_tool.ollama import (
     ensure_model_installed,
     ensure_ollama_installed,
     log_model_running_status,
 )
+from scanning_tool.services.alignment_service import alignment_service
+from scanning_tool.services.capture_provider import ScreenCaptureProvider
+from scanning_tool.services.hotkeys_service import hotkey_listener
+from scanning_tool.services.ollama_service import ollama_service
 from scanning_tool.state import manager
+from scanning_tool.web.app import WebService
+from scanning_tool.web.server import WebServer
+from scanning_tool.web.status_builder import DefaultStatusResponseBuilder
 
 if TYPE_CHECKING:
+    from flask import Flask
+
     from scanning_tool.config.service import ConfigData
     from scanning_tool.services.capture_service import CaptureService
     from scanning_tool.state.scan_state import ScanState
@@ -27,9 +38,6 @@ if TYPE_CHECKING:
 
 def _initialize_services() -> None:
     """Start core services and ensure the Ollama model is available."""
-    from scanning_tool.services.alignment_service import alignment_service
-    from scanning_tool.services.ollama_service import ollama_service
-
     ensure_ollama_installed()
     ollama_service.start()
     alignment_service.start()
@@ -39,9 +47,6 @@ def _initialize_services() -> None:
 
 def _initialize_anchor_tracking(config: ConfigData, scan_state: ScanState) -> None:
     """Create and register the anchor region tracker."""
-    from scanning_tool.core.anchor import AnchorRegionTracker
-    from scanning_tool.services.capture_provider import ScreenCaptureProvider
-
     scan_state.anchor_tracker = AnchorRegionTracker(
         config.anchor_template_dir,
         ScreenCaptureProvider(),
@@ -51,8 +56,6 @@ def _initialize_anchor_tracking(config: ConfigData, scan_state: ScanState) -> No
 
 def _start_hotkey_listener(capture_service: CaptureService) -> None:
     """Launch the global hotkey listener on a background thread."""
-    from scanning_tool.services.hotkeys_service import hotkey_listener
-
     Thread(target=lambda: hotkey_listener(capture_service), daemon=True).start()
 
 
@@ -77,8 +80,6 @@ def _start_web_server(
         msg += f" (this device) | http://{local_ip}:{port} (local network)"
     logger.info(msg)
 
-    from scanning_tool.web.server import WebServer
-
     flask_app = _build_flask_app(config, scan_state, service_state)
     Thread(
         target=lambda: WebServer.run(
@@ -96,9 +97,6 @@ def _build_flask_app(
     scan_state: ScanState,
     service_state: ServiceState,
 ) -> Flask:
-    from scanning_tool.web.app import WebService
-    from scanning_tool.web.status_builder import DefaultStatusResponseBuilder
-
     return WebService(
         config=config,
         scan_state=scan_state,
@@ -118,8 +116,6 @@ def create_app() -> Flask:
 
 
 def get_local_ip() -> str:
-    from scanning_tool.web.app import WebService
-
     return WebService.get_local_ip()
 
 
@@ -139,8 +135,6 @@ def _launch_gui(
     service_state: ServiceState,
     capture_service: CaptureService,
 ) -> None:
-    from scanning_tool.gui.provider import get_default_gui_provider
-
     gui_provider = get_default_gui_provider(config)
     gui_provider.launch_gui(
         config=config,
@@ -154,9 +148,6 @@ def _launch_gui(
 
 
 def _shutdown_services() -> None:
-    from scanning_tool.services.alignment_service import alignment_service
-    from scanning_tool.services.ollama_service import ollama_service
-
     ollama_service.stop()
     alignment_service.stop()
 
@@ -169,9 +160,6 @@ def main() -> None:
     config = app_state.config
     scan_state = app_state.scan_state
     service_state = app_state.service_state
-
-    from scanning_tool.deposits import load_rock_data
-
     load_rock_data(service_state)
 
     capture_service = _create_capture_service(config, scan_state, service_state)
