@@ -1,5 +1,8 @@
 from types import SimpleNamespace
 
+from pytest import MonkeyPatch
+
+from scanning_tool.config.service import ConfigData
 from scanning_tool.gui import handlers as gui_handlers
 from scanning_tool.gui.action_types import UiActionType
 from scanning_tool.gui.actions import publish_ui_action
@@ -15,7 +18,7 @@ class DummyConfigService:
 
 
 def test_save_config_action_triggers_config_save_handler() -> None:
-    config = SimpleNamespace()
+    config = ConfigData()
     scan_state = SimpleNamespace()
     service_state = SimpleNamespace()
     overlay_state = SimpleNamespace()
@@ -38,14 +41,14 @@ def test_save_config_action_triggers_config_save_handler() -> None:
     assert config_service.saved is True
 
 
-def test_update_overlay_region_action_invokes_handler(monkeypatch) -> None:
-    config = SimpleNamespace()
+def test_update_overlay_region_action_invokes_handler(monkeypatch: MonkeyPatch) -> None:
+    config = ConfigData()
     scan_state = SimpleNamespace()
     service_state = SimpleNamespace()
     overlay_state = SimpleNamespace()
     control_state = SimpleNamespace()
     capture_service = SimpleNamespace()
-    config_service = SimpleNamespace()
+    config_service = DummyConfigService()
     called = []
 
     def fake_update_overlay_region(payload, config_arg, scan_state_arg, service_state_arg, overlay_state_arg, control_state_arg, capture_service_arg, config_service_arg):
@@ -72,14 +75,14 @@ def test_update_overlay_region_action_invokes_handler(monkeypatch) -> None:
     assert called == [overlay_state]
 
 
-def test_choose_label_color_action_invokes_handler(monkeypatch) -> None:
-    config = SimpleNamespace(overlay_config=SimpleNamespace())
+def test_choose_label_color_action_invokes_handler(monkeypatch: MonkeyPatch) -> None:
+    config = ConfigData()
     scan_state = SimpleNamespace()
     service_state = SimpleNamespace()
     overlay_state = SimpleNamespace()
     control_state = SimpleNamespace()
     capture_service = SimpleNamespace()
-    config_service = SimpleNamespace()
+    config_service = DummyConfigService()
     called = []
 
     def fake_choose_label_color(payload, config_arg, scan_state_arg, service_state_arg, overlay_state_arg, control_state_arg, capture_service_arg, config_service_arg):
