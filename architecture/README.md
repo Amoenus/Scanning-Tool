@@ -3,6 +3,8 @@
 This folder contains architecture guidance and decision records for the Scanning Tool.
 
 ## Contents
+- `ux-vision.md` — narrative UX vision: roles, surfaces, in-game edit mode, control panel as home base.
+- `concerns-architecture.md` — per-concern EDA decomposition: actions, signals, read models, manifests, conformance tests.
 - `decision-log/index.md` — documented architectural decisions and rationale.
 - `decision-log/` — a folder of individual dated decision records.
 - `coding-standards.md` — repository coding conventions for naming, types, small methods, and SOLID principles.

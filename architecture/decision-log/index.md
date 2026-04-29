@@ -12,6 +12,10 @@ This folder contains explicit architectural decisions and rationale for the Scan
 - [Decision 6: Prefer explicit application context over broad global state](2026-04-17-prefer-explicit-application-context-over-broad-global-state.md)
 - [Decision 7: Preserve shared GUI state and keep overlay API Tk-agnostic](2026-04-27-preserve-gui-shared-state-and-tk-agnostic-overlay-api.md)
 - [Decision 8: Use blinker for in-process event signaling](2026-04-28-use-blinker-for-in-process-event-signaling.md)
+- [Decision 9: Per-concern parity over per-UI parity](2026-04-29-per-concern-parity-over-per-ui-parity.md)
+- [Decision 10: Namespaced action and signal vocabularies per concern](2026-04-29-namespaced-action-and-signal-vocabularies.md)
+- [Decision 11: In-game edit mode as primary spatial config surface](2026-04-29-in-game-edit-mode-as-primary-config-surface.md)
+- [Decision 12: Push-based event flow with isolated polling adapters](2026-04-29-push-based-event-flow-with-isolated-polling-adapters.md)
 
 ## Future decisions
 
