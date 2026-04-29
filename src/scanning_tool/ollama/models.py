@@ -1,10 +1,30 @@
 from typing import NoReturn
 
+import ollama
 from loguru import logger
 
 from scanning_tool.ollama.client import get_ollama_client
 from scanning_tool.ollama.host import get_ollama_host, get_ollama_model, is_local_ollama_host
 from scanning_tool.ollama.status import publish_ollama_status
+
+
+class OllamaError(RuntimeError):
+    """Base exception for Ollama-related failures."""
+
+
+class OllamaConnectionError(OllamaError):
+    def __init__(self, host: str, host_mode: str) -> None:
+        message = (
+            "Make sure the Ollama service is running on this PC."
+            if host_mode == "local"
+            else f"Ensure the Ollama server at {host} is reachable from this machine."
+        )
+        super().__init__(message)
+
+
+class OllamaInstallationError(OllamaError):
+    def __init__(self, model: str, host: str) -> None:
+        super().__init__(f"Failed to ensure Ollama model {model} on {host}.")
 
 
 class OllamaModelInstaller:
@@ -51,7 +71,7 @@ class OllamaModelInstaller:
         try:
             response = self.client.list()
             return {m.model for m in response.models if m.model}
-        except Exception as exc:
+        except ollama.ResponseError as exc:
             self._build_connection_error(exc)
 
     def _pull_model(self) -> bool:
@@ -77,7 +97,7 @@ class OllamaModelInstaller:
                 ready=True,
             )
             return True
-        except Exception as exc:
+        except ollama.ResponseError as exc:
             self._build_installation_error(exc)
 
     def _build_connection_error(self, exc: Exception) -> NoReturn:
@@ -89,14 +109,9 @@ class OllamaModelInstaller:
             host=self.host,
             ready=False,
         )
-        guidance = (
-            "Make sure the Ollama service is running on this PC."
-            if self.host_mode == "local"
-            else f"Ensure the Ollama server at {self.host} is reachable from this machine."
-        )
         if self.exit_on_error:
-            raise RuntimeError(guidance) from exc
-        raise
+            raise OllamaConnectionError(self.host, self.host_mode) from exc
+        raise exc
 
     def _build_installation_error(self, exc: Exception) -> NoReturn:
         message = f"Error ensuring model {self.model} on {self.host}: {exc}"
@@ -108,8 +123,8 @@ class OllamaModelInstaller:
             ready=False,
         )
         if self.exit_on_error:
-            raise RuntimeError("Failed to ensure Ollama model.") from exc
-        raise
+            raise OllamaInstallationError(self.model, self.host) from exc
+        raise exc
 
 
 def ensure_model_installed(
@@ -127,7 +142,7 @@ def list_running_ollama_models() -> list[str]:
     try:
         response = client.ps()
         return [m.model for m in response.models if m.model]
-    except Exception as e:
+    except (ollama.ResponseError, OSError, RuntimeError) as e:
         logger.warning("Unable to query Ollama process list: {}", e)
         return []
 
