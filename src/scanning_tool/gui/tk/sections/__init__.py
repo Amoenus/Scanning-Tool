@@ -43,6 +43,9 @@ def __getattr__(name: str) -> Any:
     try:
         module = importlib.import_module(f"{__name__}.{name}")
     except ImportError as exc:
+        print(f"FAILED TO IMPORT {name}: {exc}")
+        import traceback
+        traceback.print_exc()
         raise AttributeError(f"module {__name__!r} has no attribute {name!r}") from exc
 
     globals()[name] = module

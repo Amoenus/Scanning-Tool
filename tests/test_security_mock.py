@@ -21,6 +21,7 @@ modules_to_mock = [
     "tkinter",
     "tkinter.ttk",
     "webbrowser",
+    "mss.models",
 ]
 
 

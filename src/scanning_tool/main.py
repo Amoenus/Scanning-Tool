@@ -20,6 +20,7 @@ from scanning_tool.ollama import (
 )
 from scanning_tool.services.alignment_service import alignment_service
 from scanning_tool.services.capture_provider import ScreenCaptureProvider
+from scanning_tool.services.edit_mode_service import edit_mode_service
 from scanning_tool.services.hotkeys_service import hotkey_listener
 from scanning_tool.services.ollama_service import ollama_service
 from scanning_tool.state import manager
@@ -50,6 +51,7 @@ def _initialize_services() -> None:
     ensure_ollama_installed()
     ollama_service.start()
     alignment_service.start()
+    edit_mode_service.start()
     ensure_model_installed()
     log_model_running_status()
 
@@ -198,6 +200,7 @@ def _launch_gui(
 def _shutdown_services() -> None:
     ollama_service.stop()
     alignment_service.stop()
+    edit_mode_service.stop()
 
 
 def main() -> None:

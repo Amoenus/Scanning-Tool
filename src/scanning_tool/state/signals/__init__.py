@@ -42,7 +42,9 @@ from scanning_tool.state.signals.event_log import (
     raw_log_emitted,
 )
 from scanning_tool.state.signals.edit_mode import (
-    edit_mode_toggled,
+    edit_mode_changed,
+    region_drafted,
+    region_committed,
 )
 
 ui_action: Signal = Signal("ui_action")

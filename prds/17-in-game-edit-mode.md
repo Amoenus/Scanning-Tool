@@ -74,9 +74,9 @@ The on-screen overlays already know where they are. The user can already see the
   - Mitigation: explicit in-overlay message naming the requirement and the SC setting to change.
 
 ## Implementation Checklist
-- [ ] Define `EditModeAction` enum and signals (per PRD 16).
-- [ ] Define `EditModeState` read model.
-- [ ] Implement `EditModeService` and wire it into the bootstrap.
+- [x] Define `EditModeAction` enum and signals (per PRD 16).
+- [x] Define `EditModeState` read model.
+- [x] Implement `EditModeService` and wire it into the bootstrap.
 - [ ] Add overlay handles and dimension readout widgets for edit mode.
 - [ ] Implement drag (move + resize) for capture region, anchor region, info-label position.
 - [ ] Implement arrow-key nudge (1px) and Shift+arrow (10px).

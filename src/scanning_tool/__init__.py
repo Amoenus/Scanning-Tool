@@ -9,7 +9,7 @@ __version__ = "1.0.0"
 
 
 def __getattr__(name: str) -> Any:
-    if name in {"main", "gui"}:
+    if name in {"main", "gui", "web"}:
         module = importlib.import_module(f"{__name__}.{name}")
         globals()[name] = module
         return module
@@ -17,4 +17,4 @@ def __getattr__(name: str) -> Any:
 
 
 def __dir__() -> list[str]:
-    return sorted(list(globals().keys()) + ["main", "gui"])
+    return sorted(list(globals().keys()) + ["main", "gui", "web"])

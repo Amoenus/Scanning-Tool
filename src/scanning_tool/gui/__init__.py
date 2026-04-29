@@ -9,7 +9,7 @@ __all__ = ["GuiProvider", "get_default_gui_provider", "sections"]
 
 
 def __getattr__(name: str) -> Any:
-    if name == "sections":
+    if name in {"sections", "tk", "qt"}:
         module = importlib.import_module(f"{__name__}.{name}")
         globals()[name] = module
         return module
@@ -23,5 +23,5 @@ def __getattr__(name: str) -> Any:
 
 def __dir__() -> list[str]:
     return sorted(
-        list(globals().keys()) + ["sections", "GuiProvider", "get_default_gui_provider"],
+        list(globals().keys()) + ["sections", "tk", "qt", "GuiProvider", "get_default_gui_provider"],
     )
