@@ -1,6 +1,8 @@
 import json
+import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).parent.parent))
 from scrape_scan_signatures import ScanSignatureExporter
 
 from scanning_tool.deposits.scan_signature_scraper import (

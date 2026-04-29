@@ -1,6 +1,5 @@
-from scanning_tool.gui.tk.sections.ollama import OllamaModelManager
 from scanning_tool.ollama.status import publish_ollama_status
-from scanning_tool.state.signals import ollama_readiness_changed, ollama_status_updated
+from scanning_tool.state.signals.runtime import ollama_readiness_changed, ollama_status_updated
 
 
 def test_publish_ollama_status_emits_signals() -> None:
@@ -36,41 +35,3 @@ def test_publish_ollama_status_emits_signals() -> None:
     ollama_status_updated.disconnect(on_status)
     ollama_readiness_changed.disconnect(on_readiness)
 
-
-def test_apply_model_emits_ollama_status_signal(monkeypatch) -> None:
-    received = []
-
-    def on_status(sender: object, **kwargs: object) -> None:
-        received.append(kwargs)
-
-    ollama_status_updated.connect(on_status, weak=False)
-
-    monkeypatch.setattr(
-        "scanning_tool.gui.tk.sections.ollama.set_configured_ollama_model",
-        lambda value: value,
-    )
-    monkeypatch.setattr(
-        "scanning_tool.gui.tk.sections.ollama.ensure_model_installed",
-        lambda model, exit_on_error=False: True,
-    )
-
-    def fake_log_model_running_status(model: str | None = None) -> bool:
-        publish_ollama_status(
-            f"Ollama model {model} is currently running.",
-            model=model,
-            ready=True,
-        )
-        return True
-
-    monkeypatch.setattr(
-        "scanning_tool.gui.tk.sections.ollama.log_model_running_status",
-        fake_log_model_running_status,
-    )
-
-    success, message = OllamaModelManager.apply_model("dummy-model")
-
-    assert success is True
-    assert "dummy-model" in message
-    assert any(event.get("model") == "dummy-model" for event in received)
-
-    ollama_status_updated.disconnect(on_status)

@@ -9,6 +9,7 @@ from scanning_tool.config import ensure_anchor_directory
 from scanning_tool.core.anchor import AnchorRegionTracker
 from scanning_tool.domain.alignment import AlignmentRequest
 from scanning_tool.gui.action_types import UiActionType
+from scanning_tool.state.actions.runtime import RuntimeAction
 from scanning_tool.gui.overlays import (
     hide_anchor_overlay,
     show_anchor_overlay,
@@ -231,6 +232,6 @@ ANCHOR_ACTION_HANDLERS = {
     UiActionType.UPDATE_ANCHOR_REGION: _handle_update_anchor_region,
     UiActionType.UPDATE_ANCHOR_OFFSET: _handle_update_anchor_offset,
     UiActionType.RELOAD_ANCHOR_TEMPLATES: _handle_reload_anchor_templates,
-    UiActionType.MANUAL_REALIGN: _handle_manual_realign,
+    RuntimeAction.MANUAL_REALIGN: _handle_manual_realign,
     UiActionType.OPEN_ANCHOR_DIRECTORY: _handle_open_anchor_directory,
 }

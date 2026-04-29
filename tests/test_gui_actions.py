@@ -76,6 +76,8 @@ def test_update_overlay_region_action_invokes_handler(monkeypatch: MonkeyPatch) 
 
 
 def test_choose_label_color_action_invokes_handler(monkeypatch: MonkeyPatch) -> None:
+    monkeypatch.setattr("tkinter.colorchooser.askcolor", lambda **kwargs: (None, "#ffffff"))
+
     config = ConfigData()
     scan_state = SimpleNamespace()
     service_state = SimpleNamespace()

@@ -16,6 +16,7 @@ from PyQt6.QtWidgets import (
 
 from scanning_tool.gui.action_types import UiActionType
 from scanning_tool.gui.actions import publish_ui_action
+from scanning_tool.state.actions.runtime import RuntimeAction
 from scanning_tool.gui.qt.sections.base import SectionContext
 
 if TYPE_CHECKING:
@@ -162,14 +163,14 @@ class HeadSwaySection:
         )
 
     def _run_auto_alignment(self) -> bool:
-        publish_ui_action(UiActionType.MANUAL_REALIGN)
+        publish_ui_action(RuntimeAction.MANUAL_REALIGN)
         return True
 
     def _reload_anchor_templates(self) -> None:
         publish_ui_action(UiActionType.RELOAD_ANCHOR_TEMPLATES)
 
     def _manual_realign(self) -> None:
-        publish_ui_action(UiActionType.MANUAL_REALIGN)
+        publish_ui_action(RuntimeAction.MANUAL_REALIGN)
 
     def _open_anchor_directory(self) -> None:
         publish_ui_action(UiActionType.OPEN_ANCHOR_DIRECTORY)

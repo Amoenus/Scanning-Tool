@@ -16,6 +16,7 @@ from PyQt6.QtWidgets import (
 
 from scanning_tool.gui.action_types import UiActionType
 from scanning_tool.gui.actions import publish_ui_action
+from scanning_tool.state.actions.runtime import RuntimeAction
 
 from .base import SectionContext
 
@@ -97,4 +98,4 @@ class OllamaSection:
         publish_ui_action(UiActionType.USE_LOCALHOST)
 
     def _restart_ollama(self) -> None:
-        publish_ui_action(UiActionType.RESTART_OLLAMA)
+        publish_ui_action(RuntimeAction.RESTART_OLLAMA)

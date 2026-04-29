@@ -81,7 +81,7 @@ Suggested concern order: Scan result → Runtime status → Event log → Config
 - [x] Create `src/scanning_tool/state/signals/` package (refactor existing flat module into per-concern submodules).
 - [x] Create `src/scanning_tool/state/read_models/` package with one dataclass per concern.
 - [x] Migrate Scan result vocabulary; update publishers and handlers.
-- [ ] Migrate Runtime status vocabulary; absorb existing Ollama and alignment status signals.
+- [x] Migrate Runtime status vocabulary; absorb existing Ollama and alignment status signals.
 - [ ] Migrate Event log vocabulary; introduce `event_log_emitted` (curated) and `raw_log_emitted` (loguru passthrough).
 - [ ] Migrate Configuration vocabulary; replace flat `UiActionType` config members.
 - [ ] Migrate Edit mode vocabulary (placeholder until PRD 17 implements behavior).

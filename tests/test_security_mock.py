@@ -124,11 +124,12 @@ class TestSecurity(unittest.TestCase):
 
     def test_mobile_overlay_url_default(self):
         # Already set to 0.0.0.0 in setUp
-        with patch("scanning_tool.gui.tk.sections.mobile_overlay.webbrowser") as mock_webbrowser, patch(
+        with patch("scanning_tool.gui.tk.sections.mobile_overlay.publish_ui_action") as mock_publish, patch(
             "scanning_tool.gui.tk.sections.mobile_overlay.get_local_ip",
         ) as mock_get_local_ip:
             mock_get_local_ip.return_value = "192.168.1.100"
             from scanning_tool.gui.tk.sections.mobile_overlay import MobileOverlaySection
+            from scanning_tool.gui.action_types import UiActionType
 
             section = MobileOverlaySection()
             section._ctx = MagicMock()
@@ -136,16 +137,18 @@ class TestSecurity(unittest.TestCase):
             section._status = MagicMock()
             section._open_mobile_overlay()
 
-            mock_webbrowser.open_new_tab.assert_called_once_with(
-                "http://192.168.1.100:5000",
+            mock_publish.assert_called_once_with(
+                UiActionType.OPEN_MOBILE_UI,
+                {"url": "http://192.168.1.100:5000"}
             )
 
     def test_mobile_overlay_url_custom(self):
         self.mock_state_manager.config.web_server_config.host = "127.0.0.1"
         self.mock_state_manager.config.web_server_config.port = 8080
 
-        with patch("scanning_tool.gui.tk.sections.mobile_overlay.webbrowser") as mock_webbrowser:
+        with patch("scanning_tool.gui.tk.sections.mobile_overlay.publish_ui_action") as mock_publish:
             from scanning_tool.gui.tk.sections.mobile_overlay import MobileOverlaySection
+            from scanning_tool.gui.action_types import UiActionType
 
             section = MobileOverlaySection()
             section._ctx = MagicMock()
@@ -153,8 +156,9 @@ class TestSecurity(unittest.TestCase):
             section._status = MagicMock()
             section._open_mobile_overlay()
 
-            mock_webbrowser.open_new_tab.assert_called_once_with(
-                "http://127.0.0.1:8080",
+            mock_publish.assert_called_once_with(
+                UiActionType.OPEN_MOBILE_UI,
+                {"url": "http://127.0.0.1:8080"}
             )
 
 

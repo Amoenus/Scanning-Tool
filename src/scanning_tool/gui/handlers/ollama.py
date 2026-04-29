@@ -4,6 +4,7 @@ import logging
 from typing import TYPE_CHECKING
 
 from scanning_tool.gui.action_types import UiActionType
+from scanning_tool.state.actions.runtime import RuntimeAction
 from scanning_tool.ollama import (
     ensure_model_installed,
     get_ollama_host,
@@ -128,5 +129,5 @@ OLLAMA_ACTION_HANDLERS = {
     UiActionType.APPLY_OLLAMA_MODEL: _handle_apply_ollama_model,
     UiActionType.APPLY_OLLAMA_HOST: _handle_apply_ollama_host,
     UiActionType.USE_LOCALHOST: _handle_use_localhost,
-    UiActionType.RESTART_OLLAMA: _handle_restart_ollama,
+    RuntimeAction.RESTART_OLLAMA: _handle_restart_ollama,
 }

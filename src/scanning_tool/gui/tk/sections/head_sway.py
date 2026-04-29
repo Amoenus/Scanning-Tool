@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 
 from scanning_tool.gui.action_types import UiActionType
 from scanning_tool.gui.actions import publish_ui_action
+from scanning_tool.state.actions.runtime import RuntimeAction
 
 from ..overlays import (
     register_anchor_sliders,
@@ -271,7 +272,7 @@ class HeadSwaySection:
         publish_ui_action(UiActionType.RELOAD_ANCHOR_TEMPLATES)
 
     def _manual_realign(self) -> None:
-        publish_ui_action(UiActionType.MANUAL_REALIGN)
+        publish_ui_action(RuntimeAction.MANUAL_REALIGN)
 
     def _open_anchor_directory(self) -> None:
         publish_ui_action(UiActionType.OPEN_ANCHOR_DIRECTORY)

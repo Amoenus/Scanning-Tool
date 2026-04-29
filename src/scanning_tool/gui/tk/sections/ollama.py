@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 
 from scanning_tool.gui.action_types import UiActionType
 from scanning_tool.gui.actions import publish_ui_action
+from scanning_tool.state.actions.runtime import RuntimeAction
 
 if TYPE_CHECKING:
     from scanning_tool.gui.tk.sections.base import SectionContext
@@ -93,5 +94,5 @@ class OllamaSection:
         publish_ui_action(UiActionType.USE_LOCALHOST)
 
     def _restart_ollama(self) -> None:
-        publish_ui_action(UiActionType.RESTART_OLLAMA)
+        publish_ui_action(RuntimeAction.RESTART_OLLAMA)
 

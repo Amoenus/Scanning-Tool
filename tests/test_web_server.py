@@ -15,5 +15,6 @@ def test_web_server_uses_waitress_when_available():
             app,
             host="127.0.0.1",
             port=5000,
+            threads=6,
             _quiet=True,
         )
