@@ -6,8 +6,6 @@ from enum import StrEnum
 class UiActionType(StrEnum):
     """Supported user action types for GUI event dispatch."""
 
-    SINGLE_SCAN = "single_scan"
-    TOGGLE_CONTINUOUS_CAPTURE = "toggle_continuous_capture"
     UPDATE_CONTINUOUS_CAPTURE_INTERVAL = "update_continuous_capture_interval"
     SAVE_CONFIG = "save_config"
     OPEN_MOBILE_UI = "open_mobile_ui"

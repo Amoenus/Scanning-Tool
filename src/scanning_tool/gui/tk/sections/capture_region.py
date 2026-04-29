@@ -12,6 +12,7 @@ from ..overlays import (
     register_capture_sliders,
     sync_capture_sliders,
 )
+from ..overlays.base import safe_tk
 from ..widgets import create_glass_scale
 
 if TYPE_CHECKING:

@@ -14,6 +14,7 @@ from PyQt6.QtWidgets import (
 )
 
 from scanning_tool.gui.action_types import UiActionType
+from scanning_tool.state.actions.scan import ScanAction
 from scanning_tool.gui.actions import publish_ui_action
 from scanning_tool.gui.qt.sections.base import SectionContext
 
@@ -67,10 +68,10 @@ class ControlsSection:
         )
 
     def _start_single_scan(self) -> None:
-        publish_ui_action(UiActionType.SINGLE_SCAN)
+        publish_ui_action(ScanAction.SINGLE_SCAN)
 
     def _toggle_continuous_capture(self) -> None:
-        publish_ui_action(UiActionType.TOGGLE_CONTINUOUS_CAPTURE)
+        publish_ui_action(ScanAction.TOGGLE_CONTINUOUS_CAPTURE)
 
     def _save_config(self) -> None:
         publish_ui_action(UiActionType.SAVE_CONFIG)

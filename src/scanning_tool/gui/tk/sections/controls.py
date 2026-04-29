@@ -6,6 +6,7 @@ from tkinter import ttk
 from typing import TYPE_CHECKING, Any
 
 from scanning_tool.gui.action_types import UiActionType
+from scanning_tool.state.actions.scan import ScanAction
 from scanning_tool.gui.actions import publish_ui_action
 from ..overlays.base import safe_tk
 from ..widgets import (
@@ -80,7 +81,7 @@ class ControlsSection:
         )
 
     def _start_single_scan(self) -> None:
-        publish_ui_action(UiActionType.SINGLE_SCAN)
+        publish_ui_action(ScanAction.SINGLE_SCAN)
 
     def _on_continuous_mode_change(self, continuous_mode: bool) -> None:
         safe_tk(
@@ -127,7 +128,7 @@ class ControlsSection:
         )
 
     def _toggle_continuous_capture(self) -> None:
-        publish_ui_action(UiActionType.TOGGLE_CONTINUOUS_CAPTURE)
+        publish_ui_action(ScanAction.TOGGLE_CONTINUOUS_CAPTURE)
 
     def _update_overlay_region(self) -> None:
         publish_ui_action(UiActionType.UPDATE_OVERLAY_REGION)

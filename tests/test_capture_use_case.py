@@ -6,9 +6,9 @@ from scanning_tool.domain.capture import DepositInfo
 from scanning_tool.services.capture_provider import ScreenCaptureUnavailableError
 from scanning_tool.state.scan_state import ScanState
 from scanning_tool.state.signals import (
-    capture_completed,
-    capture_failed,
-    capture_started,
+    scan_completed,
+    scan_failed,
+    scan_started,
 )
 
 
@@ -110,13 +110,13 @@ def test_capture_use_case_emits_capture_signals_for_success():
         nonlocal completed_result
         completed_result = scan_result
 
-    capture_started.connect(on_started, weak=False)
-    capture_completed.connect(on_completed, weak=False)
+    scan_started.connect(on_started, weak=False)
+    scan_completed.connect(on_completed, weak=False)
     try:
         use_case.capture_once()
     finally:
-        capture_started.disconnect(on_started)
-        capture_completed.disconnect(on_completed)
+        scan_started.disconnect(on_started)
+        scan_completed.disconnect(on_completed)
 
     assert started is True
     assert completed_result is not None
@@ -148,10 +148,10 @@ def test_capture_use_case_emits_capture_failed_signal_for_lock():
         nonlocal failed_args
         failed_args = error
 
-    capture_failed.connect(on_failed, weak=False)
+    scan_failed.connect(on_failed, weak=False)
     try:
         use_case.capture_once()
     finally:
-        capture_failed.disconnect(on_failed)
+        scan_failed.disconnect(on_failed)
 
     assert isinstance(failed_args, ScreenCaptureUnavailableError)

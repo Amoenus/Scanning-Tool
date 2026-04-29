@@ -77,19 +77,19 @@ Suggested concern order: Scan result → Runtime status → Event log → Config
   - Mitigation: each signal handler that updates a read model lives next to the read-model definition; a test asserts the handler is registered for the signal.
 
 ## Implementation Checklist
-- [ ] Create `src/scanning_tool/state/actions/` package with placeholder modules per concern.
-- [ ] Create `src/scanning_tool/state/signals/` package (refactor existing flat module into per-concern submodules).
-- [ ] Create `src/scanning_tool/state/read_models/` package with one dataclass per concern.
-- [ ] Migrate Scan result vocabulary; update publishers and handlers.
+- [x] Create `src/scanning_tool/state/actions/` package with placeholder modules per concern.
+- [x] Create `src/scanning_tool/state/signals/` package (refactor existing flat module into per-concern submodules).
+- [x] Create `src/scanning_tool/state/read_models/` package with one dataclass per concern.
+- [x] Migrate Scan result vocabulary; update publishers and handlers.
 - [ ] Migrate Runtime status vocabulary; absorb existing Ollama and alignment status signals.
 - [ ] Migrate Event log vocabulary; introduce `event_log_emitted` (curated) and `raw_log_emitted` (loguru passthrough).
 - [ ] Migrate Configuration vocabulary; replace flat `UiActionType` config members.
 - [ ] Migrate Edit mode vocabulary (placeholder until PRD 17 implements behavior).
-- [ ] Define `ConcernManifest` dataclass.
-- [ ] Add `MANIFEST` to Tk control panel, Qt PoC, in-game overlay, web overlay.
-- [ ] Write per-concern conformance test base class.
-- [ ] Add at least one conformance scenario per concern.
-- [ ] Add structural assertions (every action handled, every signal published, every claimed concern realized).
+- [x] Define `ConcernManifest` dataclass.
+- [x] Add `MANIFEST` to Tk control panel, Qt PoC, in-game overlay, web overlay.
+- [x] Write per-concern conformance test base class.
+- [x] Add at least one conformance scenario per concern.
+- [x] Add structural assertions (every action handled, every signal published, every claimed concern realized).
 - [ ] Remove the flat `UiActionType` enum.
 - [ ] Update `architecture/concerns-architecture.md` if implementation reveals shape adjustments.
 - [ ] Update `prds/00-overview.md` to reference per-concern model.

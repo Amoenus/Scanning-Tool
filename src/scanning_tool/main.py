@@ -27,9 +27,9 @@ from scanning_tool.state.signals import (
     alignment_failed,
     alignment_requested,
     alignment_reset,
-    capture_completed,
-    capture_failed,
-    capture_started,
+    scan_completed,
+    scan_failed,
+    scan_started,
     ui_action,
 )
 from scanning_tool.web.app import WebService
@@ -101,16 +101,16 @@ def _start_web_server(
     ).start()
 
 
-def _on_capture_started(sender: object, **kwargs: object) -> None:
+def _on_scan_started(sender: object, **kwargs: object) -> None:
     logger.debug("Capture pipeline started.")
 
 
-def _on_capture_completed(sender: object, scan_result=None, **kwargs: object) -> None:
+def _on_scan_completed(sender: object, scan_result=None, **kwargs: object) -> None:
     label = getattr(scan_result, "label", "UNKNOWN")
     logger.info("Capture completed: {}", label)
 
 
-def _on_capture_failed(sender: object, error=None, **kwargs: object) -> None:
+def _on_scan_failed(sender: object, error=None, **kwargs: object) -> None:
     logger.warning("Capture failed: {}", error)
 
 
@@ -132,9 +132,9 @@ def _on_ui_action(sender: object, action=None, **kwargs: object) -> None:
 
 def _register_runtime_signal_handlers() -> None:
     ui_action.connect(_on_ui_action, weak=False)
-    capture_started.connect(_on_capture_started, weak=False)
-    capture_completed.connect(_on_capture_completed, weak=False)
-    capture_failed.connect(_on_capture_failed, weak=False)
+    scan_started.connect(_on_scan_started, weak=False)
+    scan_completed.connect(_on_scan_completed, weak=False)
+    scan_failed.connect(_on_scan_failed, weak=False)
     alignment_requested.connect(_on_alignment_requested, weak=False)
     alignment_failed.connect(_on_alignment_failed, weak=False)
     alignment_reset.connect(_on_alignment_reset, weak=False)

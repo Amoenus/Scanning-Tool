@@ -3,11 +3,16 @@
 from blinker import Signal
 
 from scanning_tool.gui.action_types import UiActionType
+from scanning_tool.state.actions.scan import ScanAction
+
+from scanning_tool.state.signals.scan import (
+    continuous_mode_changed,
+    scan_completed,
+    scan_failed,
+    scan_started,
+)
 
 status_updated: Signal = Signal("status_updated")
-capture_started: Signal = Signal("capture_started")
-capture_completed: Signal = Signal("capture_completed")
-capture_failed: Signal = Signal("capture_failed")
 sync_capture_sliders_signal: Signal = Signal("sync_capture_sliders")
 update_capture_overlay_region_signal: Signal = Signal("update_capture_overlay_region")
 alignment_requested: Signal = Signal("alignment_requested")
@@ -15,7 +20,6 @@ alignment_failed: Signal = Signal("alignment_failed")
 alignment_reset: Signal = Signal("alignment_reset")
 alignment_applied_signal: Signal = Signal("alignment_applied")
 scan_result_updated: Signal = Signal("scan_result_updated")
-continuous_mode_changed: Signal = Signal("continuous_mode_changed")
 alignment_info_updated: Signal = Signal("alignment_info_updated")
 ollama_status_updated: Signal = Signal("ollama_status_updated")
 ollama_readiness_changed: Signal = Signal("ollama_readiness_changed")
@@ -29,7 +33,8 @@ anchor_overlay_visibility_changed: Signal = Signal("anchor_overlay_visibility_ch
 overlay_text_updated: Signal = Signal("overlay_text_updated")
 show_border_changed: Signal = Signal("show_border_changed")
 
-UI_ACTION_SIGNALS: dict[UiActionType, Signal] = {
+UI_ACTION_SIGNALS: dict[object, Signal] = {
     action_type: Signal(f"ui_action_{action_type.value}")
-    for action_type in UiActionType
+    for enum_class in (UiActionType, ScanAction)
+    for action_type in enum_class
 }

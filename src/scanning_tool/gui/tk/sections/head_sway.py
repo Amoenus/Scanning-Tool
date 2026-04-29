@@ -13,6 +13,7 @@ from ..overlays import (
     register_anchor_sliders,
     sync_anchor_sliders,
 )
+from ..overlays.base import safe_tk
 from ..widgets import (
     create_button_row,
     create_glass_scale,
