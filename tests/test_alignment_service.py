@@ -6,6 +6,11 @@ from scanning_tool.domain.alignment import (
 )
 from scanning_tool.domain.common import Offset2D
 from scanning_tool.services.alignment_service import AlignmentService
+from scanning_tool.state.signals import (
+    alignment_failed,
+    alignment_requested,
+    alignment_reset,
+)
 
 
 class FakeAnchorTracker:
@@ -94,3 +99,74 @@ def test_alignment_service_skips_when_anchor_tracker_missing():
 
     assert result is False
     assert alignment_info.enabled is True
+
+
+def test_alignment_service_emits_alignment_signals_when_anchor_not_found():
+    anchor_tracker = FakeAnchorTracker(detection=None)
+    alignment_info = AlignmentInfo(enabled=True)
+    alignment_request = AlignmentRequest(
+        enabled=True,
+        threshold=0.4,
+        anchor_template=CaptureRegion(left=0, top=0, width=50, height=50),
+        anchor_offset=Offset2D(x=0, y=0),
+        capture_region=CaptureRegion(left=10, top=20, width=80, height=80),
+    )
+
+    requested = False
+    reset = False
+
+    def on_requested(sender: object, alignment_request=None) -> None:
+        nonlocal requested
+        requested = True
+
+    def on_reset(sender: object, last_alignment_info=None) -> None:
+        nonlocal reset
+        reset = True
+
+    alignment_requested.connect(on_requested, weak=False)
+    alignment_reset.connect(on_reset, weak=False)
+    try:
+        service = AlignmentService()
+        result = service.align(
+            anchor_tracker,
+            alignment_info,
+            alignment_request,
+        )
+    finally:
+        alignment_requested.disconnect(on_requested)
+        alignment_reset.disconnect(on_reset)
+
+
+    assert result is False
+    assert requested is True
+    assert reset is True
+
+def test_alignment_service_emits_alignment_failed_signal_when_anchor_tracker_missing():
+    alignment_info = AlignmentInfo(enabled=True)
+    alignment_request = AlignmentRequest(
+        enabled=True,
+        threshold=0.4,
+        anchor_template=CaptureRegion(left=0, top=0, width=50, height=50),
+        anchor_offset=Offset2D(x=0, y=0),
+        capture_region=CaptureRegion(left=10, top=20, width=80, height=80),
+    )
+
+    failed = False
+
+    def on_failed(sender: object, reason=None, alignment_request=None) -> None:
+        nonlocal failed
+        failed = reason == "missing_anchor_tracker"
+
+    alignment_failed.connect(on_failed, weak=False)
+    try:
+        service = AlignmentService()
+        result = service.align(
+            None,
+            alignment_info,
+            alignment_request,
+        )
+    finally:
+        alignment_failed.disconnect(on_failed)
+
+    assert result is False
+    assert failed is True

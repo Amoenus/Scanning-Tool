@@ -5,8 +5,14 @@ from blinker import Signal
 from scanning_tool.gui.action_types import UiActionType
 
 status_updated: Signal = Signal("status_updated")
+capture_started: Signal = Signal("capture_started")
+capture_completed: Signal = Signal("capture_completed")
+capture_failed: Signal = Signal("capture_failed")
 sync_capture_sliders_signal: Signal = Signal("sync_capture_sliders")
 update_capture_overlay_region_signal: Signal = Signal("update_capture_overlay_region")
+alignment_requested: Signal = Signal("alignment_requested")
+alignment_failed: Signal = Signal("alignment_failed")
+alignment_reset: Signal = Signal("alignment_reset")
 alignment_applied_signal: Signal = Signal("alignment_applied")
 ollama_status_updated: Signal = Signal("ollama_status_updated")
 ollama_readiness_changed: Signal = Signal("ollama_readiness_changed")

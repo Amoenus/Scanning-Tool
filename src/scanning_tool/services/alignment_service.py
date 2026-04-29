@@ -6,7 +6,12 @@ from typing import TYPE_CHECKING
 from scanning_tool.domain.alignment import AlignmentAppliedEvent
 from scanning_tool.services.alignment_calculator import AlignmentCalculator
 from scanning_tool.services.base_service import BaseService
-from scanning_tool.state.signals import alignment_applied_signal
+from scanning_tool.state.signals import (
+    alignment_applied_signal,
+    alignment_failed,
+    alignment_requested,
+    alignment_reset,
+)
 
 if TYPE_CHECKING:
     from scanning_tool.core.anchor import AnchorRegionTracker
@@ -36,9 +41,16 @@ class AlignmentService(BaseService):
         if not alignment_request.enabled:
             return False
 
+        alignment_requested.send(self, alignment_request=alignment_request)
+
         if anchor_tracker is None:
             self.logger.debug(
                 "Anchor tracker not initialised; skipping auto alignment.",
+            )
+            alignment_failed.send(
+                self,
+                reason="missing_anchor_tracker",
+                alignment_request=alignment_request,
             )
             return False
 
@@ -47,6 +59,7 @@ class AlignmentService(BaseService):
 
         if not detection:
             self._reset_alignment(last_alignment_info)
+            alignment_reset.send(self, last_alignment_info=last_alignment_info)
             return False
 
         self._apply_alignment(

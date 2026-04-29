@@ -23,6 +23,14 @@ from scanning_tool.services.capture_provider import ScreenCaptureProvider
 from scanning_tool.services.hotkeys_service import hotkey_listener
 from scanning_tool.services.ollama_service import ollama_service
 from scanning_tool.state import manager
+from scanning_tool.state.signals import (
+    alignment_failed,
+    alignment_requested,
+    alignment_reset,
+    capture_completed,
+    capture_failed,
+    capture_started,
+)
 from scanning_tool.web.app import WebService
 from scanning_tool.web.server import WebServer
 from scanning_tool.web.status_builder import DefaultStatusResponseBuilder
@@ -90,6 +98,40 @@ def _start_web_server(
         ),
         daemon=True,
     ).start()
+
+
+def _on_capture_started(sender: object, **kwargs: object) -> None:
+    logger.debug("Capture pipeline started.")
+
+
+def _on_capture_completed(sender: object, scan_result=None, **kwargs: object) -> None:
+    label = getattr(scan_result, "label", "UNKNOWN")
+    logger.info("Capture completed: {}", label)
+
+
+def _on_capture_failed(sender: object, error=None, **kwargs: object) -> None:
+    logger.warning("Capture failed: {}", error)
+
+
+def _on_alignment_requested(sender: object, alignment_request=None, **kwargs: object) -> None:
+    logger.debug("Alignment requested: {}", alignment_request)
+
+
+def _on_alignment_failed(sender: object, reason=None, **kwargs: object) -> None:
+    logger.warning("Alignment failed: {}", reason)
+
+
+def _on_alignment_reset(sender: object, **kwargs: object) -> None:
+    logger.debug("Alignment reset to default state.")
+
+
+def _register_runtime_signal_handlers() -> None:
+    capture_started.connect(_on_capture_started, weak=False)
+    capture_completed.connect(_on_capture_completed, weak=False)
+    capture_failed.connect(_on_capture_failed, weak=False)
+    alignment_requested.connect(_on_alignment_requested, weak=False)
+    alignment_failed.connect(_on_alignment_failed, weak=False)
+    alignment_reset.connect(_on_alignment_reset, weak=False)
 
 
 def _build_flask_app(
@@ -164,6 +206,7 @@ def main() -> None:
 
     capture_service = _create_capture_service(config, scan_state, service_state)
 
+    _register_runtime_signal_handlers()
     _initialize_services()
     _initialize_anchor_tracking(config, scan_state)
     _start_hotkey_listener(capture_service)

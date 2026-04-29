@@ -5,6 +5,11 @@ from scanning_tool.config.service import ConfigData
 from scanning_tool.domain.capture import DepositInfo
 from scanning_tool.services.capture_provider import ScreenCaptureUnavailableError
 from scanning_tool.state.scan_state import ScanState
+from scanning_tool.state.signals import (
+    capture_completed,
+    capture_failed,
+    capture_started,
+)
 
 
 class FakeCaptureProvider:
@@ -80,3 +85,73 @@ def test_capture_use_case_handles_locked_screen_gracefully():
     assert any(
         "Screen capture unavailable" in status for status in statuses
     )
+
+
+def test_capture_use_case_emits_capture_signals_for_success():
+    config = ConfigData()
+    scan_state = ScanState()
+    use_case = CaptureUseCase(
+        config=config,
+        scan_state=scan_state,
+        capture_provider=FakeCaptureProvider(),
+        ocr_provider=FakeOCRProvider(),
+        deposit_lookup=FakeDepositLookupProvider(),
+        alignment_adapter=FakeAlignmentAdapter(),
+    )
+
+    started = False
+    completed_result = None
+
+    def on_started(sender: object) -> None:
+        nonlocal started
+        started = True
+
+    def on_completed(sender: object, scan_result=None) -> None:
+        nonlocal completed_result
+        completed_result = scan_result
+
+    capture_started.connect(on_started, weak=False)
+    capture_completed.connect(on_completed, weak=False)
+    try:
+        use_case.capture_once()
+    finally:
+        capture_started.disconnect(on_started)
+        capture_completed.disconnect(on_completed)
+
+    assert started is True
+    assert completed_result is not None
+    assert completed_result.label == "12345"
+    assert completed_result.info.name == "Test Ore"
+
+
+def test_capture_use_case_emits_capture_failed_signal_for_lock():
+    class LockedScreenCaptureProvider:
+        def capture(self, region):
+            raise ScreenCaptureUnavailableError(
+                "Screen capture unavailable: display may be locked.",
+            )
+
+    config = ConfigData()
+    scan_state = ScanState()
+    use_case = CaptureUseCase(
+        config=config,
+        scan_state=scan_state,
+        capture_provider=LockedScreenCaptureProvider(),
+        ocr_provider=FakeOCRProvider(),
+        deposit_lookup=FakeDepositLookupProvider(),
+        alignment_adapter=FakeAlignmentAdapter(),
+    )
+
+    failed_args = None
+
+    def on_failed(sender: object, error=None):
+        nonlocal failed_args
+        failed_args = error
+
+    capture_failed.connect(on_failed, weak=False)
+    try:
+        use_case.capture_once()
+    finally:
+        capture_failed.disconnect(on_failed)
+
+    assert isinstance(failed_args, ScreenCaptureUnavailableError)
