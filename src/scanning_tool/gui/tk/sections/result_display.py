@@ -4,7 +4,7 @@ from __future__ import annotations
 from tkinter import ttk
 from typing import TYPE_CHECKING
 
-from scanning_tool.gui.action_types import UiActionType
+from scanning_tool.state.actions import ConfigAction
 from scanning_tool.gui.actions import publish_ui_action
 
 from ..overlays import (
@@ -60,7 +60,7 @@ class ResultDisplaySection:
         if self._ctx.control_state.syncing.overlay:
             return
         publish_ui_action(
-            UiActionType.UPDATE_RESULT_DISPLAY_OFFSET,
+            ConfigAction.UPDATE_RESULT_DISPLAY_OFFSET,
             {
                 "x": int(self._offset_x.get()),
                 "y": int(self._offset_y.get()),

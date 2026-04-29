@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from scanning_tool.gui.action_types import UiActionType
+from scanning_tool.state.actions import ConfigAction
 from scanning_tool.gui.overlays import (
     hide_capture_overlay,
     show_capture_overlay,
@@ -71,7 +71,7 @@ def _handle_toggle_capture_border(
 
 
 CAPTURE_ACTION_HANDLERS: dict[str, Handler] = {
-    UiActionType.UPDATE_CAPTURE_REGION: _handle_update_capture_region,
-    UiActionType.TOGGLE_CAPTURE_BOX: _handle_toggle_capture_box,
-    UiActionType.TOGGLE_CAPTURE_BORDER: _handle_toggle_capture_border,
+    ConfigAction.UPDATE_CAPTURE_REGION: _handle_update_capture_region,
+    ConfigAction.TOGGLE_CAPTURE_BOX: _handle_toggle_capture_box,
+    ConfigAction.TOGGLE_CAPTURE_BORDER: _handle_toggle_capture_border,
 }

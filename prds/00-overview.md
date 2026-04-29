@@ -48,7 +48,8 @@ Star Citizen players need a fast, reliable way to capture deposit scan codes wit
 - `main.py` orchestrates startup, service initialization, hotkeys, and the GUI.
 - `config_service.py` loads and persists settings through typed models.
 - `domain/models.py` contains business types for deposits, scan signatures, capture regions, and results.
-- `state/` captures runtime state for scanning, overlays, and service runtime.
+- `state/` captures runtime state and uses a per-concern architecture (Configuration, Runtime status, Event log, Scan result, Edit mode) with namespaced actions and signals.
 - `services/` contains capture, alignment, Ollama, and configuration services.
 - `core/anchor/` implements anchor tracking and template matching.
 - `web.py` hosts the overlay server.
+

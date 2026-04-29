@@ -12,7 +12,7 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-from scanning_tool.gui.action_types import UiActionType
+from scanning_tool.state.actions import ConfigAction
 from scanning_tool.gui.actions import publish_ui_action
 from scanning_tool.gui.qt.sections.base import SectionContext
 
@@ -64,7 +64,7 @@ class CaptureRegionSection:
 
     def _on_region_change(self, _: int) -> None:
         publish_ui_action(
-            UiActionType.UPDATE_CAPTURE_REGION,
+            ConfigAction.UPDATE_CAPTURE_REGION,
             {
                 "left": self._left.value(),
                 "top": self._top.value(),
@@ -78,5 +78,5 @@ class CaptureRegionSection:
 
     def _toggle_capture_border(self, state: int) -> None:
         publish_ui_action(
-            UiActionType.TOGGLE_CAPTURE_BORDER,
+            ConfigAction.TOGGLE_CAPTURE_BORDER,
         )

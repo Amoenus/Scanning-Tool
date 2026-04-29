@@ -1,13 +1,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
 
+from scanning_tool.state.actions import ActionType
 from scanning_tool.state.signals import UI_ACTION_SIGNALS, ui_action
-
-if TYPE_CHECKING:
-    from scanning_tool.gui.action_types import UiActionType
-
 
 type UiActionPayload = dict[str, object]
 
@@ -20,11 +16,11 @@ def _empty_payload() -> UiActionPayload:
 class UiAction:
     """Represents a user intent event emitted from the GUI."""
 
-    type: UiActionType
+    type: ActionType
     payload: UiActionPayload = field(default_factory=_empty_payload)
 
 
-def publish_ui_action(action_type: UiActionType, payload: UiActionPayload | None = None) -> None:
+def publish_ui_action(action_type: ActionType, payload: UiActionPayload | None = None) -> None:
     normalized_payload: UiActionPayload = payload if payload is not None else {}
     ui_action.send(None, action=UiAction(type=action_type, payload=normalized_payload))
 

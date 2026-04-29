@@ -129,7 +129,7 @@ class TestSecurity(unittest.TestCase):
         ) as mock_get_local_ip:
             mock_get_local_ip.return_value = "192.168.1.100"
             from scanning_tool.gui.tk.sections.mobile_overlay import MobileOverlaySection
-            from scanning_tool.gui.action_types import UiActionType
+            from scanning_tool.state.actions import ConfigAction
 
             section = MobileOverlaySection()
             section._ctx = MagicMock()
@@ -138,7 +138,7 @@ class TestSecurity(unittest.TestCase):
             section._open_mobile_overlay()
 
             mock_publish.assert_called_once_with(
-                UiActionType.OPEN_MOBILE_UI,
+                ConfigAction.OPEN_MOBILE_UI,
                 {"url": "http://192.168.1.100:5000"}
             )
 
@@ -148,7 +148,7 @@ class TestSecurity(unittest.TestCase):
 
         with patch("scanning_tool.gui.tk.sections.mobile_overlay.publish_ui_action") as mock_publish:
             from scanning_tool.gui.tk.sections.mobile_overlay import MobileOverlaySection
-            from scanning_tool.gui.action_types import UiActionType
+            from scanning_tool.state.actions import ConfigAction
 
             section = MobileOverlaySection()
             section._ctx = MagicMock()
@@ -157,7 +157,7 @@ class TestSecurity(unittest.TestCase):
             section._open_mobile_overlay()
 
             mock_publish.assert_called_once_with(
-                UiActionType.OPEN_MOBILE_UI,
+                ConfigAction.OPEN_MOBILE_UI,
                 {"url": "http://127.0.0.1:8080"}
             )
 

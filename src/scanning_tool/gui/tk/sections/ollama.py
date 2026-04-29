@@ -6,7 +6,7 @@ import tkinter as tk
 from tkinter import ttk
 from typing import TYPE_CHECKING
 
-from scanning_tool.gui.action_types import UiActionType
+from scanning_tool.state.actions import ConfigAction
 from scanning_tool.gui.actions import publish_ui_action
 from scanning_tool.state.actions.runtime import RuntimeAction
 
@@ -80,18 +80,18 @@ class OllamaSection:
 
     def _apply_model(self) -> None:
         publish_ui_action(
-            UiActionType.APPLY_OLLAMA_MODEL,
+            ConfigAction.APPLY_OLLAMA_MODEL,
             {"model": self._model_var.get().strip()},
         )
 
     def _apply_host(self) -> None:
         publish_ui_action(
-            UiActionType.APPLY_OLLAMA_HOST,
+            ConfigAction.APPLY_OLLAMA_HOST,
             {"host": self._host_var.get().strip()},
         )
 
     def _use_localhost(self) -> None:
-        publish_ui_action(UiActionType.USE_LOCALHOST)
+        publish_ui_action(ConfigAction.USE_LOCALHOST)
 
     def _restart_ollama(self) -> None:
         publish_ui_action(RuntimeAction.RESTART_OLLAMA)

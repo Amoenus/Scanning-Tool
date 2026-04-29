@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING
 from loguru import logger
 from PIL import Image, ImageTk
 
-from scanning_tool.gui.action_types import UiActionType
+from scanning_tool.state.actions import ConfigAction
 from scanning_tool.gui.actions import publish_ui_action
 from scanning_tool.gui.tk.widgets import create_button_row, create_status_label
 from scanning_tool.state.signals import mobile_qr_ready
@@ -54,11 +54,11 @@ class MobileOverlaySection:
 
     def _open_mobile_overlay(self) -> None:
         url = self._build_mobile_overlay_url()
-        publish_ui_action(UiActionType.OPEN_MOBILE_UI, {"url": url})
+        publish_ui_action(ConfigAction.OPEN_MOBILE_UI, {"url": url})
 
     def _show_mobile_qr(self) -> None:
         url = self._build_mobile_overlay_url()
-        publish_ui_action(UiActionType.SHOW_MOBILE_QR, {"url": url})
+        publish_ui_action(ConfigAction.SHOW_MOBILE_QR, {"url": url})
 
     def _on_mobile_qr_ready(self, sender: object, url: str, png_bytes: bytes) -> None:
         if url != self._build_mobile_overlay_url():

@@ -14,7 +14,7 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-from scanning_tool.gui.action_types import UiActionType
+from scanning_tool.state.actions import ConfigAction
 from scanning_tool.gui.actions import publish_ui_action
 from scanning_tool.state.actions.runtime import RuntimeAction
 from scanning_tool.gui.qt.sections.base import SectionContext
@@ -120,31 +120,31 @@ class HeadSwaySection:
 
     def _toggle_auto_align(self) -> None:
         publish_ui_action(
-            UiActionType.TOGGLE_AUTO_ALIGNMENT,
+            ConfigAction.TOGGLE_AUTO_ALIGNMENT,
             {"enabled": self._auto_align_checkbox.isChecked()},
         )
 
     def _toggle_anchor_overlay_visibility(self) -> None:
         publish_ui_action(
-            UiActionType.TOGGLE_ANCHOR_OVERLAY,
+            ConfigAction.TOGGLE_ANCHOR_OVERLAY,
             {"visible": self._anchor_overlay_checkbox.isChecked()},
         )
 
     def _update_alignment_interval(self, value: int) -> None:
         publish_ui_action(
-            UiActionType.UPDATE_ALIGNMENT_POLL_INTERVAL,
+            ConfigAction.UPDATE_ALIGNMENT_POLL_INTERVAL,
             {"value": value},
         )
 
     def _update_threshold(self, value: int) -> None:
         publish_ui_action(
-            UiActionType.UPDATE_ANCHOR_THRESHOLD,
+            ConfigAction.UPDATE_ANCHOR_THRESHOLD,
             {"value": value / 100.0},
         )
 
     def _on_region_change(self, _: int) -> None:
         publish_ui_action(
-            UiActionType.UPDATE_ANCHOR_REGION,
+            ConfigAction.UPDATE_ANCHOR_REGION,
             {
                 "left": self._anchor_left.value(),
                 "top": self._anchor_top.value(),
@@ -158,7 +158,7 @@ class HeadSwaySection:
 
     def _on_offset_change(self, _: int) -> None:
         publish_ui_action(
-            UiActionType.UPDATE_ANCHOR_OFFSET,
+            ConfigAction.UPDATE_ANCHOR_OFFSET,
             {"x": self._offset_x.value(), "y": self._offset_y.value()},
         )
 
@@ -167,10 +167,10 @@ class HeadSwaySection:
         return True
 
     def _reload_anchor_templates(self) -> None:
-        publish_ui_action(UiActionType.RELOAD_ANCHOR_TEMPLATES)
+        publish_ui_action(ConfigAction.RELOAD_ANCHOR_TEMPLATES)
 
     def _manual_realign(self) -> None:
         publish_ui_action(RuntimeAction.MANUAL_REALIGN)
 
     def _open_anchor_directory(self) -> None:
-        publish_ui_action(UiActionType.OPEN_ANCHOR_DIRECTORY)
+        publish_ui_action(ConfigAction.OPEN_ANCHOR_DIRECTORY)

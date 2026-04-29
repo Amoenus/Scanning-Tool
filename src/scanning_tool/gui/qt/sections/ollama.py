@@ -14,7 +14,7 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-from scanning_tool.gui.action_types import UiActionType
+from scanning_tool.state.actions import ConfigAction
 from scanning_tool.gui.actions import publish_ui_action
 from scanning_tool.state.actions.runtime import RuntimeAction
 
@@ -83,19 +83,19 @@ class OllamaSection:
     def _apply_model(self) -> None:
         model_value = self._model_combobox.currentText().strip()
         publish_ui_action(
-            UiActionType.APPLY_OLLAMA_MODEL,
+            ConfigAction.APPLY_OLLAMA_MODEL,
             {"model": model_value},
         )
 
     def _apply_host(self) -> None:
         host_value = self._host_input.text().strip()
         publish_ui_action(
-            UiActionType.APPLY_OLLAMA_HOST,
+            ConfigAction.APPLY_OLLAMA_HOST,
             {"host": host_value},
         )
 
     def _use_localhost(self) -> None:
-        publish_ui_action(UiActionType.USE_LOCALHOST)
+        publish_ui_action(ConfigAction.USE_LOCALHOST)
 
     def _restart_ollama(self) -> None:
         publish_ui_action(RuntimeAction.RESTART_OLLAMA)

@@ -3,7 +3,7 @@ from __future__ import annotations
 from threading import Thread
 from typing import TYPE_CHECKING
 
-from scanning_tool.gui.action_types import UiActionType
+from scanning_tool.state.actions import ConfigAction
 from scanning_tool.state.actions.scan import ScanAction
 from scanning_tool.gui.overlays import choose_label_color, update_overlay_region
 from scanning_tool.state.signals import status_updated
@@ -107,8 +107,8 @@ CONTROL_ACTION_HANDLERS: dict[
 ] = {
     ScanAction.SINGLE_SCAN: _handle_single_scan,
     ScanAction.TOGGLE_CONTINUOUS_CAPTURE: _handle_toggle_continuous_capture,
-    UiActionType.UPDATE_CONTINUOUS_CAPTURE_INTERVAL: _handle_update_continuous_capture_interval,
-    UiActionType.SAVE_CONFIG: _handle_save_config,
-    UiActionType.UPDATE_OVERLAY_REGION: _handle_update_overlay_region,
-    UiActionType.CHOOSE_LABEL_COLOR: _handle_choose_label_color,
+    ConfigAction.UPDATE_CONTINUOUS_CAPTURE_INTERVAL: _handle_update_continuous_capture_interval,
+    ConfigAction.SAVE_CONFIG: _handle_save_config,
+    ConfigAction.UPDATE_OVERLAY_REGION: _handle_update_overlay_region,
+    ConfigAction.CHOOSE_LABEL_COLOR: _handle_choose_label_color,
 }

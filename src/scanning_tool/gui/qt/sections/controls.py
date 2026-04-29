@@ -13,7 +13,7 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-from scanning_tool.gui.action_types import UiActionType
+from scanning_tool.state.actions import ConfigAction
 from scanning_tool.state.actions.scan import ScanAction
 from scanning_tool.gui.actions import publish_ui_action
 from scanning_tool.gui.qt.sections.base import SectionContext
@@ -63,7 +63,7 @@ class ControlsSection:
 
     def _on_interval_change(self, value: float) -> None:
         publish_ui_action(
-            UiActionType.UPDATE_CONTINUOUS_CAPTURE_INTERVAL,
+            ConfigAction.UPDATE_CONTINUOUS_CAPTURE_INTERVAL,
             {"value": float(value)},
         )
 
@@ -74,7 +74,7 @@ class ControlsSection:
         publish_ui_action(ScanAction.TOGGLE_CONTINUOUS_CAPTURE)
 
     def _save_config(self) -> None:
-        publish_ui_action(UiActionType.SAVE_CONFIG)
+        publish_ui_action(ConfigAction.SAVE_CONFIG)
 
     def _on_continuous_mode_change(self, continuous_mode: bool) -> None:
         QTimer.singleShot(0, lambda: self._update_continuous_button_text(continuous_mode))

@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 from scanning_tool.config import ensure_anchor_directory
 from scanning_tool.core.anchor import AnchorRegionTracker
 from scanning_tool.domain.alignment import AlignmentRequest
-from scanning_tool.gui.action_types import UiActionType
+from scanning_tool.state.actions import ConfigAction
 from scanning_tool.state.actions.runtime import RuntimeAction
 from scanning_tool.gui.overlays import (
     hide_anchor_overlay,
@@ -225,13 +225,13 @@ def _handle_open_anchor_directory(
 
 
 ANCHOR_ACTION_HANDLERS = {
-    UiActionType.TOGGLE_AUTO_ALIGNMENT: _handle_toggle_auto_alignment,
-    UiActionType.TOGGLE_ANCHOR_OVERLAY: _handle_toggle_anchor_overlay,
-    UiActionType.UPDATE_ALIGNMENT_POLL_INTERVAL: _handle_update_alignment_poll_interval,
-    UiActionType.UPDATE_ANCHOR_THRESHOLD: _handle_update_anchor_threshold,
-    UiActionType.UPDATE_ANCHOR_REGION: _handle_update_anchor_region,
-    UiActionType.UPDATE_ANCHOR_OFFSET: _handle_update_anchor_offset,
-    UiActionType.RELOAD_ANCHOR_TEMPLATES: _handle_reload_anchor_templates,
+    ConfigAction.TOGGLE_AUTO_ALIGNMENT: _handle_toggle_auto_alignment,
+    ConfigAction.TOGGLE_ANCHOR_OVERLAY: _handle_toggle_anchor_overlay,
+    ConfigAction.UPDATE_ALIGNMENT_POLL_INTERVAL: _handle_update_alignment_poll_interval,
+    ConfigAction.UPDATE_ANCHOR_THRESHOLD: _handle_update_anchor_threshold,
+    ConfigAction.UPDATE_ANCHOR_REGION: _handle_update_anchor_region,
+    ConfigAction.UPDATE_ANCHOR_OFFSET: _handle_update_anchor_offset,
+    ConfigAction.RELOAD_ANCHOR_TEMPLATES: _handle_reload_anchor_templates,
     RuntimeAction.MANUAL_REALIGN: _handle_manual_realign,
-    UiActionType.OPEN_ANCHOR_DIRECTORY: _handle_open_anchor_directory,
+    ConfigAction.OPEN_ANCHOR_DIRECTORY: _handle_open_anchor_directory,
 }

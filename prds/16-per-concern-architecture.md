@@ -82,14 +82,14 @@ Suggested concern order: Scan result → Runtime status → Event log → Config
 - [x] Create `src/scanning_tool/state/read_models/` package with one dataclass per concern.
 - [x] Migrate Scan result vocabulary; update publishers and handlers.
 - [x] Migrate Runtime status vocabulary; absorb existing Ollama and alignment status signals.
-- [ ] Migrate Event log vocabulary; introduce `event_log_emitted` (curated) and `raw_log_emitted` (loguru passthrough).
-- [ ] Migrate Configuration vocabulary; replace flat `UiActionType` config members.
-- [ ] Migrate Edit mode vocabulary (placeholder until PRD 17 implements behavior).
+- [x] Migrate Event log vocabulary; introduce `event_log_emitted` (curated) and `raw_log_emitted` (loguru passthrough).
+- [x] Migrate Configuration vocabulary; replace flat `UiActionType` config members.
+- [x] Migrate Edit mode vocabulary (placeholder until PRD 17 implements behavior).
 - [x] Define `ConcernManifest` dataclass.
 - [x] Add `MANIFEST` to Tk control panel, Qt PoC, in-game overlay, web overlay.
 - [x] Write per-concern conformance test base class.
 - [x] Add at least one conformance scenario per concern.
 - [x] Add structural assertions (every action handled, every signal published, every claimed concern realized).
-- [ ] Remove the flat `UiActionType` enum.
-- [ ] Update `architecture/concerns-architecture.md` if implementation reveals shape adjustments.
-- [ ] Update `prds/00-overview.md` to reference per-concern model.
+- [x] Remove the flat `UiActionType` enum.
+- [x] Update `architecture/concerns-architecture.md` if implementation reveals shape adjustments.
+- [x] Update `prds/00-overview.md` to reference per-concern model.

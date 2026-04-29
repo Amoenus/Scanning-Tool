@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from scanning_tool.gui.action_types import UiActionType
+from scanning_tool.state.actions import ConfigAction
 from scanning_tool.gui.overlays import reposition_info_overlay
 from scanning_tool.state.signals import status_updated
 
@@ -30,5 +30,5 @@ def _handle_update_result_display_offset(
 
 
 RESULT_DISPLAY_ACTION_HANDLERS = {
-    UiActionType.UPDATE_RESULT_DISPLAY_OFFSET: _handle_update_result_display_offset,
+    ConfigAction.UPDATE_RESULT_DISPLAY_OFFSET: _handle_update_result_display_offset,
 }

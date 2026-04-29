@@ -5,7 +5,7 @@ import logging
 import webbrowser
 from typing import TYPE_CHECKING
 
-from scanning_tool.gui.action_types import UiActionType
+from scanning_tool.state.actions import ConfigAction
 from scanning_tool.state.signals import mobile_qr_ready, status_updated
 
 if TYPE_CHECKING:
@@ -63,6 +63,6 @@ def _handle_show_mobile_qr(
 
 
 MOBILE_OVERLAY_ACTION_HANDLERS = {
-    UiActionType.OPEN_MOBILE_UI: _handle_open_mobile_ui,
-    UiActionType.SHOW_MOBILE_QR: _handle_show_mobile_qr,
+    ConfigAction.OPEN_MOBILE_UI: _handle_open_mobile_ui,
+    ConfigAction.SHOW_MOBILE_QR: _handle_show_mobile_qr,
 }

@@ -5,7 +5,7 @@ import tkinter as tk
 from tkinter import ttk
 from typing import TYPE_CHECKING, Any
 
-from scanning_tool.gui.action_types import UiActionType
+from scanning_tool.state.actions import ConfigAction
 from scanning_tool.state.actions.scan import ScanAction
 from scanning_tool.gui.actions import publish_ui_action
 from ..overlays.base import safe_tk
@@ -76,7 +76,7 @@ class ControlsSection:
             return
         value = max(0.2, min(30.0, value))
         publish_ui_action(
-            UiActionType.UPDATE_CONTINUOUS_CAPTURE_INTERVAL,
+            ConfigAction.UPDATE_CONTINUOUS_CAPTURE_INTERVAL,
             {"value": value},
         )
 
@@ -110,7 +110,7 @@ class ControlsSection:
 
     def _toggle_capture_box(self) -> None:
         publish_ui_action(
-            UiActionType.TOGGLE_CAPTURE_BOX,
+            ConfigAction.TOGGLE_CAPTURE_BOX,
             {"visible": not self._is_capture_box_visible()},
         )
 
@@ -131,10 +131,10 @@ class ControlsSection:
         publish_ui_action(ScanAction.TOGGLE_CONTINUOUS_CAPTURE)
 
     def _update_overlay_region(self) -> None:
-        publish_ui_action(UiActionType.UPDATE_OVERLAY_REGION)
+        publish_ui_action(ConfigAction.UPDATE_OVERLAY_REGION)
 
     def _choose_label_color(self) -> None:
-        publish_ui_action(UiActionType.CHOOSE_LABEL_COLOR)
+        publish_ui_action(ConfigAction.CHOOSE_LABEL_COLOR)
 
     def _save_config(self) -> None:
-        publish_ui_action(UiActionType.SAVE_CONFIG)
+        publish_ui_action(ConfigAction.SAVE_CONFIG)
