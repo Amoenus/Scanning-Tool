@@ -1,6 +1,8 @@
 """Head sway compensation section for the Qt scanning tool GUI."""
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from PyQt6.QtWidgets import (
     QCheckBox,
     QFormLayout,
@@ -15,7 +17,8 @@ from PyQt6.QtWidgets import (
 from scanning_tool.gui.action_types import UiActionType
 from scanning_tool.gui.actions import publish_ui_action
 
-from .base import SectionContext
+if TYPE_CHECKING:
+    from scanning_tool.gui.qt.sections.base import SectionContext
 
 
 class HeadSwaySection:
