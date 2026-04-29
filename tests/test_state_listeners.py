@@ -46,6 +46,43 @@ def test_overlay_state_capture_root_listener_is_called() -> None:
     assert received == [root_object, None]
 
 
+def test_overlay_state_anchor_visibility_listener_is_called() -> None:
+    overlay_state = OverlayState()
+    received: list[bool] = []
+
+    overlay_state.add_anchor_overlay_visibility_listener(lambda visible: received.append(visible))
+
+    overlay_state.anchor_overlay_visible = False
+    overlay_state.anchor_overlay_visible = True
+
+    assert received == [False, True]
+
+
+def test_overlay_state_show_border_listener_is_called() -> None:
+    overlay_state = OverlayState()
+    received: list[bool] = []
+
+    overlay_state.add_show_border_listener(lambda visible: received.append(visible))
+
+    overlay_state.show_border = False
+    overlay_state.show_border = True
+
+    assert received == [False, True]
+
+
+def test_overlay_state_info_root_listener_is_called() -> None:
+    overlay_state = OverlayState()
+    received: list[object | None] = []
+
+    overlay_state.add_info_overlay_root_listener(lambda root: received.append(root))
+
+    root_object = object()
+    overlay_state.info_overlay_root = root_object
+    overlay_state.info_overlay_root = None
+
+    assert received == [root_object, None]
+
+
 def test_gui_overlays_imports_generic_api_without_tk() -> None:
     from importlib import import_module
 

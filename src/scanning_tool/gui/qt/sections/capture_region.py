@@ -46,6 +46,7 @@ class CaptureRegionSection:
         self._border_checkbox = QCheckBox("Show capture border", group)
         self._border_checkbox.setChecked(ctx.overlay_state.show_border)
         self._border_checkbox.stateChanged.connect(self._toggle_capture_border)
+        ctx.overlay_state.add_show_border_listener(self._on_show_border_visibility_change)
         layout.addWidget(self._border_checkbox)
 
         self._left.valueChanged.connect(self._on_region_change)
@@ -71,6 +72,9 @@ class CaptureRegionSection:
                 "height": self._height.value(),
             },
         )
+
+    def _on_show_border_visibility_change(self, visible: bool) -> None:
+        self._border_checkbox.setChecked(visible)
 
     def _toggle_capture_border(self, state: int) -> None:
         publish_ui_action(

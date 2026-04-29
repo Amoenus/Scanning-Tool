@@ -52,6 +52,9 @@ class HeadSwaySection:
             command=self._toggle_anchor_overlay_visibility,
             style="Glass.TCheckbutton",
         ).pack(anchor="w", padx=5, pady=(0, 5))
+        ctx.overlay_state.add_anchor_overlay_visibility_listener(
+            self._on_anchor_overlay_visibility_change,
+        )
 
         self._build_interval_row(frame, ctx)
         self._build_threshold_row(frame, ctx)
@@ -237,6 +240,9 @@ class HeadSwaySection:
             UiActionType.TOGGLE_ANCHOR_OVERLAY,
             {"visible": self._anchor_overlay_var.get()},
         )
+
+    def _on_anchor_overlay_visibility_change(self, visible: bool) -> None:
+        safe_tk(lambda: self._anchor_overlay_var.set(visible))
 
     def _update_alignment_interval(self, *_args: object) -> None:
         try:

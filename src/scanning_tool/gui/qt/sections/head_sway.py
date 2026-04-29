@@ -53,8 +53,11 @@ class HeadSwaySection:
         layout.addWidget(self._auto_align_checkbox)
 
         self._anchor_overlay_checkbox = QCheckBox("Show anchor overlay", group)
-        self._anchor_overlay_checkbox.setChecked(ctx.overlay_state.anchor.visible)
+        self._anchor_overlay_checkbox.setChecked(ctx.overlay_state.anchor_overlay_visible)
         self._anchor_overlay_checkbox.stateChanged.connect(self._toggle_anchor_overlay_visibility)
+        ctx.overlay_state.add_anchor_overlay_visibility_listener(
+            self._on_anchor_overlay_visibility_change,
+        )
         layout.addWidget(self._anchor_overlay_checkbox)
 
         form = QFormLayout()
@@ -148,6 +151,9 @@ class HeadSwaySection:
                 "height": self._anchor_height.value(),
             },
         )
+
+    def _on_anchor_overlay_visibility_change(self, visible: bool) -> None:
+        self._anchor_overlay_checkbox.setChecked(visible)
 
     def _on_offset_change(self, _: int) -> None:
         publish_ui_action(

@@ -57,10 +57,16 @@ class CaptureRegionSection:
             command=self._toggle_capture_border,
             style="Glass.TCheckbutton",
         ).pack(anchor="w", padx=5, pady=(0, 5))
+        self._ctx.overlay_state.add_show_border_listener(
+            self._on_show_border_visibility_change,
+        )
 
     def _toggle_capture_border(self) -> None:
         publish_ui_action(UiActionType.TOGGLE_CAPTURE_BORDER)
         self._border_var.set(self._ctx.overlay_state.show_border)
+
+    def _on_show_border_visibility_change(self, visible: bool) -> None:
+        safe_tk(lambda: self._border_var.set(visible))
 
     def _make_capture_scale(
         self,

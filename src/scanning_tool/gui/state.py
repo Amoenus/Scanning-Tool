@@ -12,6 +12,9 @@ from scanning_tool.gui.layout_types import CaptureOverlayLayout, InfoOverlayGeom
 
 ScaleWidget = Any
 OverlayCaptureRootListener = Callable[[Any | None], None]
+OverlayTextListener = Callable[[str], None]
+OverlayVisibilityListener = Callable[[bool], None]
+BorderVisibilityListener = Callable[[bool], None]
 
 
 @dataclass
@@ -124,9 +127,24 @@ class OverlayState:
     info: InfoOverlayState = field(default_factory=InfoOverlayState)
     anchor: AnchorOverlayState = field(default_factory=AnchorOverlayState)
     border_canvas: Any | None = None
-    show_border: bool = True
+    _show_border: bool = field(default=True, init=False, repr=False)
 
     _capture_overlay_root_signal: Signal = field(
+        default_factory=Signal, init=False, repr=False,
+    )
+    _anchor_overlay_root_signal: Signal = field(
+        default_factory=Signal, init=False, repr=False,
+    )
+    _anchor_overlay_visibility_signal: Signal = field(
+        default_factory=Signal, init=False, repr=False,
+    )
+    _info_overlay_root_signal: Signal = field(
+        default_factory=Signal, init=False, repr=False,
+    )
+    _overlay_text_signal: Signal = field(
+        default_factory=Signal, init=False, repr=False,
+    )
+    _show_border_signal: Signal = field(
         default_factory=Signal, init=False, repr=False,
     )
 
@@ -193,7 +211,22 @@ class OverlayState:
 
     @info_overlay_root.setter
     def info_overlay_root(self, value: Any | None) -> None:
+        if self.info.root is value:
+            return
         self.info.root = value
+        self._notify_info_overlay_root_listeners()
+
+    def add_info_overlay_root_listener(
+        self,
+        listener: OverlayCaptureRootListener,
+    ) -> None:
+        def receiver(sender: object, info_overlay_root: Any | None) -> None:
+            listener(info_overlay_root)
+
+        self._info_overlay_root_signal.connect(receiver, weak=False)
+
+    def _notify_info_overlay_root_listeners(self) -> None:
+        self._info_overlay_root_signal.send(self, info_overlay_root=self.info.root)
 
     @property
     def info_overlay_canvas(self) -> Any | None:
@@ -225,7 +258,22 @@ class OverlayState:
 
     @overlay_text.setter
     def overlay_text(self, value: str) -> None:
+        if self.info.overlay_text == value:
+            return
         self.info.overlay_text = value
+        self._notify_overlay_text_listeners()
+
+    def add_overlay_text_listener(
+        self,
+        listener: OverlayTextListener,
+    ) -> None:
+        def receiver(sender: object, overlay_text: str) -> None:
+            listener(overlay_text)
+
+        self._overlay_text_signal.connect(receiver, weak=False)
+
+    def _notify_overlay_text_listeners(self) -> None:
+        self._overlay_text_signal.send(self, overlay_text=self.info.overlay_text)
 
     @property
     def last_overlay_time(self) -> float:
@@ -241,7 +289,45 @@ class OverlayState:
 
     @anchor_overlay_root.setter
     def anchor_overlay_root(self, value: Any | None) -> None:
+        if self.anchor.root is value:
+            return
         self.anchor.root = value
+        self._notify_anchor_overlay_root_listeners()
+
+    def add_anchor_overlay_root_listener(
+        self,
+        listener: OverlayCaptureRootListener,
+    ) -> None:
+        def receiver(sender: object, anchor_overlay_root: Any | None) -> None:
+            listener(anchor_overlay_root)
+
+        self._anchor_overlay_root_signal.connect(receiver, weak=False)
+
+    def _notify_anchor_overlay_root_listeners(self) -> None:
+        self._anchor_overlay_root_signal.send(self, anchor_overlay_root=self.anchor.root)
+
+    @property
+    def anchor_overlay_visible(self) -> bool:
+        return self.anchor.visible
+
+    @anchor_overlay_visible.setter
+    def anchor_overlay_visible(self, value: bool) -> None:
+        if self.anchor.visible == value:
+            return
+        self.anchor.visible = value
+        self._notify_anchor_overlay_visibility_listeners()
+
+    def add_anchor_overlay_visibility_listener(
+        self,
+        listener: OverlayVisibilityListener,
+    ) -> None:
+        def receiver(sender: object, visible: bool) -> None:
+            listener(visible)
+
+        self._anchor_overlay_visibility_signal.connect(receiver, weak=False)
+
+    def _notify_anchor_overlay_visibility_listeners(self) -> None:
+        self._anchor_overlay_visibility_signal.send(self, visible=self.anchor.visible)
 
     @property
     def anchor_overlay_canvas(self) -> Any | None:
@@ -260,9 +346,24 @@ class OverlayState:
         self.anchor.rect_id = value
 
     @property
-    def anchor_overlay_visible(self) -> bool:
-        return self.anchor.visible
+    def show_border(self) -> bool:
+        return self._show_border
 
-    @anchor_overlay_visible.setter
-    def anchor_overlay_visible(self, value: bool) -> None:
-        self.anchor.visible = value
+    @show_border.setter
+    def show_border(self, value: bool) -> None:
+        if self._show_border == value:
+            return
+        self._show_border = value
+        self._notify_show_border_listeners()
+
+    def add_show_border_listener(
+        self,
+        listener: BorderVisibilityListener,
+    ) -> None:
+        def receiver(sender: object, show_border: bool) -> None:
+            listener(show_border)
+
+        self._show_border_signal.connect(receiver, weak=False)
+
+    def _notify_show_border_listeners(self) -> None:
+        self._show_border_signal.send(self, show_border=self._show_border)

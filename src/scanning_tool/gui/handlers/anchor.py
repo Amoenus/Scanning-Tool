@@ -56,7 +56,7 @@ def _handle_toggle_anchor_overlay(
     config_service: ConfigSaver,
 ) -> None:
     visible = bool(payload.get("visible", False))
-    overlay_state.anchor.visible = visible
+    overlay_state.anchor_overlay_visible = visible
     if visible:
         show_anchor_overlay(overlay_state, config.anchor_template)
         status_updated.send(None, message="Anchor overlay shown.")
