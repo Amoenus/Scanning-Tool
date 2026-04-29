@@ -10,7 +10,7 @@ from scanning_tool.ollama.status import publish_ollama_status
 class OllamaModelInstaller:
     """Encapsulates Ollama host detection and model installation state."""
 
-    def __init__(self, model: str | None = None, exit_on_error: bool = True) -> None:
+    def __init__(self, model: str | None = None, *, exit_on_error: bool = True) -> None:
         self.model = model or get_ollama_model()
         self.exit_on_error = exit_on_error
         self.host = get_ollama_host()
@@ -113,7 +113,7 @@ class OllamaModelInstaller:
 
 
 def ensure_model_installed(
-    model: str | None = None, exit_on_error: bool = True,
+    model: str | None = None, *, exit_on_error: bool = True,
 ) -> bool:
     """Ensure the Ollama model exists on the configured host."""
     return OllamaModelInstaller(
