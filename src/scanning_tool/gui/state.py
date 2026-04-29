@@ -169,7 +169,10 @@ class OverlayState:
         self._capture_overlay_root_signal.connect(receiver, weak=False)
 
     def _notify_capture_overlay_root_listeners(self) -> None:
+        from scanning_tool.state.signals import capture_overlay_root_changed
+
         self._capture_overlay_root_signal.send(self, capture_root=self.capture.root)
+        capture_overlay_root_changed.send(self, capture_root=self.capture.root)
 
     @property
     def capture_overlay_canvas(self) -> Any | None:
@@ -226,7 +229,10 @@ class OverlayState:
         self._info_overlay_root_signal.connect(receiver, weak=False)
 
     def _notify_info_overlay_root_listeners(self) -> None:
+        from scanning_tool.state.signals import info_overlay_root_changed
+
         self._info_overlay_root_signal.send(self, info_overlay_root=self.info.root)
+        info_overlay_root_changed.send(self, info_overlay_root=self.info.root)
 
     @property
     def info_overlay_canvas(self) -> Any | None:
@@ -273,7 +279,10 @@ class OverlayState:
         self._overlay_text_signal.connect(receiver, weak=False)
 
     def _notify_overlay_text_listeners(self) -> None:
+        from scanning_tool.state.signals import overlay_text_updated
+
         self._overlay_text_signal.send(self, overlay_text=self.info.overlay_text)
+        overlay_text_updated.send(self, overlay_text=self.info.overlay_text)
 
     @property
     def last_overlay_time(self) -> float:
@@ -304,7 +313,10 @@ class OverlayState:
         self._anchor_overlay_root_signal.connect(receiver, weak=False)
 
     def _notify_anchor_overlay_root_listeners(self) -> None:
+        from scanning_tool.state.signals import anchor_overlay_root_changed
+
         self._anchor_overlay_root_signal.send(self, anchor_overlay_root=self.anchor.root)
+        anchor_overlay_root_changed.send(self, anchor_overlay_root=self.anchor.root)
 
     @property
     def anchor_overlay_visible(self) -> bool:
@@ -327,7 +339,10 @@ class OverlayState:
         self._anchor_overlay_visibility_signal.connect(receiver, weak=False)
 
     def _notify_anchor_overlay_visibility_listeners(self) -> None:
+        from scanning_tool.state.signals import anchor_overlay_visibility_changed
+
         self._anchor_overlay_visibility_signal.send(self, visible=self.anchor.visible)
+        anchor_overlay_visibility_changed.send(self, visible=self.anchor.visible)
 
     @property
     def anchor_overlay_canvas(self) -> Any | None:
@@ -366,4 +381,7 @@ class OverlayState:
         self._show_border_signal.connect(receiver, weak=False)
 
     def _notify_show_border_listeners(self) -> None:
+        from scanning_tool.state.signals import show_border_changed
+
         self._show_border_signal.send(self, show_border=self._show_border)
+        show_border_changed.send(self, show_border=self._show_border)

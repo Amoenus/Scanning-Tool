@@ -22,6 +22,13 @@ ollama_readiness_changed: Signal = Signal("ollama_readiness_changed")
 mobile_qr_ready: Signal = Signal("mobile_qr_ready")
 ui_action: Signal = Signal("ui_action")
 
+capture_overlay_root_changed: Signal = Signal("capture_overlay_root_changed")
+info_overlay_root_changed: Signal = Signal("info_overlay_root_changed")
+anchor_overlay_root_changed: Signal = Signal("anchor_overlay_root_changed")
+anchor_overlay_visibility_changed: Signal = Signal("anchor_overlay_visibility_changed")
+overlay_text_updated: Signal = Signal("overlay_text_updated")
+show_border_changed: Signal = Signal("show_border_changed")
+
 UI_ACTION_SIGNALS: dict[UiActionType, Signal] = {
     action_type: Signal(f"ui_action_{action_type.value}")
     for action_type in UiActionType

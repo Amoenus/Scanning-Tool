@@ -70,6 +70,61 @@ def test_overlay_state_show_border_listener_is_called() -> None:
     assert received == [False, True]
 
 
+def test_overlay_state_emits_capture_overlay_root_changed_signal() -> None:
+    from scanning_tool.state.signals import capture_overlay_root_changed
+
+    overlay_state = OverlayState()
+    received: list[object | None] = []
+
+    def receiver(sender: object, capture_root: object | None = None) -> None:
+        received.append(capture_root)
+
+    capture_overlay_root_changed.connect(receiver, weak=False)
+
+    root_object = object()
+    overlay_state.capture_overlay_root = root_object
+    overlay_state.capture_overlay_root = None
+
+    capture_overlay_root_changed.disconnect(receiver)
+    assert received == [root_object, None]
+
+
+def test_overlay_state_emits_overlay_text_updated_signal() -> None:
+    from scanning_tool.state.signals import overlay_text_updated
+
+    overlay_state = OverlayState()
+    received: list[str] = []
+
+    def receiver(sender: object, overlay_text: str = "") -> None:
+        received.append(overlay_text)
+
+    overlay_text_updated.connect(receiver, weak=False)
+
+    overlay_state.overlay_text = "hello"
+    overlay_state.overlay_text = "world"
+
+    overlay_text_updated.disconnect(receiver)
+    assert received == ["hello", "world"]
+
+
+def test_overlay_state_emits_show_border_changed_signal() -> None:
+    from scanning_tool.state.signals import show_border_changed
+
+    overlay_state = OverlayState()
+    received: list[bool] = []
+
+    def receiver(sender: object, show_border: bool = False) -> None:
+        received.append(show_border)
+
+    show_border_changed.connect(receiver, weak=False)
+
+    overlay_state.show_border = False
+    overlay_state.show_border = True
+
+    show_border_changed.disconnect(receiver)
+    assert received == [False, True]
+
+
 def test_overlay_state_info_root_listener_is_called() -> None:
     overlay_state = OverlayState()
     received: list[object | None] = []
