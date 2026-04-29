@@ -27,6 +27,11 @@ from .info import (
     toggle_border,
     update_overlay_label,
 )
+from scanning_tool.state.signals import (
+    sync_capture_sliders_signal,
+    update_capture_overlay_region_signal,
+)
+
 from .slider_sync import (
     configure_capture_slider_sync,
     register_anchor_sliders,
@@ -71,6 +76,7 @@ __all__ = (
     "update_capture_overlay_region",
     "update_overlay_label",
     "update_overlay_region",
+    "register_overlay_signal_handlers",
 )
 
 
@@ -107,6 +113,29 @@ def show_overlay(
 
 def update_overlay_region(overlay_state: OverlayState) -> None:
     update_anchor_overlay_region(overlay_state)
+    update_capture_overlay_region()
+
+
+_overlay_signal_handlers_registered = False
+
+def register_overlay_signal_handlers() -> None:
+    global _overlay_signal_handlers_registered
+    if _overlay_signal_handlers_registered:
+        return
+
+    sync_capture_sliders_signal.connect(_on_sync_capture_sliders, weak=False)
+    update_capture_overlay_region_signal.connect(
+        _on_update_capture_overlay_region,
+        weak=False,
+    )
+    _overlay_signal_handlers_registered = True
+
+
+def _on_sync_capture_sliders(sender: object, **kwargs: object) -> None:
+    sync_capture_sliders_callback()
+
+
+def _on_update_capture_overlay_region(sender: object, **kwargs: object) -> None:
     update_capture_overlay_region()
 
 

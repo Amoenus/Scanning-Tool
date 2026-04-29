@@ -6,18 +6,16 @@ from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
 from scanning_tool.gui.event_handlers import install_ui_action_handlers
-
-from .alignment import AlignmentPoller
-from .lifecycle import register_close_handler
-from .overlays import (
+from scanning_tool.gui.tk.alignment import AlignmentPoller
+from scanning_tool.gui.tk.lifecycle import register_close_handler
+from scanning_tool.gui.tk.overlays import (
     configure_capture_slider_sync,
+    register_overlay_signal_handlers,
     show_overlay,
-    sync_capture_sliders_callback,
-    update_capture_overlay_region,
     update_overlay_label,
 )
-from .overlays.base import safe_tk
-from .sections import (
+from scanning_tool.gui.tk.overlays.base import safe_tk
+from scanning_tool.gui.tk.sections import (
     ControlsSection,
     MobileOverlaySection,
     Section,
@@ -25,19 +23,23 @@ from .sections import (
     SettingsSection,
     StatusOverviewSection,
 )
-from .status import StatusBar
-from .theme import GlassPalette, apply_glass_theme
-from .widgets import ScrollableFrame
+from scanning_tool.gui.tk.status import StatusBar
+from scanning_tool.gui.tk.theme import GlassPalette, apply_glass_theme
+from scanning_tool.gui.tk.widgets import ScrollableFrame
+from scanning_tool.state.signals import (
+    alignment_applied_signal,
+    sync_capture_sliders_signal,
+    update_capture_overlay_region_signal,
+)
 
 if TYPE_CHECKING:
     from scanning_tool.config.service import ConfigData, ConfigSaver
     from scanning_tool.domain.capture import ScanResult
+    from scanning_tool.gui.tk.control_state import ControlState
+    from scanning_tool.gui.tk.overlay_state import OverlayState
     from scanning_tool.interfaces import CaptureController
     from scanning_tool.state.scan_state import ScanState
     from scanning_tool.state.service_state import ServiceState
-
-    from .control_state import ControlState
-    from .overlay_state import OverlayState
 SECTION_CLASSES: Sequence[type[Section]] = (
     ControlsSection,
     MobileOverlaySection,
@@ -85,16 +87,15 @@ def launch_gui(
         capture_service=capture_service,
         config_service=config_service,
     )
+    register_overlay_signal_handlers()
     configure_capture_slider_sync(
         ctx.control_state,
         lambda: ctx.config.capture_region,
     )
 
-    from scanning_tool.state.signals import alignment_applied_signal
-
     def _on_alignment_applied(sender: object, event: object | None = None) -> None:
-        sync_capture_sliders_callback()
-        update_capture_overlay_region()
+        sync_capture_sliders_signal.send(sender)
+        update_capture_overlay_region_signal.send(sender)
 
     alignment_applied_signal.connect(_on_alignment_applied, weak=False)
 

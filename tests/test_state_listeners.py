@@ -138,6 +138,39 @@ def test_overlay_state_info_root_listener_is_called() -> None:
     assert received == [root_object, None]
 
 
+def test_tk_overlay_signal_handlers_are_registered_and_deliver_events(
+    monkeypatch,
+) -> None:
+    from scanning_tool.gui.tk.overlays import register_overlay_signal_handlers
+    from scanning_tool.state.signals import (
+        sync_capture_sliders_signal,
+        update_capture_overlay_region_signal,
+    )
+
+    called: list[str] = []
+
+    def fake_sync_capture_sliders_callback() -> None:
+        called.append("sync")
+
+    def fake_update_capture_overlay_region() -> None:
+        called.append("update")
+
+    monkeypatch.setattr(
+        "scanning_tool.gui.tk.overlays.sync_capture_sliders_callback",
+        fake_sync_capture_sliders_callback,
+    )
+    monkeypatch.setattr(
+        "scanning_tool.gui.tk.overlays.update_capture_overlay_region",
+        fake_update_capture_overlay_region,
+    )
+
+    register_overlay_signal_handlers()
+    sync_capture_sliders_signal.send(None)
+    update_capture_overlay_region_signal.send(None)
+
+    assert called == ["sync", "update"]
+
+
 def test_gui_overlays_imports_generic_api_without_tk() -> None:
     from importlib import import_module
 

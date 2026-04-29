@@ -30,6 +30,7 @@ from scanning_tool.state.signals import (
     capture_completed,
     capture_failed,
     capture_started,
+    ui_action,
 )
 from scanning_tool.web.app import WebService
 from scanning_tool.web.server import WebServer
@@ -125,7 +126,12 @@ def _on_alignment_reset(sender: object, **kwargs: object) -> None:
     logger.debug("Alignment reset to default state.")
 
 
+def _on_ui_action(sender: object, action=None, **kwargs: object) -> None:
+    logger.debug("UI action published: %s", action)
+
+
 def _register_runtime_signal_handlers() -> None:
+    ui_action.connect(_on_ui_action, weak=False)
     capture_started.connect(_on_capture_started, weak=False)
     capture_completed.connect(_on_capture_completed, weak=False)
     capture_failed.connect(_on_capture_failed, weak=False)
