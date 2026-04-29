@@ -8,6 +8,8 @@ from scanning_tool.gui.overlays import choose_label_color, update_overlay_region
 from scanning_tool.state.signals import status_updated
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from scanning_tool.config.service import ConfigSaver
     from scanning_tool.interfaces import CaptureController
 
@@ -97,7 +99,11 @@ def _handle_choose_label_color(
     status_updated.send(None, message="Label color chooser opened.")
 
 
-CONTROL_ACTION_HANDLERS = {
+
+CONTROL_ACTION_HANDLERS: dict[
+    UiActionType,
+    Callable[[dict[str, object], object, object, object, object, object, CaptureController, ConfigSaver], None],
+] = {
     UiActionType.SINGLE_SCAN: _handle_single_scan,
     UiActionType.TOGGLE_CONTINUOUS_CAPTURE: _handle_toggle_continuous_capture,
     UiActionType.UPDATE_CONTINUOUS_CAPTURE_INTERVAL: _handle_update_continuous_capture_interval,
