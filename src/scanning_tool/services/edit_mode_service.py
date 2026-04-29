@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from scanning_tool.services.base_service import BaseService
+from scanning_tool.state.actions.config import ConfigAction
 from scanning_tool.state.actions.edit_mode import EditModeAction
 from scanning_tool.state.read_models.edit_mode import ActiveRegion, EditModeReadModel
 from scanning_tool.state.signals import UI_ACTION_SIGNALS
@@ -51,22 +52,61 @@ class EditModeService(BaseService):
         edit_mode_changed.send(self, state=self._state)
 
     def _on_drag_region(self, sender: object, **kwargs: Any) -> None:
-        # TODO: Handle drag and publish region_drafted
-        pass
+        if not self._state.is_edit_mode:
+            return
+
+        payload = {k: int(v) for k, v in kwargs.items() if isinstance(v, int) or isinstance(v, float)}
+        if not payload:
+            return
+
+        draft_values = self._merge_draft_values(payload)
+        self._state = EditModeReadModel(
+            is_edit_mode=True,
+            active_region=self._state.active_region or ActiveRegion.CAPTURE,
+            toolbar_visible=True,
+            draft_values=draft_values,
+        )
+        region_drafted.send(self, active_region=self._state.active_region, draft_values=draft_values)
+        edit_mode_changed.send(self, state=self._state)
 
     def _on_nudge_region(self, sender: object, **kwargs: Any) -> None:
-        # TODO: Handle nudge and publish region_drafted
-        pass
+        if not self._state.is_edit_mode:
+            return
+
+        draft_values = self._state.draft_values.copy()
+        delta_values: dict[str, int] = {}
+        for field_name, value in kwargs.items():
+            if not isinstance(value, (int, float)):
+                continue
+            if field_name.startswith("delta_"):
+                target_field = field_name[len("delta_"):]
+                current = int(draft_values.get(target_field, 0))
+                delta_values[target_field] = current + int(value)
+            else:
+                delta_values[field_name] = int(value)
+
+        if not delta_values:
+            return
+
+        merged_values = self._merge_draft_values(delta_values)
+        self._state = EditModeReadModel(
+            is_edit_mode=True,
+            active_region=self._state.active_region or ActiveRegion.CAPTURE,
+            toolbar_visible=True,
+            draft_values=merged_values,
+        )
+        region_drafted.send(self, active_region=self._state.active_region, draft_values=merged_values)
+        edit_mode_changed.send(self, state=self._state)
 
     def _on_cycle_region(self, sender: object) -> None:
         if not self._state.is_edit_mode:
             return
-        
+
         regions = list(ActiveRegion)
         current_idx = regions.index(self._state.active_region) if self._state.active_region else -1
         next_idx = (current_idx + 1) % len(regions)
         next_region = regions[next_idx]
-        
+
         self._state = EditModeReadModel(
             is_edit_mode=True,
             active_region=next_region,
@@ -76,8 +116,44 @@ class EditModeService(BaseService):
         edit_mode_changed.send(self, state=self._state)
 
     def _on_commit_region(self, sender: object) -> None:
-        # TODO: Publish ConfigAction to persist region
-        pass
+        if not self._state.is_edit_mode or not self._state.active_region:
+            return
+
+        payload = self._payload_for_region(self._state.active_region, self._state.draft_values)
+        if payload:
+            config_action = self._config_action_for_region(self._state.active_region)
+            signal = UI_ACTION_SIGNALS.get(config_action)
+            if signal is not None:
+                signal.send(self, payload=payload)
+
+        region_committed.send(self, active_region=self._state.active_region, draft_values=self._state.draft_values)
+
+    def _merge_draft_values(self, payload: dict[str, int]) -> dict[str, int]:
+        merged = self._state.draft_values.copy()
+        merged.update(payload)
+        return merged
+
+    def _payload_for_region(self, region: ActiveRegion, draft_values: dict[str, int]) -> dict[str, int]:
+        if region == ActiveRegion.CAPTURE or region == ActiveRegion.ANCHOR:
+            return {
+                k: int(draft_values[k])
+                for k in ("left", "top", "width", "height")
+                if k in draft_values
+            }
+        if region == ActiveRegion.INFO:
+            return {
+                k: int(draft_values[k])
+                for k in ("x", "y")
+                if k in draft_values
+            }
+        return {}
+
+    def _config_action_for_region(self, region: ActiveRegion) -> ConfigAction:
+        if region == ActiveRegion.CAPTURE:
+            return ConfigAction.UPDATE_CAPTURE_REGION
+        if region == ActiveRegion.ANCHOR:
+            return ConfigAction.UPDATE_ANCHOR_REGION
+        return ConfigAction.UPDATE_RESULT_DISPLAY_OFFSET
 
 edit_mode_service = EditModeService()
 
