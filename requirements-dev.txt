@@ -8,3 +8,4 @@ vulture
 ruff>=0.15.11
 pyright>=1.1.408
 pylance>=4.0.0
+pyqt6-stubs>=6.11.0
