@@ -1,19 +1,38 @@
 """Advanced settings container for the Qt scanning tool GUI."""
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from PyQt6.QtWidgets import QGroupBox, QPushButton, QVBoxLayout, QWidget
 
-from .base import SectionContext
-from .capture_region import CaptureRegionSection
-from .head_sway import HeadSwaySection
-from .ollama import OllamaSection
-from .result_display import ResultDisplaySection
+from scanning_tool.gui.qt.sections.capture_region import CaptureRegionSection
+from scanning_tool.gui.qt.sections.head_sway import HeadSwaySection
+from scanning_tool.gui.qt.sections.ollama import OllamaSection
+from scanning_tool.gui.qt.sections.result_display import ResultDisplaySection
+
+if TYPE_CHECKING:
+    from scanning_tool.gui.qt.sections.base import SectionContext
 
 
 class SettingsSection:
     """Holds advanced configuration sections behind an expandable container."""
 
     def build(self, parent: QWidget, ctx: SectionContext) -> QWidget:
+        """Build and return the advanced settings section widget.
+
+        Parameters
+        ----------
+        parent : QWidget
+            The parent widget for this section.
+        ctx : SectionContext
+            The context object providing shared state and services.
+
+        Returns
+        -------
+        QWidget
+            The constructed advanced settings group box widget.
+
+        """
         self._ctx = ctx
 
         group = QGroupBox("Advanced Settings", parent)
