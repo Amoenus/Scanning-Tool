@@ -9,6 +9,11 @@ from blinker import Signal
 
 from scanning_tool.domain.alignment import AlignmentInfo
 from scanning_tool.domain.capture import ScanResult
+from scanning_tool.state.signals import (
+    alignment_info_updated,
+    continuous_mode_changed,
+    scan_result_updated,
+)
 
 if TYPE_CHECKING:
     from scanning_tool.core.anchor import AnchorRegionTracker
@@ -69,9 +74,12 @@ class ScanState:
 
     def notify_alignment_info_listeners(self) -> None:
         self._alignment_info_signal.send(self, alignment_info=self.last_alignment_info)
+        alignment_info_updated.send(self, alignment_info=self.last_alignment_info)
 
     def _notify_continuous_mode_listeners(self) -> None:
         self._continuous_mode_signal.send(self, continuous_mode=self.continuous_mode)
+        continuous_mode_changed.send(self, continuous_mode=self.continuous_mode)
 
     def _notify_scan_result_listeners(self) -> None:
         self._scan_result_signal.send(self, scan_result=self.last_result)
+        scan_result_updated.send(self, scan_result=self.last_result)

@@ -15,7 +15,12 @@ from scanning_tool.config import resource_path
 from scanning_tool.domain.common import SpaceSystem
 from scanning_tool.logging_setup import configure_flask_logging
 from scanning_tool.state import manager
-from scanning_tool.state.signals import status_updated
+from scanning_tool.state.signals import (
+    alignment_info_updated,
+    continuous_mode_changed,
+    scan_result_updated,
+    status_updated,
+)
 from scanning_tool.web.status_builder import DefaultStatusResponseBuilder
 
 if TYPE_CHECKING:
@@ -111,16 +116,16 @@ class WebService:
         def on_continuous_mode(sender: object, continuous_mode: bool) -> None:
             queue_event("continuous_mode", {"enabled": continuous_mode})
 
-        scan_receiver = self.scan_state._scan_result_signal.connect(
+        scan_receiver = scan_result_updated.connect(
             on_scan_result,
             weak=False,
         )
-        alignment_receiver = self.scan_state._alignment_info_signal.connect(
+        alignment_receiver = alignment_info_updated.connect(
             on_alignment_info,
             weak=False,
         )
         status_receiver = status_updated.connect(on_status_updated, weak=False)
-        continuous_receiver = self.scan_state._continuous_mode_signal.connect(
+        continuous_receiver = continuous_mode_changed.connect(
             on_continuous_mode,
             weak=False,
         )
@@ -135,10 +140,10 @@ class WebService:
                 except queue.Empty:
                     yield ": heartbeat\n\n"
         finally:
-            self.scan_state._scan_result_signal.disconnect(scan_receiver)
-            self.scan_state._alignment_info_signal.disconnect(alignment_receiver)
+            scan_result_updated.disconnect(scan_receiver)
+            alignment_info_updated.disconnect(alignment_receiver)
             status_updated.disconnect(status_receiver)
-            self.scan_state._continuous_mode_signal.disconnect(continuous_receiver)
+            continuous_mode_changed.disconnect(continuous_receiver)
 
     def _manifest(self) -> Response:
         return send_from_directory(
