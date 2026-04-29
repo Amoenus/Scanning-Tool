@@ -2,14 +2,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Protocol
+from typing import Protocol
 
 from PyQt6.QtWidgets import QWidget
 
 from scanning_tool.gui.context import GuiSectionDependencies
-
-if TYPE_CHECKING:
-    from scanning_tool.gui.qt.sections.status import StatusBar
+from scanning_tool.gui.qt.status import StatusBar
 
 
 @dataclass(frozen=True)

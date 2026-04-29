@@ -1,15 +1,11 @@
 """Result display section for the Qt scanning tool GUI."""
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 from PyQt6.QtWidgets import QFormLayout, QGroupBox, QSpinBox, QVBoxLayout, QWidget
 
 from scanning_tool.gui.action_types import UiActionType
 from scanning_tool.gui.actions import publish_ui_action
-
-if TYPE_CHECKING:
-    from scanning_tool.gui.qt.sections.base import SectionContext
+from scanning_tool.gui.qt.sections.base import SectionContext
 
 
 class ResultDisplaySection:

@@ -16,17 +16,33 @@ from PyQt6.QtWidgets import (
 
 from scanning_tool.gui.action_types import UiActionType
 from scanning_tool.gui.actions import publish_ui_action
+from scanning_tool.gui.qt.sections.base import SectionContext
 
 if TYPE_CHECKING:
-    from scanning_tool.gui.qt.sections.base import SectionContext
+    from scanning_tool.gui.qt.status import StatusBar
 
 
 class HeadSwaySection:
     """Anchor tracking and auto-alignment controls."""
 
     def build(self, parent: QWidget, ctx: SectionContext) -> QWidget:
+        """Build and return the head sway compensation section widget.
+
+        Parameters
+        ----------
+        parent : QWidget
+            The parent widget.
+        ctx : SectionContext
+            The section context containing configuration and state.
+
+        Returns
+        -------
+        QWidget
+            The constructed group box widget for head sway compensation.
+
+        """
         self._ctx = ctx
-        self._status = ctx.status
+        self._status: StatusBar = ctx.status
 
         group = QGroupBox("Head Sway Compensation", parent)
         layout = QVBoxLayout(group)

@@ -1,6 +1,8 @@
 """Ollama connection section for the Qt scanning tool GUI."""
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from PyQt6.QtWidgets import (
     QComboBox,
     QFormLayout,
@@ -16,6 +18,9 @@ from scanning_tool.gui.action_types import UiActionType
 from scanning_tool.gui.actions import publish_ui_action
 
 from .base import SectionContext
+
+if TYPE_CHECKING:
+    from scanning_tool.gui.qt.status import StatusBar
 
 SUGGESTED_MODELS = (
     "moondream:1.8b",
@@ -35,7 +40,7 @@ class OllamaSection:
 
     def build(self, parent: QWidget, ctx: SectionContext) -> QWidget:
         self._ctx = ctx
-        self._status = ctx.status
+        self._status: StatusBar = ctx.status
 
         group = QGroupBox("Ollama Connection", parent)
         layout = QVBoxLayout(group)

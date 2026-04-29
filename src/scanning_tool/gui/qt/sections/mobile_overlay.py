@@ -1,6 +1,8 @@
 """Mobile overlay section for the Qt scanning tool GUI."""
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from PyQt6.QtGui import QPixmap
 from PyQt6.QtWidgets import (
     QDialog,
@@ -20,6 +22,9 @@ from scanning_tool.web import get_local_ip as get_local_ip_from_web
 
 from .base import SectionContext
 
+if TYPE_CHECKING:
+    from scanning_tool.gui.qt.status import StatusBar
+
 
 def _get_local_ip() -> str:
     return get_local_ip_from_web()
@@ -30,7 +35,7 @@ class MobileOverlaySection:
 
     def build(self, parent: QWidget, ctx: SectionContext) -> QWidget:
         self._ctx = ctx
-        self._status = ctx.status
+        self._status: StatusBar = ctx.status
 
         group = QGroupBox("Mobile UI", parent)
         layout = QVBoxLayout(group)
