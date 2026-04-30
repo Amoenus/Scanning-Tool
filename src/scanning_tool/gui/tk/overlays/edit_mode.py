@@ -9,7 +9,7 @@ from scanning_tool.gui.actions import publish_ui_action
 from scanning_tool.gui.edit_mode import EditModeRenderer
 from scanning_tool.state.actions.edit_mode import EditModeAction
 from scanning_tool.state.read_models.edit_mode import ActiveRegion, EditModeReadModel
-from scanning_tool.state.signals.edit_mode import edit_mode_changed, region_drafted
+from scanning_tool.state.signals.edit_mode import edit_mode_changed
 from scanning_tool.gui.tk.overlays.anchor import (
     preview_anchor_region,
     reset_anchor_region,
@@ -179,11 +179,9 @@ class EditModeOverlayManager(EditModeRenderer):
         self._bind_root_listeners()
         self._bind_existing_overlay_roots()
         edit_mode_changed.connect(self._on_edit_mode_changed, weak=False)
-        region_drafted.connect(self._on_region_drafted, weak=False)
 
     def destroy(self) -> None:
         edit_mode_changed.disconnect(self._on_edit_mode_changed)
-        region_drafted.disconnect(self._on_region_drafted)
 
     def _bind_root_listeners(self) -> None:
         self._overlay_state.add_capture_overlay_root_listener(
@@ -381,22 +379,6 @@ class EditModeOverlayManager(EditModeRenderer):
             self._restore_overlays()
             self._sync_sliders()
 
-    def _on_region_drafted(
-        self,
-        sender: object,
-        active_region: ActiveRegion | None = None,
-        draft_values: dict[str, int] | None = None,
-    ) -> None:
-        self._state = EditModeReadModel(
-            is_edit_mode=self._state.is_edit_mode,
-            active_region=active_region,
-            toolbar_visible=self._state.toolbar_visible,
-            draft_values=draft_values or {},
-        )
-        self._sync_sliders()
-        self._update_previews()
-        self._refresh_toolbar()
-
     def _sync_sliders(self) -> None:
         if self._state.active_region == ActiveRegion.CAPTURE:
             capture_region = self._effective_capture_region()
@@ -565,38 +547,13 @@ class EditModeOverlayManager(EditModeRenderer):
         return None
 
     def _effective_capture_region(self) -> CaptureRegion | None:
-        region = self._config.capture_region
-        if self._state.active_region != ActiveRegion.CAPTURE:
-            return region
-        draft = self._state.draft_values
-        return CaptureRegion(
-            left=int(draft.get("left", region.left)),
-            top=int(draft.get("top", region.top)),
-            width=int(draft.get("width", region.width)),
-            height=int(draft.get("height", region.height)),
-        )
+        return self._config.capture_region
 
     def _effective_anchor_region(self) -> CaptureRegion | None:
-        region = self._config.anchor_template
-        if self._state.active_region != ActiveRegion.ANCHOR:
-            return region
-        draft = self._state.draft_values
-        return CaptureRegion(
-            left=int(draft.get("left", region.left)),
-            top=int(draft.get("top", region.top)),
-            width=int(draft.get("width", region.width)),
-            height=int(draft.get("height", region.height)),
-        )
+        return self._config.anchor_template
 
     def _effective_info_offset(self) -> Any:
-        offset = self._config.overlay_config.info_offset
-        if self._state.active_region != ActiveRegion.INFO:
-            return offset
-        draft = self._state.draft_values
-        info_offset = type(offset)(x=offset.x, y=offset.y)
-        info_offset.x = int(draft.get("x", offset.x))
-        info_offset.y = int(draft.get("y", offset.y))
-        return info_offset
+        return self._config.overlay_config.info_offset
 
     def _region_values(self, region: CaptureRegion) -> dict[str, int]:
         return {

@@ -13,5 +13,4 @@ class EditModeReadModel:
     is_edit_mode: bool = False
     active_region: Optional[ActiveRegion] = None
     toolbar_visible: bool = False
-    draft_values: dict[str, int] = field(default_factory=dict)
 
