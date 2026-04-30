@@ -7,18 +7,14 @@ from typing import TYPE_CHECKING, Any
 
 from scanning_tool.gui.actions import publish_ui_action
 from scanning_tool.gui.edit_mode import EditModeRenderer
+from scanning_tool.state.actions.config import ConfigAction
 from scanning_tool.state.actions.edit_mode import EditModeAction
 from scanning_tool.state.read_models.edit_mode import ActiveRegion, EditModeReadModel
+from scanning_tool.state.signals import UI_ACTION_SIGNALS
 from scanning_tool.state.signals.edit_mode import edit_mode_changed
-from scanning_tool.gui.tk.overlays.anchor import (
-    preview_anchor_region,
-    reset_anchor_region,
-)
-from scanning_tool.gui.tk.overlays.capture import (
-    preview_capture_region,
-    reset_capture_region,
-)
-from scanning_tool.gui.tk.overlays.info import preview_info_overlay_position, reposition_info_overlay
+from scanning_tool.gui.tk.overlays.anchor import reset_anchor_region
+from scanning_tool.gui.tk.overlays.capture import reset_capture_region
+from scanning_tool.gui.tk.overlays.info import reposition_info_overlay
 from scanning_tool.gui.tk.overlays.slider_sync import (
     sync_anchor_sliders,
     sync_capture_sliders,
@@ -28,6 +24,7 @@ from scanning_tool.gui.tk.overlays.base import (
     ANCHOR_OVERLAY_PAD,
     CAPTURE_OVERLAY_PADDING_X,
     CAPTURE_OVERLAY_PADDING_Y,
+    enforce_topmost,
     safe_tk,
 )
 from scanning_tool.gui.state import OverlayState, ControlState
@@ -41,6 +38,9 @@ HANDLE_FILL = "#ffff00"
 ACTIVE_BORDER_COLOR = "#f5b041"
 INACTIVE_CAPTURE_COLOR = "red"
 INACTIVE_ANCHOR_COLOR = "#00d4ff"
+EDIT_MODE_OVERLAY_ALPHA = 0.35
+EDIT_MODE_TRANSPARENTCOLOR_SENTINEL = "#010101"
+DEFAULT_TRANSPARENTCOLOR = "black"
 
 
 @dataclass
@@ -121,6 +121,8 @@ class _EditModeToolbar:
         )
         self.hint_label.pack(anchor="w", padx=8, pady=(0, 8))
 
+        enforce_topmost(self.root)
+
     def hide(self) -> None:
         if self.root and tk.Toplevel.winfo_exists(self.root):
             try:
@@ -179,9 +181,30 @@ class EditModeOverlayManager(EditModeRenderer):
         self._bind_root_listeners()
         self._bind_existing_overlay_roots()
         edit_mode_changed.connect(self._on_edit_mode_changed, weak=False)
+        UI_ACTION_SIGNALS[ConfigAction.UPDATE_CAPTURE_REGION].connect(
+            self._on_region_config_updated,
+            weak=False,
+        )
+        UI_ACTION_SIGNALS[ConfigAction.UPDATE_ANCHOR_REGION].connect(
+            self._on_region_config_updated,
+            weak=False,
+        )
+        UI_ACTION_SIGNALS[ConfigAction.UPDATE_RESULT_DISPLAY_OFFSET].connect(
+            self._on_region_config_updated,
+            weak=False,
+        )
 
     def destroy(self) -> None:
         edit_mode_changed.disconnect(self._on_edit_mode_changed)
+        UI_ACTION_SIGNALS[ConfigAction.UPDATE_CAPTURE_REGION].disconnect(
+            self._on_region_config_updated,
+        )
+        UI_ACTION_SIGNALS[ConfigAction.UPDATE_ANCHOR_REGION].disconnect(
+            self._on_region_config_updated,
+        )
+        UI_ACTION_SIGNALS[ConfigAction.UPDATE_RESULT_DISPLAY_OFFSET].disconnect(
+            self._on_region_config_updated,
+        )
 
     def _bind_root_listeners(self) -> None:
         self._overlay_state.add_capture_overlay_root_listener(
@@ -235,41 +258,17 @@ class EditModeOverlayManager(EditModeRenderer):
         self._bind_key_handlers(root)
         self._bound_canvases.add(id(canvas))
 
-    def _bind_key_handlers(self, root: Any) -> None:
-        if id(root) in self._bound_roots:
-            return
-        try:
-            root.bind("<Escape>", self._on_escape, add="+")
-            root.bind("<Tab>", self._on_tab, add="+")
-            root.bind("<Left>", self._on_arrow_left, add="+")
-            root.bind("<Right>", self._on_arrow_right, add="+")
-            root.bind("<Up>", self._on_arrow_up, add="+")
-            root.bind("<Down>", self._on_arrow_down, add="+")
-            root.bind("<Shift-Left>", self._on_shift_arrow_left, add="+")
-            root.bind("<Shift-Right>", self._on_shift_arrow_right, add="+")
-            root.bind("<Shift-Up>", self._on_shift_arrow_up, add="+")
-            root.bind("<Shift-Down>", self._on_shift_arrow_down, add="+")
-        except tk.TclError:
-            pass
-        self._bound_roots.add(id(root))
-
     def _on_mouse_down(self, event: tk.Event, region: ActiveRegion) -> None:
         if not self._edit_mode:
             return
         canvas = event.widget
-        root = canvas.winfo_toplevel()
-        try:
-            root.focus_force()
-        except tk.TclError:
-            pass
         canvas.grab_set()
 
         effective = self._effective_region(region)
         if effective is None:
             return
 
-        click_in_region = self._point_inside_region(event, region, effective)
-        if not click_in_region:
+        if not self._point_inside_region(event, region, effective):
             return
 
         publish_ui_action(EditModeAction.SELECT_REGION, {"region": region.value})
@@ -289,8 +288,10 @@ class EditModeOverlayManager(EditModeRenderer):
         session = self._drag_session
         dx = event.x_root - session.start_x
         dy = event.y_root - session.start_y
-        payload: dict[str, int] = {}
+        payload = self._build_drag_payload(session, dx, dy)
+        publish_ui_action(EditModeAction.DRAG_REGION, payload)
 
+    def _build_drag_payload(self, session: _DragSession, dx: int, dy: int) -> dict[str, int]:
         if session.region in (ActiveRegion.CAPTURE, ActiveRegion.ANCHOR):
             original = session.original_values
             left = original["left"]
@@ -298,15 +299,12 @@ class EditModeOverlayManager(EditModeRenderer):
             width = original["width"]
             height = original["height"]
             if session.handle == "inside":
-                payload = {"left": left + dx, "top": top + dy, "width": width, "height": height}
-            else:
-                payload = self._resize_payload(session.handle, left, top, width, height, dx, dy)
-        else:
-            original_x = session.original_values["x"]
-            original_y = session.original_values["y"]
-            payload = {"x": original_x + dx, "y": original_y + dy}
+                return {"left": left + dx, "top": top + dy, "width": width, "height": height}
+            return self._resize_payload(session.handle, left, top, width, height, dx, dy)
 
-        publish_ui_action(EditModeAction.DRAG_REGION, payload)
+        original_x = session.original_values["x"]
+        original_y = session.original_values["y"]
+        return {"x": original_x + dx, "y": original_y + dy}
 
     def _on_mouse_up(self, event: tk.Event) -> None:
         canvas = event.widget
@@ -359,25 +357,55 @@ class EditModeOverlayManager(EditModeRenderer):
         publish_ui_action(EditModeAction.NUDGE_REGION, {"delta_top": 10})
         return "break"
 
+    def _bind_key_handlers(self, root: Any) -> None:
+        if root is None or id(root) in self._bound_roots:
+            return
+        try:
+            root.bind("<Escape>", self._on_escape, add="+")
+            root.bind("<Tab>", self._on_tab, add="+")
+            root.bind("<Left>", self._on_arrow_left, add="+")
+            root.bind("<Right>", self._on_arrow_right, add="+")
+            root.bind("<Up>", self._on_arrow_up, add="+")
+            root.bind("<Down>", self._on_arrow_down, add="+")
+            root.bind("<Shift-Left>", self._on_shift_arrow_left, add="+")
+            root.bind("<Shift-Right>", self._on_shift_arrow_right, add="+")
+            root.bind("<Shift-Up>", self._on_shift_arrow_up, add="+")
+            root.bind("<Shift-Down>", self._on_shift_arrow_down, add="+")
+        except tk.TclError:
+            pass
+        self._bound_roots.add(id(root))
+
     def _on_edit_mode_changed(self, sender: object, state: EditModeReadModel | None = None) -> None:
         if state is None:
             return
         self._state = state
         self._edit_mode = state.is_edit_mode
         if self._edit_mode:
-            self._create_screen_blocker()
-            self._set_overlay_windows_editable(True)
-            self._toolbar.show()
-            self._sync_sliders()
-            self._update_previews()
-            self._refresh_toolbar()
-            self._lift_edit_mode_windows()
+            self._enter_edit_mode()
         else:
-            self._toolbar.hide()
-            self._destroy_screen_blocker()
-            self._set_overlay_windows_editable(False)
-            self._restore_overlays()
-            self._sync_sliders()
+            self._exit_edit_mode()
+
+    def _enter_edit_mode(self) -> None:
+        self._create_screen_blocker()
+        self._set_overlay_windows_editable(True)
+        self._toolbar.show()
+        self._sync_sliders()
+        self._refresh_highlights()
+        self._refresh_toolbar()
+        self._lift_edit_mode_windows()
+
+    def _exit_edit_mode(self) -> None:
+        self._toolbar.hide()
+        self._destroy_screen_blocker()
+        self._set_overlay_windows_editable(False)
+        self._restore_overlays()
+        self._sync_sliders()
+
+    def _on_region_config_updated(self, sender: object, payload: dict[str, object] | None = None, **kwargs: Any) -> None:
+        if not self._edit_mode:
+            return
+        self._sync_sliders()
+        self._refresh_toolbar()
 
     def _sync_sliders(self) -> None:
         if self._state.active_region == ActiveRegion.CAPTURE:
@@ -401,35 +429,9 @@ class EditModeOverlayManager(EditModeRenderer):
             sync_overlay_sliders(self._control_state, offset)
             return
 
-    def _update_previews(self) -> None:
-        if self._state.active_region == ActiveRegion.CAPTURE:
-            capture_region = self._effective_capture_region()
-            if capture_region is not None:
-                preview_capture_region(capture_region)
-                self._highlight_capture_overlay(active=True)
-        else:
-            reset_capture_region(self._config.capture_region)
-            self._highlight_capture_overlay(active=False)
-
-        if self._state.active_region == ActiveRegion.ANCHOR:
-            anchor_region = self._effective_anchor_region()
-            if anchor_region is not None:
-                preview_anchor_region(anchor_region, self._overlay_state)
-                self._highlight_anchor_overlay(active=True)
-        else:
-            reset_anchor_region(self._config.anchor_template, self._overlay_state)
-            self._highlight_anchor_overlay(active=False)
-
-        if self._state.active_region == ActiveRegion.INFO:
-            offset = self._effective_info_offset()
-            preview_info_overlay_position(
-                self._overlay_state,
-                self._config.overlay_config,
-                offset.x,
-                offset.y,
-            )
-        else:
-            reposition_info_overlay(self._overlay_state, self._config.overlay_config)
+    def _refresh_highlights(self) -> None:
+        self._highlight_capture_overlay(active=self._state.active_region == ActiveRegion.CAPTURE)
+        self._highlight_anchor_overlay(active=self._state.active_region == ActiveRegion.ANCHOR)
 
     def _restore_overlays(self) -> None:
         reset_capture_region(self._config.capture_region)
@@ -440,21 +442,24 @@ class EditModeOverlayManager(EditModeRenderer):
 
     def _refresh_toolbar(self) -> None:
         active_region = self._state.active_region
-        dims = ""
-        if active_region == ActiveRegion.CAPTURE:
-            capture_region = self._effective_capture_region()
-            if capture_region is not None:
-                dims = f"{capture_region.left},{capture_region.top} {capture_region.width}x{capture_region.height}"
-        elif active_region == ActiveRegion.ANCHOR:
-            anchor_region = self._effective_anchor_region()
-            if anchor_region is not None:
-                dims = f"{anchor_region.left},{anchor_region.top} {anchor_region.width}x{anchor_region.height}"
-        elif active_region == ActiveRegion.INFO:
-            offset = self._effective_info_offset()
-            dims = f"{offset.x},{offset.y}"
+        dims = self._format_dimensions(active_region)
         self._toolbar.update(active_region, dims)
         target_root = self._root_for_active_region()
         self._toolbar.position_near(target_root)
+
+    def _format_dimensions(self, active_region: ActiveRegion | None) -> str:
+        if active_region == ActiveRegion.CAPTURE:
+            capture_region = self._effective_capture_region()
+            if capture_region is not None:
+                return f"{capture_region.left},{capture_region.top} {capture_region.width}x{capture_region.height}"
+        elif active_region == ActiveRegion.ANCHOR:
+            anchor_region = self._effective_anchor_region()
+            if anchor_region is not None:
+                return f"{anchor_region.left},{anchor_region.top} {anchor_region.width}x{anchor_region.height}"
+        elif active_region == ActiveRegion.INFO:
+            offset = self._effective_info_offset()
+            return f"{offset.x},{offset.y}"
+        return ""
 
     def _create_screen_blocker(self) -> None:
         if self._screen_blocker_root is not None:
@@ -469,17 +474,12 @@ class EditModeOverlayManager(EditModeRenderer):
         screen_width = safe_tk(blocker.winfo_screenwidth, 1920) or 1920
         screen_height = safe_tk(blocker.winfo_screenheight, 1080) or 1080
         blocker.geometry(f"{screen_width}x{screen_height}+0+0")
-        try:
-            blocker.focus_force()
-        except tk.TclError:
-            pass
 
         blocker.bind("<ButtonPress>", lambda event: "break", add="+")
         blocker.bind("<ButtonRelease>", lambda event: "break", add="+")
         blocker.bind("<MouseWheel>", lambda event: "break", add="+")
         blocker.bind("<Button-4>", lambda event: "break", add="+")
         blocker.bind("<Button-5>", lambda event: "break", add="+")
-        self._bind_key_handlers(blocker)
         self._screen_blocker_root = blocker
 
     def _destroy_screen_blocker(self) -> None:
@@ -496,12 +496,23 @@ class EditModeOverlayManager(EditModeRenderer):
             self._overlay_state.anchor_overlay_root,
             self._overlay_state.info_overlay_root,
         ):
-            if root is None or not safe_tk(root.winfo_exists, False):
-                continue
-            try:
-                root.attributes("-transparentcolor", "black")
-            except tk.TclError:
-                pass
+            self._apply_window_editable_attributes(root, enable)
+
+    def _apply_window_editable_attributes(self, root: tk.Toplevel | None, enable: bool) -> None:
+        if root is None or not safe_tk(root.winfo_exists, False):
+            return
+        transparentcolor = (
+            EDIT_MODE_TRANSPARENTCOLOR_SENTINEL if enable else DEFAULT_TRANSPARENTCOLOR
+        )
+        alpha = EDIT_MODE_OVERLAY_ALPHA if enable else 1.0
+        try:
+            root.attributes("-transparentcolor", transparentcolor)
+        except tk.TclError:
+            pass
+        try:
+            root.attributes("-alpha", alpha)
+        except tk.TclError:
+            pass
 
     def _lift_edit_mode_windows(self) -> None:
         if self._screen_blocker_root and safe_tk(self._screen_blocker_root.winfo_exists, False):
@@ -521,7 +532,6 @@ class EditModeOverlayManager(EditModeRenderer):
         rect_id = self._overlay_state.capture_rect_id
         if canvas is None or rect_id is None:
             return
-        safe = canvas.itemconfig
         try:
             canvas.itemconfig(rect_id, outline=ACTIVE_BORDER_COLOR if active else INACTIVE_CAPTURE_COLOR)
         except tk.TclError:
@@ -544,6 +554,15 @@ class EditModeOverlayManager(EditModeRenderer):
             return self._overlay_state.anchor_overlay_root
         if self._state.active_region == ActiveRegion.INFO:
             return self._overlay_state.info_overlay_root
+        return None
+
+    def _effective_region(self, region: ActiveRegion) -> Any | None:
+        if region == ActiveRegion.CAPTURE:
+            return self._effective_capture_region()
+        if region == ActiveRegion.ANCHOR:
+            return self._effective_anchor_region()
+        if region == ActiveRegion.INFO:
+            return self._effective_info_offset()
         return None
 
     def _effective_capture_region(self) -> CaptureRegion | None:

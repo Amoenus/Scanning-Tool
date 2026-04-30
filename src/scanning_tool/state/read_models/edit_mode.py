@@ -13,4 +13,5 @@ class EditModeReadModel:
     is_edit_mode: bool = False
     active_region: Optional[ActiveRegion] = None
     toolbar_visible: bool = False
+    original_region_payload: dict[ActiveRegion, dict[str, int]] = field(default_factory=dict)
 

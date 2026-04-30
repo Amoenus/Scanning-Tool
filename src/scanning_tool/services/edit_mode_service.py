@@ -17,6 +17,7 @@ class EditModeService(BaseService):
     def __init__(self) -> None:
         super().__init__()
         self._state = EditModeReadModel()
+        self._pending_region_payloads: dict[ActiveRegion, dict[str, int]] = {}
 
     @property
     def state(self) -> EditModeReadModel:
@@ -47,7 +48,9 @@ class EditModeService(BaseService):
             is_edit_mode=True,
             active_region=ActiveRegion.CAPTURE,
             toolbar_visible=True,
+            original_region_payload=self._capture_original_region_payloads(),
         )
+        self._pending_region_payloads = self._capture_original_region_payloads()
         edit_mode_changed.send(self, state=self._state)
 
     def _on_exit_edit_mode(self, sender: object, **kwargs: Any) -> None:
@@ -58,27 +61,47 @@ class EditModeService(BaseService):
         )
         edit_mode_changed.send(self, state=self._state)
 
-    def _on_drag_region(self, sender: object, **kwargs: Any) -> None:
+    def _on_drag_region(
+        self,
+        sender: object,
+        payload: dict[str, object] | None = None,
+        **kwargs: Any,
+    ) -> None:
         if not self._state.is_edit_mode:
             return
 
-        payload = {k: int(v) for k, v in kwargs.items() if isinstance(v, int) or isinstance(v, float)}
-        if not payload:
+        cleaned = self._coerce_int_payload(self._normalize_payload(payload, kwargs))
+        if not cleaned:
             return
 
-        full_payload = self._payload_for_region(self._state.active_region or ActiveRegion.CAPTURE, payload)
+        full_payload = self._payload_for_region(
+            self._state.active_region or ActiveRegion.CAPTURE,
+            cleaned,
+        )
+        if self._state.active_region is not None:
+            self._pending_region_payloads[self._state.active_region] = full_payload
         self._publish_region_config_action(self._state.active_region, full_payload)
         edit_mode_changed.send(self, state=self._state)
 
-    def _on_nudge_region(self, sender: object, **kwargs: Any) -> None:
+    def _on_nudge_region(
+        self,
+        sender: object,
+        payload: dict[str, object] | None = None,
+        **kwargs: Any,
+    ) -> None:
         if not self._state.is_edit_mode:
             return
 
-        payload = {k: int(v) for k, v in kwargs.items() if isinstance(v, int) or isinstance(v, float)}
-        if not payload:
+        cleaned = self._coerce_int_payload(self._normalize_payload(payload, kwargs))
+        if not cleaned:
             return
 
-        full_payload = self._payload_for_region(self._state.active_region or ActiveRegion.CAPTURE, payload)
+        full_payload = self._payload_for_region(
+            self._state.active_region or ActiveRegion.CAPTURE,
+            cleaned,
+        )
+        if self._state.active_region is not None:
+            self._pending_region_payloads[self._state.active_region] = full_payload
         self._publish_region_config_action(self._state.active_region, full_payload)
         edit_mode_changed.send(self, state=self._state)
 
@@ -95,6 +118,7 @@ class EditModeService(BaseService):
             is_edit_mode=True,
             active_region=next_region,
             toolbar_visible=True,
+            original_region_payload=self._state.original_region_payload,
         )
         edit_mode_changed.send(self, state=self._state)
 
@@ -102,14 +126,30 @@ class EditModeService(BaseService):
         if not self._state.is_edit_mode or not self._state.active_region:
             return
 
+        final_payload = self._pending_region_payloads.get(
+            self._state.active_region,
+            self._payload_for_region(self._state.active_region, {}),
+        )
+        self._publish_region_config_action(self._state.active_region, final_payload)
         region_committed.send(self, active_region=self._state.active_region)
 
-    def _on_select_region(self, sender: object, region: str | None = None, **kwargs: Any) -> None:
-        if not self._state.is_edit_mode or not region:
+    def _on_select_region(
+        self,
+        sender: object,
+        payload: dict[str, object] | None = None,
+        **kwargs: Any,
+    ) -> None:
+        if not self._state.is_edit_mode:
+            return
+
+        region_name = self._region_name_from_payload(
+            self._normalize_payload(payload, kwargs),
+        )
+        if region_name is None:
             return
 
         try:
-            active_region = ActiveRegion(region)
+            active_region = ActiveRegion(region_name)
         except ValueError:
             return
 
@@ -117,6 +157,7 @@ class EditModeService(BaseService):
             is_edit_mode=True,
             active_region=active_region,
             toolbar_visible=True,
+            original_region_payload=self._state.original_region_payload,
         )
         edit_mode_changed.send(self, state=self._state)
 
@@ -124,7 +165,35 @@ class EditModeService(BaseService):
         if not self._state.is_edit_mode or not self._state.active_region:
             return
 
+        original_payload = self._state.original_region_payload.get(self._state.active_region)
+        if not original_payload:
+            return
+
+        self._pending_region_payloads[self._state.active_region] = original_payload
+        self._publish_region_config_action(self._state.active_region, original_payload)
         edit_mode_changed.send(self, state=self._state)
+
+    def _normalize_payload(
+        self,
+        payload: dict[str, object] | None,
+        kwargs: dict[str, object],
+    ) -> dict[str, object]:
+        normalized: dict[str, object] = {}
+        if payload:
+            normalized.update(payload)
+        normalized.update(kwargs)
+        return normalized
+
+    def _coerce_int_payload(self, payload: dict[str, object] | None) -> dict[str, int]:
+        if not payload:
+            return {}
+        return {k: int(v) for k, v in payload.items() if isinstance(v, (int, float))}
+
+    def _region_name_from_payload(self, payload: dict[str, object] | None) -> str | None:
+        if not payload:
+            return None
+        value = payload.get("region")
+        return value if isinstance(value, str) else None
 
     def _payload_for_region(self, region: ActiveRegion, payload: dict[str, int]) -> dict[str, int]:
         if region == ActiveRegion.CAPTURE or region == ActiveRegion.ANCHOR:
@@ -147,6 +216,29 @@ class EditModeService(BaseService):
 
         return {}
 
+    def _capture_original_region_payloads(self) -> dict[ActiveRegion, dict[str, int]]:
+        capture_region = manager.config.capture_region
+        anchor_template = manager.config.anchor_template
+        info_offset = manager.config.overlay_config.info_offset
+        return {
+            ActiveRegion.CAPTURE: {
+                "left": int(capture_region.left),
+                "top": int(capture_region.top),
+                "width": int(capture_region.width),
+                "height": int(capture_region.height),
+            },
+            ActiveRegion.ANCHOR: {
+                "left": int(anchor_template.left),
+                "top": int(anchor_template.top),
+                "width": int(anchor_template.width),
+                "height": int(anchor_template.height),
+            },
+            ActiveRegion.INFO: {
+                "x": int(info_offset.x),
+                "y": int(info_offset.y),
+            },
+        }
+
     def _publish_region_config_action(
         self,
         active_region: ActiveRegion | None,
@@ -168,4 +260,3 @@ class EditModeService(BaseService):
         return ConfigAction.UPDATE_RESULT_DISPLAY_OFFSET
 
 edit_mode_service = EditModeService()
-

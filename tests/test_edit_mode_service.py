@@ -9,6 +9,7 @@ from scanning_tool.state.signals import UI_ACTION_SIGNALS, edit_mode_changed, re
 def test_edit_mode_service_drags_and_commits_capture_region() -> None:
     service = EditModeService()
     service.start()
+    manager.config = ConfigData()
 
     committed = []
     config_payloads = []
@@ -36,6 +37,7 @@ def test_edit_mode_service_drags_and_commits_capture_region() -> None:
 def test_edit_mode_service_resets_region_state() -> None:
     service = EditModeService()
     service.start()
+    manager.config = ConfigData()
 
     state_changes = []
 
@@ -77,6 +79,39 @@ def test_edit_mode_service_nudge_region_uses_current_config_values() -> None:
     assert config_payloads[-1] == {
         "left": 101,
         "top": 198,
+        "width": 300,
+        "height": 100,
+    }
+
+    service.stop()
+
+
+def test_edit_mode_service_reset_restores_original_values() -> None:
+    service = EditModeService()
+    service.start()
+
+    manager.config = ConfigData()
+    manager.config.capture_region.left = 10
+    manager.config.capture_region.top = 20
+    manager.config.capture_region.width = 80
+    manager.config.capture_region.height = 60
+
+    config_payloads = []
+
+    def capture_handler(sender: object, payload=None, **kwargs: object) -> None:
+        config_payloads.append(payload)
+
+    UI_ACTION_SIGNALS[ConfigAction.UPDATE_CAPTURE_REGION].connect(capture_handler, weak=False)
+
+    UI_ACTION_SIGNALS[EditModeAction.ENTER_EDIT_MODE].send(None)
+    UI_ACTION_SIGNALS[EditModeAction.DRAG_REGION].send(None, left=100, top=120, width=300, height=200)
+    UI_ACTION_SIGNALS[EditModeAction.RESET_REGION].send(None)
+
+    assert config_payloads[-1] == {
+        "left": 10,
+        "top": 20,
+        "width": 80,
+        "height": 60,
     }
 
     service.stop()
