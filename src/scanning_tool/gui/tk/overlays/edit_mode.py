@@ -38,7 +38,6 @@ HANDLE_FILL = "#ffff00"
 ACTIVE_BORDER_COLOR = "#f5b041"
 INACTIVE_CAPTURE_COLOR = "red"
 INACTIVE_ANCHOR_COLOR = "#00d4ff"
-EDIT_MODE_OVERLAY_ALPHA = 0.35
 EDIT_MODE_TRANSPARENTCOLOR_SENTINEL = "#010101"
 DEFAULT_TRANSPARENTCOLOR = "black"
 
@@ -501,16 +500,13 @@ class EditModeOverlayManager(EditModeRenderer):
     def _apply_window_editable_attributes(self, root: tk.Toplevel | None, enable: bool) -> None:
         if root is None or not safe_tk(root.winfo_exists, False):
             return
-        transparentcolor = (
-            EDIT_MODE_TRANSPARENTCOLOR_SENTINEL if enable else DEFAULT_TRANSPARENTCOLOR
-        )
-        alpha = EDIT_MODE_OVERLAY_ALPHA if enable else 1.0
+        transparentcolor = DEFAULT_TRANSPARENTCOLOR
         try:
             root.attributes("-transparentcolor", transparentcolor)
         except tk.TclError:
             pass
         try:
-            root.attributes("-alpha", alpha)
+            root.attributes("-alpha", 1.0)
         except tk.TclError:
             pass
 
