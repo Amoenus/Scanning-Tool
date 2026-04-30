@@ -24,7 +24,12 @@ from scanning_tool.gui.tk.overlays.slider_sync import (
     sync_capture_sliders,
     sync_overlay_sliders,
 )
-from scanning_tool.gui.tk.overlays.base import ANCHOR_OVERLAY_PAD, CAPTURE_OVERLAY_PADDING_X, CAPTURE_OVERLAY_PADDING_Y
+from scanning_tool.gui.tk.overlays.base import (
+    ANCHOR_OVERLAY_PAD,
+    CAPTURE_OVERLAY_PADDING_X,
+    CAPTURE_OVERLAY_PADDING_Y,
+    safe_tk,
+)
 from scanning_tool.gui.state import OverlayState, ControlState
 from scanning_tool.domain.alignment import CaptureRegion
 
@@ -166,6 +171,7 @@ class EditModeOverlayManager(EditModeRenderer):
         self._edit_mode = False
         self._drag_session: _DragSession | None = None
         self._toolbar = _EditModeToolbar()
+        self._screen_blocker_root: tk.Toplevel | None = None
         self._bound_canvases: set[int] = set()
         self._bound_roots: set[int] = set()
 
@@ -361,12 +367,17 @@ class EditModeOverlayManager(EditModeRenderer):
         self._state = state
         self._edit_mode = state.is_edit_mode
         if self._edit_mode:
+            self._create_screen_blocker()
+            self._set_overlay_windows_editable(True)
             self._toolbar.show()
             self._sync_sliders()
             self._update_previews()
             self._refresh_toolbar()
+            self._lift_edit_mode_windows()
         else:
             self._toolbar.hide()
+            self._destroy_screen_blocker()
+            self._set_overlay_windows_editable(False)
             self._restore_overlays()
             self._sync_sliders()
 
@@ -462,6 +473,66 @@ class EditModeOverlayManager(EditModeRenderer):
         self._toolbar.update(active_region, dims)
         target_root = self._root_for_active_region()
         self._toolbar.position_near(target_root)
+
+    def _create_screen_blocker(self) -> None:
+        if self._screen_blocker_root is not None:
+            return
+
+        blocker = tk.Toplevel()
+        blocker.overrideredirect(True)
+        blocker.attributes("-topmost", True)
+        blocker.attributes("-alpha", 0.01)
+        blocker.configure(bg="black")
+
+        screen_width = safe_tk(blocker.winfo_screenwidth, 1920) or 1920
+        screen_height = safe_tk(blocker.winfo_screenheight, 1080) or 1080
+        blocker.geometry(f"{screen_width}x{screen_height}+0+0")
+        try:
+            blocker.focus_force()
+        except tk.TclError:
+            pass
+
+        blocker.bind("<ButtonPress>", lambda event: "break", add="+")
+        blocker.bind("<ButtonRelease>", lambda event: "break", add="+")
+        blocker.bind("<MouseWheel>", lambda event: "break", add="+")
+        blocker.bind("<Button-4>", lambda event: "break", add="+")
+        blocker.bind("<Button-5>", lambda event: "break", add="+")
+        self._bind_key_handlers(blocker)
+        self._screen_blocker_root = blocker
+
+    def _destroy_screen_blocker(self) -> None:
+        if self._screen_blocker_root and safe_tk(self._screen_blocker_root.winfo_exists, False):
+            try:
+                self._screen_blocker_root.destroy()
+            except tk.TclError:
+                pass
+        self._screen_blocker_root = None
+
+    def _set_overlay_windows_editable(self, enable: bool) -> None:
+        for root in (
+            self._overlay_state.capture_overlay_root,
+            self._overlay_state.anchor_overlay_root,
+            self._overlay_state.info_overlay_root,
+        ):
+            if root is None or not safe_tk(root.winfo_exists, False):
+                continue
+            try:
+                root.attributes("-transparentcolor", "black")
+            except tk.TclError:
+                pass
+
+    def _lift_edit_mode_windows(self) -> None:
+        if self._screen_blocker_root and safe_tk(self._screen_blocker_root.winfo_exists, False):
+            safe_tk(self._screen_blocker_root.lift)
+
+        for root in (
+            self._overlay_state.capture_overlay_root,
+            self._overlay_state.anchor_overlay_root,
+            self._overlay_state.info_overlay_root,
+            self._toolbar.root,
+        ):
+            if root is not None:
+                safe_tk(root.lift)
 
     def _highlight_capture_overlay(self, active: bool) -> None:
         canvas = self._overlay_state.capture_overlay_canvas

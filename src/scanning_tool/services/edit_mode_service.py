@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from scanning_tool.services.base_service import BaseService
+from scanning_tool.state import manager
 from scanning_tool.state.actions.config import ConfigAction
 from scanning_tool.state.actions.edit_mode import EditModeAction
 from scanning_tool.state.read_models.edit_mode import ActiveRegion, EditModeReadModel
@@ -74,6 +75,7 @@ class EditModeService(BaseService):
         )
         region_drafted.send(self, active_region=self._state.active_region, draft_values=draft_values)
         edit_mode_changed.send(self, state=self._state)
+        self._publish_region_config_action(self._state.active_region, draft_values)
 
     def _on_nudge_region(self, sender: object, **kwargs: Any) -> None:
         if not self._state.is_edit_mode:
@@ -86,7 +88,10 @@ class EditModeService(BaseService):
                 continue
             if field_name.startswith("delta_"):
                 target_field = field_name[len("delta_"):]
-                current = int(draft_values.get(target_field, 0))
+                if target_field in draft_values:
+                    current = int(draft_values[target_field])
+                else:
+                    current = self._current_region_field_value(target_field)
                 delta_values[target_field] = current + int(value)
             else:
                 delta_values[field_name] = int(value)
@@ -103,6 +108,7 @@ class EditModeService(BaseService):
         )
         region_drafted.send(self, active_region=self._state.active_region, draft_values=merged_values)
         edit_mode_changed.send(self, state=self._state)
+        self._publish_region_config_action(self._state.active_region, merged_values)
 
     def _on_cycle_region(self, sender: object, **kwargs: Any) -> None:
         if not self._state.is_edit_mode:
@@ -191,6 +197,35 @@ class EditModeService(BaseService):
                 if k in draft_values
             }
         return {}
+
+    def _current_region_field_value(self, field_name: str) -> int:
+        if self._state.active_region == ActiveRegion.CAPTURE:
+            region = manager.config.capture_region
+            return int(getattr(region, field_name, 0))
+        if self._state.active_region == ActiveRegion.ANCHOR:
+            region = manager.config.anchor_template
+            return int(getattr(region, field_name, 0))
+        if self._state.active_region == ActiveRegion.INFO:
+            offset = manager.config.overlay_config.info_offset
+            return int(getattr(offset, field_name, 0))
+        return 0
+
+    def _publish_region_config_action(
+        self,
+        active_region: ActiveRegion | None,
+        draft_values: dict[str, int],
+    ) -> None:
+        if active_region is None:
+            return
+
+        payload = self._payload_for_region(active_region, draft_values)
+        if not payload:
+            return
+
+        config_action = self._config_action_for_region(active_region)
+        signal = UI_ACTION_SIGNALS.get(config_action)
+        if signal is not None:
+            signal.send(self, payload=payload)
 
     def _config_action_for_region(self, region: ActiveRegion) -> ConfigAction:
         if region == ActiveRegion.CAPTURE:
