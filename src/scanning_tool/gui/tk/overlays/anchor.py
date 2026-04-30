@@ -131,5 +131,15 @@ def update_anchor_overlay_region(overlay_state: OverlayState) -> None:
     _anchor_overlay.update_region(overlay_state)
 
 
+def preview_anchor_region(anchor_template: CaptureRegion, overlay_state: OverlayState) -> None:
+    _anchor_overlay._anchor_template = anchor_template
+    _anchor_overlay.update_region(overlay_state)
+
+
+def reset_anchor_region(anchor_template: CaptureRegion, overlay_state: OverlayState) -> None:
+    _anchor_overlay._anchor_template = anchor_template
+    _anchor_overlay.update_region(overlay_state)
+
+
 def hide_anchor_overlay(overlay_state: OverlayState) -> None:
     _anchor_overlay.hide(overlay_state)

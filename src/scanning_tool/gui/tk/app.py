@@ -10,6 +10,7 @@ from scanning_tool.gui.tk.alignment import AlignmentPoller
 from scanning_tool.gui.tk.lifecycle import register_close_handler
 from scanning_tool.gui.tk.overlays import (
     configure_capture_slider_sync,
+    install_edit_mode_overlay,
     register_overlay_signal_handlers,
     show_overlay,
     update_overlay_label,
@@ -88,6 +89,12 @@ def launch_gui(
         config_service=config_service,
     )
     register_overlay_signal_handlers()
+    edit_mode_overlay_manager = install_edit_mode_overlay(
+        ctx.overlay_state,
+        ctx.control_state,
+        ctx.config,
+    )
+    root.edit_mode_overlay_manager = edit_mode_overlay_manager
     configure_capture_slider_sync(
         ctx.control_state,
         lambda: ctx.config.capture_region,

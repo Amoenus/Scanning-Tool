@@ -231,6 +231,16 @@ def update_capture_overlay_region() -> None:
     _capture_overlay.update_region()
 
 
+def preview_capture_region(capture_region: CaptureRegion) -> None:
+    _capture_overlay._capture_region = capture_region
+    _capture_overlay.update_region()
+
+
+def reset_capture_region(capture_region: CaptureRegion) -> None:
+    _capture_overlay._capture_region = capture_region
+    _capture_overlay.update_region()
+
+
 def show_capture_overlay(
     overlay_state: OverlayState, capture_region: CaptureRegion,
 ) -> None:

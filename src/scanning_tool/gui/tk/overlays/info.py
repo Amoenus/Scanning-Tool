@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import time
+from types import SimpleNamespace
 import tkinter as tk
 from tkinter import colorchooser
 from typing import TYPE_CHECKING
@@ -210,6 +211,37 @@ def reposition_info_overlay(
     overlay_state: OverlayState, overlay_config: OverlayConfig,
 ) -> None:
     _info_overlay.reposition(overlay_state, overlay_config)
+
+
+def preview_info_overlay_position(
+    overlay_state: OverlayState,
+    overlay_config: OverlayConfig,
+    x: int,
+    y: int,
+) -> None:
+    root = _info_overlay.root
+    canvas = _info_overlay.canvas
+    text_id = _info_overlay.text_id
+    if root is None or canvas is None or text_id is None:
+        return
+    if safe_tk(root.winfo_exists, False) is False:
+        return
+
+    screen_width = safe_tk(root.winfo_screenwidth, 1920) or 1920
+    screen_height = safe_tk(root.winfo_screenheight, 1080) or 1080
+    preview_config = SimpleNamespace(info_offset=SimpleNamespace(x=x, y=y))
+    geo = compute_info_overlay_geometry(screen_width, screen_height, preview_config)
+
+    safe_tk(lambda: root.geometry(f"{geo.width}x{geo.height}+{geo.left}+{geo.top}"))
+    safe_tk(lambda: canvas.config(width=geo.width, height=geo.height))
+    safe_tk(lambda: canvas.coords(text_id, geo.width // 2, geo.height // 2))
+    safe_tk(lambda: canvas.itemconfig(text_id, width=geo.width - 60))
+
+    _info_overlay.info_overlay_geometry.screen_width = screen_width
+    _info_overlay.info_overlay_geometry.screen_height = screen_height
+    _info_overlay.info_overlay_geometry.width = geo.width
+    _info_overlay.info_overlay_geometry.height = geo.height
+    overlay_state.info_overlay_geometry = _info_overlay.info_overlay_geometry
 
 
 def start_label_timeout(overlay_state: OverlayState) -> None:

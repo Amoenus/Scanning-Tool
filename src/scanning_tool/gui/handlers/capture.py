@@ -7,6 +7,7 @@ from scanning_tool.gui.overlays import (
     hide_capture_overlay,
     show_capture_overlay,
     toggle_border,
+    update_capture_overlay_region,
 )
 from scanning_tool.state.signals import status_updated
 
@@ -31,6 +32,7 @@ def _handle_update_capture_region(
     region.top = int(payload.get("top", region.top))
     region.width = int(payload.get("width", region.width))
     region.height = int(payload.get("height", region.height))
+    update_capture_overlay_region()
     status_updated.send(None, message=f"CAP_REGION updated: {region}")
 
 

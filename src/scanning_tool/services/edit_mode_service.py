@@ -17,11 +17,17 @@ class EditModeService(BaseService):
         super().__init__()
         self._state = EditModeReadModel()
 
+    @property
+    def state(self) -> EditModeReadModel:
+        return self._state
+
     def _on_start(self) -> None:
         UI_ACTION_SIGNALS[EditModeAction.ENTER_EDIT_MODE].connect(self._on_enter_edit_mode)
         UI_ACTION_SIGNALS[EditModeAction.EXIT_EDIT_MODE].connect(self._on_exit_edit_mode)
+        UI_ACTION_SIGNALS[EditModeAction.SELECT_REGION].connect(self._on_select_region)
         UI_ACTION_SIGNALS[EditModeAction.DRAG_REGION].connect(self._on_drag_region)
         UI_ACTION_SIGNALS[EditModeAction.NUDGE_REGION].connect(self._on_nudge_region)
+        UI_ACTION_SIGNALS[EditModeAction.RESET_REGION].connect(self._on_reset_region)
         UI_ACTION_SIGNALS[EditModeAction.CYCLE_REGION].connect(self._on_cycle_region)
         UI_ACTION_SIGNALS[EditModeAction.COMMIT_REGION].connect(self._on_commit_region)
 
@@ -33,7 +39,7 @@ class EditModeService(BaseService):
         UI_ACTION_SIGNALS[EditModeAction.CYCLE_REGION].disconnect(self._on_cycle_region)
         UI_ACTION_SIGNALS[EditModeAction.COMMIT_REGION].disconnect(self._on_commit_region)
 
-    def _on_enter_edit_mode(self, sender: object) -> None:
+    def _on_enter_edit_mode(self, sender: object, **kwargs: Any) -> None:
         self._state = EditModeReadModel(
             is_edit_mode=True,
             active_region=ActiveRegion.CAPTURE,
@@ -42,7 +48,7 @@ class EditModeService(BaseService):
         )
         edit_mode_changed.send(self, state=self._state)
 
-    def _on_exit_edit_mode(self, sender: object) -> None:
+    def _on_exit_edit_mode(self, sender: object, **kwargs: Any) -> None:
         self._state = EditModeReadModel(
             is_edit_mode=False,
             active_region=None,
@@ -98,7 +104,7 @@ class EditModeService(BaseService):
         region_drafted.send(self, active_region=self._state.active_region, draft_values=merged_values)
         edit_mode_changed.send(self, state=self._state)
 
-    def _on_cycle_region(self, sender: object) -> None:
+    def _on_cycle_region(self, sender: object, **kwargs: Any) -> None:
         if not self._state.is_edit_mode:
             return
 
@@ -115,7 +121,7 @@ class EditModeService(BaseService):
         )
         edit_mode_changed.send(self, state=self._state)
 
-    def _on_commit_region(self, sender: object) -> None:
+    def _on_commit_region(self, sender: object, **kwargs: Any) -> None:
         if not self._state.is_edit_mode or not self._state.active_region:
             return
 
@@ -127,6 +133,44 @@ class EditModeService(BaseService):
                 signal.send(self, payload=payload)
 
         region_committed.send(self, active_region=self._state.active_region, draft_values=self._state.draft_values)
+
+    def _on_select_region(self, sender: object, region: str | None = None, **kwargs: Any) -> None:
+        if not self._state.is_edit_mode or not region:
+            return
+
+        try:
+            active_region = ActiveRegion(region)
+        except ValueError:
+            return
+
+        self._state = EditModeReadModel(
+            is_edit_mode=True,
+            active_region=active_region,
+            toolbar_visible=True,
+            draft_values=self._state.draft_values,
+        )
+        edit_mode_changed.send(self, state=self._state)
+
+    def _on_reset_region(self, sender: object, **kwargs: Any) -> None:
+        if not self._state.is_edit_mode or not self._state.active_region:
+            return
+
+        draft_values = self._state.draft_values.copy()
+        if self._state.active_region in (ActiveRegion.CAPTURE, ActiveRegion.ANCHOR):
+            for key in ("left", "top", "width", "height"):
+                draft_values.pop(key, None)
+        else:
+            for key in ("x", "y"):
+                draft_values.pop(key, None)
+
+        self._state = EditModeReadModel(
+            is_edit_mode=True,
+            active_region=self._state.active_region,
+            toolbar_visible=True,
+            draft_values=draft_values,
+        )
+        region_drafted.send(self, active_region=self._state.active_region, draft_values=draft_values)
+        edit_mode_changed.send(self, state=self._state)
 
     def _merge_draft_values(self, payload: dict[str, int]) -> dict[str, int]:
         merged = self._state.draft_values.copy()

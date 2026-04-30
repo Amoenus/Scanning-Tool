@@ -77,15 +77,15 @@ The on-screen overlays already know where they are. The user can already see the
 - [x] Define `EditModeAction` enum and signals (per PRD 16).
 - [x] Define `EditModeState` read model.
 - [x] Implement `EditModeService` and wire it into the bootstrap.
-- [ ] Add overlay handles and dimension readout widgets for edit mode.
-- [ ] Implement drag (move + resize) for capture region, anchor region, info-label position.
-- [ ] Implement arrow-key nudge (1px) and Shift+arrow (10px).
-- [ ] Implement Tab cycling between regions.
-- [ ] Build the contextual toolbar widget (dimensions, lock, reset, exit, preset slot).
-- [ ] Wire edit-mode hotkey toggle (default `F9`).
+- [x] Add overlay handles and dimension readout widgets for edit mode.
+- [x] Implement drag (move + resize) for capture region, anchor region, info-label position.
+- [x] Implement arrow-key nudge (1px) and Shift+arrow (10px).
+- [x] Implement Tab cycling between regions.
+- [x] Build the contextual toolbar widget (dimensions, lock, reset, exit, preset slot).
+- [x] Wire edit-mode hotkey toggle (default `F9`).
 - [ ] Implement window-mode detection on Windows.
 - [ ] Add in-overlay message for exclusive fullscreen / unsupported mode.
-- [ ] Verify Tk slider sync updates live on overlay drag.
+- [x] Verify Tk slider sync updates live on overlay drag.
 - [ ] Add Edit mode manifest entry to in-game overlay UI.
 - [ ] Write conformance scenarios (enter/exit, drag, nudge, persist).
 - [ ] Update `ux-vision.md` if implementation reveals refinements.

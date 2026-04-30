@@ -42,6 +42,7 @@ from .slider_sync import (
     sync_capture_sliders_callback,
     sync_overlay_sliders,
 )
+from .edit_mode import install_edit_mode_overlay
 
 if TYPE_CHECKING:
     from scanning_tool.config.service import ConfigData
@@ -76,6 +77,7 @@ __all__ = (
     "update_capture_overlay_region",
     "update_overlay_label",
     "update_overlay_region",
+    "install_edit_mode_overlay",
     "register_overlay_signal_handlers",
 )
 
