@@ -1,6 +1,8 @@
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
-from scanning_tool.domain.alignment import AlignmentInfo
+if TYPE_CHECKING:
+    from scanning_tool.domain.alignment import AlignmentInfo
 
 
 @dataclass(frozen=True)

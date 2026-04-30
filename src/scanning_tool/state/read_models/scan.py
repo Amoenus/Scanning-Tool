@@ -1,6 +1,8 @@
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
-from scanning_tool.domain.models import ScanResult
+if TYPE_CHECKING:
+    from scanning_tool.domain.models import ScanResult
 
 
 @dataclass(frozen=True)
