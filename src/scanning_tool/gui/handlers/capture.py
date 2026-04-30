@@ -2,13 +2,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from scanning_tool.state.actions import ConfigAction
 from scanning_tool.gui.overlays import (
     hide_capture_overlay,
     show_capture_overlay,
     toggle_border,
     update_capture_overlay_region,
 )
+from scanning_tool.state.actions import ConfigAction
 from scanning_tool.state.signals import status_updated
 
 if TYPE_CHECKING:

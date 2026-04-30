@@ -6,6 +6,6 @@ region_committed: Signal = Signal("region_committed")
 
 __all__ = [
     "edit_mode_changed",
-    "region_drafted",
     "region_committed",
+    "region_drafted",
 ]

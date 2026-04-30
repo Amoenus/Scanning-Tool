@@ -2,9 +2,9 @@
 from __future__ import annotations
 
 import time
-from types import SimpleNamespace
 import tkinter as tk
 from tkinter import colorchooser
+from types import SimpleNamespace
 from typing import TYPE_CHECKING
 
 from ..layout import InfoOverlayGeometry, InfoOverlayLayout

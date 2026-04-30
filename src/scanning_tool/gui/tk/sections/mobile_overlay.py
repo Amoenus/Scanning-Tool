@@ -10,9 +10,9 @@ from typing import TYPE_CHECKING
 from loguru import logger
 from PIL import Image, ImageTk
 
-from scanning_tool.state.actions import ConfigAction
 from scanning_tool.gui.actions import publish_ui_action
 from scanning_tool.gui.tk.widgets import create_button_row, create_status_label
+from scanning_tool.state.actions import ConfigAction
 from scanning_tool.state.signals import mobile_qr_ready
 from scanning_tool.web import get_local_ip as get_local_ip_from_web
 

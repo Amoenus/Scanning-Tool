@@ -3,23 +3,13 @@ from __future__ import annotations
 
 import tkinter as tk
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
+from scanning_tool.domain.alignment import CaptureRegion
 from scanning_tool.gui.actions import publish_ui_action
 from scanning_tool.gui.edit_mode import EditModeRenderer
-from scanning_tool.state.actions.config import ConfigAction
-from scanning_tool.state.actions.edit_mode import EditModeAction
-from scanning_tool.state.read_models.edit_mode import ActiveRegion, EditModeReadModel
-from scanning_tool.state.signals import UI_ACTION_SIGNALS
-from scanning_tool.state.signals.edit_mode import edit_mode_changed
+from scanning_tool.gui.state import ControlState, OverlayState
 from scanning_tool.gui.tk.overlays.anchor import reset_anchor_region
-from scanning_tool.gui.tk.overlays.capture import reset_capture_region
-from scanning_tool.gui.tk.overlays.info import reposition_info_overlay
-from scanning_tool.gui.tk.overlays.slider_sync import (
-    sync_anchor_sliders,
-    sync_capture_sliders,
-    sync_overlay_sliders,
-)
 from scanning_tool.gui.tk.overlays.base import (
     ANCHOR_OVERLAY_PAD,
     CAPTURE_OVERLAY_PADDING_X,
@@ -27,11 +17,18 @@ from scanning_tool.gui.tk.overlays.base import (
     enforce_topmost,
     safe_tk,
 )
-from scanning_tool.gui.state import OverlayState, ControlState
-from scanning_tool.domain.alignment import CaptureRegion
-
-if TYPE_CHECKING:
-    from scanning_tool.config.models import OverlayConfig
+from scanning_tool.gui.tk.overlays.capture import reset_capture_region
+from scanning_tool.gui.tk.overlays.info import reposition_info_overlay
+from scanning_tool.gui.tk.overlays.slider_sync import (
+    sync_anchor_sliders,
+    sync_capture_sliders,
+    sync_overlay_sliders,
+)
+from scanning_tool.state.actions.config import ConfigAction
+from scanning_tool.state.actions.edit_mode import EditModeAction
+from scanning_tool.state.read_models.edit_mode import ActiveRegion, EditModeReadModel
+from scanning_tool.state.signals import UI_ACTION_SIGNALS
+from scanning_tool.state.signals.edit_mode import edit_mode_changed
 
 HANDLE_RADIUS = 12
 HANDLE_FILL = "#ffff00"

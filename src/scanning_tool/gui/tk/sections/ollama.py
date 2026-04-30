@@ -6,8 +6,8 @@ import tkinter as tk
 from tkinter import ttk
 from typing import TYPE_CHECKING
 
-from scanning_tool.state.actions import ConfigAction
 from scanning_tool.gui.actions import publish_ui_action
+from scanning_tool.state.actions import ConfigAction
 from scanning_tool.state.actions.runtime import RuntimeAction
 
 if TYPE_CHECKING:

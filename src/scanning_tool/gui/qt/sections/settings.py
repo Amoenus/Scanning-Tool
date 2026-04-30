@@ -3,11 +3,11 @@ from __future__ import annotations
 
 from PyQt6.QtWidgets import QGroupBox, QPushButton, QVBoxLayout, QWidget
 
+from scanning_tool.gui.qt.sections.base import SectionContext
 from scanning_tool.gui.qt.sections.capture_region import CaptureRegionSection
 from scanning_tool.gui.qt.sections.head_sway import HeadSwaySection
 from scanning_tool.gui.qt.sections.ollama import OllamaSection
 from scanning_tool.gui.qt.sections.result_display import ResultDisplaySection
-from scanning_tool.gui.qt.sections.base import SectionContext
 
 
 class SettingsSection:

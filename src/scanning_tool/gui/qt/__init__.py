@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
-from .provider import QtGuiProvider
-from scanning_tool.state.manifest import ConcernManifest
 from scanning_tool.state.actions.scan import ScanAction
-from scanning_tool.state.signals.scan import scan_completed, scan_failed, scan_started, continuous_mode_changed
+from scanning_tool.state.manifest import ConcernManifest
+from scanning_tool.state.signals.scan import continuous_mode_changed, scan_completed, scan_failed, scan_started
+
+from .provider import QtGuiProvider
 
 MANIFEST = ConcernManifest(
     claimed_concerns=frozenset({"scan_result"}),
@@ -13,4 +14,4 @@ MANIFEST = ConcernManifest(
     subscribed_signals=frozenset({scan_completed, scan_failed, scan_started, continuous_mode_changed}),
 )
 
-__all__ = ["QtGuiProvider", "MANIFEST"]
+__all__ = ["MANIFEST", "QtGuiProvider"]

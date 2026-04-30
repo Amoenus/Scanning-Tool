@@ -1,5 +1,6 @@
 from enum import StrEnum
 
+
 class RuntimeAction(StrEnum):
     """Actions specific to the Runtime status concern."""
 

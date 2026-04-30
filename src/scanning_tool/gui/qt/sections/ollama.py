@@ -14,8 +14,8 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-from scanning_tool.state.actions import ConfigAction
 from scanning_tool.gui.actions import publish_ui_action
+from scanning_tool.state.actions import ConfigAction
 from scanning_tool.state.actions.runtime import RuntimeAction
 
 from .base import SectionContext

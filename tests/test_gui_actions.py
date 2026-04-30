@@ -4,9 +4,9 @@ from pytest import MonkeyPatch
 
 from scanning_tool.config.service import ConfigData
 from scanning_tool.gui import handlers as gui_handlers
-from scanning_tool.state.actions import ConfigAction
 from scanning_tool.gui.actions import publish_ui_action
 from scanning_tool.gui.event_handlers import install_ui_action_handlers
+from scanning_tool.state.actions import ConfigAction
 
 
 class DummyConfigService:

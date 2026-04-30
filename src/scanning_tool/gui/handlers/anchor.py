@@ -8,8 +8,6 @@ from typing import TYPE_CHECKING
 from scanning_tool.config import ensure_anchor_directory
 from scanning_tool.core.anchor import AnchorRegionTracker
 from scanning_tool.domain.alignment import AlignmentRequest
-from scanning_tool.state.actions import ConfigAction
-from scanning_tool.state.actions.runtime import RuntimeAction
 from scanning_tool.gui.overlays import (
     hide_anchor_overlay,
     show_anchor_overlay,
@@ -17,6 +15,8 @@ from scanning_tool.gui.overlays import (
 )
 from scanning_tool.services.alignment_service import alignment_service
 from scanning_tool.services.capture_provider import ScreenCaptureProvider
+from scanning_tool.state.actions import ConfigAction
+from scanning_tool.state.actions.runtime import RuntimeAction
 from scanning_tool.state.signals import status_updated
 
 if TYPE_CHECKING:

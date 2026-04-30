@@ -8,10 +8,10 @@ continuous_mode_changed: Signal = Signal("continuous_mode_changed")
 scan_result_updated: Signal = Signal("scan_result_updated")
 
 __all__ = [
-    "scan_requested",
-    "scan_started",
+    "continuous_mode_changed",
     "scan_completed",
     "scan_failed",
-    "continuous_mode_changed",
+    "scan_requested",
     "scan_result_updated",
+    "scan_started",
 ]

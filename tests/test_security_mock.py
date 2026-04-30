@@ -140,7 +140,7 @@ class TestSecurity(unittest.TestCase):
 
             mock_publish.assert_called_once_with(
                 ConfigAction.OPEN_MOBILE_UI,
-                {"url": "http://192.168.1.100:5000"}
+                {"url": "http://192.168.1.100:5000"},
             )
 
     def test_mobile_overlay_url_custom(self):
@@ -159,7 +159,7 @@ class TestSecurity(unittest.TestCase):
 
             mock_publish.assert_called_once_with(
                 ConfigAction.OPEN_MOBILE_UI,
-                {"url": "http://127.0.0.1:8080"}
+                {"url": "http://127.0.0.1:8080"},
             )
 
 

@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import Optional
 
 from scanning_tool.domain.models import ScanResult
 
@@ -8,7 +7,7 @@ from scanning_tool.domain.models import ScanResult
 class LatestScan:
     """Read model for the Scan result concern."""
 
-    result: Optional[ScanResult] = None
+    result: ScanResult | None = None
     is_scanning: bool = False
     continuous_mode_enabled: bool = False
-    error: Optional[str] = None
+    error: str | None = None

@@ -26,15 +26,13 @@ patcher = patch.dict(sys.modules, patched_modules)
 patcher.start()
 
 try:
-    from scanning_tool.gui.tk.sections.mobile_overlay import MobileOverlaySection
     print("Successfully imported!")
-except Exception as e:
+except Exception:
     import traceback
     traceback.print_exc()
 
 try:
-    from scanning_tool.main import _start_web_server
     print("Successfully imported main!")
-except Exception as e:
+except Exception:
     import traceback
     traceback.print_exc()

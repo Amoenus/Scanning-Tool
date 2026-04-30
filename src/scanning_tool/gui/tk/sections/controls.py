@@ -5,9 +5,10 @@ import tkinter as tk
 from tkinter import ttk
 from typing import TYPE_CHECKING, Any
 
+from scanning_tool.gui.actions import publish_ui_action
 from scanning_tool.state.actions import ConfigAction
 from scanning_tool.state.actions.scan import ScanAction
-from scanning_tool.gui.actions import publish_ui_action
+
 from ..overlays.base import safe_tk
 from ..widgets import (
     create_button_row,

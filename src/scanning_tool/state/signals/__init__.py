@@ -7,7 +7,6 @@ from scanning_tool.state.actions.edit_mode import EditModeAction
 from scanning_tool.state.actions.event_log import EventLogAction
 from scanning_tool.state.actions.runtime import RuntimeAction
 from scanning_tool.state.actions.scan import ScanAction
-
 from scanning_tool.state.signals.config import (
     anchor_overlay_root_changed,
     anchor_overlay_visibility_changed,
@@ -18,6 +17,15 @@ from scanning_tool.state.signals.config import (
     show_border_changed,
     sync_capture_sliders_signal,
     update_capture_overlay_region_signal,
+)
+from scanning_tool.state.signals.edit_mode import (
+    edit_mode_changed,
+    region_committed,
+    region_drafted,
+)
+from scanning_tool.state.signals.event_log import (
+    event_log_emitted,
+    raw_log_emitted,
 )
 from scanning_tool.state.signals.runtime import (
     alignment_applied_signal,
@@ -36,15 +44,6 @@ from scanning_tool.state.signals.scan import (
     scan_requested,
     scan_result_updated,
     scan_started,
-)
-from scanning_tool.state.signals.event_log import (
-    event_log_emitted,
-    raw_log_emitted,
-)
-from scanning_tool.state.signals.edit_mode import (
-    edit_mode_changed,
-    region_drafted,
-    region_committed,
 )
 
 ui_action: Signal = Signal("ui_action")

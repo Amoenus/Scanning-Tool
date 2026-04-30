@@ -11,13 +11,13 @@ show_border_changed: Signal = Signal("show_border_changed")
 mobile_qr_ready: Signal = Signal("mobile_qr_ready")
 
 __all__ = [
-    "sync_capture_sliders_signal",
-    "update_capture_overlay_region_signal",
-    "capture_overlay_root_changed",
-    "info_overlay_root_changed",
     "anchor_overlay_root_changed",
     "anchor_overlay_visibility_changed",
+    "capture_overlay_root_changed",
+    "info_overlay_root_changed",
+    "mobile_qr_ready",
     "overlay_text_updated",
     "show_border_changed",
-    "mobile_qr_ready",
+    "sync_capture_sliders_signal",
+    "update_capture_overlay_region_signal",
 ]

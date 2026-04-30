@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from scanning_tool.state.actions import ConfigAction
 from scanning_tool.gui.overlays import reposition_info_overlay
+from scanning_tool.state.actions import ConfigAction
 from scanning_tool.state.signals import status_updated
 
 if TYPE_CHECKING:

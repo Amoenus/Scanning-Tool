@@ -12,12 +12,12 @@ alignment_reset: Signal = Signal("alignment_reset")
 alignment_applied_signal: Signal = Signal("alignment_applied")
 
 __all__ = [
-    "status_updated",
-    "alignment_info_updated",
-    "ollama_status_updated",
-    "ollama_readiness_changed",
-    "alignment_requested",
-    "alignment_failed",
-    "alignment_reset",
     "alignment_applied_signal",
+    "alignment_failed",
+    "alignment_info_updated",
+    "alignment_requested",
+    "alignment_reset",
+    "ollama_readiness_changed",
+    "ollama_status_updated",
+    "status_updated",
 ]

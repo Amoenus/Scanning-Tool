@@ -15,8 +15,8 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-from scanning_tool.state.actions import ConfigAction
 from scanning_tool.gui.actions import publish_ui_action
+from scanning_tool.state.actions import ConfigAction
 from scanning_tool.state.signals import mobile_qr_ready
 from scanning_tool.web import get_local_ip as get_local_ip_from_web
 

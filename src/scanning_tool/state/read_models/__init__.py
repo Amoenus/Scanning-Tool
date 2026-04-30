@@ -8,6 +8,6 @@ __all__ = [
     "ConfigReadModel",
     "EditModeReadModel",
     "EventLogReadModel",
-    "RuntimeStatusModel",
     "LatestScan",
+    "RuntimeStatusModel",
 ]

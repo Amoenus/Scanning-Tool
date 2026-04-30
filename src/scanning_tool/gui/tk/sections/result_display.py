@@ -4,8 +4,8 @@ from __future__ import annotations
 from tkinter import ttk
 from typing import TYPE_CHECKING
 
-from scanning_tool.state.actions import ConfigAction
 from scanning_tool.gui.actions import publish_ui_action
+from scanning_tool.state.actions import ConfigAction
 
 from ..overlays import (
     register_overlay_sliders,

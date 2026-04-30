@@ -12,12 +12,11 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-from scanning_tool.state.actions import ConfigAction
 from scanning_tool.gui.actions import publish_ui_action
 from scanning_tool.gui.qt.sections.base import SectionContext
+from scanning_tool.state.actions import ConfigAction
 
 if TYPE_CHECKING:
-    from scanning_tool.gui.qt.status import StatusBar
     from scanning_tool.gui.qt.status import StatusBar
 
 

@@ -4,6 +4,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Optional
 
 from scanning_tool.gui.control_state import ControlState
+from scanning_tool.state.signals import (
+    sync_capture_sliders_signal,
+    update_capture_overlay_region_signal,
+)
 
 from .anchor import (
     hide_anchor_overlay,
@@ -18,6 +22,7 @@ from .capture import (
     stop_capture_overlay_animation,
     update_capture_overlay_region,
 )
+from .edit_mode import install_edit_mode_overlay
 from .info import (
     choose_label_color,
     hide_info_overlay,
@@ -27,11 +32,6 @@ from .info import (
     toggle_border,
     update_overlay_label,
 )
-from scanning_tool.state.signals import (
-    sync_capture_sliders_signal,
-    update_capture_overlay_region_signal,
-)
-
 from .slider_sync import (
     configure_capture_slider_sync,
     register_anchor_sliders,
@@ -42,7 +42,6 @@ from .slider_sync import (
     sync_capture_sliders_callback,
     sync_overlay_sliders,
 )
-from .edit_mode import install_edit_mode_overlay
 
 if TYPE_CHECKING:
     from scanning_tool.config.service import ConfigData
@@ -57,8 +56,10 @@ __all__ = (
     "hide_anchor_overlay",
     "hide_capture_overlay",
     "hide_info_overlay",
+    "install_edit_mode_overlay",
     "register_anchor_sliders",
     "register_capture_sliders",
+    "register_overlay_signal_handlers",
     "register_overlay_sliders",
     "reposition_info_overlay",
     "show_anchor_overlay",
@@ -77,8 +78,6 @@ __all__ = (
     "update_capture_overlay_region",
     "update_overlay_label",
     "update_overlay_region",
-    "install_edit_mode_overlay",
-    "register_overlay_signal_handlers",
 )
 
 

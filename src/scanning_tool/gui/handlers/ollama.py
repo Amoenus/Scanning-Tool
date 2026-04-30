@@ -3,8 +3,6 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
 
-from scanning_tool.state.actions import ConfigAction
-from scanning_tool.state.actions.runtime import RuntimeAction
 from scanning_tool.ollama import (
     ensure_model_installed,
     get_ollama_host,
@@ -13,6 +11,8 @@ from scanning_tool.ollama import (
     set_configured_ollama_host,
     set_configured_ollama_model,
 )
+from scanning_tool.state.actions import ConfigAction
+from scanning_tool.state.actions.runtime import RuntimeAction
 from scanning_tool.state.signals import status_updated
 
 if TYPE_CHECKING:
