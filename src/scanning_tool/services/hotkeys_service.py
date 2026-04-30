@@ -9,9 +9,9 @@ from loguru import logger
 from scanning_tool.gui.actions import publish_ui_action
 from scanning_tool.gui.overlays import toggle_border
 from scanning_tool.services.edit_mode_service import edit_mode_service
+from scanning_tool.state import manager
 from scanning_tool.state.actions.edit_mode import EditModeAction
 from scanning_tool.state.signals.edit_mode import edit_mode_changed
-from scanning_tool.state import manager
 
 if TYPE_CHECKING:
     from scanning_tool.services.capture_service import CaptureService
