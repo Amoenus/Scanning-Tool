@@ -22,6 +22,6 @@ class AlignmentCalculator:
             + (detection.template_height / 2.0)
             - (capture_region.height / 2.0)
         )
-        new_left = int(round(base_left + anchor_offset.x))
-        new_top = int(round(base_top + anchor_offset.y))
+        new_left = round(base_left + anchor_offset.x)
+        new_top = round(base_top + anchor_offset.y)
         return new_left, new_top

@@ -17,11 +17,13 @@ from scanning_tool.services.base_service import BaseService
 
 
 class OllamaService(BaseService):
-    """Manages the Ollama process and model availability via encapsulated
-    subprocess daemon.
+    """Manages the Ollama process and model availability via encapsulated subprocess daemon.
+
+    This service handles the lifecycle of the Ollama process and ensures model availability.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
+        """Initialize the Ollama service."""
         super().__init__()
         self._daemon_process: subprocess.Popen[bytes] | None = None
 
@@ -97,8 +99,8 @@ class OllamaService(BaseService):
                 stdin=subprocess.DEVNULL,
                 start_new_session=True,
             )
-        except Exception as exc:
-            self.logger.error(f"Unable to start Ollama service automatically: {exc}")
+        except Exception:
+            self.logger.exception("Unable to start Ollama service automatically.")
             sys.exit("Ollama failed to launch.")
 
     def _wait_for_readiness(self, host: str) -> None:
@@ -113,9 +115,8 @@ class OllamaService(BaseService):
                 self._daemon_process is not None
                 and self._daemon_process.poll() is not None
             ):
-                raise RuntimeError(
-                    "'ollama serve' exited before the service became ready.",
-                )
+                message = "'ollama serve' exited before the service became ready."
+                raise RuntimeError(message)
             return self._is_running(host)
 
         try:

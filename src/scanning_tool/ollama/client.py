@@ -1,8 +1,7 @@
 import ollama
 
+from scanning_tool.ollama.host import get_ollama_host
 from scanning_tool.state import manager
-
-from .host import get_ollama_host
 
 
 def reset_ollama_client() -> None:

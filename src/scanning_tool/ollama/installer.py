@@ -1,18 +1,18 @@
+import platform
 import shutil
 import subprocess
 import sys
+import tkinter as tk
 import webbrowser
+from tkinter import messagebox
 
 from loguru import logger
 
-from .host import get_ollama_host, is_local_ollama_host
+from scanning_tool.ollama.host import get_ollama_host, is_local_ollama_host
 
 
 def show_installation_message(system_name: str) -> None:
     """Present a final installation message, using a GUI prompt on Windows."""
-    import tkinter as tk
-    from tkinter import messagebox
-
     message = (
         f"Ollama installation initiated for {system_name.title()}.\n\n"
         "After installation completes:\n"
@@ -152,7 +152,6 @@ def ensure_ollama_installed() -> None:
         _log_existing_ollama_version()
         return
 
-    import platform
 
     system = platform.system().lower()
 

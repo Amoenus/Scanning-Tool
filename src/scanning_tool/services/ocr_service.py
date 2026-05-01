@@ -12,6 +12,17 @@ from scanning_tool.ollama import get_ollama_client, get_ollama_model
 
 @dataclass(frozen=True)
 class ModelPromptProfile:
+    """Profile for model-specific OCR prompts.
+
+    Attributes
+    ----------
+    prefix : str
+        The model name prefix to match against.
+    prompt : str
+        The OCR prompt to use for this model.
+
+    """
+
     prefix: str
     prompt: str
 
