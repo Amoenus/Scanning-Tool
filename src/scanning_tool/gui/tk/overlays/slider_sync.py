@@ -5,13 +5,12 @@ import tkinter as tk
 from collections.abc import Callable
 from typing import TYPE_CHECKING
 
-from .base import safe_tk
+from scanning_tool.gui.tk.overlays.base import safe_tk
 
 if TYPE_CHECKING:
     from scanning_tool.domain.alignment import CaptureRegion
     from scanning_tool.domain.common import Offset2D
-
-    from ..control_state import ControlState, ScaleWidget
+    from scanning_tool.gui.tk.control_state import ControlState, ScaleWidget
 def register_capture_sliders(
     left: ScaleWidget,
     top: ScaleWidget,
@@ -19,6 +18,22 @@ def register_capture_sliders(
     height: ScaleWidget,
     control_state: ControlState,
 ) -> None:
+    """Register capture region slider widgets with control state.
+
+    Parameters
+    ----------
+    left : ScaleWidget
+        Slider widget for left position.
+    top : ScaleWidget
+        Slider widget for top position.
+    width : ScaleWidget
+        Slider widget for width.
+    height : ScaleWidget
+        Slider widget for height.
+    control_state : ControlState
+        Control state to register widgets with.
+
+    """
     control_state.capture.left = left
     control_state.capture.top = top
     control_state.capture.width = width
@@ -34,6 +49,26 @@ def register_anchor_sliders(
     offset_y: ScaleWidget,
     control_state: ControlState,
 ) -> None:
+    """Register anchor region slider widgets with control state.
+
+    Parameters
+    ----------
+    left : ScaleWidget
+        Slider widget for left position.
+    top : ScaleWidget
+        Slider widget for top position.
+    width : ScaleWidget
+        Slider widget for width.
+    height : ScaleWidget
+        Slider widget for height.
+    offset_x : ScaleWidget
+        Slider widget for x offset.
+    offset_y : ScaleWidget
+        Slider widget for y offset.
+    control_state : ControlState
+        Control state to register widgets with.
+
+    """
     control_state.anchor.left = left
     control_state.anchor.top = top
     control_state.anchor.width = width
@@ -47,6 +82,18 @@ def register_overlay_sliders(
     offset_y: ScaleWidget,
     control_state: ControlState,
 ) -> None:
+    """Register overlay region slider widgets with control state.
+
+    Parameters
+    ----------
+    offset_x : ScaleWidget
+        Slider widget for x offset.
+    offset_y : ScaleWidget
+        Slider widget for y offset.
+    control_state : ControlState
+        Control state to register widgets with.
+
+    """
     control_state.overlay.offset_x = offset_x
     control_state.overlay.offset_y = offset_y
 
@@ -59,6 +106,16 @@ def configure_capture_slider_sync(
     control_state: ControlState,
     capture_region_getter: Callable[[], CaptureRegion],
 ) -> None:
+    """Configure the callback function for capture slider synchronization.
+
+    Parameters
+    ----------
+    control_state : ControlState
+        Control state to use for slider synchronization.
+    capture_region_getter : Callable[[], CaptureRegion]
+        Function to retrieve the current capture region.
+
+    """
     global _control_state, _capture_region_getter
     _control_state = control_state
     _capture_region_getter = capture_region_getter
@@ -67,6 +124,16 @@ def configure_capture_slider_sync(
 def sync_capture_sliders(
     control_state: ControlState, capture_region: CaptureRegion,
 ) -> None:
+    """Synchronize capture slider widgets with capture region values.
+
+    Parameters
+    ----------
+    control_state : ControlState
+        Control state containing the slider widgets.
+    capture_region : CaptureRegion
+        Capture region with values to sync to sliders.
+
+    """
     widgets = control_state.capture
     left = widgets.left
     top = widgets.top
@@ -94,6 +161,12 @@ def sync_capture_sliders(
 
 
 def sync_capture_sliders_callback() -> None:
+    """Synchronize capture sliders using global configuration.
+
+    Retrieves the current capture region and synchronizes the capture slider
+    widgets with its values using the configured control state.
+
+    """
     if _control_state is None or _capture_region_getter is None:
         return
     sync_capture_sliders(_control_state, _capture_region_getter())
@@ -104,6 +177,18 @@ def sync_anchor_sliders(
     anchor_region: CaptureRegion,
     anchor_offset: Offset2D,
 ) -> None:
+    """Synchronize anchor slider widgets with anchor region and offset values.
+
+    Parameters
+    ----------
+    control_state : ControlState
+        Control state containing the slider widgets.
+    anchor_region : CaptureRegion
+        Anchor region with values to sync to sliders.
+    anchor_offset : Offset2D
+        Anchor offset with values to sync to sliders.
+
+    """
     widgets = control_state.anchor
     left = widgets.left
     top = widgets.top

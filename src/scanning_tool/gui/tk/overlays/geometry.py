@@ -3,8 +3,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from ..layout import AnchorOverlayGeometry, CaptureOverlayLayout, InfoOverlayLayout
-from .base import (
+from scanning_tool.gui.tk.layout import AnchorOverlayGeometry, CaptureOverlayLayout, InfoOverlayLayout
+from scanning_tool.gui.tk.overlays.base import (
     ANCHOR_OVERLAY_PAD,
     CAPTURE_OVERLAY_PADDING_X,
     CAPTURE_OVERLAY_PADDING_Y,

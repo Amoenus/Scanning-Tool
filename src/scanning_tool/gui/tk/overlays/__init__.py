@@ -1,7 +1,7 @@
 """Overlay package API."""
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from scanning_tool.gui.control_state import ControlState
 from scanning_tool.state.signals import (
