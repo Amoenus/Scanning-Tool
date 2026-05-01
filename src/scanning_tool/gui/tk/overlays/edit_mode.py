@@ -5,6 +5,7 @@ import tkinter as tk
 from dataclasses import dataclass
 from typing import Any
 
+from scanning_tool.config.service import ConfigData
 from scanning_tool.domain.alignment import CaptureRegion
 from scanning_tool.gui.actions import publish_ui_action
 from scanning_tool.gui.edit_mode import EditModeRenderer
@@ -160,7 +161,7 @@ class EditModeOverlayManager(EditModeRenderer):
         self,
         overlay_state: OverlayState,
         control_state: ControlState,
-        config,
+        config: ConfigData,
     ) -> None:
         self._overlay_state = overlay_state
         self._control_state = control_state
@@ -672,7 +673,7 @@ class EditModeOverlayManager(EditModeRenderer):
 def install_edit_mode_overlay(
     overlay_state: OverlayState,
     control_state: ControlState,
-    config,
+    config: ConfigData,
 ) -> EditModeOverlayManager:
     manager = EditModeOverlayManager(overlay_state, control_state, config)
     manager.install()

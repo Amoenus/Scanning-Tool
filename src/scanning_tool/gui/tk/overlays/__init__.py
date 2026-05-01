@@ -113,6 +113,14 @@ def show_overlay(
 
 
 def update_overlay_region(overlay_state: OverlayState) -> None:
+    """Update the region of all overlays.
+
+    Parameters
+    ----------
+    overlay_state : OverlayState
+        The overlay state object containing overlay window references.
+
+    """
     update_anchor_overlay_region(overlay_state)
     update_capture_overlay_region()
 
@@ -120,6 +128,12 @@ def update_overlay_region(overlay_state: OverlayState) -> None:
 _overlay_signal_handlers_registered = False
 
 def register_overlay_signal_handlers() -> None:
+    """Register signal handlers for overlay updates.
+
+    Connects overlay signal handlers to their respective callback functions.
+    This function is idempotent and will only register handlers once.
+
+    """
     global _overlay_signal_handlers_registered
     if _overlay_signal_handlers_registered:
         return
