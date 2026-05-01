@@ -6,22 +6,35 @@ import tkinter as tk
 from tkinter import ttk
 from typing import TYPE_CHECKING, Any
 
+from scanning_tool.gui.tk.overlays.base import safe_tk
+from scanning_tool.gui.tk.widgets import create_section_row, create_status_label
+from scanning_tool.gui.tk.widgets.controls import ResponsivePairRow
 from scanning_tool.ollama import get_ollama_host, get_ollama_model, is_model_running
-from scanning_tool.state.signals import ollama_status_updated
-
-from ..overlays.base import safe_tk
-from ..widgets import create_section_row, create_status_label
-from ..widgets.controls import ResponsivePairRow
+from scanning_tool.state.signals import ollama_readiness_changed, ollama_status_updated
 
 if TYPE_CHECKING:
     from scanning_tool.domain.alignment import AlignmentInfo
     from scanning_tool.domain.capture import ScanResult
-
-    from .base import SectionContext
+    from scanning_tool.gui.tk.sections.base import SectionContext
 class StatusOverviewSection:
     """Status panel that keeps key runtime state visible in the GUI."""
 
     def build(self, parent: ttk.Widget, ctx: SectionContext) -> ttk.LabelFrame:
+        """Build the status overview section.
+
+        Parameters
+        ----------
+        parent : ttk.Widget
+            Parent widget to attach this section to.
+        ctx : SectionContext
+            Section context containing status information.
+
+        Returns
+        -------
+        ttk.LabelFrame
+            The configured status overview frame.
+
+        """
         frame = ttk.LabelFrame(parent, text="Runtime Status", style="Glass.TLabelframe")
         frame.pack(fill="x", padx=5, pady=8)
 
@@ -67,7 +80,6 @@ class StatusOverviewSection:
             self._on_capture_overlay_visibility_change,
         )
         ollama_status_updated.connect(self._on_ollama_status_updated, weak=False)
-        from scanning_tool.state.signals import ollama_readiness_changed
 
         ollama_readiness_changed.connect(
             self._on_ollama_readiness_changed,

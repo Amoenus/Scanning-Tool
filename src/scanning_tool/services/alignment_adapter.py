@@ -17,6 +17,23 @@ class UIAlignmentAdapter(AlignmentAdapter):
         last_alignment_info: AlignmentInfo,
         alignment_request: AlignmentRequest,
     ) -> bool:
+        """Forward alignment request to the alignment service.
+
+        Parameters
+        ----------
+        anchor_tracker : AnchorRegionTracker | None
+            The anchor region tracker instance.
+        last_alignment_info : AlignmentInfo
+            The last alignment information.
+        alignment_request : AlignmentRequest
+            The alignment request to process.
+
+        Returns
+        -------
+        bool
+            True if alignment was successful, False otherwise.
+
+        """
         return alignment_service.align(
             anchor_tracker,
             last_alignment_info,

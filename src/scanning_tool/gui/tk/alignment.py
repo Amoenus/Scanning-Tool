@@ -1,23 +1,24 @@
 """Periodic anchor-alignment polling for the GUI."""
 from __future__ import annotations
 
+import logging
 import tkinter as tk
 from typing import TYPE_CHECKING
 
 from scanning_tool.domain.alignment import AlignmentRequest
+from scanning_tool.gui.tk.overlays.base import safe_tk
 from scanning_tool.services.alignment_service import (
     alignment_service,
     reset_alignment_info,
 )
 from scanning_tool.services.capture_provider import ScreenCaptureUnavailableError
 
-from .overlays.base import safe_tk
-
 if TYPE_CHECKING:
     from scanning_tool.config.service import ConfigData
+    from scanning_tool.gui.tk.status import StatusBar
     from scanning_tool.state.scan_state import ScanState
+logger = logging.getLogger(__name__)
 
-    from .status import StatusBar
 class AlignmentPoller:
     """Runs ``alignment_service.align`` on a Tk ``after`` cadence."""
 
@@ -28,6 +29,15 @@ class AlignmentPoller:
         config: ConfigData,
         scan_state: ScanState,
     ) -> None:
+        """Initialize the AlignmentPoller with GUI and state components.
+
+        Args:
+            root: The root Tk window.
+            status: The status bar for displaying messages.
+            config: Configuration data.
+            scan_state: The current scan state.
+
+        """
         self.root = root
         self.status = status
         self._config = config
@@ -65,8 +75,8 @@ class AlignmentPoller:
             return (
                 "Screen capture unavailable. Auto alignment paused until the display is unlocked."
             )
-        except Exception as exc:
-            logger.error("Auto alignment failed: %s", exc)
+        except Exception:
+            logger.exception("Auto alignment failed")
             return "Auto alignment error. See log for details."
 
         return self._build_alignment_status_message(match_found)

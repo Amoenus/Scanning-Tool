@@ -6,10 +6,9 @@ from typing import TYPE_CHECKING
 from PyQt6.QtCore import QTimer
 from PyQt6.QtWidgets import QGridLayout, QGroupBox, QLabel, QVBoxLayout, QWidget
 
+from scanning_tool.gui.qt.sections.base import SectionContext
 from scanning_tool.ollama import get_ollama_host, get_ollama_model, is_model_running
 from scanning_tool.state.signals import ollama_readiness_changed, ollama_status_updated, status_updated
-
-from .base import SectionContext
 
 if TYPE_CHECKING:
     from scanning_tool.domain.alignment import AlignmentInfo

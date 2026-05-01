@@ -40,7 +40,8 @@ def __getattr__(name: str) -> Any:
         module = importlib.import_module(_SECTION_MODULE_MAP[name])
         globals()[name] = module
         return module
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+    msg = f"module {__name__!r} has no attribute {name!r}"
+    raise AttributeError(msg)
 
 
 def __dir__() -> list[str]:

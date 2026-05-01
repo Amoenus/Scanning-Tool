@@ -6,14 +6,14 @@ import tkinter as tk
 from tkinter import ttk
 from typing import TYPE_CHECKING
 
-from ..widgets import create_button_row
-from .capture_region import CaptureRegionSection
-from .head_sway import HeadSwaySection
-from .ollama import OllamaSection
-from .result_display import ResultDisplaySection
+from scanning_tool.gui.tk.sections.capture_region import CaptureRegionSection
+from scanning_tool.gui.tk.sections.head_sway import HeadSwaySection
+from scanning_tool.gui.tk.sections.ollama import OllamaSection
+from scanning_tool.gui.tk.sections.result_display import ResultDisplaySection
+from scanning_tool.gui.tk.widgets import create_button_row
 
 if TYPE_CHECKING:
-    from .base import SectionContext
+    from scanning_tool.gui.tk.sections.base import SectionContext
 
 
 class SettingsSection:

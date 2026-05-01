@@ -7,10 +7,10 @@ from tkinter import colorchooser
 from types import SimpleNamespace
 from typing import TYPE_CHECKING
 
-from ..layout import InfoOverlayGeometry, InfoOverlayLayout
-from .base import create_overlay_window, safe_tk
-from .capture import _capture_overlay
-from .geometry import compute_info_overlay_geometry
+from scanning_tool.gui.tk.layout import InfoOverlayGeometry, InfoOverlayLayout
+from scanning_tool.gui.tk.overlays.base import create_overlay_window, safe_tk
+from scanning_tool.gui.tk.overlays.capture import _capture_overlay
+from scanning_tool.gui.tk.overlays.geometry import compute_info_overlay_geometry
 
 if TYPE_CHECKING:
     from scanning_tool.config.models import OverlayConfig

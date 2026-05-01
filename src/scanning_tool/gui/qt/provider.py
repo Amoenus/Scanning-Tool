@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from scanning_tool.gui.qt.app import launch_gui as launch_qt_gui
+
 if TYPE_CHECKING:
     from scanning_tool.config.service import ConfigData, ConfigSaver
     from scanning_tool.gui.control_state import ControlState
@@ -26,8 +28,26 @@ class QtGuiProvider:
         capture_service: CaptureController,
         config_service: ConfigSaver,
     ) -> None:
-        from scanning_tool.gui.qt.app import launch_gui as launch_qt_gui
+        """Launch the PyQt6 GUI.
 
+        Parameters
+        ----------
+        config : ConfigData
+            Configuration data.
+        scan_state : ScanState
+            Current scan state.
+        service_state : ServiceState
+            Current service state.
+        overlay_state : OverlayState
+            Current overlay state.
+        control_state : ControlState
+            Current control state.
+        capture_service : CaptureController
+            Capture controller service.
+        config_service : ConfigSaver
+            Configuration saver service.
+
+        """
         launch_qt_gui(
             config=config,
             scan_state=scan_state,

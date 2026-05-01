@@ -6,17 +6,19 @@ from PyQt6.QtWidgets import QApplication, QMainWindow, QScrollArea, QVBoxLayout,
 
 from scanning_tool.gui.event_handlers import install_ui_action_handlers
 from scanning_tool.gui.overlays import configure_capture_slider_sync, show_overlay
-
-from .sections import (
+from scanning_tool.gui.qt.sections import (
     ControlsSection,
     MobileOverlaySection,
     SectionContext,
     SettingsSection,
     StatusOverviewSection,
 )
-from .status import StatusBar
+from scanning_tool.gui.qt.status import StatusBar
 
 if TYPE_CHECKING:
+    from PyQt6.QtCore import QRect
+    from PyQt6.QtGui import QScreen
+
     from scanning_tool.config.service import ConfigData, ConfigSaver
     from scanning_tool.gui.control_state import ControlState
     from scanning_tool.gui.overlay_state import OverlayState
@@ -99,9 +101,9 @@ def launch_gui(
     window.setCentralWidget(scroll)
     window.show()
 
-    screen = window.screen() or app.primaryScreen()
+    screen: QScreen | None = window.screen() or app.primaryScreen()
     if screen is not None:
-        geometry = screen.geometry()
+        geometry: QRect = screen.geometry()
         show_overlay(
             ctx.overlay_state,
             config,

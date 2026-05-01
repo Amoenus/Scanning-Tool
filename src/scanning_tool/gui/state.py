@@ -9,6 +9,7 @@ from typing import Any
 from blinker import Signal
 
 from scanning_tool.gui.layout_types import CaptureOverlayLayout, InfoOverlayGeometry
+from scanning_tool.state.signals import show_border_changed
 
 ScaleWidget = Any
 OverlayCaptureRootListener = Callable[[Any | None], None]
@@ -381,7 +382,6 @@ class OverlayState:
         self._show_border_signal.connect(receiver, weak=False)
 
     def _notify_show_border_listeners(self) -> None:
-        from scanning_tool.state.signals import show_border_changed
 
         self._show_border_signal.send(self, show_border=self._show_border)
         show_border_changed.send(self, show_border=self._show_border)
