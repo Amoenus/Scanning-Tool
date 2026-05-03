@@ -1,110 +1,99 @@
-"""Scrape Scan Signature Identifier data from https://scmdb.net/?page=mine
-Extracts mineral name, scan values, rarity/color, and category from the overlay.
-Outputs JSON and CSV formats.
+"""Fetch scan signature data from the SCMDB JSON API.
+
+Retrieves mineral name, scan values, rarity/category from the SCMDB
+mining_data JSON endpoint rather than scraping the rendered HTML overlay.
+Outputs JSON and CSV formats identical to the previous implementation.
 """
 
 from __future__ import annotations
 
-import asyncio
-import sys
+import json
+import urllib.request
 from dataclasses import asdict
 from pathlib import Path
 
 import pandas as pd
-from playwright.async_api import Page, async_playwright
 
-ROOT_DIR = Path(__file__).resolve().parent
-SRC_DIR = ROOT_DIR / "src"
-if str(SRC_DIR) not in sys.path:
-    sys.path.insert(0, str(SRC_DIR))
-
-from scanning_tool.deposits.scan_signature_scraper import (  # noqa: E402
+from scanning_tool.deposits.scan_signature_scraper import (
     CsvRow,
-    RawScanSignatureEntry,
+    MineableElementJSON,
+    MiningDataJSON,
     ScanSignatureEntry,
     ScanSignatureEntryFactory,
+    _SENTINEL_ENTRIES,
+    load_manual_overrides,
 )
 
 OUTPUT_DIR = Path("csv/scansig")
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-TARGET_URL = "https://scmdb.net/?page=mine"
+VERSIONS_URL = "https://scmdb.net/data/versions.json"
+MINING_DATA_URL_TEMPLATE = "https://scmdb.net/data/mining_data-{version}.json"
 
 
-SCRAPE_SIGNATURES_SCRIPT = r"""() => {
-            const rows = Array.from(document.querySelectorAll('.sigchart-row'));
-            return rows.map(row => {
-                const labelDiv = row.querySelector('.sigchart-label');
-                const color = labelDiv ? labelDiv.style.color : null;
-                const mineral = labelDiv ? labelDiv.textContent.trim() : null;
-                const pills = Array.from(row.querySelectorAll('.sigchart-pill'));
-                const values = pills.map(pill => {
-                    const m = pill.title.match(/(.+) ×(\d+) = ([\d,]+)/);
-                    return {
-                        text: pill.textContent.trim(),
-                        title: pill.title,
-                        amount: m ? parseInt(m[2]) : null,
-                        value: m ? parseInt(m[3].replace(/,/g, '')) : null,
-                    };
-                });
-                return {
-                    mineral,
-                    color,
-                    values,
-                };
-            });
-        }"""
+# ---------------------------------------------------------------------------
+# Fetcher
+# ---------------------------------------------------------------------------
 
 
-class ScanSignatureScraper:
-    """Scrape scan signature entries from the SCMDB overlay."""
-
-    def __init__(self, target_url: str = TARGET_URL) -> None:
-        self._target_url = target_url
-
-    async def _evaluate_scan_signature_overlay(
-        self, page: Page,
-    ) -> list[RawScanSignatureEntry]:
-        await page.click('button[title^="Scan Signature Identifier"]')
-        await page.wait_for_selector(".sigchart-overlay", timeout=10000)
-        return await page.evaluate(SCRAPE_SIGNATURES_SCRIPT)
-
-    def _build_scan_signature_entries(
-        self, raw_data: list[RawScanSignatureEntry],
-    ) -> list[ScanSignatureEntry]:
-        return [
-            ScanSignatureEntryFactory.from_raw_entry(raw_entry)
-            for raw_entry in raw_data
-        ]
-
-    async def scrape(self) -> list[ScanSignatureEntry]:
-        async with async_playwright() as p:
-            browser = await p.chromium.launch(headless=True)
-            page = await browser.new_page()
-            await page.goto(self._target_url, wait_until="networkidle")
-
-            raw_data = await self._evaluate_scan_signature_overlay(page)
-            entries = self._build_scan_signature_entries(raw_data)
-
-            await browser.close()
-            return entries
+_HEADERS = {
+    "User-Agent": "Mozilla/5.0 (compatible; ORCA-scraper/1.0)",
+    "Accept": "application/json",
+}
 
 
-async def scrape_scan_signatures() -> list[ScanSignatureEntry]:
-    return await ScanSignatureScraper().scrape()
+def _fetch_json(url: str) -> object:
+    req = urllib.request.Request(url, headers=_HEADERS)  # noqa: S310
+    with urllib.request.urlopen(req) as resp:
+        return json.loads(resp.read().decode())
 
 
-SAVE_CSV_FIELDNAMES = [
-    "mineral",
-    "category",
-    "color",
-    "amount",
-    "value",
-    "pill_text",
-    "pill_title",
-]
+def _resolve_mining_data_url() -> str:
+    """Fetch the versions list and return the URL for the latest mining_data JSON."""
+    versions = _fetch_json(VERSIONS_URL)
+    if not isinstance(versions, list) or not versions:
+        msg = f"Unexpected versions payload from {VERSIONS_URL}"
+        raise ValueError(msg)
+    latest_version: str = versions[0]["version"]
+    return MINING_DATA_URL_TEMPLATE.format(version=latest_version)
 
-SUMMARY_CSV_FIELDNAMES = ["mineral", "category", "base_value", "max_multiplier"]
+
+def _parse_mining_data(raw: object) -> list[ScanSignatureEntry]:
+    data = MiningDataJSON.model_validate(raw)
+
+    ship_entries: list[ScanSignatureEntry] = []
+    for element in data.mineableElements.values():
+        entry = ScanSignatureEntryFactory.from_json_element(element)
+        if entry is not None:
+            ship_entries.append(entry)
+
+    # Sort ship-mineable entries by base scan signature value (ascending).
+    ship_entries.sort(key=lambda e: e.base_value or 0)
+
+    sentinel_entries = [
+        ScanSignatureEntryFactory.sentinel_entry(name, category, base_value, max_mult)
+        for name, category, base_value, max_mult in _SENTINEL_ENTRIES
+    ]
+
+    return ship_entries + sentinel_entries
+
+
+def fetch_scan_signatures() -> list[ScanSignatureEntry]:
+    """Fetch and parse all scan signature entries from the SCMDB JSON API.
+
+    Hand-curated entries from manual_overrides.json are merged in after
+    the scraped data so they survive re-scrapes unchanged.
+    """
+    url = _resolve_mining_data_url()
+    raw = _fetch_json(url)
+    scraped = _parse_mining_data(raw)
+    manual = load_manual_overrides()
+    return scraped + manual
+
+
+# ---------------------------------------------------------------------------
+# Exporter (unchanged public API)
+# ---------------------------------------------------------------------------
 
 
 class ScanSignatureExporter:
@@ -160,10 +149,11 @@ def save_summary_csv(data: list[ScanSignatureEntry], path: Path) -> None:
 
 
 def main() -> None:
-    data = asyncio.run(scrape_scan_signatures())
+    data = fetch_scan_signatures()
     _default_exporter.export_all(data)
     print(
-        f"Saved {len(data)} minerals to {OUTPUT_DIR}/scan_signatures.json, .csv, and scan_signatures_summary.csv",
+        f"Saved {len(data)} minerals to {OUTPUT_DIR}/scan_signatures.json, "
+        ".csv, and scan_signatures_summary.csv",
     )
 
 

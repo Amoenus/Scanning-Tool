@@ -1,0 +1,12 @@
+{
+  "_comment": "Hand-curated scan signature entries not available from the scmdb JSON API. Each entry produces one pill row. Fields match ScanValue: mineral, category, color, amount, value.",
+  "entries": [
+    {
+      "mineral": "Tin (Salvage)",
+      "category": "common",
+      "color": "rgb(136, 153, 170)",
+      "amount": 1,
+      "value": 1700
+    }
+  ]
+}

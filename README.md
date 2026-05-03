@@ -79,6 +79,16 @@
 - File issues or feature requests on [GitHub Issues](https://github.com/FrozenButton/Scanning-Tool/issues).
 - PRs are welcome—please include a short description of your change and testing steps.
 
+## Updating scan signature data
+
+The scan signature data is fetched from [scmdb.net](https://scmdb.net) and stored as CSV files under `csv/scansig/`. Run the scraper whenever a new game patch changes mining values:
+
+```bash
+uv run --managed-python python scrape_scan_signatures.py
+```
+
+This fetches the latest `mining_data` JSON from scmdb, regenerates the three CSV files (`scan_signatures.json`, `scan_signatures.csv`, `scan_signatures_summary.csv`), and prints a summary of how many minerals were written.
+
 ## Documentation
 - See `prds/` for Product Requirements Documents.
 - See `architecture/` for architecture guidance and decision records.

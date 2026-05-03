@@ -8,6 +8,7 @@ from scrape_scan_signatures import ScanSignatureExporter
 from scanning_tool.deposits.scan_signature_scraper import (
     ScanSignatureEntry,
     ScanValue,
+    load_manual_overrides,
     parse_color_to_category,
 )
 
@@ -120,3 +121,41 @@ def test_scan_signature_exporter_writes_files(tmp_path: Path):
     assert "base_value" in summary_text
     assert isinstance(json_data, list)
     assert json_data[0]["mineral"] == "Quantainium"
+
+
+def test_load_manual_overrides_returns_empty_for_missing_file(tmp_path: Path) -> None:
+    result = load_manual_overrides(tmp_path / "nonexistent.json")
+    assert result == []
+
+
+def test_load_manual_overrides_parses_entries(tmp_path: Path) -> None:
+    override_file = tmp_path / "manual_overrides.json"
+    override_file.write_text(
+        json.dumps(
+            {
+                "entries": [
+                    {
+                        "mineral": "Tin (Salvage)",
+                        "category": "common",
+                        "color": "rgb(136, 153, 170)",
+                        "amount": 1,
+                        "value": 1700,
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    result = load_manual_overrides(override_file)
+
+    assert len(result) == 1
+    entry = result[0]
+    assert entry.mineral == "Tin (Salvage)"
+    assert entry.category == "common"
+    assert entry.color == "rgb(136, 153, 170)"
+    assert len(entry.values) == 1
+    assert entry.values[0].amount == 1
+    assert entry.values[0].value == 1700
+    assert entry.values[0].text == "1,700"
+    assert entry.values[0].title == "Tin (Salvage) \u00d71 = 1,700"
