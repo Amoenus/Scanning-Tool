@@ -51,8 +51,8 @@ def test_update_overlay_region_action_invokes_handler(monkeypatch: MonkeyPatch) 
     config_service = DummyConfigService()
     called = []
 
-    def fake_update_overlay_region(payload, config_arg, scan_state_arg, service_state_arg, overlay_state_arg, control_state_arg, capture_service_arg, config_service_arg):
-        called.append(overlay_state_arg)
+    def fake_update_overlay_region(payload, ctx):
+        called.append(ctx.overlay_state)
 
     monkeypatch.setitem(
         gui_handlers.ACTION_HANDLERS,
@@ -87,8 +87,8 @@ def test_choose_label_color_action_invokes_handler(monkeypatch: MonkeyPatch) -> 
     config_service = DummyConfigService()
     called = []
 
-    def fake_choose_label_color(payload, config_arg, scan_state_arg, service_state_arg, overlay_state_arg, control_state_arg, capture_service_arg, config_service_arg):
-        called.append(config_arg.overlay_config)
+    def fake_choose_label_color(payload, ctx):
+        called.append(ctx.config.overlay_config)
 
     monkeypatch.setitem(
         gui_handlers.ACTION_HANDLERS,

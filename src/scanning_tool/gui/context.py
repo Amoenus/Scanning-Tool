@@ -21,3 +21,16 @@ class GuiSectionDependencies:
     control_state: ControlState
     capture_service: CaptureController
     config_service: ConfigSaver
+
+
+@dataclass(frozen=True, slots=True, kw_only=True)
+class ActionContext:
+    """Encapsulates state dependencies for GUI action handlers."""
+
+    config: ConfigData
+    scan_state: ScanState
+    service_state: ServiceState
+    overlay_state: OverlayState
+    control_state: ControlState
+    capture_service: CaptureController
+    config_service: ConfigSaver

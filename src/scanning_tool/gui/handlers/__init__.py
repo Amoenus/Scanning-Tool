@@ -11,11 +11,10 @@ from scanning_tool.gui.handlers.ollama import OLLAMA_ACTION_HANDLERS
 from scanning_tool.gui.handlers.result_display import RESULT_DISPLAY_ACTION_HANDLERS
 
 if TYPE_CHECKING:
+    from scanning_tool.gui.context import ActionContext
     from scanning_tool.state.actions import ConfigAction
 
-Handler = Callable[
-    [dict[str, Any], object, object, object, object, object, object], None,
-]
+Handler = Callable[[dict[str, Any], "ActionContext"], None]
 
 
 ACTION_HANDLERS: dict[ConfigAction, Handler] = {

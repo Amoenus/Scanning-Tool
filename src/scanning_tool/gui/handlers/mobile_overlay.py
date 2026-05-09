@@ -9,19 +9,12 @@ from scanning_tool.state.actions import ConfigAction
 from scanning_tool.state.signals import mobile_qr_ready, status_updated
 
 if TYPE_CHECKING:
-    from scanning_tool.config.service import ConfigSaver
-    from scanning_tool.interfaces import CaptureController
+    from scanning_tool.gui.context import ActionContext
 
 
 def _handle_open_mobile_ui(
     payload: dict[str, object],
-    config,
-    scan_state,
-    service_state,
-    overlay_state,
-    control_state,
-    capture_service: CaptureController,
-    config_service: ConfigSaver,
+    ctx: ActionContext,
 ) -> None:
     url = payload["url"]
     try:
@@ -33,13 +26,7 @@ def _handle_open_mobile_ui(
 
 def _handle_show_mobile_qr(
     payload: dict[str, object],
-    config,
-    scan_state,
-    service_state,
-    overlay_state,
-    control_state,
-    capture_service: CaptureController,
-    config_service: ConfigSaver,
+    ctx: ActionContext,
 ) -> None:
     url = payload.get("url", "")
     if not url:

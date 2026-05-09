@@ -16,19 +16,12 @@ from scanning_tool.state.actions.runtime import RuntimeAction
 from scanning_tool.state.signals import status_updated
 
 if TYPE_CHECKING:
-    from scanning_tool.config.service import ConfigSaver
-    from scanning_tool.interfaces import CaptureController
+    from scanning_tool.gui.context import ActionContext
 
 
 def _handle_apply_ollama_model(
     payload: dict[str, object],
-    config,
-    scan_state,
-    service_state,
-    overlay_state,
-    control_state,
-    capture_service: CaptureController,
-    config_service: ConfigSaver,
+    ctx: ActionContext,
 ) -> None:
     model_value = payload.get("model", "").strip()
     if not model_value:
@@ -54,17 +47,11 @@ def _handle_apply_ollama_model(
 
 def _handle_apply_ollama_host(
     payload: dict[str, object],
-    config,
-    scan_state,
-    service_state,
-    overlay_state,
-    control_state,
-    capture_service: CaptureController,
-    config_service: ConfigSaver,
+    ctx: ActionContext,
 ) -> None:
     host_value = payload.get("host", "").strip()
     normalized = set_configured_ollama_host(host_value)
-    config.ollama_config.host = normalized
+    ctx.config.ollama_config.host = normalized
     active_host = get_ollama_host()
     message = (
         f"Remote Ollama host set to {active_host}."
@@ -76,29 +63,17 @@ def _handle_apply_ollama_host(
 
 def _handle_use_localhost(
     payload: dict[str, object],
-    config,
-    scan_state,
-    service_state,
-    overlay_state,
-    control_state,
-    capture_service: CaptureController,
-    config_service: ConfigSaver,
+    ctx: ActionContext,
 ) -> None:
     set_configured_ollama_host("")
-    config.ollama_config.host = ""
+    ctx.config.ollama_config.host = ""
     active_host = get_ollama_host()
     status_updated.send(None, message=f"Ollama host cleared. Using {active_host}.")
 
 
 def _handle_restart_ollama(
     payload: dict[str, object],
-    config,
-    scan_state,
-    service_state,
-    overlay_state,
-    control_state,
-    capture_service: CaptureController,
-    config_service: ConfigSaver,
+    ctx: ActionContext,
 ) -> None:
     host = get_ollama_host()
     if not is_local_ollama_host(host):
