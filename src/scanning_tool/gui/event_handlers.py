@@ -5,6 +5,7 @@ from functools import partial
 from typing import TYPE_CHECKING
 
 from scanning_tool.gui.handlers import ACTION_HANDLERS
+from scanning_tool.gui.context import ActionContext
 from scanning_tool.state.signals import UI_ACTION_SIGNALS
 
 if TYPE_CHECKING:
@@ -45,22 +46,23 @@ def install_ui_action_handlers(
         The configuration saver/service.
 
     """
+    context = ActionContext(
+        config=config,
+        scan_state=scan_state,
+        service_state=service_state,
+        overlay_state=overlay_state,
+        control_state=control_state,
+        capture_service=capture_service,
+        config_service=config_service,
+    )
+
     def _receiver(
         handler,
         sender: object,
         payload: dict[str, object] | None = None,
     ) -> None:
         try:
-            handler(
-                payload or {},
-                config,
-                scan_state,
-                service_state,
-                overlay_state,
-                control_state,
-                capture_service,
-                config_service,
-            )
+            handler(payload or {}, context)
         except Exception as exc:
             logging.exception(
                 "Error handling UI action %s: %s",

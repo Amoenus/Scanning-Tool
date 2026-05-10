@@ -20,24 +20,18 @@ from scanning_tool.state.actions.runtime import RuntimeAction
 from scanning_tool.state.signals import status_updated
 
 if TYPE_CHECKING:
-    from scanning_tool.config.service import ConfigSaver
-    from scanning_tool.interfaces import CaptureController
+    from scanning_tool.gui.context import ActionContext
+    from scanning_tool.gui.handlers import Handler
 
 
 def _handle_toggle_auto_alignment(
     payload: dict[str, object],
-    config,
-    scan_state,
-    service_state,
-    overlay_state,
-    control_state,
-    capture_service: CaptureController,
-    config_service: ConfigSaver,
+    context: ActionContext,
 ) -> None:
     enabled = bool(payload.get("enabled", False))
-    config.auto_alignment.enabled = enabled
-    scan_state.last_alignment_info.enabled = enabled
-    scan_state.notify_alignment_info_listeners()
+    context.config.auto_alignment.enabled = enabled
+    context.scan_state.last_alignment_info.enabled = enabled
+    context.scan_state.notify_alignment_info_listeners()
     status_updated.send(
         None,
         message=(
@@ -48,120 +42,84 @@ def _handle_toggle_auto_alignment(
 
 def _handle_toggle_anchor_overlay(
     payload: dict[str, object],
-    config,
-    scan_state,
-    service_state,
-    overlay_state,
-    control_state,
-    capture_service: CaptureController,
-    config_service: ConfigSaver,
+    context: ActionContext,
 ) -> None:
     visible = bool(payload.get("visible", False))
-    overlay_state.anchor_overlay_visible = visible
+    context.overlay_state.anchor_overlay_visible = visible
     if visible:
-        show_anchor_overlay(overlay_state, config.anchor_template)
+        show_anchor_overlay(context.overlay_state, context.config.anchor_template)
         status_updated.send(None, message="Anchor overlay shown.")
     else:
-        hide_anchor_overlay(overlay_state)
+        hide_anchor_overlay(context.overlay_state)
         status_updated.send(None, message="Anchor overlay hidden.")
 
 
 def _handle_update_alignment_poll_interval(
     payload: dict[str, object],
-    config,
-    scan_state,
-    service_state,
-    overlay_state,
-    control_state,
-    capture_service: CaptureController,
-    config_service: ConfigSaver,
+    context: ActionContext,
 ) -> None:
-    config.alignment_poll_interval_ms = int(
-        payload.get("value", config.alignment_poll_interval_ms),
+    context.config.alignment_poll_interval_ms = int(
+        payload.get("value", context.config.alignment_poll_interval_ms),
     )
     status_updated.send(
         None,
-        message=f"Alignment interval set to {config.alignment_poll_interval_ms} ms",
+        message=f"Alignment interval set to {context.config.alignment_poll_interval_ms} ms",
     )
 
 
 def _handle_update_anchor_threshold(
     payload: dict[str, object],
-    config,
-    scan_state,
-    service_state,
-    overlay_state,
-    control_state,
-    capture_service: CaptureController,
-    config_service: ConfigSaver,
+    context: ActionContext,
 ) -> None:
-    threshold = float(payload.get("value", config.anchor_threshold))
-    config.anchor_threshold = max(0.1, min(0.99, threshold))
-    if scan_state.anchor_tracker is not None:
-        scan_state.anchor_tracker.set_threshold(config.anchor_threshold)
+    threshold = float(payload.get("value", context.config.anchor_threshold))
+    context.config.anchor_threshold = max(0.1, min(0.99, threshold))
+    if context.scan_state.anchor_tracker is not None:
+        context.scan_state.anchor_tracker.set_threshold(context.config.anchor_threshold)
     status_updated.send(
         None,
-        message=f"Anchor detection threshold set to {config.anchor_threshold:.2f}",
+        message=f"Anchor detection threshold set to {context.config.anchor_threshold:.2f}",
     )
 
 
 def _handle_update_anchor_region(
     payload: dict[str, object],
-    config,
-    scan_state,
-    service_state,
-    overlay_state,
-    control_state,
-    capture_service: CaptureController,
-    config_service: ConfigSaver,
+    context: ActionContext,
 ) -> None:
-    region = config.anchor_template
+    region = context.config.anchor_template
     region.left = int(payload.get("left", region.left))
     region.top = int(payload.get("top", region.top))
     region.width = int(payload.get("width", region.width))
     region.height = int(payload.get("height", region.height))
     status_updated.send(None, message=f"Anchor region updated: {region}")
-    update_anchor_overlay_region(overlay_state)
+    update_anchor_overlay_region(context.overlay_state)
 
 
 def _handle_update_anchor_offset(
     payload: dict[str, object],
-    config,
-    scan_state,
-    service_state,
-    overlay_state,
-    control_state,
-    capture_service: CaptureController,
-    config_service: ConfigSaver,
+    context: ActionContext,
 ) -> None:
-    offset = config.anchor_offset
+    offset = context.config.anchor_offset
     offset.x = int(payload.get("x", offset.x))
     offset.y = int(payload.get("y", offset.y))
     status_updated.send(None, message=f"Anchor offset updated: {offset}")
-    update_anchor_overlay_region(overlay_state)
+    update_anchor_overlay_region(context.overlay_state)
 
 
 def _handle_reload_anchor_templates(
     payload: dict[str, object],
-    config,
-    scan_state,
-    service_state,
-    overlay_state,
-    control_state,
-    capture_service: CaptureController,
-    config_service: ConfigSaver,
+    context: ActionContext,
 ) -> None:
-    ensure_anchor_directory(config.anchor_template_dir)
-    if scan_state.anchor_tracker is None:
-        scan_state.anchor_tracker = AnchorRegionTracker(
-            config.anchor_template_dir,
+    ensure_anchor_directory(context.config.anchor_template_dir)
+    if context.scan_state.anchor_tracker is None:
+        context.scan_state.anchor_tracker = AnchorRegionTracker(
+            context.config.anchor_template_dir,
             ScreenCaptureProvider(),
-            config.anchor_threshold,
+            context.config.anchor_threshold,
         )
-    count = scan_state.anchor_tracker.set_directory(config.anchor_template_dir)
+    count = context.scan_state.anchor_tracker.set_directory(context.config.anchor_template_dir)
     status_updated.send(
         None,
-        message=f"Loaded {count} anchor template(s) from {config.anchor_template_dir}.",
+        message=f"Loaded {count} anchor template(s) from {context.config.anchor_template_dir}.",
     )
 
 
@@ -177,16 +135,10 @@ def _run_manual_realign(config, scan_state):
 
 def _handle_manual_realign(
     payload: dict[str, object],
-    config,
-    scan_state,
-    service_state,
-    overlay_state,
-    control_state,
-    capture_service: CaptureController,
-    config_service: ConfigSaver,
+    context: ActionContext,
 ) -> None:
-    if _run_manual_realign(config, scan_state):
-        info = scan_state.last_alignment_info
+    if _run_manual_realign(context.config, context.scan_state):
+        info = context.scan_state.last_alignment_info
         status_updated.send(
             None,
             message=(
@@ -202,15 +154,9 @@ def _handle_manual_realign(
 
 def _handle_open_anchor_directory(
     payload: dict[str, object],
-    config,
-    scan_state,
-    service_state,
-    overlay_state,
-    control_state,
-    capture_service: CaptureController,
-    config_service: ConfigSaver,
+    context: ActionContext,
 ) -> None:
-    path = config.anchor_template_dir
+    path = context.config.anchor_template_dir
     ensure_anchor_directory(path)
     try:
         if sys.platform.startswith("win"):
@@ -224,7 +170,7 @@ def _handle_open_anchor_directory(
         status_updated.send(None, message=f"Unable to open template folder: {exc}")
 
 
-ANCHOR_ACTION_HANDLERS = {
+ANCHOR_ACTION_HANDLERS: dict[object, Handler] = {
     ConfigAction.TOGGLE_AUTO_ALIGNMENT: _handle_toggle_auto_alignment,
     ConfigAction.TOGGLE_ANCHOR_OVERLAY: _handle_toggle_anchor_overlay,
     ConfigAction.UPDATE_ALIGNMENT_POLL_INTERVAL: _handle_update_alignment_poll_interval,

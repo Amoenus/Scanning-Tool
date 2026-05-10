@@ -9,3 +9,7 @@
 ## 2026-04-17 - Duplicate Domain Definitions
 **Learning:** The domain model module contained duplicate class definitions for `OreStatistics`, `Deposit`, `Region`, and `RockDataCollection`, causing unnecessary ambiguity and reducing traceability.
 **Action:** Keep a single authoritative domain model declaration per type to preserve clarity and avoid hidden runtime shadowing.
+
+## 2026-05-10 - Encapsulate Action Handler Dependencies
+**Learning:** Action handlers in `src/scanning_tool/gui/handlers/` previously accepted a sprawling list of seven unencapsulated state arguments. This violates the Parameter Object design pattern, reduces traceability, and increases the difficulty of writing test stubs.
+**Action:** Created `ActionContext` dataclass in `src/scanning_tool/gui/context.py` to act as a Parameter Object for all action handlers. Updated the type definition in `handlers/__init__.py` and all handlers across the app, replacing seven arguments with a single strongly typed parameter.

@@ -16,21 +16,15 @@ from scanning_tool.state.actions.runtime import RuntimeAction
 from scanning_tool.state.signals import status_updated
 
 if TYPE_CHECKING:
-    from scanning_tool.config.service import ConfigSaver
-    from scanning_tool.interfaces import CaptureController
+    from scanning_tool.gui.context import ActionContext
+    from scanning_tool.gui.handlers import Handler
 
 
 def _handle_apply_ollama_model(
     payload: dict[str, object],
-    config,
-    scan_state,
-    service_state,
-    overlay_state,
-    control_state,
-    capture_service: CaptureController,
-    config_service: ConfigSaver,
+    context: ActionContext,
 ) -> None:
-    model_value = payload.get("model", "").strip()
+    model_value = str(payload.get("model", "")).strip()
     if not model_value:
         status_updated.send(None, message="Please specify an Ollama model.")
         return
@@ -54,17 +48,11 @@ def _handle_apply_ollama_model(
 
 def _handle_apply_ollama_host(
     payload: dict[str, object],
-    config,
-    scan_state,
-    service_state,
-    overlay_state,
-    control_state,
-    capture_service: CaptureController,
-    config_service: ConfigSaver,
+    context: ActionContext,
 ) -> None:
-    host_value = payload.get("host", "").strip()
+    host_value = str(payload.get("host", "")).strip()
     normalized = set_configured_ollama_host(host_value)
-    config.ollama_config.host = normalized
+    context.config.ollama_config.host = normalized
     active_host = get_ollama_host()
     message = (
         f"Remote Ollama host set to {active_host}."
@@ -76,29 +64,17 @@ def _handle_apply_ollama_host(
 
 def _handle_use_localhost(
     payload: dict[str, object],
-    config,
-    scan_state,
-    service_state,
-    overlay_state,
-    control_state,
-    capture_service: CaptureController,
-    config_service: ConfigSaver,
+    context: ActionContext,
 ) -> None:
     set_configured_ollama_host("")
-    config.ollama_config.host = ""
+    context.config.ollama_config.host = ""
     active_host = get_ollama_host()
     status_updated.send(None, message=f"Ollama host cleared. Using {active_host}.")
 
 
 def _handle_restart_ollama(
     payload: dict[str, object],
-    config,
-    scan_state,
-    service_state,
-    overlay_state,
-    control_state,
-    capture_service: CaptureController,
-    config_service: ConfigSaver,
+    context: ActionContext,
 ) -> None:
     host = get_ollama_host()
     if not is_local_ollama_host(host):
@@ -125,7 +101,7 @@ def _handle_restart_ollama(
         status_updated.send(None, message="Local Ollama service restarted successfully.")
 
 
-OLLAMA_ACTION_HANDLERS = {
+OLLAMA_ACTION_HANDLERS: dict[object, Handler] = {
     ConfigAction.APPLY_OLLAMA_MODEL: _handle_apply_ollama_model,
     ConfigAction.APPLY_OLLAMA_HOST: _handle_apply_ollama_host,
     ConfigAction.USE_LOCALHOST: _handle_use_localhost,

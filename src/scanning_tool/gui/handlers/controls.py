@@ -9,102 +9,61 @@ from scanning_tool.state.actions.scan import ScanAction
 from scanning_tool.state.signals import status_updated
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
-
-    from scanning_tool.config.service import ConfigSaver
-    from scanning_tool.interfaces import CaptureController
+    from scanning_tool.gui.context import ActionContext
+    from scanning_tool.gui.handlers import Handler
 
 
 def _handle_single_scan(
     payload: dict[str, object],
-    config,
-    scan_state,
-    service_state,
-    overlay_state,
-    control_state,
-    capture_service: CaptureController,
-    config_service: ConfigSaver,
+    context: ActionContext,
 ) -> None:
-    Thread(target=capture_service.capture_once, daemon=True).start()
+    Thread(target=context.capture_service.capture_once, daemon=True).start()
     status_updated.send(None, message="Single scan requested.")
 
 
 def _handle_toggle_continuous_capture(
     payload: dict[str, object],
-    config,
-    scan_state,
-    service_state,
-    overlay_state,
-    control_state,
-    capture_service: CaptureController,
-    config_service: ConfigSaver,
+    context: ActionContext,
 ) -> None:
-    capture_service.toggle_continuous()
+    context.capture_service.toggle_continuous()
     status_updated.send(None, message="Toggled continuous capture mode.")
 
 
 def _handle_update_continuous_capture_interval(
     payload: dict[str, object],
-    config,
-    scan_state,
-    service_state,
-    overlay_state,
-    control_state,
-    capture_service: CaptureController,
-    config_service: ConfigSaver,
+    context: ActionContext,
 ) -> None:
-    value = float(payload.get("value", config.continuous_capture_interval))
-    config.continuous_capture_interval = value
+    value = float(payload.get("value", context.config.continuous_capture_interval))
+    context.config.continuous_capture_interval = value
     status_updated.send(None, message=f"Continuous capture interval set to {value:.1f}s")
 
 
 def _handle_save_config(
     payload: dict[str, object],
-    config,
-    scan_state,
-    service_state,
-    overlay_state,
-    control_state,
-    capture_service: CaptureController,
-    config_service: ConfigSaver,
+    context: ActionContext,
 ) -> None:
-    config_service.save()
+    context.config_service.save()
     status_updated.send(None, message="Configuration saved.")
 
 
 def _handle_update_overlay_region(
     payload: dict[str, object],
-    config,
-    scan_state,
-    service_state,
-    overlay_state,
-    control_state,
-    capture_service: CaptureController,
-    config_service: ConfigSaver,
+    context: ActionContext,
 ) -> None:
-    update_overlay_region(overlay_state)
+    update_overlay_region(context.overlay_state)
     status_updated.send(None, message="Overlay region refreshed.")
 
 
 def _handle_choose_label_color(
     payload: dict[str, object],
-    config,
-    scan_state,
-    service_state,
-    overlay_state,
-    control_state,
-    capture_service: CaptureController,
-    config_service: ConfigSaver,
+    context: ActionContext,
 ) -> None:
-    choose_label_color(config.overlay_config)
+    choose_label_color(context.config.overlay_config)
     status_updated.send(None, message="Label color chooser opened.")
 
 
 
-CONTROL_ACTION_HANDLERS: dict[
-    object,
-    Callable[[dict[str, object], object, object, object, object, object, CaptureController, ConfigSaver], None],
-] = {
+CONTROL_ACTION_HANDLERS: dict[object, Handler] = {
     ScanAction.SINGLE_SCAN: _handle_single_scan,
     ScanAction.TOGGLE_CONTINUOUS_CAPTURE: _handle_toggle_continuous_capture,
     ConfigAction.UPDATE_CONTINUOUS_CAPTURE_INTERVAL: _handle_update_continuous_capture_interval,

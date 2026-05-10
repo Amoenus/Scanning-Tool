@@ -12,22 +12,15 @@ from scanning_tool.state.actions import ConfigAction
 from scanning_tool.state.signals import status_updated
 
 if TYPE_CHECKING:
-    from scanning_tool.config.service import ConfigSaver
-    from scanning_tool.gui.state import OverlayState
-    from scanning_tool.interfaces import CaptureController
+    from scanning_tool.gui.context import ActionContext
+    from scanning_tool.gui.handlers import Handler
 
 
 def _handle_update_capture_region(
     payload: dict[str, object],
-    config,
-    scan_state,
-    service_state,
-    overlay_state,
-    control_state,
-    capture_service: CaptureController,
-    config_service: ConfigSaver,
+    context: ActionContext,
 ) -> None:
-    region = config.capture_region
+    region = context.config.capture_region
     region.left = int(payload.get("left", region.left))
     region.top = int(payload.get("top", region.top))
     region.width = int(payload.get("width", region.width))
@@ -38,37 +31,25 @@ def _handle_update_capture_region(
 
 def _handle_toggle_capture_box(
     payload: dict[str, object],
-    config,
-    scan_state,
-    service_state,
-    overlay_state,
-    control_state,
-    capture_service: CaptureController,
-    config_service: ConfigSaver,
+    context: ActionContext,
 ) -> None:
     visible = bool(payload.get("visible", False))
     if visible:
-        show_capture_overlay(overlay_state, config.capture_region)
+        show_capture_overlay(context.overlay_state, context.config.capture_region)
         status_updated.send(None, message="Capture box shown.")
     else:
-        hide_capture_overlay(overlay_state)
+        hide_capture_overlay(context.overlay_state)
         status_updated.send(None, message="Capture box hidden.")
 
 
 def _handle_toggle_capture_border(
     payload: dict[str, object],
-    config,
-    scan_state,
-    service_state,
-    overlay_state: OverlayState,
-    control_state,
-    capture_service: CaptureController,
-    config_service: ConfigSaver,
+    context: ActionContext,
 ) -> None:
-    toggle_border(overlay_state)
+    toggle_border(context.overlay_state)
     status_updated.send(
         None,
-        message=f"Capture border {'enabled' if overlay_state.show_border else 'disabled'}.",
+        message=f"Capture border {'enabled' if context.overlay_state.show_border else 'disabled'}.",
     )
 
 
