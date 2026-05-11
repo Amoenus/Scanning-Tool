@@ -1,4 +1,5 @@
 """Advanced settings container for the Qt scanning tool GUI."""
+
 from __future__ import annotations
 
 from PyQt6.QtWidgets import QGroupBox, QPushButton, QVBoxLayout, QWidget

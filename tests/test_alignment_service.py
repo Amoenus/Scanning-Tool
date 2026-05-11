@@ -136,10 +136,10 @@ def test_alignment_service_emits_alignment_signals_when_anchor_not_found():
         alignment_requested.disconnect(on_requested)
         alignment_reset.disconnect(on_reset)
 
-
     assert result is False
     assert requested is True
     assert reset is True
+
 
 def test_alignment_service_emits_alignment_failed_signal_when_anchor_tracker_missing():
     alignment_info = AlignmentInfo(enabled=True)

@@ -1,4 +1,5 @@
 """Result display section for the Qt scanning tool GUI."""
+
 from __future__ import annotations
 
 from PyQt6.QtWidgets import QFormLayout, QGroupBox, QSpinBox, QVBoxLayout, QWidget

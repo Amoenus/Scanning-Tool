@@ -10,6 +10,8 @@ if TYPE_CHECKING:
 
     from ..control_state import ControlState
     from ..overlay_state import OverlayState
+
+
 class TkGuiProvider:
     """Tkinter GUI provider implementation."""
 

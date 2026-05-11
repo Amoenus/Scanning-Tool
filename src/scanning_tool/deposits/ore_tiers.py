@@ -1,6 +1,5 @@
 """Ore tier definitions and value mappings."""
 
-
 from scanning_tool.domain.common import OreTier, OreValueInfo
 from scanning_tool.domain.ore import OreTierInfo
 

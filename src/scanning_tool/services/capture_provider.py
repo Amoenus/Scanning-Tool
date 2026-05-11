@@ -16,8 +16,10 @@ from scanning_tool.interfaces.capture import CaptureProvider
 if TYPE_CHECKING:
     from scanning_tool.domain.alignment import CaptureRegion
 
+
 class ScreenCaptureUnavailableError(RuntimeError):
     """Raised when the display cannot be captured, such as on a locked workstation."""
+
 
 class ScreenCaptureProvider(CaptureProvider):
     """Capture a PIL image from a screen region."""
@@ -26,7 +28,7 @@ class ScreenCaptureProvider(CaptureProvider):
         # Using 'mss' as a context manager automatically handles cleanup
         sct: MSS = mss()
         with sct:
-            try:    # The 'grab' method returns a ScreenShot object
+            try:  # The 'grab' method returns a ScreenShot object
                 screenshot: ScreenShot = sct.grab(region.to_monitor())
             except ScreenShotError as exc:
                 logger.error(f"Screen capture failed: {exc}")

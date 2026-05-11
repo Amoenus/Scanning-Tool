@@ -142,7 +142,9 @@ class ScanSignatureEntry:
     def to_csv_rows(self) -> list[CsvRow]:
         return [
             value.to_csv_row(
-                mineral=self.mineral, category=self.category, color=self.color,
+                mineral=self.mineral,
+                category=self.category,
+                color=self.color,
             )
             for value in self.values
         ]

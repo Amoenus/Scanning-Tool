@@ -1,4 +1,5 @@
 """Result Display section — offset sliders for the on-screen info overlay via AppContext overlay settings."""
+
 from __future__ import annotations
 
 from tkinter import ttk
@@ -15,6 +16,8 @@ from ..widgets import create_glass_scale
 
 if TYPE_CHECKING:
     from .base import SectionContext
+
+
 class ResultDisplaySection:
     """Display offset X/Y sliders bound to ``app_state.info_overlay_offset``."""
 
@@ -28,10 +31,19 @@ class ResultDisplaySection:
         overlay_offset = ctx.config.overlay_config.info_offset
 
         self._offset_x = self._make_offset_scale(
-            frame, "Display offset X", -800, 800, overlay_offset.x,
+            frame,
+            "Display offset X",
+            -800,
+            800,
+            overlay_offset.x,
         )
         self._offset_y = self._make_offset_scale(
-            frame, "Display offset Y", -600, 600, overlay_offset.y, padding=(0, 0),
+            frame,
+            "Display offset Y",
+            -600,
+            600,
+            overlay_offset.y,
+            padding=(0, 0),
         )
 
         register_overlay_sliders(
@@ -54,7 +66,15 @@ class ResultDisplaySection:
         initial: float,
         padding: tuple[int, int] = (0, 4),
     ) -> ttk.Scale:
-        return create_glass_scale(parent, text=text, minimum=minimum, maximum=maximum, initial=initial, command=self._on_change, padding=padding)
+        return create_glass_scale(
+            parent,
+            text=text,
+            minimum=minimum,
+            maximum=maximum,
+            initial=initial,
+            command=self._on_change,
+            padding=padding,
+        )
 
     def _on_change(self, *_args: object) -> None:
         if self._ctx.control_state.syncing.overlay:

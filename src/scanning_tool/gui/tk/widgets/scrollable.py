@@ -1,4 +1,5 @@
 """Scrollable container widget for the scanning tool GUI."""
+
 from __future__ import annotations
 
 import tkinter as tk
@@ -7,6 +8,8 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from scanning_tool.gui.tk.theme import GlassPalette
+
+
 class ScrollableFrame:
     """A vertically scrollable container with a glass background.
 
@@ -24,7 +27,9 @@ class ScrollableFrame:
             borderwidth=0,
         )
         scrollbar = ttk.Scrollbar(
-            self.container, orient="vertical", command=self.canvas.yview,
+            self.container,
+            orient="vertical",
+            command=self.canvas.yview,
         )
         self.canvas.configure(yscrollcommand=scrollbar.set)
         scrollbar.pack(side="right", fill="y")
@@ -32,7 +37,9 @@ class ScrollableFrame:
 
         self.inner = ttk.Frame(self.canvas, style="Glass.Main.TFrame", padding=20)
         self._window_id = self.canvas.create_window(
-            (15, 15), window=self.inner, anchor="nw",
+            (15, 15),
+            window=self.inner,
+            anchor="nw",
         )
 
         self.inner.bind("<Configure>", self._sync_scroll_region)

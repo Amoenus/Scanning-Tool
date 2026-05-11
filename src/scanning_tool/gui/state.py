@@ -131,22 +131,34 @@ class OverlayState:
     _show_border: bool = field(default=True, init=False, repr=False)
 
     _capture_overlay_root_signal: Signal = field(
-        default_factory=Signal, init=False, repr=False,
+        default_factory=Signal,
+        init=False,
+        repr=False,
     )
     _anchor_overlay_root_signal: Signal = field(
-        default_factory=Signal, init=False, repr=False,
+        default_factory=Signal,
+        init=False,
+        repr=False,
     )
     _anchor_overlay_visibility_signal: Signal = field(
-        default_factory=Signal, init=False, repr=False,
+        default_factory=Signal,
+        init=False,
+        repr=False,
     )
     _info_overlay_root_signal: Signal = field(
-        default_factory=Signal, init=False, repr=False,
+        default_factory=Signal,
+        init=False,
+        repr=False,
     )
     _overlay_text_signal: Signal = field(
-        default_factory=Signal, init=False, repr=False,
+        default_factory=Signal,
+        init=False,
+        repr=False,
     )
     _show_border_signal: Signal = field(
-        default_factory=Signal, init=False, repr=False,
+        default_factory=Signal,
+        init=False,
+        repr=False,
     )
 
     @property
@@ -205,7 +217,8 @@ class OverlayState:
 
     @capture_overlay_last_layout.setter
     def capture_overlay_last_layout(
-        self, value: CaptureOverlayLayout | None,
+        self,
+        value: CaptureOverlayLayout | None,
     ) -> None:
         self.capture.last_layout = value
 

@@ -1,4 +1,5 @@
 """Scan result reporting helpers for logs and UI status messages."""
+
 from __future__ import annotations
 
 import re
@@ -8,12 +9,12 @@ from loguru import logger
 
 if TYPE_CHECKING:
     from scanning_tool.domain.capture import ScanResult
+
+
 class ScanResultMessageFormatter:
     """Builds and formats a canonical scan result message string."""
 
-    MESSAGE_TEMPLATE = (
-        "Scan result: ScanResult(label={}, region={}, code_raw={}, raw_text={})"
-    )
+    MESSAGE_TEMPLATE = "Scan result: ScanResult(label={}, region={}, code_raw={}, raw_text={})"
 
     @staticmethod
     def format(result: ScanResult) -> str:

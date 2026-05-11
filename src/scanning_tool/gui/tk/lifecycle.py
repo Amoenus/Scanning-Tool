@@ -1,4 +1,5 @@
 """Window lifecycle / teardown for the GUI."""
+
 from __future__ import annotations
 
 import tkinter as tk
@@ -13,6 +14,8 @@ if TYPE_CHECKING:
     from scanning_tool.config.service import ConfigSaver
 
     from .overlay_state import OverlayState
+
+
 def register_close_handler(
     root: tk.Tk,
     overlay_state: OverlayState,

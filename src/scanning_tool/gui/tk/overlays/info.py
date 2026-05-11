@@ -1,4 +1,5 @@
 """Floating info overlay and label management."""
+
 from __future__ import annotations
 
 import time
@@ -16,6 +17,8 @@ if TYPE_CHECKING:
     from scanning_tool.config.models import OverlayConfig
     from scanning_tool.domain.capture import DepositInfo
     from scanning_tool.gui.overlay_state import OverlayState
+
+
 class InfoOverlay:
     def __init__(self) -> None:
         self.root: tk.Toplevel | None = None
@@ -36,11 +39,7 @@ class InfoOverlay:
     def _update_canvas_text(self) -> None:
         canvas = self.canvas
         text_id = self.text_id
-        if (
-            canvas is not None
-            and text_id is not None
-            and self._overlay_config is not None
-        ):
+        if canvas is not None and text_id is not None and self._overlay_config is not None:
             fill_color = self._overlay_config.label_color
             safe_tk(
                 lambda: canvas.itemconfig(
@@ -208,7 +207,8 @@ def update_overlay_label(
 
 
 def reposition_info_overlay(
-    overlay_state: OverlayState, overlay_config: OverlayConfig,
+    overlay_state: OverlayState,
+    overlay_config: OverlayConfig,
 ) -> None:
     _info_overlay.reposition(overlay_state, overlay_config)
 
@@ -270,7 +270,8 @@ def toggle_border(overlay_state: OverlayState) -> None:
     if border_canvas is not None:
         safe_tk(
             lambda: border_canvas.itemconfig(
-                "border", state="normal" if overlay_state.show_border else "hidden",
+                "border",
+                state="normal" if overlay_state.show_border else "hidden",
             ),
         )
 

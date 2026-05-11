@@ -13,8 +13,11 @@ from scanning_tool.gui.handlers.result_display import RESULT_DISPLAY_ACTION_HAND
 if TYPE_CHECKING:
     from scanning_tool.state.actions import ConfigAction
 
+from scanning_tool.gui.action_context import ActionContext
+
 Handler = Callable[
-    [dict[str, Any], object, object, object, object, object, object], None,
+    [dict[str, Any], ActionContext],
+    None,
 ]
 
 

@@ -38,7 +38,9 @@ class ConfigData(BaseSettings):
     )
     auto_alignment: AutoAlignmentConfig = Field(
         default_factory=lambda: AutoAlignmentConfig(
-            True, 500, CaptureRegion(1100, 240, 320, 140),
+            True,
+            500,
+            CaptureRegion(1100, 240, 320, 140),
         ),
     )
     anchor_template: CaptureRegion = Field(

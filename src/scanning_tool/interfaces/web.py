@@ -8,6 +8,8 @@ if TYPE_CHECKING:
     from scanning_tool.state.scan_state import ScanState
     from scanning_tool.state.service_state import ServiceState
     from scanning_tool.web.schemas import StatusResponse
+
+
 class StatusResponseBuilder(Protocol):
     """Builds a web response payload from application state."""
 

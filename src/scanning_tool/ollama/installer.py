@@ -113,9 +113,7 @@ def _install_ollama_linux() -> None:
     logger.info("2. Manual installation from website")
     logger.info("")
 
-    choice = (
-        input("Would you like to run the installation command? (y/n): ").lower().strip()
-    )
+    choice = input("Would you like to run the installation command? (y/n): ").lower().strip()
     if choice in ["y", "yes", "1", ""]:
         _run_linux_install_command(package_cmd)
     else:
@@ -151,7 +149,6 @@ def ensure_ollama_installed() -> None:
     if shutil.which("ollama"):
         _log_existing_ollama_version()
         return
-
 
     system = platform.system().lower()
 

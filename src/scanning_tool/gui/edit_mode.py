@@ -1,4 +1,5 @@
 """Toolkit-agnostic edit-mode renderer interface."""
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod

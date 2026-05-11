@@ -122,7 +122,9 @@ def _configure_checkbox_styles(style: ttk.Style, colors: GlassPalette) -> None:
 
 
 def _configure_slider_styles(
-    style: ttk.Style, root: tk.Tk, colors: GlassPalette,
+    style: ttk.Style,
+    root: tk.Tk,
+    colors: GlassPalette,
 ) -> None:
     slider_normal = _make_slider_image(colors.knob, colors.knob_outline)
     slider_active = _make_slider_image(colors.knob_active, colors.accent)

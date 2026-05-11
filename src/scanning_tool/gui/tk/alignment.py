@@ -1,4 +1,5 @@
 """Periodic anchor-alignment polling for the GUI."""
+
 from __future__ import annotations
 
 import logging
@@ -18,6 +19,7 @@ if TYPE_CHECKING:
     from scanning_tool.gui.tk.status import StatusBar
     from scanning_tool.state.scan_state import ScanState
 logger = logging.getLogger(__name__)
+
 
 class AlignmentPoller:
     """Runs ``alignment_service.align`` on a Tk ``after`` cadence."""
@@ -72,9 +74,7 @@ class AlignmentPoller:
             match_found = self._run_alignment()
         except ScreenCaptureUnavailableError:
             reset_alignment_info(self._scan_state.last_alignment_info)
-            return (
-                "Screen capture unavailable. Auto alignment paused until the display is unlocked."
-            )
+            return "Screen capture unavailable. Auto alignment paused until the display is unlocked."
         except Exception:
             logger.exception("Auto alignment failed")
             return "Auto alignment error. See log for details."
@@ -95,9 +95,7 @@ class AlignmentPoller:
     def _build_alignment_status_message(self, match_found: bool) -> str | None:
         info = self._scan_state.last_alignment_info
         if info.matched:
-            capture_msg = (
-                f"Auto alignment adjusted CAP_REGION: {self._config.capture_region}"
-            )
+            capture_msg = f"Auto alignment adjusted CAP_REGION: {self._config.capture_region}"
             if self.status.status_var.get() != capture_msg:
                 self.status.set_status(capture_msg)
             return f"Anchor locked using {info.template} (score {info.score:.2f})."

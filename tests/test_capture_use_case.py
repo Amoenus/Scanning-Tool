@@ -82,9 +82,7 @@ def test_capture_use_case_handles_locked_screen_gracefully():
     use_case.capture_once(status_callback=lambda message: statuses.append(message))
 
     assert scan_state.last_result is None
-    assert any(
-        "Screen capture unavailable" in status for status in statuses
-    )
+    assert any("Screen capture unavailable" in status for status in statuses)
 
 
 def test_capture_use_case_emits_capture_signals_for_success():

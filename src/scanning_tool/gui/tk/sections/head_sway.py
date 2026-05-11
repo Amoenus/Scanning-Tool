@@ -1,4 +1,5 @@
 """Head Sway Compensation section — anchor tracking and auto-alignment."""
+
 from __future__ import annotations
 
 import tkinter as tk
@@ -23,12 +24,16 @@ from ..widgets import (
 
 if TYPE_CHECKING:
     from .base import SectionContext
+
+
 class HeadSwaySection:
     """Anchor region + offset sliders, threshold, and alignment controls."""
 
     def build(self, parent: ttk.Widget, ctx: SectionContext) -> ttk.LabelFrame:
         frame = ttk.LabelFrame(
-            parent, text="Head Sway Compensation", style="Glass.TLabelframe",
+            parent,
+            text="Head Sway Compensation",
+            style="Glass.TLabelframe",
         )
         frame.pack(fill="x", padx=5, pady=8)
 
@@ -249,7 +254,7 @@ class HeadSwaySection:
     def _update_alignment_interval(self, *_args: object) -> None:
         try:
             value = int(self._interval_var.get())
-        except (tk.TclError, ValueError):
+        except tk.TclError, ValueError:
             return
         value = max(100, min(5000, value))
         publish_ui_action(
@@ -260,7 +265,7 @@ class HeadSwaySection:
     def _update_threshold(self, *_args: object) -> None:
         try:
             value = float(self._threshold_var.get())
-        except (tk.TclError, ValueError):
+        except tk.TclError, ValueError:
             return
         value = max(0.1, min(0.99, value))
         publish_ui_action(

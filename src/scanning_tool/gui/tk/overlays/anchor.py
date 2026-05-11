@@ -1,4 +1,5 @@
 """Anchor overlay display and region updates."""
+
 from __future__ import annotations
 
 import tkinter as tk
@@ -10,6 +11,8 @@ from .geometry import compute_anchor_overlay_geometry
 if TYPE_CHECKING:
     from scanning_tool.domain.alignment import CaptureRegion
     from scanning_tool.gui.overlay_state import OverlayState
+
+
 class AnchorOverlay:
     def __init__(self) -> None:
         self.root: tk.Toplevel | None = None
@@ -32,7 +35,10 @@ class AnchorOverlay:
         self._anchor_template = anchor_template
         geometry = compute_anchor_overlay_geometry(anchor_template)
         self.root = create_overlay_window(
-            geometry.width, geometry.height, geometry.left, geometry.top,
+            geometry.width,
+            geometry.height,
+            geometry.left,
+            geometry.top,
         )
         self.canvas = tk.Canvas(
             self.root,
@@ -66,12 +72,7 @@ class AnchorOverlay:
         overlay_state.anchor_rect_id = self.rect_id
 
     def update_region(self, overlay_state: OverlayState) -> None:
-        if (
-            not overlay_state.anchor_overlay_visible
-            or not self.root
-            or not self.canvas
-            or not self.rect_id
-        ):
+        if not overlay_state.anchor_overlay_visible or not self.root or not self.canvas or not self.rect_id:
             return
 
         anchor_template = self._anchor_template
@@ -122,7 +123,8 @@ _anchor_overlay = AnchorOverlay()
 
 
 def show_anchor_overlay(
-    overlay_state: OverlayState, anchor_template: CaptureRegion,
+    overlay_state: OverlayState,
+    anchor_template: CaptureRegion,
 ) -> None:
     _anchor_overlay.show(overlay_state, anchor_template)
 

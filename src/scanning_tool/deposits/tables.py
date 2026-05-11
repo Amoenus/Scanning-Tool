@@ -1,4 +1,5 @@
 """Build deposit ore tables from rock data."""
+
 from __future__ import annotations
 
 import json
@@ -16,6 +17,8 @@ from scanning_tool.domain.ore import Deposit, OreStatistics, Region, RockDataCol
 
 if TYPE_CHECKING:
     from scanning_tool.state.service_state import ServiceState
+
+
 class DepositTableBuilder:
     """Build deposit ore tables from rock data."""
 
@@ -28,17 +31,17 @@ class DepositTableBuilder:
         return deposit_tables
 
     def _build_deposit_table(self, deposit: Deposit) -> DepositTable:
-        return [
-            self._create_ore_table_entry(ore_name, ore_stats)
-            for ore_name, ore_stats in deposit.ores.items()
-        ]
+        return [self._create_ore_table_entry(ore_name, ore_stats) for ore_name, ore_stats in deposit.ores.items()]
 
     def _create_ore_table_entry(
-        self, ore_name: str, stats: OreStatistics,
+        self,
+        ore_name: str,
+        stats: OreStatistics,
     ) -> OreTableEntry:
         name_up = ore_name.upper()
         value_info = ORE_VALUE_MAP.get(
-            name_up, OreValueInfo(tier="OTHER", color="#888"),
+            name_up,
+            OreValueInfo(tier="OTHER", color="#888"),
         )
         return OreTableEntry(
             name=ore_name.title(),

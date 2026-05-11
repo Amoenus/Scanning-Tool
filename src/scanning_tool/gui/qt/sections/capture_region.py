@@ -1,4 +1,5 @@
 """Capture Region section for the Qt scanning tool GUI."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING

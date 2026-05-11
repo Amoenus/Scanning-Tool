@@ -34,4 +34,3 @@ def test_publish_ollama_status_emits_signals() -> None:
 
     ollama_status_updated.disconnect(on_status)
     ollama_readiness_changed.disconnect(on_readiness)
-

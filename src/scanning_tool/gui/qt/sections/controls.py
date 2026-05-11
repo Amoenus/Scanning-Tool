@@ -1,4 +1,5 @@
 """Qt controls section for the scanning tool."""
+
 from __future__ import annotations
 
 from PyQt6.QtCore import QTimer

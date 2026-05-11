@@ -1,4 +1,5 @@
 """Overlay package API."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -92,16 +93,11 @@ def show_overlay(
 
     if screen_width is None or screen_height is None:
         if overlay_state.capture_overlay_root and safe_tk(
-            overlay_state.capture_overlay_root.winfo_exists, False,
+            overlay_state.capture_overlay_root.winfo_exists,
+            False,
         ):
-            screen_width = (
-                safe_tk(overlay_state.capture_overlay_root.winfo_screenwidth, 1920)
-                or 1920
-            )
-            screen_height = (
-                safe_tk(overlay_state.capture_overlay_root.winfo_screenheight, 1080)
-                or 1080
-            )
+            screen_width = safe_tk(overlay_state.capture_overlay_root.winfo_screenwidth, 1920) or 1920
+            screen_height = safe_tk(overlay_state.capture_overlay_root.winfo_screenheight, 1080) or 1080
 
     if screen_width is not None and screen_height is not None:
         show_info_overlay(
@@ -126,6 +122,7 @@ def update_overlay_region(overlay_state: OverlayState) -> None:
 
 
 _overlay_signal_handlers_registered = False
+
 
 def register_overlay_signal_handlers() -> None:
     """Register signal handlers for overlay updates.

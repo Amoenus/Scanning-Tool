@@ -1,4 +1,5 @@
 """Controls section — continuous capture interval + primary action buttons."""
+
 from __future__ import annotations
 
 import tkinter as tk
@@ -17,6 +18,8 @@ from ..widgets import (
 
 if TYPE_CHECKING:
     from .base import SectionContext
+
+
 class ControlsSection:
     """Capture-interval spinbox and the six primary action buttons."""
 
@@ -73,7 +76,7 @@ class ControlsSection:
     def _on_interval_change(self, *_args: object) -> None:
         try:
             value = float(self._interval_var.get())
-        except (tk.TclError, ValueError):
+        except tk.TclError, ValueError:
             return
         value = max(0.2, min(30.0, value))
         publish_ui_action(
@@ -95,16 +98,10 @@ class ControlsSection:
         )
 
     def _build_continuous_button_label(self) -> str:
-        return (
-            "Stop Auto Scan"
-            if self._ctx.scan_state.continuous_mode
-            else "Start Auto Scan"
-        )
+        return "Stop Auto Scan" if self._ctx.scan_state.continuous_mode else "Start Auto Scan"
 
     def _build_capture_box_button_label(self) -> str:
-        return (
-            "Hide Capture Box" if self._is_capture_box_visible() else "Show Capture Box"
-        )
+        return "Hide Capture Box" if self._is_capture_box_visible() else "Show Capture Box"
 
     def _is_capture_box_visible(self) -> bool:
         return bool(self._ctx.overlay_state.capture_overlay_root)
