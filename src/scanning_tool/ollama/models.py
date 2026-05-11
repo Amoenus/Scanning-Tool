@@ -128,11 +128,14 @@ class OllamaModelInstaller:
 
 
 def ensure_model_installed(
-    model: str | None = None, *, exit_on_error: bool = True,
+    model: str | None = None,
+    *,
+    exit_on_error: bool = True,
 ) -> bool:
     """Ensure the Ollama model exists on the configured host."""
     return OllamaModelInstaller(
-        model=model, exit_on_error=exit_on_error,
+        model=model,
+        exit_on_error=exit_on_error,
     ).ensure_installed()
 
 
@@ -162,9 +165,7 @@ def log_model_running_status(model: str | None = None) -> bool:
         logger.info(message)
         publish_ollama_status(message, model=model, ready=True)
         return True
-    message = (
-        f"Ollama model {model} is not currently running. It will start on first OCR request."
-    )
+    message = f"Ollama model {model} is not currently running. It will start on first OCR request."
     logger.info(message)
     publish_ollama_status(message, model=model, ready=False)
     if running_models:

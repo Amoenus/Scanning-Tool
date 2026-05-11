@@ -1,4 +1,5 @@
 """Deposit lookup and code extraction from OCR text."""
+
 from __future__ import annotations
 
 import re
@@ -11,6 +12,8 @@ from scanning_tool.state.service_state import ServiceState
 
 if TYPE_CHECKING:
     from scanning_tool.domain.scan_signature import ScanSignature, SignatureRegistry
+
+
 @dataclass(frozen=True)
 class DepositSignatureMatch:
     base_value: int
@@ -115,7 +118,8 @@ class DepositLookupService:
 
 
 def lookup_deposit(
-    code: str | None, code_re: Pattern[str] | None = None,
+    code: str | None,
+    code_re: Pattern[str] | None = None,
 ) -> DepositInfo | None:
     """Look up a deposit by its numeric code using scraped scan signature data."""
     from scanning_tool.deposits.scan_signatures import get_scan_signature_registry
@@ -129,7 +133,8 @@ def lookup_deposit(
 
 
 def extract_code_from_text(
-    raw_text: str, code_re: Pattern[str] | None = None,
+    raw_text: str,
+    code_re: Pattern[str] | None = None,
 ) -> CodeExtraction:
     """Extract a deposit code from OCR text."""
     if code_re is None:

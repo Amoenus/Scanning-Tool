@@ -8,6 +8,8 @@ from scanning_tool.services.alignment_service import alignment_service
 if TYPE_CHECKING:
     from scanning_tool.core.anchor import AnchorRegionTracker
     from scanning_tool.domain.alignment import AlignmentInfo, AlignmentRequest
+
+
 class UIAlignmentAdapter(AlignmentAdapter):
     """Adapter that forwards alignment requests to the service."""
 

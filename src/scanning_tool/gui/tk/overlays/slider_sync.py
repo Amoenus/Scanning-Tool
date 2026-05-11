@@ -1,4 +1,5 @@
 """Slider registration and synchronization helpers for overlays."""
+
 from __future__ import annotations
 
 import tkinter as tk
@@ -11,6 +12,8 @@ if TYPE_CHECKING:
     from scanning_tool.domain.alignment import CaptureRegion
     from scanning_tool.domain.common import Offset2D
     from scanning_tool.gui.tk.control_state import ControlState, ScaleWidget
+
+
 def register_capture_sliders(
     left: ScaleWidget,
     top: ScaleWidget,
@@ -122,7 +125,8 @@ def configure_capture_slider_sync(
 
 
 def sync_capture_sliders(
-    control_state: ControlState, capture_region: CaptureRegion,
+    control_state: ControlState,
+    capture_region: CaptureRegion,
 ) -> None:
     """Synchronize capture slider widgets with capture region values.
 
@@ -196,10 +200,7 @@ def sync_anchor_sliders(
     height = widgets.height
     offset_x = widgets.offset_x
     offset_y = widgets.offset_y
-    if (
-        not (left and top and width and height and offset_x and offset_y)
-        or control_state.syncing.anchor
-    ):
+    if not (left and top and width and height and offset_x and offset_y) or control_state.syncing.anchor:
         return
 
     def _apply() -> None:

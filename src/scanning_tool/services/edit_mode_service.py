@@ -197,11 +197,7 @@ class EditModeService(BaseService):
 
     def _payload_for_region(self, region: ActiveRegion, payload: dict[str, int]) -> dict[str, int]:
         if region == ActiveRegion.CAPTURE or region == ActiveRegion.ANCHOR:
-            source = (
-                manager.config.capture_region
-                if region == ActiveRegion.CAPTURE
-                else manager.config.anchor_template
-            )
+            source = manager.config.capture_region if region == ActiveRegion.CAPTURE else manager.config.anchor_template
             left = int(payload.get("left", source.left)) + int(payload.get("delta_left", 0))
             top = int(payload.get("top", source.top)) + int(payload.get("delta_top", 0))
             width = int(payload.get("width", source.width)) + int(payload.get("delta_width", 0))
@@ -258,5 +254,6 @@ class EditModeService(BaseService):
         if region == ActiveRegion.ANCHOR:
             return ConfigAction.UPDATE_ANCHOR_REGION
         return ConfigAction.UPDATE_RESULT_DISPLAY_OFFSET
+
 
 edit_mode_service = EditModeService()

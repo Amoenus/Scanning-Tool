@@ -1,4 +1,5 @@
 """Capture Region section — 4 sliders controlling the OCR capture rectangle via AppContext capture settings."""
+
 from __future__ import annotations
 
 import tkinter as tk
@@ -17,6 +18,8 @@ from ..widgets import create_glass_scale
 
 if TYPE_CHECKING:
     from .base import SectionContext
+
+
 class CaptureRegionSection:
     """Left/Top/Width/Height sliders bound to ``app_state.cap_region``."""
 
@@ -32,10 +35,19 @@ class CaptureRegionSection:
         self._left = self._make_capture_scale(frame, "Left", 0, 3000, cap_region.left)
         self._top = self._make_capture_scale(frame, "Top", 0, 2000, cap_region.top)
         self._width = self._make_capture_scale(
-            frame, "Width", 50, 1000, cap_region.width,
+            frame,
+            "Width",
+            50,
+            1000,
+            cap_region.width,
         )
         self._height = self._make_capture_scale(
-            frame, "Height", 20, 500, cap_region.height, padding=(0, 0),
+            frame,
+            "Height",
+            20,
+            500,
+            cap_region.height,
+            padding=(0, 0),
         )
 
         register_capture_sliders(
@@ -78,7 +90,15 @@ class CaptureRegionSection:
         initial: float,
         padding: tuple[int, int] = (0, 4),
     ) -> ttk.Scale:
-        return create_glass_scale(parent, text=text, minimum=minimum, maximum=maximum, initial=initial, command=self._on_change, padding=padding)
+        return create_glass_scale(
+            parent,
+            text=text,
+            minimum=minimum,
+            maximum=maximum,
+            initial=initial,
+            command=self._on_change,
+            padding=padding,
+        )
 
     def _on_change(self, *_args: object) -> None:
         if self._ctx.control_state.syncing.capture:

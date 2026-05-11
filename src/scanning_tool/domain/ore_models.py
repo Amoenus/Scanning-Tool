@@ -9,6 +9,8 @@ from scanning_tool.domain.ore_schemas import DepositSchema, OreStatisticsSchema
 
 if TYPE_CHECKING:
     from scanning_tool.domain.dtos import JsonObject
+
+
 @dataclass
 class OreStatistics:
     """Per-ore stats inside a Deposit's `ores` map (loaded from RockType.json)."""
@@ -47,10 +49,7 @@ class Deposit:
         except ValidationError:
             validated = DepositSchema()
 
-        ores = {
-            ore_name: ore_schema.to_domain()
-            for ore_name, ore_schema in validated.ores.items()
-        }
+        ores = {ore_name: ore_schema.to_domain() for ore_name, ore_schema in validated.ores.items()}
 
         return cls(
             users=validated.users,

@@ -5,6 +5,8 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from scanning_tool.domain.alignment import CaptureRegion
+
+
 @dataclass
 class DepositInfo:
     """Structured metadata for a detected deposit or scan signature."""

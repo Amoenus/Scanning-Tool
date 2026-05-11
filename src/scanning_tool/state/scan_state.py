@@ -1,4 +1,5 @@
 """Scan state management."""
+
 from __future__ import annotations
 
 from collections.abc import Callable
@@ -32,11 +33,15 @@ class ScanState:
     last_alignment_info: AlignmentInfo = field(default_factory=AlignmentInfo)
     _last_result: ScanResult | None = field(default=None, init=False, repr=False)
     _continuous_mode_signal: Signal = field(
-        default_factory=Signal, init=False, repr=False,
+        default_factory=Signal,
+        init=False,
+        repr=False,
     )
     _scan_result_signal: Signal = field(default_factory=Signal, init=False, repr=False)
     _alignment_info_signal: Signal = field(
-        default_factory=Signal, init=False, repr=False,
+        default_factory=Signal,
+        init=False,
+        repr=False,
     )
 
     @property

@@ -29,6 +29,8 @@ if TYPE_CHECKING:
         StatusCallback,
     )
     from scanning_tool.state.scan_state import ScanState
+
+
 class ScanPipeline:
     """Builds a scan result by running OCR and resolving deposit metadata."""
 

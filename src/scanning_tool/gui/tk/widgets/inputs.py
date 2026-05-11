@@ -1,4 +1,5 @@
 """Input widgets for the scanning tool GUI."""
+
 from __future__ import annotations
 
 import tkinter as tk
@@ -10,6 +11,8 @@ from .controls import ResponsivePairRow, create_section_row
 
 if TYPE_CHECKING:
     from ..theme import GlassPalette
+
+
 def create_labeled_spinbox(
     parent: ttk.Widget,
     text: str,
@@ -37,6 +40,7 @@ def create_labeled_spinbox(
     row.set_widgets(label, spinbox)
 
     from ..theme import style_spinbox
+
     style_spinbox(spinbox, colors)
 
     return spinbox
@@ -60,7 +64,10 @@ def create_status_label(parent: ttk.Widget, variable: tk.Variable) -> ttk.Label:
     """Create a styled status label row for section text feedback."""
     row = create_section_row(parent, pady=(0, 2))
     label = ttk.Label(
-        row, textvariable=variable, style="Glass.Small.TLabel", justify="left",
+        row,
+        textvariable=variable,
+        style="Glass.Small.TLabel",
+        justify="left",
     )
     label.pack(fill="x", padx=5)
     return label

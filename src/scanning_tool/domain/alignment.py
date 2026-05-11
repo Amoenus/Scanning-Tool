@@ -8,6 +8,8 @@ from mss.models import Monitor
 if TYPE_CHECKING:
     from scanning_tool.config.service import ConfigData
     from scanning_tool.domain.common import MssMonitor, Offset2D
+
+
 @dataclass
 class CaptureRegion:
     """Represents a capture region on the screen."""
@@ -76,7 +78,9 @@ class AlignmentInfo:
         self.capture_top = None
 
     def update_from_detection(
-        self, detection: AnchorDetection, capture_region: CaptureRegion,
+        self,
+        detection: AnchorDetection,
+        capture_region: CaptureRegion,
     ) -> None:
         """Update this alignment state from a successful anchor detection."""
         self.matched = True

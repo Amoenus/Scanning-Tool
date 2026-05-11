@@ -9,3 +9,7 @@
 ## 2026-04-17 - Duplicate Domain Definitions
 **Learning:** The domain model module contained duplicate class definitions for `OreStatistics`, `Deposit`, `Region`, and `RockDataCollection`, causing unnecessary ambiguity and reducing traceability.
 **Action:** Keep a single authoritative domain model declaration per type to preserve clarity and avoid hidden runtime shadowing.
+
+## 2026-05-11 - Parameter Object Refactor for Action Handlers
+**Learning:** GUI action handlers suffered from parameter bloat (7 objects passed individually), making function signatures hard to read and brittle to add new dependencies to. This pattern of long parameter lists should be collapsed into a domain object.
+**Action:** Introduced an `ActionContext` Parameter Object dataclass to encapsulate UI state dependencies, reducing handler signatures to simply accept `payload` and `context`, increasing traceability and SOLID compliance.

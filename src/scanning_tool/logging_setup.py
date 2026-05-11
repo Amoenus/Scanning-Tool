@@ -65,10 +65,7 @@ def setup_logging() -> Logger:
         "<level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>"
         ":<cyan>{line}</cyan> - <level>{message}</level>"
     )
-    file_format = (
-        "{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | "
-        "{name}:{function}:{line} - {message}"
-    )
+    file_format = "{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {name}:{function}:{line} - {message}"
 
     logger.add(
         sys.stdout,

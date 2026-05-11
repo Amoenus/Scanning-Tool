@@ -13,10 +13,7 @@ def reset_ollama_client() -> None:
 def get_ollama_client() -> ollama.Client:
     """Return an Ollama client instance configured for the active host."""
     host = get_ollama_host()
-    if (
-        manager.service_state.ollama_client is None
-        or manager.service_state.ollama_client_host != host
-    ):
+    if manager.service_state.ollama_client is None or manager.service_state.ollama_client_host != host:
         manager.service_state.ollama_client = ollama.Client(host=host)
         manager.service_state.ollama_client_host = host
     return manager.service_state.ollama_client

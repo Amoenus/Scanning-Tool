@@ -11,6 +11,8 @@ from scanning_tool.core.anchor.anchor_template_loader import AnchorTemplate, Anc
 if TYPE_CHECKING:
     from scanning_tool.domain.alignment import AnchorDetection, CaptureRegion
     from scanning_tool.interfaces.capture import CaptureProvider
+
+
 class AnchorRegionTracker:
     """Manage template loading and anchor matching for auto alignment."""
 
@@ -54,7 +56,8 @@ class AnchorRegionTracker:
         anchor_gray = self._grab_anchor_screenshot(region)
 
         best_score, best_loc, best_template = self.matcher.find_best_match(
-            anchor_gray, self.template_loader.templates,
+            anchor_gray,
+            self.template_loader.templates,
         )
         if best_loc is None or best_template is None:
             return None
@@ -66,7 +69,10 @@ class AnchorRegionTracker:
             return None
 
         return self.matcher.build_detection(
-            monitor, best_loc, best_template, best_score,
+            monitor,
+            best_loc,
+            best_template,
+            best_score,
         )
 
     def _grab_anchor_screenshot(self, region: CaptureRegion) -> np.ndarray:

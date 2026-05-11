@@ -100,9 +100,7 @@ def _build_ollama_messages(prompt: str, image_bytes: bytes) -> list[OllamaChatMe
 
 def _send_ollama_chat(model: str, prompt: str, image_bytes: bytes) -> str:
     client: ollama.Client = get_ollama_client()
-    messages = [
-        message.to_payload() for message in _build_ollama_messages(prompt, image_bytes)
-    ]
+    messages = [message.to_payload() for message in _build_ollama_messages(prompt, image_bytes)]
     response: ollama.ChatResponse = client.chat(model=model, messages=messages)
     content = response.message.content
     return content.strip() if content else ""

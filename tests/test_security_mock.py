@@ -125,9 +125,12 @@ class TestSecurity(unittest.TestCase):
 
     def test_mobile_overlay_url_default(self):
         # Already set to 0.0.0.0 in setUp
-        with patch("scanning_tool.gui.tk.sections.mobile_overlay.publish_ui_action") as mock_publish, patch(
-            "scanning_tool.gui.tk.sections.mobile_overlay.get_local_ip",
-        ) as mock_get_local_ip:
+        with (
+            patch("scanning_tool.gui.tk.sections.mobile_overlay.publish_ui_action") as mock_publish,
+            patch(
+                "scanning_tool.gui.tk.sections.mobile_overlay.get_local_ip",
+            ) as mock_get_local_ip,
+        ):
             mock_get_local_ip.return_value = "192.168.1.100"
             from scanning_tool.gui.tk.sections.mobile_overlay import MobileOverlaySection
             from scanning_tool.state.actions import ConfigAction

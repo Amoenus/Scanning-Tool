@@ -19,6 +19,8 @@ if TYPE_CHECKING:
     from scanning_tool.config.service import ConfigData
     from scanning_tool.state.scan_state import ScanState
     from scanning_tool.state.service_state import ServiceState
+
+
 class CaptureService(CaptureController):
     """Service for capturing screen regions and processing OCR results."""
 

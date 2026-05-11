@@ -1,4 +1,5 @@
 """Main application entry: launches the Tkinter GUI and builds its sections."""
+
 from __future__ import annotations
 
 import tkinter as tk
@@ -181,5 +182,3 @@ def _build_main_panel(root: tk.Tk, colors: GlassPalette) -> tk.Widget:
 def _build_sections(main: tk.Widget, ctx: SectionContext) -> None:
     for section_cls in SECTION_CLASSES:
         section_cls().build(main, ctx)
-
-

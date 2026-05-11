@@ -54,7 +54,8 @@ class DefaultStatusResponseBuilder(StatusResponseBuilder):
     """Builds the overlay status response from runtime state."""
 
     def __init__(
-        self, deposit_table_resolver: DepositTableResolver | None = None,
+        self,
+        deposit_table_resolver: DepositTableResolver | None = None,
     ) -> None:
         self._deposit_table_resolver = deposit_table_resolver or DepositTableResolver()
 
@@ -98,5 +99,7 @@ class DefaultStatusResponseBuilder(StatusResponseBuilder):
         service_state: ServiceState,
     ) -> DepositTable | None:
         return self._deposit_table_resolver.resolve(
-            info, selected_region, service_state,
+            info,
+            selected_region,
+            service_state,
         )

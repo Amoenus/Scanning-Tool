@@ -1,4 +1,5 @@
 """Global hotkey service."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -24,14 +25,46 @@ def _register_edit_mode_hotkeys() -> None:
         return
     handles: list[str] = []
     handles.append(keyboard.add_hotkey("tab", lambda: publish_ui_action(EditModeAction.CYCLE_REGION), suppress=True))
-    handles.append(keyboard.add_hotkey("left", lambda: publish_ui_action(EditModeAction.NUDGE_REGION, {"delta_left": -1}), suppress=True))
-    handles.append(keyboard.add_hotkey("right", lambda: publish_ui_action(EditModeAction.NUDGE_REGION, {"delta_left": 1}), suppress=True))
-    handles.append(keyboard.add_hotkey("up", lambda: publish_ui_action(EditModeAction.NUDGE_REGION, {"delta_top": -1}), suppress=True))
-    handles.append(keyboard.add_hotkey("down", lambda: publish_ui_action(EditModeAction.NUDGE_REGION, {"delta_top": 1}), suppress=True))
-    handles.append(keyboard.add_hotkey("shift+left", lambda: publish_ui_action(EditModeAction.NUDGE_REGION, {"delta_left": -10}), suppress=True))
-    handles.append(keyboard.add_hotkey("shift+right", lambda: publish_ui_action(EditModeAction.NUDGE_REGION, {"delta_left": 10}), suppress=True))
-    handles.append(keyboard.add_hotkey("shift+up", lambda: publish_ui_action(EditModeAction.NUDGE_REGION, {"delta_top": -10}), suppress=True))
-    handles.append(keyboard.add_hotkey("shift+down", lambda: publish_ui_action(EditModeAction.NUDGE_REGION, {"delta_top": 10}), suppress=True))
+    handles.append(
+        keyboard.add_hotkey(
+            "left", lambda: publish_ui_action(EditModeAction.NUDGE_REGION, {"delta_left": -1}), suppress=True
+        )
+    )
+    handles.append(
+        keyboard.add_hotkey(
+            "right", lambda: publish_ui_action(EditModeAction.NUDGE_REGION, {"delta_left": 1}), suppress=True
+        )
+    )
+    handles.append(
+        keyboard.add_hotkey(
+            "up", lambda: publish_ui_action(EditModeAction.NUDGE_REGION, {"delta_top": -1}), suppress=True
+        )
+    )
+    handles.append(
+        keyboard.add_hotkey(
+            "down", lambda: publish_ui_action(EditModeAction.NUDGE_REGION, {"delta_top": 1}), suppress=True
+        )
+    )
+    handles.append(
+        keyboard.add_hotkey(
+            "shift+left", lambda: publish_ui_action(EditModeAction.NUDGE_REGION, {"delta_left": -10}), suppress=True
+        )
+    )
+    handles.append(
+        keyboard.add_hotkey(
+            "shift+right", lambda: publish_ui_action(EditModeAction.NUDGE_REGION, {"delta_left": 10}), suppress=True
+        )
+    )
+    handles.append(
+        keyboard.add_hotkey(
+            "shift+up", lambda: publish_ui_action(EditModeAction.NUDGE_REGION, {"delta_top": -10}), suppress=True
+        )
+    )
+    handles.append(
+        keyboard.add_hotkey(
+            "shift+down", lambda: publish_ui_action(EditModeAction.NUDGE_REGION, {"delta_top": 10}), suppress=True
+        )
+    )
     handles.append(keyboard.add_hotkey("esc", lambda: publish_ui_action(EditModeAction.EXIT_EDIT_MODE), suppress=True))
     _edit_mode_hotkeys = handles
 
@@ -59,9 +92,14 @@ def hotkey_listener(capture_service: CaptureService) -> None:
         keyboard.add_hotkey("7", capture_service.capture_once)
         keyboard.add_hotkey("ctrl+7", capture_service.toggle_continuous)
         keyboard.add_hotkey("8", lambda: toggle_border(manager.overlay_state))
-        keyboard.add_hotkey("f9", lambda: publish_ui_action(
-            EditModeAction.EXIT_EDIT_MODE if edit_mode_service.state.is_edit_mode else EditModeAction.ENTER_EDIT_MODE,
-        ))
+        keyboard.add_hotkey(
+            "f9",
+            lambda: publish_ui_action(
+                EditModeAction.EXIT_EDIT_MODE
+                if edit_mode_service.state.is_edit_mode
+                else EditModeAction.ENTER_EDIT_MODE,
+            ),
+        )
         edit_mode_changed.connect(_on_edit_mode_changed, weak=False)
         logger.info(
             "Hotkeys registered: '7' for single scan, 'Ctrl+7' for continuous toggle, '8' for border toggle, 'F9' for edit mode",

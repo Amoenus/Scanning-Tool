@@ -16,6 +16,8 @@ if TYPE_CHECKING:
     from scanning_tool.domain.alignment import AlignmentInfo
     from scanning_tool.domain.capture import ScanResult
     from scanning_tool.gui.tk.sections.base import SectionContext
+
+
 class StatusOverviewSection:
     """Status panel that keeps key runtime state visible in the GUI."""
 
@@ -49,13 +51,19 @@ class StatusOverviewSection:
         self._ollama_status_var = tk.StringVar()
         self._ollama_status_badge = self._create_badge(frame, "Ollama status", self._ollama_status_var)
         self._capture_badge = self._create_badge(
-            frame, "Capture box", self._capture_var,
+            frame,
+            "Capture box",
+            self._capture_var,
         )
         self._auto_scan_badge = self._create_badge(
-            frame, "Auto scan", self._auto_scan_var,
+            frame,
+            "Auto scan",
+            self._auto_scan_var,
         )
         self._auto_align_badge = self._create_badge(
-            frame, "Auto align", self._auto_align_var,
+            frame,
+            "Auto align",
+            self._auto_align_var,
         )
         create_status_label(frame, self._last_scan_var)
         create_status_label(frame, self._ctx.status.status_var)

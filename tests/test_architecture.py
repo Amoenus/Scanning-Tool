@@ -12,16 +12,18 @@ UI_MANIFESTS = {
     "web": web_manifest,
 }
 
+
 def test_every_action_enum_member_has_handler():
     pass  # We'll implement this later once all actions are migrated
+
 
 def test_every_signal_has_publisher():
     pass  # Same here
 
+
 @pytest.mark.parametrize("ui_name, manifest", UI_MANIFESTS.items())
 def test_scan_result_conformance(ui_name, manifest):
-    """If a UI claims the 'scan_result' concern, it should declare the expected actions and signals.
-    """
+    """If a UI claims the 'scan_result' concern, it should declare the expected actions and signals."""
     if "scan_result" not in manifest.claimed_concerns:
         pytest.skip(f"{ui_name} does not claim 'scan_result'")
 

@@ -41,10 +41,7 @@ class StatusBar:
         """Write an alignment-loop message iff it changed and no hold is active."""
         if self.anchor_hold_active():
             return
-        if (
-            message == self._last_alignment_message
-            and self.anchor_status_var.get() == message
-        ):
+        if message == self._last_alignment_message and self.anchor_status_var.get() == message:
             return
         self.anchor_status_var.set(message)
         self._last_alignment_message = message

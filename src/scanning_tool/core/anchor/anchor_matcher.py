@@ -17,17 +17,16 @@ class AnchorMatcher:
     """Find the best anchor template match in a captured image."""
 
     def find_best_match(
-        self, anchor_gray: np.ndarray, templates: list[AnchorTemplate],
+        self,
+        anchor_gray: np.ndarray,
+        templates: list[AnchorTemplate],
     ) -> tuple[float, tuple[int, int] | None, AnchorTemplate | None]:
         best_score = -1.0
         best_loc: tuple[int, int] | None = None
         best_template: AnchorTemplate | None = None
 
         for template in templates:
-            if (
-                anchor_gray.shape[0] < template.image.shape[0]
-                or anchor_gray.shape[1] < template.image.shape[1]
-            ):
+            if anchor_gray.shape[0] < template.image.shape[0] or anchor_gray.shape[1] < template.image.shape[1]:
                 continue
             res = cv2.matchTemplate(anchor_gray, template.image, cv2.TM_CCOEFF_NORMED)
             _, max_val, _, max_loc = cv2.minMaxLoc(res)

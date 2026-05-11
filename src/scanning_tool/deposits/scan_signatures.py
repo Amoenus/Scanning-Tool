@@ -17,12 +17,7 @@ from scanning_tool.domain.scan_signature import (
 
 if TYPE_CHECKING:
     from scanning_tool.domain.dtos import ScanSignatureCSVRowData
-SCAN_SIG_CSV = (
-    Path(__file__).resolve().parents[3]
-    / "csv"
-    / "scansig"
-    / "scan_signatures_summary.csv"
-)
+SCAN_SIG_CSV = Path(__file__).resolve().parents[3] / "csv" / "scansig" / "scan_signatures_summary.csv"
 
 
 def parse_scan_signature_row(

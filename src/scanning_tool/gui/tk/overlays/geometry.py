@@ -1,4 +1,5 @@
 """Pure overlay geometry helpers."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -17,6 +18,8 @@ from scanning_tool.gui.tk.overlays.base import (
 if TYPE_CHECKING:
     from scanning_tool.config.models import OverlayConfig
     from scanning_tool.domain.alignment import CaptureRegion
+
+
 def compute_info_overlay_geometry(
     screen_width: int,
     screen_height: int,
@@ -39,7 +42,10 @@ def compute_info_overlay_geometry(
     left = min(max(0, base_left + offset_x), max_left)
     top = min(max(0, base_top + offset_y), max_top)
     return InfoOverlayLayout(
-        width=overlay_width, height=overlay_height, left=left, top=top,
+        width=overlay_width,
+        height=overlay_height,
+        left=left,
+        top=top,
     )
 
 

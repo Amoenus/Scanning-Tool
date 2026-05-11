@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from scanning_tool.state.scan_state import ScanState
     from scanning_tool.state.service_state import ServiceState
 
+
 @dataclass(frozen=True)
 class _RuntimeState:
     app_state: AppState
@@ -22,6 +23,7 @@ class _RuntimeState:
     service_state: ServiceState
     overlay_state: OverlayState
     control_state: ControlState
+
 
 _runtime_state: _RuntimeState | None = None
 

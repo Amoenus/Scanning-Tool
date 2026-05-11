@@ -37,7 +37,9 @@ class OllamaSection:
 
     def build(self, parent: ttk.Widget, ctx: SectionContext) -> ttk.LabelFrame:
         frame = ttk.LabelFrame(
-            parent, text="Ollama Connection", style="Glass.TLabelframe",
+            parent,
+            text="Ollama Connection",
+            style="Glass.TLabelframe",
         )
         frame.pack(fill="x", padx=5, pady=8)
 
@@ -95,4 +97,3 @@ class OllamaSection:
 
     def _restart_ollama(self) -> None:
         publish_ui_action(RuntimeAction.RESTART_OLLAMA)
-

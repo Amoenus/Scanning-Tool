@@ -3,6 +3,7 @@
 This module defines dataclasses and patterns for managing the state of
 Ollama client connections, code patterns, and rock data caches.
 """
+
 from __future__ import annotations
 
 import re
@@ -18,6 +19,8 @@ if TYPE_CHECKING:
     import ollama
 
     from scanning_tool.domain.common import RegionDepositTables
+
+
 def _default_region_deposit_tables() -> RegionDepositTables:
     return {}
 

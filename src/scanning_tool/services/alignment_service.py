@@ -1,4 +1,5 @@
 """Auto-alignment background service."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -16,6 +17,8 @@ from scanning_tool.state.signals import (
 if TYPE_CHECKING:
     from scanning_tool.core.anchor import AnchorRegionTracker
     from scanning_tool.domain.alignment import AlignmentInfo, AlignmentRequest, AnchorDetection, CaptureRegion
+
+
 def reset_alignment_info(info: AlignmentInfo) -> None:
     info.reset()
 
@@ -87,7 +90,8 @@ class AlignmentService(BaseService):
         alignment_request.capture_region.top = max(0, new_top)
 
         last_alignment_info.update_from_detection(
-            detection, alignment_request.capture_region,
+            detection,
+            alignment_request.capture_region,
         )
         alignment_applied_signal.send(
             self,

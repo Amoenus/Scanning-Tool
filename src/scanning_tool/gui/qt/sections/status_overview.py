@@ -1,4 +1,5 @@
 """Runtime status section for the Qt scanning tool GUI."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -30,7 +31,9 @@ class StatusOverviewSection:
         self._ollama_status_label = self._make_badge(grid, 1, "Ollama status", self._default_ollama_status())
         self._capture_label = self._make_badge(grid, 2, "Capture box", self._capture_text())
         self._auto_scan_label = self._make_badge(grid, 3, "Auto scan", self._auto_scan_text())
-        self._auto_align_label = self._make_badge(grid, 4, "Auto align", self._auto_align_text(ctx.scan_state.last_alignment_info))
+        self._auto_align_label = self._make_badge(
+            grid, 4, "Auto align", self._auto_align_text(ctx.scan_state.last_alignment_info)
+        )
 
         layout.addLayout(grid)
 

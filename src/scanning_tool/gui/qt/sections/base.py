@@ -1,4 +1,5 @@
 """Shared Qt section types for the scanning tool."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

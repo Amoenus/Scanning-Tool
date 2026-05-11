@@ -12,6 +12,8 @@ from scanning_tool.state.service_state import ServiceState
 if TYPE_CHECKING:
     from scanning_tool.config.service import ConfigData
     from scanning_tool.state.scan_state import ScanState
+
+
 def _create_scan_state() -> ScanState:
     from scanning_tool.state.scan_state import ScanState
 

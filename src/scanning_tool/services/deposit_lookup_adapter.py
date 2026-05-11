@@ -8,6 +8,8 @@ from scanning_tool.interfaces.capture import DepositLookupProvider
 
 if TYPE_CHECKING:
     from scanning_tool.domain.capture import DepositInfo
+
+
 class DepositLookupAdapter(DepositLookupProvider):
     """Adapter for deposit lookup from OCR code extraction."""
 

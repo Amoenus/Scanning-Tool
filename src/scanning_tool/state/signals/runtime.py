@@ -1,4 +1,5 @@
 """Runtime status concern signals."""
+
 from blinker import Signal
 
 status_updated: Signal = Signal("status_updated")

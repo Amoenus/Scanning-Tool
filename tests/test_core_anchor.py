@@ -8,7 +8,9 @@ from scanning_tool.domain.models import CaptureRegion
 class DummyCaptureProvider:
     def capture(self, region):
         from PIL import Image
+
         return Image.new("RGB", (100, 100))
+
 
 def test_load_templates_reads_supported_images(tmp_path):
     image_path = tmp_path / "template.png"

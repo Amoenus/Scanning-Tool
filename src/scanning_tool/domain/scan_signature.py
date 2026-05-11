@@ -13,6 +13,8 @@ if TYPE_CHECKING:
     import pandas as pd
 
     from scanning_tool.domain.dtos import ScanSignatureCSVRowData
+
+
 @dataclass(frozen=True)
 class ScanSignature:
     """An entry in SCAN_SIGNATURES, keyed by base_value."""
@@ -34,7 +36,8 @@ class ScanSignatureCSVRow:
 
     @classmethod
     def from_mapping(
-        cls, row: ScanSignatureCSVRowData | Mapping[str, object] | pd.Series | None,
+        cls,
+        row: ScanSignatureCSVRowData | Mapping[str, object] | pd.Series | None,
     ) -> ScanSignatureCSVRow:
         if row is None:
             return cls()

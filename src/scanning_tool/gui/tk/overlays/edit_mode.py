@@ -1,4 +1,5 @@
 """Edit mode support for the Tk overlay implementation."""
+
 from __future__ import annotations
 
 import tkinter as tk
@@ -398,7 +399,9 @@ class EditModeOverlayManager(EditModeRenderer):
         self._restore_overlays()
         self._sync_sliders()
 
-    def _on_region_config_updated(self, sender: object, payload: dict[str, object] | None = None, **kwargs: Any) -> None:
+    def _on_region_config_updated(
+        self, sender: object, payload: dict[str, object] | None = None, **kwargs: Any
+    ) -> None:
         if not self._edit_mode:
             return
         self._sync_sliders()

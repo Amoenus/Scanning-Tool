@@ -54,9 +54,7 @@ class OllamaService(BaseService):
 
     def _should_use_remote_host(self, host: str) -> bool:
         if not is_local_ollama_host(host):
-            message = (
-                f"Using remote Ollama host at {host}; assuming it is managed externally."
-            )
+            message = f"Using remote Ollama host at {host}; assuming it is managed externally."
             self.logger.info(message)
             publish_ollama_status(message, host=host, ready=None)
             return True
@@ -72,9 +70,7 @@ class OllamaService(BaseService):
 
     def _start_local_ollama(self, host: str) -> None:
         if not shutil.which("ollama"):
-            message = (
-                "Cannot start Ollama automatically because it is not installed."
-            )
+            message = "Cannot start Ollama automatically because it is not installed."
             self.logger.warning(message)
             publish_ollama_status(message, host=host, ready=False)
             sys.exit(
@@ -111,10 +107,7 @@ class OllamaService(BaseService):
             reraise=True,
         )
         def wait_until_running() -> bool:
-            if (
-                self._daemon_process is not None
-                and self._daemon_process.poll() is not None
-            ):
+            if self._daemon_process is not None and self._daemon_process.poll() is not None:
                 message = "'ollama serve' exited before the service became ready."
                 raise RuntimeError(message)
             return self._is_running(host)

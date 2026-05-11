@@ -72,9 +72,7 @@ def test_deposit_table_resolver_returns_none_when_table_is_missing() -> None:
     assert table is None
 
 
-def test_default_status_response_builder_returns_empty_status_when_no_scan_exists() -> (
-    None
-):
+def test_default_status_response_builder_returns_empty_status_when_no_scan_exists() -> None:
     builder = DefaultStatusResponseBuilder()
     config = ConfigData()
     scan_state = ScanState()

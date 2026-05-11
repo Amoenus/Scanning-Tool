@@ -121,15 +121,11 @@ class GlassScaleController:
     def _coerce_value(self, raw_value: str) -> float:
         try:
             return float(raw_value)
-        except (TypeError, ValueError):
+        except TypeError, ValueError:
             return self._value_var.get()
 
     def _snap_value(self, value: float) -> float:
-        return (
-            round(value / self._resolution) * self._resolution
-            if self._resolution
-            else value
-        )
+        return round(value / self._resolution) * self._resolution if self._resolution else value
 
     def _on_change(self, raw_value: str) -> None:
         numeric = self._coerce_value(raw_value)
@@ -188,9 +184,7 @@ class ResponsiveButtonRow(ttk.Frame):
         super().__init__(parent, style=style)
         self.pack(fill="x", padx=5, pady=(0, 5))
         self._buttons: list[ttk.Button] = []
-        self._button_specs: list[
-            tuple[str | tk.StringVar, Callable[[], None], str]
-        ] = []
+        self._button_specs: list[tuple[str | tk.StringVar, Callable[[], None], str]] = []
         self.bind("<Configure>", self._on_configure)
 
     def add_button(
