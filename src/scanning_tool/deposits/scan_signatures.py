@@ -53,14 +53,15 @@ def load_scan_signatures(path: Path | str) -> SignatureRegistry:
         )
         return registry
 
-    for _, row in df.iterrows():
-        signature = parse_scan_signature_row(row)
+    for row in df.itertuples(index=False):
+        row_dict = row._asdict()
+        signature = parse_scan_signature_row(row_dict)
         if signature is not None:
             registry.add(signature)
         else:
             logger.warning(
                 "Bad scan signature row",
-                row=str(row),
+                row=str(row_dict),
             )
     return registry
 
