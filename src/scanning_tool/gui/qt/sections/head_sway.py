@@ -16,11 +16,11 @@ from PyQt6.QtWidgets import (
 )
 
 from scanning_tool.gui.actions import publish_ui_action
-from scanning_tool.gui.qt.sections.base import SectionContext
 from scanning_tool.state.actions import ConfigAction
 from scanning_tool.state.actions.runtime import RuntimeAction
 
 if TYPE_CHECKING:
+    from scanning_tool.gui.qt.sections.base import SectionContext
     from scanning_tool.gui.qt.status import StatusBar
 
 
@@ -49,22 +49,31 @@ class HeadSwaySection:
         group = QGroupBox("Head Sway Compensation", parent)
         layout = QVBoxLayout(group)
 
-        self._auto_align_checkbox = QCheckBox("Enable auto alignment", group)
-        self._auto_align_checkbox.setChecked(ctx.config.auto_alignment.enabled)
+        self._setup_toggles(layout, group)
+        self._setup_parameters(layout)
+        self._setup_region(layout)
+        self._setup_buttons(layout, group)
+
+        return group
+
+    def _setup_toggles(self, layout: QVBoxLayout, parent: QWidget) -> None:
+        self._auto_align_checkbox = QCheckBox("Enable auto alignment", parent)
+        self._auto_align_checkbox.setChecked(self._ctx.config.auto_alignment.enabled)
         self._auto_align_checkbox.stateChanged.connect(self._toggle_auto_align)
         layout.addWidget(self._auto_align_checkbox)
 
-        self._anchor_overlay_checkbox = QCheckBox("Show anchor overlay", group)
-        self._anchor_overlay_checkbox.setChecked(ctx.overlay_state.anchor_overlay_visible)
+        self._anchor_overlay_checkbox = QCheckBox("Show anchor overlay", parent)
+        self._anchor_overlay_checkbox.setChecked(self._ctx.overlay_state.anchor_overlay_visible)
         self._anchor_overlay_checkbox.stateChanged.connect(self._toggle_anchor_overlay_visibility)
-        ctx.overlay_state.add_anchor_overlay_visibility_listener(
+        self._ctx.overlay_state.add_anchor_overlay_visibility_listener(
             self._on_anchor_overlay_visibility_change,
         )
         layout.addWidget(self._anchor_overlay_checkbox)
 
+    def _setup_parameters(self, layout: QVBoxLayout) -> None:
         form = QFormLayout()
-        self._interval_spinner = self._create_spinbox(int(ctx.config.alignment_poll_interval_ms), 100, 5000)
-        self._threshold_spinner = self._create_spinbox(int(ctx.config.anchor_threshold * 100), 10, 99)
+        self._interval_spinner = self._create_spinbox(int(self._ctx.config.alignment_poll_interval_ms), 100, 5000)
+        self._threshold_spinner = self._create_spinbox(int(self._ctx.config.anchor_threshold * 100), 10, 99)
         form.addRow("Alignment interval (ms)", self._interval_spinner)
         form.addRow("Detection threshold (%)", self._threshold_spinner)
         layout.addLayout(form)
@@ -72,9 +81,10 @@ class HeadSwaySection:
         self._interval_spinner.valueChanged.connect(self._update_alignment_interval)
         self._threshold_spinner.valueChanged.connect(self._update_threshold)
 
+    def _setup_region(self, layout: QVBoxLayout) -> None:
         region_form = QFormLayout()
-        anchor_region = ctx.config.anchor_template
-        anchor_offset = ctx.config.anchor_offset
+        anchor_region = self._ctx.config.anchor_template
+        anchor_offset = self._ctx.config.anchor_offset
         self._anchor_left = self._create_spinbox(anchor_region.left, 0, 3840)
         self._anchor_top = self._create_spinbox(anchor_region.top, 0, 2160)
         self._anchor_width = self._create_spinbox(anchor_region.width, 50, 1200)
@@ -97,21 +107,21 @@ class HeadSwaySection:
         self._offset_x.valueChanged.connect(self._on_offset_change)
         self._offset_y.valueChanged.connect(self._on_offset_change)
 
+    def _setup_buttons(self, layout: QVBoxLayout, parent: QWidget) -> None:
         buttons = QHBoxLayout()
-        reload_button = QPushButton("Reload Templates", group)
+        reload_button = QPushButton("Reload Templates", parent)
         reload_button.clicked.connect(self._reload_anchor_templates)
         buttons.addWidget(reload_button)
 
-        realign_button = QPushButton("Realign Now", group)
+        realign_button = QPushButton("Realign Now", parent)
         realign_button.clicked.connect(self._manual_realign)
         buttons.addWidget(realign_button)
 
-        open_button = QPushButton("Open Template Folder", group)
+        open_button = QPushButton("Open Template Folder", parent)
         open_button.clicked.connect(self._open_anchor_directory)
         buttons.addWidget(open_button)
 
         layout.addLayout(buttons)
-        return group
 
     def _create_spinbox(self, value: int, minimum: int, maximum: int) -> QSpinBox:
         spinbox = QSpinBox()
