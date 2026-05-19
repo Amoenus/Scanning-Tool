@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 from scanning_tool.config import ensure_anchor_directory
 from scanning_tool.core.anchor import AnchorRegionTracker
 from scanning_tool.domain.alignment import AlignmentRequest
+from scanning_tool.gui.dtos import OffsetPayloadDTO, RegionPayloadDTO, TogglePayloadDTO, ValuePayloadDTO
 from scanning_tool.gui.overlays import (
     hide_anchor_overlay,
     show_anchor_overlay,
@@ -30,7 +31,8 @@ def _handle_toggle_auto_alignment(
     payload: dict[str, object],
     context: ActionContext,
 ) -> None:
-    enabled = bool(payload.get("enabled", False))
+    dto = TogglePayloadDTO.from_dict(payload)
+    enabled = dto.enabled if dto.enabled is not None else False
     context.config.auto_alignment.enabled = enabled
     context.scan_state.last_alignment_info.enabled = enabled
     context.scan_state.notify_alignment_info_listeners()
@@ -44,7 +46,8 @@ def _handle_toggle_anchor_overlay(
     payload: dict[str, object],
     context: ActionContext,
 ) -> None:
-    visible = bool(payload.get("visible", False))
+    dto = TogglePayloadDTO.from_dict(payload)
+    visible = dto.visible if dto.visible is not None else False
     context.overlay_state.anchor_overlay_visible = visible
     if visible:
         show_anchor_overlay(context.overlay_state, context.config.anchor_template)
@@ -58,9 +61,12 @@ def _handle_update_alignment_poll_interval(
     payload: dict[str, object],
     context: ActionContext,
 ) -> None:
-    context.config.alignment_poll_interval_ms = int(
-        payload.get("value", context.config.alignment_poll_interval_ms),
-    )
+    dto = ValuePayloadDTO.from_dict(payload)
+    val = dto.value if dto.value is not None else context.config.alignment_poll_interval_ms
+    try:
+        context.config.alignment_poll_interval_ms = int(str(val))
+    except (TypeError, ValueError):
+        pass
     status_updated.send(
         None,
         message=f"Alignment interval set to {context.config.alignment_poll_interval_ms} ms",
@@ -71,7 +77,12 @@ def _handle_update_anchor_threshold(
     payload: dict[str, object],
     context: ActionContext,
 ) -> None:
-    threshold = float(payload.get("value", context.config.anchor_threshold))
+    dto = ValuePayloadDTO.from_dict(payload)
+    val = dto.value if dto.value is not None else context.config.anchor_threshold
+    try:
+        threshold = float(str(val))
+    except (TypeError, ValueError):
+        return
     context.config.anchor_threshold = max(0.1, min(0.99, threshold))
     if context.scan_state.anchor_tracker is not None:
         context.scan_state.anchor_tracker.set_threshold(context.config.anchor_threshold)
@@ -85,11 +96,16 @@ def _handle_update_anchor_region(
     payload: dict[str, object],
     context: ActionContext,
 ) -> None:
+    dto = RegionPayloadDTO.from_dict(payload)
     region = context.config.anchor_template
-    region.left = int(payload.get("left", region.left))
-    region.top = int(payload.get("top", region.top))
-    region.width = int(payload.get("width", region.width))
-    region.height = int(payload.get("height", region.height))
+    if dto.left is not None:
+        region.left = dto.left
+    if dto.top is not None:
+        region.top = dto.top
+    if dto.width is not None:
+        region.width = dto.width
+    if dto.height is not None:
+        region.height = dto.height
     status_updated.send(None, message=f"Anchor region updated: {region}")
     update_anchor_overlay_region(context.overlay_state)
 
@@ -98,9 +114,12 @@ def _handle_update_anchor_offset(
     payload: dict[str, object],
     context: ActionContext,
 ) -> None:
+    dto = OffsetPayloadDTO.from_dict(payload)
     offset = context.config.anchor_offset
-    offset.x = int(payload.get("x", offset.x))
-    offset.y = int(payload.get("y", offset.y))
+    if dto.x is not None:
+        offset.x = dto.x
+    if dto.y is not None:
+        offset.y = dto.y
     status_updated.send(None, message=f"Anchor offset updated: {offset}")
     update_anchor_overlay_region(context.overlay_state)
 

@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 
 from scanning_tool.gui.overlays import choose_label_color, update_overlay_region
 from scanning_tool.state.actions import ConfigAction
+from scanning_tool.gui.dtos import TogglePayloadDTO
 from scanning_tool.state.actions.scan import ScanAction
 from scanning_tool.state.signals import status_updated
 
@@ -37,9 +38,15 @@ def _handle_update_continuous_capture_interval(
     payload: dict[str, object],
     context: ActionContext,
 ) -> None:
-    value = float(payload.get("value", context.config.continuous_capture_interval))
-    context.config.continuous_capture_interval = value
-    status_updated.send(None, message=f"Continuous capture interval set to {value:.1f}s")
+    from scanning_tool.gui.dtos import ValuePayloadDTO
+    dto = ValuePayloadDTO.from_dict(payload)
+    val = dto.value if dto.value is not None else context.config.continuous_capture_interval
+    try:
+        value = float(str(val))
+        context.config.continuous_capture_interval = value
+        status_updated.send(None, message=f"Continuous capture interval set to {value:.1f}s")
+    except (TypeError, ValueError):
+        pass
 
 
 def _handle_save_config(

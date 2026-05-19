@@ -5,6 +5,7 @@ import logging
 import webbrowser
 from typing import TYPE_CHECKING
 
+from scanning_tool.gui.dtos import UrlPayloadDTO
 from scanning_tool.state.actions import ConfigAction
 from scanning_tool.state.signals import mobile_qr_ready, status_updated
 
@@ -19,7 +20,11 @@ def _handle_open_mobile_ui(
     payload: dict[str, object],
     context: ActionContext,
 ) -> None:
-    url = payload["url"]
+    dto = UrlPayloadDTO.from_dict(payload)
+    url = dto.url
+    if not url:
+        status_updated.send(None, message="Unable to open browser: missing URL.")
+        return
     try:
         webbrowser.open_new_tab(url)
         status_updated.send(None, message=f"Opening overlay in browser: {url}")
@@ -31,7 +36,8 @@ def _handle_show_mobile_qr(
     payload: dict[str, object],
     context: ActionContext,
 ) -> None:
-    url = payload.get("url", "")
+    dto = UrlPayloadDTO.from_dict(payload)
+    url = dto.url
     if not url:
         status_updated.send(None, message="Unable to generate mobile QR code: missing URL.")
         return
