@@ -8,6 +8,7 @@ from scanning_tool.gui.overlays import (
     toggle_border,
     update_capture_overlay_region,
 )
+from scanning_tool.gui.dtos import RegionPayloadDTO, TogglePayloadDTO
 from scanning_tool.state.actions import ConfigAction
 from scanning_tool.state.signals import status_updated
 
@@ -23,11 +24,16 @@ def _handle_update_capture_region(
     payload: dict[str, object],
     context: ActionContext,
 ) -> None:
+    dto = RegionPayloadDTO.from_dict(payload)
     region = context.config.capture_region
-    region.left = int(payload.get("left", region.left))
-    region.top = int(payload.get("top", region.top))
-    region.width = int(payload.get("width", region.width))
-    region.height = int(payload.get("height", region.height))
+    if dto.left is not None:
+        region.left = dto.left
+    if dto.top is not None:
+        region.top = dto.top
+    if dto.width is not None:
+        region.width = dto.width
+    if dto.height is not None:
+        region.height = dto.height
     update_capture_overlay_region()
     status_updated.send(None, message=f"CAP_REGION updated: {region}")
 
@@ -36,7 +42,8 @@ def _handle_toggle_capture_box(
     payload: dict[str, object],
     context: ActionContext,
 ) -> None:
-    visible = bool(payload.get("visible", False))
+    dto = TogglePayloadDTO.from_dict(payload)
+    visible = dto.visible if dto.visible is not None else False
     if visible:
         show_capture_overlay(context.overlay_state, context.config.capture_region)
         status_updated.send(None, message="Capture box shown.")

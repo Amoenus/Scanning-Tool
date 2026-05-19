@@ -13,3 +13,7 @@
 ## 2026-05-11 - Parameter Object Refactor for Action Handlers
 **Learning:** GUI action handlers suffered from parameter bloat (7 objects passed individually), making function signatures hard to read and brittle to add new dependencies to. This pattern of long parameter lists should be collapsed into a domain object.
 **Action:** Introduced an `ActionContext` Parameter Object dataclass to encapsulate UI state dependencies, reducing handler signatures to simply accept `payload` and `context`, increasing traceability and SOLID compliance.
+
+## $(date +%Y-%m-%d) - [Strongly Typed Action Payloads for Event Routing]
+**Learning:** Discovered a recurring pattern where unstructured `dict[str, object]` data was passed through the dynamic UI action routing system (`src/scanning_tool/gui/handlers/`) straight into individual handlers, hiding payload shapes and violating SOLID/typing principles.
+**Action:** Introduced strict Data Transfer Objects (`RegionPayloadDTO`, `UrlPayloadDTO`, etc.) with `.from_dict()` boundary-parsing in a centralized `dtos.py` module to strongly type these payloads before logic execution, while preserving the dynamic flexibility of the `**kwargs` event dispatcher.
