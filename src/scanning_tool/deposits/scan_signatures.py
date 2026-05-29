@@ -49,7 +49,12 @@ def load_scan_signatures(path: Path | str) -> SignatureRegistry:
         return registry
 
     for row in df.itertuples(index=False):
-        row_dict = row._asdict()
+        row_dict = {
+            "mineral": getattr(row, "mineral", None),
+            "category": getattr(row, "category", None),
+            "base_value": getattr(row, "base_value", None),
+            "max_multiplier": getattr(row, "max_multiplier", None),
+        }
         signature = parse_scan_signature_row(row_dict)
         if signature is not None:
             registry.add(signature)
