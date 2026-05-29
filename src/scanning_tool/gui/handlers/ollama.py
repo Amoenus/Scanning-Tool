@@ -1,8 +1,10 @@
+"""Action handlers for ollama."""
 from __future__ import annotations
 
 import logging
 from typing import TYPE_CHECKING
 
+from scanning_tool.gui.handlers.payloads import OllamaHostPayload, OllamaModelPayload
 from scanning_tool.ollama import (
     ensure_model_installed,
     get_ollama_host,
@@ -17,16 +19,15 @@ from scanning_tool.state.signals import status_updated
 
 if TYPE_CHECKING:
     from scanning_tool.gui.action_context import ActionContext
-
-    from scanning_tool.config.service import ConfigSaver
-    from scanning_tool.interfaces import CaptureController
+    from scanning_tool.gui.handlers import Handler
 
 
 def _handle_apply_ollama_model(
     payload: dict[str, object],
     context: ActionContext,
 ) -> None:
-    model_value = payload.get("model", "").strip()
+    data = OllamaModelPayload.model_validate(payload)
+    model_value = data.model.strip()
     if not model_value:
         status_updated.send(None, message="Please specify an Ollama model.")
         return
@@ -52,7 +53,8 @@ def _handle_apply_ollama_host(
     payload: dict[str, object],
     context: ActionContext,
 ) -> None:
-    host_value = payload.get("host", "").strip()
+    data = OllamaHostPayload.model_validate(payload)
+    host_value = data.host.strip()
     normalized = set_configured_ollama_host(host_value)
     context.config.ollama_config.host = normalized
     active_host = get_ollama_host()
@@ -101,7 +103,7 @@ def _handle_restart_ollama(
         status_updated.send(None, message="Local Ollama service restarted successfully.")
 
 
-OLLAMA_ACTION_HANDLERS = {
+OLLAMA_ACTION_HANDLERS: dict[object, Handler] = {
     ConfigAction.APPLY_OLLAMA_MODEL: _handle_apply_ollama_model,
     ConfigAction.APPLY_OLLAMA_HOST: _handle_apply_ollama_host,
     ConfigAction.USE_LOCALHOST: _handle_use_localhost,

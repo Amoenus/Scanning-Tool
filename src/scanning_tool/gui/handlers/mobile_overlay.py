@@ -1,3 +1,4 @@
+"""Action handlers for mobile_overlay."""
 from __future__ import annotations
 
 import io
@@ -5,21 +6,21 @@ import logging
 import webbrowser
 from typing import TYPE_CHECKING
 
+from scanning_tool.gui.handlers.payloads import UrlPayload
 from scanning_tool.state.actions import ConfigAction
 from scanning_tool.state.signals import mobile_qr_ready, status_updated
 
 if TYPE_CHECKING:
     from scanning_tool.gui.action_context import ActionContext
-
-    from scanning_tool.config.service import ConfigSaver
-    from scanning_tool.interfaces import CaptureController
+    from scanning_tool.gui.handlers import Handler
 
 
 def _handle_open_mobile_ui(
     payload: dict[str, object],
     context: ActionContext,
 ) -> None:
-    url = payload["url"]
+    data = UrlPayload.model_validate(payload)
+    url = data.url
     try:
         webbrowser.open_new_tab(url)
         status_updated.send(None, message=f"Opening overlay in browser: {url}")
@@ -31,7 +32,8 @@ def _handle_show_mobile_qr(
     payload: dict[str, object],
     context: ActionContext,
 ) -> None:
-    url = payload.get("url", "")
+    data = UrlPayload.model_validate(payload)
+    url = data.url
     if not url:
         status_updated.send(None, message="Unable to generate mobile QR code: missing URL.")
         return
@@ -52,7 +54,7 @@ def _handle_show_mobile_qr(
     status_updated.send(None, message="Mobile overlay QR code generated.")
 
 
-MOBILE_OVERLAY_ACTION_HANDLERS = {
+MOBILE_OVERLAY_ACTION_HANDLERS: dict[object, Handler] = {
     ConfigAction.OPEN_MOBILE_UI: _handle_open_mobile_ui,
     ConfigAction.SHOW_MOBILE_QR: _handle_show_mobile_qr,
 }

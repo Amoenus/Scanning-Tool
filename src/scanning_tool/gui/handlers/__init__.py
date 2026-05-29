@@ -16,12 +16,12 @@ if TYPE_CHECKING:
 from scanning_tool.gui.action_context import ActionContext
 
 Handler = Callable[
-    [dict[str, Any], ActionContext],
+    [dict[str, object], ActionContext],
     None,
 ]
 
 
-ACTION_HANDLERS: dict[ConfigAction, Handler] = {
+ACTION_HANDLERS: dict[object, Handler] = {
     **CONTROL_ACTION_HANDLERS,
     **MOBILE_OVERLAY_ACTION_HANDLERS,
     **OLLAMA_ACTION_HANDLERS,
