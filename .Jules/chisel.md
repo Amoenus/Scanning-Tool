@@ -13,3 +13,7 @@
 ## 2026-05-11 - Parameter Object Refactor for Action Handlers
 **Learning:** GUI action handlers suffered from parameter bloat (7 objects passed individually), making function signatures hard to read and brittle to add new dependencies to. This pattern of long parameter lists should be collapsed into a domain object.
 **Action:** Introduced an `ActionContext` Parameter Object dataclass to encapsulate UI state dependencies, reducing handler signatures to simply accept `payload` and `context`, increasing traceability and SOLID compliance.
+
+## 2026-05-29 - Explicit DTO Validation at GUI Boundaries
+**Learning:** Raw dictionary payloads (`dict[str, object]`) arriving from UI dispatch events obscure data requirements and bypass validation, leading to brittle `dict.get()` access in downstream handlers. Mypy also struggles when disparate Action Enums are merged into a single dictionary (like `ACTION_HANDLERS`) if strongly typed.
+**Action:** Introduced strict Pydantic DTOs for each handler payload to deserialize inputs at the entry point via `.model_validate()`. Used `dict[object, Handler]` to safely unpack and aggregate diverse action enumeration keys without triggering mypy incompatibility errors.

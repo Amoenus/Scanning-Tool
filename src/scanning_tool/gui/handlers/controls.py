@@ -1,20 +1,19 @@
+"""Action handlers for controls."""
 from __future__ import annotations
 
 from threading import Thread
 from typing import TYPE_CHECKING
 
+from scanning_tool.gui.handlers.payloads import ValueUpdatePayload
 from scanning_tool.gui.overlays import choose_label_color, update_overlay_region
 from scanning_tool.state.actions import ConfigAction
 from scanning_tool.state.actions.scan import ScanAction
 from scanning_tool.state.signals import status_updated
 
 if TYPE_CHECKING:
+
     from scanning_tool.gui.action_context import ActionContext
-
-    from collections.abc import Callable
-
-    from scanning_tool.config.service import ConfigSaver
-    from scanning_tool.interfaces import CaptureController
+    from scanning_tool.gui.handlers import Handler
 
 
 def _handle_single_scan(
@@ -37,7 +36,8 @@ def _handle_update_continuous_capture_interval(
     payload: dict[str, object],
     context: ActionContext,
 ) -> None:
-    value = float(payload.get("value", context.config.continuous_capture_interval))
+    data = ValueUpdatePayload.model_validate(payload)
+    value = data.value if data.value is not None else context.config.continuous_capture_interval
     context.config.continuous_capture_interval = value
     status_updated.send(None, message=f"Continuous capture interval set to {value:.1f}s")
 
@@ -68,7 +68,7 @@ def _handle_choose_label_color(
 
 CONTROL_ACTION_HANDLERS: dict[
     object,
-    Callable[[dict[str, object], ActionContext], None],
+    Handler,
 ] = {
     ScanAction.SINGLE_SCAN: _handle_single_scan,
     ScanAction.TOGGLE_CONTINUOUS_CAPTURE: _handle_toggle_continuous_capture,
