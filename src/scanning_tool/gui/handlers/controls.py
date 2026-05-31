@@ -3,6 +3,7 @@ from __future__ import annotations
 from threading import Thread
 from typing import TYPE_CHECKING
 
+from scanning_tool.gui.dtos import ValueUpdatePayload
 from scanning_tool.gui.overlays import choose_label_color, update_overlay_region
 from scanning_tool.state.actions import ConfigAction
 from scanning_tool.state.actions.scan import ScanAction
@@ -37,9 +38,10 @@ def _handle_update_continuous_capture_interval(
     payload: dict[str, object],
     context: ActionContext,
 ) -> None:
-    value = float(payload.get("value", context.config.continuous_capture_interval))
-    context.config.continuous_capture_interval = value
-    status_updated.send(None, message=f"Continuous capture interval set to {value:.1f}s")
+    data = ValueUpdatePayload.model_validate(payload)
+    if data.value is not None:
+        context.config.continuous_capture_interval = float(data.value)
+    status_updated.send(None, message=f"Continuous capture interval set to {context.config.continuous_capture_interval:.1f}s")
 
 
 def _handle_save_config(
