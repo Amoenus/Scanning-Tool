@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Callable
 from typing import TYPE_CHECKING
 
+from scanning_tool.gui.actions import UiActionPayload
 from scanning_tool.gui.dtos import OllamaHostPayload, OllamaModelPayload
 from scanning_tool.ollama import (
     ensure_model_installed,
@@ -24,7 +26,7 @@ if TYPE_CHECKING:
 
 
 def _handle_apply_ollama_model(
-    payload: dict[str, object],
+    payload: UiActionPayload,
     context: ActionContext,
 ) -> None:
     data = OllamaModelPayload.model_validate(payload)
@@ -51,7 +53,7 @@ def _handle_apply_ollama_model(
 
 
 def _handle_apply_ollama_host(
-    payload: dict[str, object],
+    payload: UiActionPayload,
     context: ActionContext,
 ) -> None:
     data = OllamaHostPayload.model_validate(payload)
@@ -66,7 +68,7 @@ def _handle_apply_ollama_host(
 
 
 def _handle_use_localhost(
-    payload: dict[str, object],
+    payload: UiActionPayload,
     context: ActionContext,
 ) -> None:
     set_configured_ollama_host("")
@@ -76,7 +78,7 @@ def _handle_use_localhost(
 
 
 def _handle_restart_ollama(
-    payload: dict[str, object],
+    payload: UiActionPayload,
     context: ActionContext,
 ) -> None:
     host = get_ollama_host()
@@ -104,7 +106,7 @@ def _handle_restart_ollama(
         status_updated.send(None, message="Local Ollama service restarted successfully.")
 
 
-OLLAMA_ACTION_HANDLERS = {
+OLLAMA_ACTION_HANDLERS: dict[object, Callable[[UiActionPayload, ActionContext], None]] = {
     ConfigAction.APPLY_OLLAMA_MODEL: _handle_apply_ollama_model,
     ConfigAction.APPLY_OLLAMA_HOST: _handle_apply_ollama_host,
     ConfigAction.USE_LOCALHOST: _handle_use_localhost,

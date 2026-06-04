@@ -17,3 +17,7 @@
 ## 2026-05-31 - Pydantic Boundaries for Action Handler Payloads
 **Learning:** GUI action handlers widely used unstructured `dict[str, object]` payloads requiring `.get()` and type coercion, bypassing static type checking and making the expected data shapes opaque.
 **Action:** Replaced unstructured dictionaries with explicit Pydantic domain models (`TogglePayload`, `RegionUpdatePayload`, etc.) at the system boundary to enforce validation, type safety, and clear schema declarations.
+
+## 2026-06-04 - Explicit Types for Event Unpacking
+**Learning:** When unpacking multiple distinct mapping types into a single dictionary using dictionary unpacking (e.g., `**CONTROL_ACTION_HANDLERS`), mypy triggers incompatible type errors unless the destination dictionary's keys are broadly typed as `object`. Additionally, using raw `dict`s in function arguments without domain-specific type aliases (like `UiActionPayload`) degrades intent and discoverability.
+**Action:** Use specific type aliases for system boundary arguments, and correctly set destination dictionary keys to `object` (e.g. `dict[object, Handler]`) when merging handlers from multiple modules to satisfy static analyzers.

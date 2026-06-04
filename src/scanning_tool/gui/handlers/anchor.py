@@ -3,11 +3,13 @@ from __future__ import annotations
 import os
 import subprocess
 import sys
+from collections.abc import Callable
 from typing import TYPE_CHECKING
 
 from scanning_tool.config import ensure_anchor_directory
 from scanning_tool.core.anchor import AnchorRegionTracker
 from scanning_tool.domain.alignment import AlignmentRequest
+from scanning_tool.gui.actions import UiActionPayload
 from scanning_tool.gui.dtos import (
     OffsetUpdatePayload,
     RegionUpdatePayload,
@@ -33,7 +35,7 @@ if TYPE_CHECKING:
 
 
 def _handle_toggle_auto_alignment(
-    payload: dict[str, object],
+    payload: UiActionPayload,
     context: ActionContext,
 ) -> None:
     data = TogglePayload.model_validate(payload)
@@ -48,7 +50,7 @@ def _handle_toggle_auto_alignment(
 
 
 def _handle_toggle_anchor_overlay(
-    payload: dict[str, object],
+    payload: UiActionPayload,
     context: ActionContext,
 ) -> None:
     data = TogglePayload.model_validate(payload)
@@ -63,7 +65,7 @@ def _handle_toggle_anchor_overlay(
 
 
 def _handle_update_alignment_poll_interval(
-    payload: dict[str, object],
+    payload: UiActionPayload,
     context: ActionContext,
 ) -> None:
     data = ValueUpdatePayload.model_validate(payload)
@@ -76,7 +78,7 @@ def _handle_update_alignment_poll_interval(
 
 
 def _handle_update_anchor_threshold(
-    payload: dict[str, object],
+    payload: UiActionPayload,
     context: ActionContext,
 ) -> None:
     data = ValueUpdatePayload.model_validate(payload)
@@ -92,7 +94,7 @@ def _handle_update_anchor_threshold(
 
 
 def _handle_update_anchor_region(
-    payload: dict[str, object],
+    payload: UiActionPayload,
     context: ActionContext,
 ) -> None:
     data = RegionUpdatePayload.model_validate(payload)
@@ -110,7 +112,7 @@ def _handle_update_anchor_region(
 
 
 def _handle_update_anchor_offset(
-    payload: dict[str, object],
+    payload: UiActionPayload,
     context: ActionContext,
 ) -> None:
     data = OffsetUpdatePayload.model_validate(payload)
@@ -124,7 +126,7 @@ def _handle_update_anchor_offset(
 
 
 def _handle_reload_anchor_templates(
-    payload: dict[str, object],
+    payload: UiActionPayload,
     context: ActionContext,
 ) -> None:
     ensure_anchor_directory(context.config.anchor_template_dir)
@@ -152,7 +154,7 @@ def _run_manual_realign(context: ActionContext):
 
 
 def _handle_manual_realign(
-    payload: dict[str, object],
+    payload: UiActionPayload,
     context: ActionContext,
 ) -> None:
     if _run_manual_realign(context):
@@ -169,7 +171,7 @@ def _handle_manual_realign(
 
 
 def _handle_open_anchor_directory(
-    payload: dict[str, object],
+    payload: UiActionPayload,
     context: ActionContext,
 ) -> None:
     path = context.config.anchor_template_dir
@@ -186,7 +188,7 @@ def _handle_open_anchor_directory(
         status_updated.send(None, message=f"Unable to open template folder: {exc}")
 
 
-ANCHOR_ACTION_HANDLERS = {
+ANCHOR_ACTION_HANDLERS: dict[object, Callable[[UiActionPayload, ActionContext], None]] = {
     ConfigAction.TOGGLE_AUTO_ALIGNMENT: _handle_toggle_auto_alignment,
     ConfigAction.TOGGLE_ANCHOR_OVERLAY: _handle_toggle_anchor_overlay,
     ConfigAction.UPDATE_ALIGNMENT_POLL_INTERVAL: _handle_update_alignment_poll_interval,

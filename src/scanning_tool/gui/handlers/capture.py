@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from typing import TYPE_CHECKING
 
+from scanning_tool.gui.actions import UiActionPayload
 from scanning_tool.gui.dtos import RegionUpdatePayload, TogglePayload
 from scanning_tool.gui.overlays import (
     hide_capture_overlay,
@@ -21,7 +23,7 @@ if TYPE_CHECKING:
 
 
 def _handle_update_capture_region(
-    payload: dict[str, object],
+    payload: UiActionPayload,
     context: ActionContext,
 ) -> None:
     data = RegionUpdatePayload.model_validate(payload)
@@ -39,7 +41,7 @@ def _handle_update_capture_region(
 
 
 def _handle_toggle_capture_box(
-    payload: dict[str, object],
+    payload: UiActionPayload,
     context: ActionContext,
 ) -> None:
     data = TogglePayload.model_validate(payload)
@@ -52,7 +54,7 @@ def _handle_toggle_capture_box(
 
 
 def _handle_toggle_capture_border(
-    payload: dict[str, object],
+    payload: UiActionPayload,
     context: ActionContext,
 ) -> None:
     toggle_border(context.overlay_state)
@@ -62,7 +64,7 @@ def _handle_toggle_capture_border(
     )
 
 
-CAPTURE_ACTION_HANDLERS = {
+CAPTURE_ACTION_HANDLERS: dict[object, Callable[[UiActionPayload, ActionContext], None]] = {
     ConfigAction.UPDATE_CAPTURE_REGION: _handle_update_capture_region,
     ConfigAction.TOGGLE_CAPTURE_BOX: _handle_toggle_capture_box,
     ConfigAction.TOGGLE_CAPTURE_BORDER: _handle_toggle_capture_border,
