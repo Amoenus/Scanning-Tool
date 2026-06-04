@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from typing import TYPE_CHECKING
 
+from scanning_tool.gui.actions import UiActionPayload
 from scanning_tool.gui.dtos import OffsetUpdatePayload
 from scanning_tool.gui.overlays import reposition_info_overlay
 from scanning_tool.state.actions import ConfigAction
@@ -16,7 +18,7 @@ if TYPE_CHECKING:
 
 
 def _handle_update_result_display_offset(
-    payload: dict[str, object],
+    payload: UiActionPayload,
     context: ActionContext,
 ) -> None:
     data = OffsetUpdatePayload.model_validate(payload)
@@ -29,6 +31,6 @@ def _handle_update_result_display_offset(
     reposition_info_overlay(context.overlay_state, context.config.overlay_config)
 
 
-RESULT_DISPLAY_ACTION_HANDLERS = {
+RESULT_DISPLAY_ACTION_HANDLERS: dict[object, Callable[[UiActionPayload, ActionContext], None]] = {
     ConfigAction.UPDATE_RESULT_DISPLAY_OFFSET: _handle_update_result_display_offset,
 }

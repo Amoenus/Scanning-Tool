@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 from scanning_tool.gui.handlers import ACTION_HANDLERS
 from scanning_tool.state.signals import UI_ACTION_SIGNALS
 from scanning_tool.gui.action_context import ActionContext
+from scanning_tool.gui.actions import UiActionPayload
 
 if TYPE_CHECKING:
     from scanning_tool.config.service import ConfigData, ConfigSaver
@@ -59,7 +60,7 @@ def install_ui_action_handlers(
     def _receiver(
         handler,
         sender: object,
-        payload: dict[str, object] | None = None,
+        payload: UiActionPayload | None = None,
     ) -> None:
         try:
             handler(payload or {}, context)

@@ -3,8 +3,10 @@ from __future__ import annotations
 import io
 import logging
 import webbrowser
+from collections.abc import Callable
 from typing import TYPE_CHECKING
 
+from scanning_tool.gui.actions import UiActionPayload
 from scanning_tool.gui.dtos import UrlPayload
 from scanning_tool.state.actions import ConfigAction
 from scanning_tool.state.signals import mobile_qr_ready, status_updated
@@ -17,7 +19,7 @@ if TYPE_CHECKING:
 
 
 def _handle_open_mobile_ui(
-    payload: dict[str, object],
+    payload: UiActionPayload,
     context: ActionContext,
 ) -> None:
     data = UrlPayload.model_validate(payload)
@@ -32,7 +34,7 @@ def _handle_open_mobile_ui(
 
 
 def _handle_show_mobile_qr(
-    payload: dict[str, object],
+    payload: UiActionPayload,
     context: ActionContext,
 ) -> None:
     data = UrlPayload.model_validate(payload)
@@ -57,7 +59,7 @@ def _handle_show_mobile_qr(
     status_updated.send(None, message="Mobile overlay QR code generated.")
 
 
-MOBILE_OVERLAY_ACTION_HANDLERS = {
+MOBILE_OVERLAY_ACTION_HANDLERS: dict[object, Callable[[UiActionPayload, ActionContext], None]] = {
     ConfigAction.OPEN_MOBILE_UI: _handle_open_mobile_ui,
     ConfigAction.SHOW_MOBILE_QR: _handle_show_mobile_qr,
 }

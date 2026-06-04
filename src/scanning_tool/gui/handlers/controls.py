@@ -3,6 +3,7 @@ from __future__ import annotations
 from threading import Thread
 from typing import TYPE_CHECKING
 
+from scanning_tool.gui.actions import UiActionPayload
 from scanning_tool.gui.dtos import ValueUpdatePayload
 from scanning_tool.gui.overlays import choose_label_color, update_overlay_region
 from scanning_tool.state.actions import ConfigAction
@@ -19,7 +20,7 @@ if TYPE_CHECKING:
 
 
 def _handle_single_scan(
-    payload: dict[str, object],
+    payload: UiActionPayload,
     context: ActionContext,
 ) -> None:
     Thread(target=context.capture_service.capture_once, daemon=True).start()
@@ -27,7 +28,7 @@ def _handle_single_scan(
 
 
 def _handle_toggle_continuous_capture(
-    payload: dict[str, object],
+    payload: UiActionPayload,
     context: ActionContext,
 ) -> None:
     context.capture_service.toggle_continuous()
@@ -35,7 +36,7 @@ def _handle_toggle_continuous_capture(
 
 
 def _handle_update_continuous_capture_interval(
-    payload: dict[str, object],
+    payload: UiActionPayload,
     context: ActionContext,
 ) -> None:
     data = ValueUpdatePayload.model_validate(payload)
@@ -45,7 +46,7 @@ def _handle_update_continuous_capture_interval(
 
 
 def _handle_save_config(
-    payload: dict[str, object],
+    payload: UiActionPayload,
     context: ActionContext,
 ) -> None:
     context.config_service.save()
@@ -53,7 +54,7 @@ def _handle_save_config(
 
 
 def _handle_update_overlay_region(
-    payload: dict[str, object],
+    payload: UiActionPayload,
     context: ActionContext,
 ) -> None:
     update_overlay_region(context.overlay_state)
@@ -61,7 +62,7 @@ def _handle_update_overlay_region(
 
 
 def _handle_choose_label_color(
-    payload: dict[str, object],
+    payload: UiActionPayload,
     context: ActionContext,
 ) -> None:
     choose_label_color(context.config.overlay_config)
@@ -70,7 +71,7 @@ def _handle_choose_label_color(
 
 CONTROL_ACTION_HANDLERS: dict[
     object,
-    Callable[[dict[str, object], ActionContext], None],
+    Callable[[UiActionPayload, ActionContext], None],
 ] = {
     ScanAction.SINGLE_SCAN: _handle_single_scan,
     ScanAction.TOGGLE_CONTINUOUS_CAPTURE: _handle_toggle_continuous_capture,
