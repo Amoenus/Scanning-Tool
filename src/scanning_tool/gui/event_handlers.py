@@ -4,9 +4,9 @@ import logging
 from functools import partial
 from typing import TYPE_CHECKING
 
+from scanning_tool.gui.action_context import ActionContext
 from scanning_tool.gui.handlers import ACTION_HANDLERS
 from scanning_tool.state.signals import UI_ACTION_SIGNALS
-from scanning_tool.gui.action_context import ActionContext
 
 if TYPE_CHECKING:
     from scanning_tool.config.service import ConfigData, ConfigSaver
