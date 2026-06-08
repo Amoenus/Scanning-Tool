@@ -17,3 +17,6 @@
 ## 2026-05-31 - Pydantic Boundaries for Action Handler Payloads
 **Learning:** GUI action handlers widely used unstructured `dict[str, object]` payloads requiring `.get()` and type coercion, bypassing static type checking and making the expected data shapes opaque.
 **Action:** Replaced unstructured dictionaries with explicit Pydantic domain models (`TogglePayload`, `RegionUpdatePayload`, etc.) at the system boundary to enforce validation, type safety, and clear schema declarations.
+## 2026-06-03 - Edit Mode Payload Pydantic Domain Model
+**Learning:** Edit mode service manipulated unstructured `dict[str, int]` for region position tracking, reducing traceability and bypassing explicit type validation boundaries.
+**Action:** Introduced an `EditModePayload` Pydantic model to encapsulate region drag/resize calculations, replacing dynamic `dict` operations with explicit schema and typed fields.

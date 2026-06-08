@@ -400,7 +400,7 @@ class EditModeOverlayManager(EditModeRenderer):
         self._sync_sliders()
 
     def _on_region_config_updated(
-        self, sender: object, payload: dict[str, object] | None = None, **kwargs: Any
+        self, sender: object, payload: dict[str, object] | None = None, **kwargs: Any,
     ) -> None:
         if not self._edit_mode:
             return

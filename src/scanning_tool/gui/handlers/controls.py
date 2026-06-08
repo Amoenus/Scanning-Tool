@@ -10,12 +10,9 @@ from scanning_tool.state.actions.scan import ScanAction
 from scanning_tool.state.signals import status_updated
 
 if TYPE_CHECKING:
-    from scanning_tool.gui.action_context import ActionContext
-
     from collections.abc import Callable
 
-    from scanning_tool.config.service import ConfigSaver
-    from scanning_tool.interfaces import CaptureController
+    from scanning_tool.gui.action_context import ActionContext
 
 
 def _handle_single_scan(
@@ -41,7 +38,9 @@ def _handle_update_continuous_capture_interval(
     data = ValueUpdatePayload.model_validate(payload)
     if data.value is not None:
         context.config.continuous_capture_interval = float(data.value)
-    status_updated.send(None, message=f"Continuous capture interval set to {context.config.continuous_capture_interval:.1f}s")
+    status_updated.send(
+        None, message=f"Continuous capture interval set to {context.config.continuous_capture_interval:.1f}s",
+    )
 
 
 def _handle_save_config(
