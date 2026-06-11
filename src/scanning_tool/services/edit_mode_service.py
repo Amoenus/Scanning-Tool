@@ -6,6 +6,7 @@ from typing import Any
 
 from scanning_tool.services.base_service import BaseService
 from scanning_tool.state import manager
+from scanning_tool.gui.dtos import EditRegionRequest
 from scanning_tool.state.actions.config import ConfigAction
 from scanning_tool.state.actions.edit_mode import EditModeAction
 from scanning_tool.state.read_models.edit_mode import ActiveRegion, EditModeReadModel
@@ -70,13 +71,16 @@ class EditModeService(BaseService):
         if not self._state.is_edit_mode:
             return
 
-        cleaned = self._coerce_int_payload(self._normalize_payload(payload, kwargs))
-        if not cleaned:
+        normalized = dict(payload or {})
+        normalized.update(kwargs)
+        request = EditRegionRequest.model_validate(normalized)
+
+        if not request.has_any_updates():
             return
 
         full_payload = self._payload_for_region(
             self._state.active_region or ActiveRegion.CAPTURE,
-            cleaned,
+            request,
         )
         if self._state.active_region is not None:
             self._pending_region_payloads[self._state.active_region] = full_payload
@@ -92,13 +96,16 @@ class EditModeService(BaseService):
         if not self._state.is_edit_mode:
             return
 
-        cleaned = self._coerce_int_payload(self._normalize_payload(payload, kwargs))
-        if not cleaned:
+        normalized = dict(payload or {})
+        normalized.update(kwargs)
+        request = EditRegionRequest.model_validate(normalized)
+
+        if not request.has_any_updates():
             return
 
         full_payload = self._payload_for_region(
             self._state.active_region or ActiveRegion.CAPTURE,
-            cleaned,
+            request,
         )
         if self._state.active_region is not None:
             self._pending_region_payloads[self._state.active_region] = full_payload
@@ -128,7 +135,7 @@ class EditModeService(BaseService):
 
         final_payload = self._pending_region_payloads.get(
             self._state.active_region,
-            self._payload_for_region(self._state.active_region, {}),
+            self._payload_for_region(self._state.active_region, EditRegionRequest()),
         )
         self._publish_region_config_action(self._state.active_region, final_payload)
         region_committed.send(self, active_region=self._state.active_region)
@@ -142,9 +149,11 @@ class EditModeService(BaseService):
         if not self._state.is_edit_mode:
             return
 
-        region_name = self._region_name_from_payload(
-            self._normalize_payload(payload, kwargs),
-        )
+        normalized = dict(payload or {})
+        normalized.update(kwargs)
+        request = EditRegionRequest.model_validate(normalized)
+
+        region_name = request.region
         if region_name is None:
             return
 
@@ -173,41 +182,23 @@ class EditModeService(BaseService):
         self._publish_region_config_action(self._state.active_region, original_payload)
         edit_mode_changed.send(self, state=self._state)
 
-    def _normalize_payload(
-        self,
-        payload: dict[str, object] | None,
-        kwargs: dict[str, object],
-    ) -> dict[str, object]:
-        normalized: dict[str, object] = {}
-        if payload:
-            normalized.update(payload)
-        normalized.update(kwargs)
-        return normalized
-
-    def _coerce_int_payload(self, payload: dict[str, object] | None) -> dict[str, int]:
-        if not payload:
-            return {}
-        return {k: int(v) for k, v in payload.items() if isinstance(v, (int, float))}
-
-    def _region_name_from_payload(self, payload: dict[str, object] | None) -> str | None:
-        if not payload:
-            return None
-        value = payload.get("region")
-        return value if isinstance(value, str) else None
-
-    def _payload_for_region(self, region: ActiveRegion, payload: dict[str, int]) -> dict[str, int]:
+    def _payload_for_region(self, region: ActiveRegion, request: EditRegionRequest) -> dict[str, int]:
         if region == ActiveRegion.CAPTURE or region == ActiveRegion.ANCHOR:
             source = manager.config.capture_region if region == ActiveRegion.CAPTURE else manager.config.anchor_template
-            left = int(payload.get("left", source.left)) + int(payload.get("delta_left", 0))
-            top = int(payload.get("top", source.top)) + int(payload.get("delta_top", 0))
-            width = int(payload.get("width", source.width)) + int(payload.get("delta_width", 0))
-            height = int(payload.get("height", source.height)) + int(payload.get("delta_height", 0))
+            left = (request.left if request.left is not None else source.left) + (request.delta_left if request.delta_left is not None else 0)
+            top = (request.top if request.top is not None else source.top) + (request.delta_top if request.delta_top is not None else 0)
+            width = (request.width if request.width is not None else source.width) + (request.delta_width if request.delta_width is not None else 0)
+            height = (request.height if request.height is not None else source.height) + (request.delta_height if request.delta_height is not None else 0)
             return {"left": left, "top": top, "width": max(1, width), "height": max(1, height)}
 
         if region == ActiveRegion.INFO:
-            source = manager.config.overlay_config.info_offset
-            x = int(payload.get("x", source.x)) + int(payload.get("delta_x", payload.get("delta_left", 0)))
-            y = int(payload.get("y", source.y)) + int(payload.get("delta_y", payload.get("delta_top", 0)))
+            info_source = manager.config.overlay_config.info_offset
+
+            delta_x = request.delta_x if request.delta_x is not None else (request.delta_left if request.delta_left is not None else 0)
+            delta_y = request.delta_y if request.delta_y is not None else (request.delta_top if request.delta_top is not None else 0)
+
+            x = (request.x if request.x is not None else info_source.x) + delta_x
+            y = (request.y if request.y is not None else info_source.y) + delta_y
             return {"x": x, "y": y}
 
         return {}
