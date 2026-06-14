@@ -17,3 +17,6 @@
 ## 2026-05-31 - Pydantic Boundaries for Action Handler Payloads
 **Learning:** GUI action handlers widely used unstructured `dict[str, object]` payloads requiring `.get()` and type coercion, bypassing static type checking and making the expected data shapes opaque.
 **Action:** Replaced unstructured dictionaries with explicit Pydantic domain models (`TogglePayload`, `RegionUpdatePayload`, etc.) at the system boundary to enforce validation, type safety, and clear schema declarations.
+## 2026-06-14 - Pydantic Payload Parsing in EditModeService
+**Learning:** `EditModeService` previously parsed unstructured `dict[str, object]` region payloads manually, leading to verbose type-checking (`isinstance(v, (int, float))`), scattered normalization helper methods, and reliance on dictionary `get` calls with defaults.
+**Action:** Introduced a strict `EditRegionPayload` Pydantic model in `src/scanning_tool/gui/dtos.py` with explicit defaults. This allowed removing the manual payload parsers in favor of `EditRegionPayload.model_validate`, ensuring inputs are structurally validated at the boundary before processing. Replaced implicit falsy checks for delta values with explicit `is not None and delta != 0` logic to prevent accidentally overriding user-submitted zeros.
