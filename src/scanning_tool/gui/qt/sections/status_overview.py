@@ -32,7 +32,7 @@ class StatusOverviewSection:
         self._capture_label = self._make_badge(grid, 2, "Capture box", self._capture_text())
         self._auto_scan_label = self._make_badge(grid, 3, "Auto scan", self._auto_scan_text())
         self._auto_align_label = self._make_badge(
-            grid, 4, "Auto align", self._auto_align_text(ctx.scan_state.last_alignment_info)
+            grid, 4, "Auto align", self._auto_align_text(ctx.scan_state.last_alignment_info),
         )
 
         layout.addLayout(grid)

@@ -19,7 +19,6 @@ def sanitize_ollama_host(value: str) -> str:
 
 def get_ollama_host() -> str:
     """Return the configured Ollama host, preferring environment config."""
-
     env_host = os.getenv("OLLAMA_HOST", "").strip()
     if env_host:
         return sanitize_ollama_host(env_host)

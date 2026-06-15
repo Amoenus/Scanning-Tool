@@ -10,12 +10,9 @@ from scanning_tool.state.actions.scan import ScanAction
 from scanning_tool.state.signals import status_updated
 
 if TYPE_CHECKING:
-    from scanning_tool.gui.action_context import ActionContext
-
     from collections.abc import Callable
 
-    from scanning_tool.config.service import ConfigSaver
-    from scanning_tool.interfaces import CaptureController
+    from scanning_tool.gui.action_context import ActionContext
 
 
 def _handle_single_scan(

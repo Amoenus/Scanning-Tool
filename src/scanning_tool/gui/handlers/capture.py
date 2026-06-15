@@ -15,10 +15,6 @@ from scanning_tool.state.signals import status_updated
 if TYPE_CHECKING:
     from scanning_tool.gui.action_context import ActionContext
 
-    from scanning_tool.config.service import ConfigSaver
-    from scanning_tool.gui.state import OverlayState
-    from scanning_tool.interfaces import CaptureController
-
 
 def _handle_update_capture_region(
     payload: dict[str, object],
