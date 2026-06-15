@@ -17,3 +17,6 @@
 ## 2026-05-31 - Pydantic Boundaries for Action Handler Payloads
 **Learning:** GUI action handlers widely used unstructured `dict[str, object]` payloads requiring `.get()` and type coercion, bypassing static type checking and making the expected data shapes opaque.
 **Action:** Replaced unstructured dictionaries with explicit Pydantic domain models (`TogglePayload`, `RegionUpdatePayload`, etc.) at the system boundary to enforce validation, type safety, and clear schema declarations.
+## 2024-06-15 - [Active Region Payload Refactoring]
+**Learning:** Extracting unstructured dictionaries used for UI event signaling (e.g. `dict[str, object]`) into properly typed `pydantic.BaseModel` inputs ensures automatic type casting and robust boundary validation. When passing internal domain structures out to legacy untyped signal emitters, providing a well-defined `to_payload_dict()` serialization method prevents breaking compatibility with UI components.
+**Action:** When a UI handler performs manual `dict` lookup, type-coercion, and fallback defaulting (`.get("x", 0)`), create an explicit Pydantic DTO (e.g. `EditRegionPayload`). This eliminates repetitive boundary parsing code and standardizes data structures.

@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 
+
 class TogglePayload(BaseModel):
     visible: bool | None = None
     enabled: bool | None = None
@@ -9,6 +10,21 @@ class RegionUpdatePayload(BaseModel):
     top: int | None = None
     width: int | None = None
     height: int | None = None
+
+class EditRegionPayload(BaseModel):
+    region: str | None = None
+    left: int | None = None
+    top: int | None = None
+    width: int | None = None
+    height: int | None = None
+    delta_left: int | None = None
+    delta_top: int | None = None
+    delta_width: int | None = None
+    delta_height: int | None = None
+    x: int | None = None
+    y: int | None = None
+    delta_x: int | None = None
+    delta_y: int | None = None
 
 class OffsetUpdatePayload(BaseModel):
     x: int | None = None
