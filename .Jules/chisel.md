@@ -17,3 +17,10 @@
 ## 2026-05-31 - Pydantic Boundaries for Action Handler Payloads
 **Learning:** GUI action handlers widely used unstructured `dict[str, object]` payloads requiring `.get()` and type coercion, bypassing static type checking and making the expected data shapes opaque.
 **Action:** Replaced unstructured dictionaries with explicit Pydantic domain models (`TogglePayload`, `RegionUpdatePayload`, etc.) at the system boundary to enforce validation, type safety, and clear schema declarations.
+## 2024-05-24 - [Strict Typing in GUI Payloads]
+**Learning:** Event handlers using dynamic keyword arguments or `dict[str, object]` to receive payloads are prone to logic errors due to type mis-matches (like passing string coordinates when integers are expected), leading to manual, error-prone normalization and "cleaning" phases in application services like `EditModeService`.
+**Action:** When refactoring event handlers that ingest loosely-typed dictionary payloads, enforce system boundaries by validating inputs directly against explicit Pydantic DTO models (e.g., `RegionDragPayload.model_validate(...)`). Always wrap `model_validate` in a `try...except ValidationError` block to short-circuit processing on bad input without bubbling exceptions to the main loop, matching the defensive programming pattern of the original code.
+
+## 2024-05-24 - [Python 2 vs Python 3 Multiple Exception Syntax]
+**Learning:** Found several old Python 2-style exception catches in `tk` components (e.g., `except tk.TclError, ValueError:`). Python 3 evaluates this as catching `tk.TclError` and binding the exception instance to the variable `ValueError`, which completely masks `ValueError`s and raises a `SyntaxError` on modern versions.
+**Action:** When finding `except ExceptionA, ExceptionB:` patterns in legacy codebases, update them to the Python 3 tuple syntax: `except (ExceptionA, ExceptionB):`.

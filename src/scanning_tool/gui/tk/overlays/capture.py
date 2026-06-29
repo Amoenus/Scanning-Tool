@@ -202,7 +202,7 @@ class CaptureOverlay:
         if self.animation_job is not None and self.root:
             try:
                 self.root.after_cancel(self.animation_job)
-            except tk.TclError, ValueError:
+            except (tk.TclError, ValueError):
                 pass
         self.animation_job = None
         self.last_layout = None
