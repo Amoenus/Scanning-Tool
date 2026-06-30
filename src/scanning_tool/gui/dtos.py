@@ -1,5 +1,22 @@
 from pydantic import BaseModel
 
+class RegionSelectPayload(BaseModel):
+    region: str | None = None
+
+class RegionDragPayload(BaseModel):
+    left: int | None = None
+    top: int | None = None
+    width: int | None = None
+    height: int | None = None
+    delta_left: int = 0
+    delta_top: int = 0
+    delta_width: int = 0
+    delta_height: int = 0
+    x: int | None = None
+    y: int | None = None
+    delta_x: int | None = None
+    delta_y: int | None = None
+
 class TogglePayload(BaseModel):
     visible: bool | None = None
     enabled: bool | None = None
