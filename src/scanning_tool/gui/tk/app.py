@@ -95,7 +95,7 @@ def launch_gui(
         ctx.control_state,
         ctx.config,
     )
-    root.edit_mode_overlay_manager = edit_mode_overlay_manager
+    setattr(root, "edit_mode_overlay_manager", edit_mode_overlay_manager)
     configure_capture_slider_sync(
         ctx.control_state,
         lambda: ctx.config.capture_region,

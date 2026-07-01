@@ -254,7 +254,7 @@ class HeadSwaySection:
     def _update_alignment_interval(self, *_args: object) -> None:
         try:
             value = int(self._interval_var.get())
-        except tk.TclError, ValueError:
+        except (tk.TclError, ValueError):
             return
         value = max(100, min(5000, value))
         publish_ui_action(
@@ -265,7 +265,7 @@ class HeadSwaySection:
     def _update_threshold(self, *_args: object) -> None:
         try:
             value = float(self._threshold_var.get())
-        except tk.TclError, ValueError:
+        except (tk.TclError, ValueError):
             return
         value = max(0.1, min(0.99, value))
         publish_ui_action(
