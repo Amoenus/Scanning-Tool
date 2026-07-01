@@ -5,4 +5,4 @@ from dataclasses import dataclass
 class EventLogReadModel:
     """Read model for the Event log concern."""
 
-    logs: list[str] = None
+    logs: list[str] | None = None

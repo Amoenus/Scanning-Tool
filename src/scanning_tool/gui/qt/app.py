@@ -17,7 +17,7 @@ from scanning_tool.gui.qt.status import StatusBar
 
 if TYPE_CHECKING:
     from PyQt6.QtCore import QRect
-    from PyQt6.QtGui import QScreen
+    from PyQt6.QtGui import QScreen, QGuiApplication
 
     from scanning_tool.config.service import ConfigData, ConfigSaver
     from scanning_tool.gui.control_state import ControlState
@@ -101,7 +101,7 @@ def launch_gui(
     window.setCentralWidget(scroll)
     window.show()
 
-    screen: QScreen | None = window.screen() or app.primaryScreen()
+    screen = window.screen() or QGuiApplication.primaryScreen()
     if screen is not None:
         geometry: QRect = screen.geometry()
         show_overlay(

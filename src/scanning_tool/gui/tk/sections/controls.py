@@ -76,7 +76,7 @@ class ControlsSection:
     def _on_interval_change(self, *_args: object) -> None:
         try:
             value = float(self._interval_var.get())
-        except tk.TclError, ValueError:
+        except (tk.TclError, ValueError):
             return
         value = max(0.2, min(30.0, value))
         publish_ui_action(
