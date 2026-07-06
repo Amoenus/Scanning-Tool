@@ -17,3 +17,7 @@
 ## 2026-05-31 - Pydantic Boundaries for Action Handler Payloads
 **Learning:** GUI action handlers widely used unstructured `dict[str, object]` payloads requiring `.get()` and type coercion, bypassing static type checking and making the expected data shapes opaque.
 **Action:** Replaced unstructured dictionaries with explicit Pydantic domain models (`TogglePayload`, `RegionUpdatePayload`, etc.) at the system boundary to enforce validation, type safety, and clear schema declarations.
+
+## 2024-07-06 - Pydantic Validation on System Boundaries
+**Learning:** The `EditModeService` was manually parsing unstructured dictionaries for critical domain boundaries (UI events) using string lookups and `get()`, bypassing strict typing guarantees and failing to enforce schema conformance. Pydantic models with `model_validate()` and generic `try-except ValidationError` blocks gracefully absorb unexpected unstructured data while enforcing domain shape instantly upon receipt without crashing the application event bus.
+**Action:** Always intercept `dict` payloads at system boundaries with explicit Pydantic DTOs and `model_validate`, using exception handling to act defensively instead of manual `dict.get()` normalization logic.
