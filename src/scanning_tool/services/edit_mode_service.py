@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import pydantic
+
 from typing import Any
 
 from scanning_tool.services.base_service import BaseService
@@ -10,6 +12,7 @@ from scanning_tool.state.actions.config import ConfigAction
 from scanning_tool.state.actions.edit_mode import EditModeAction
 from scanning_tool.state.read_models.edit_mode import ActiveRegion, EditModeReadModel
 from scanning_tool.state.signals import UI_ACTION_SIGNALS
+from scanning_tool.gui.dtos import RegionDragPayload, RegionSelectPayload
 from scanning_tool.state.signals.edit_mode import edit_mode_changed, region_committed
 
 
@@ -17,7 +20,7 @@ class EditModeService(BaseService):
     def __init__(self) -> None:
         super().__init__()
         self._state = EditModeReadModel()
-        self._pending_region_payloads: dict[ActiveRegion, dict[str, int]] = {}
+        self._pending_region_payloads: dict[ActiveRegion, dict[str, object]] = {}
 
     @property
     def state(self) -> EditModeReadModel:
@@ -70,13 +73,17 @@ class EditModeService(BaseService):
         if not self._state.is_edit_mode:
             return
 
-        cleaned = self._coerce_int_payload(self._normalize_payload(payload, kwargs))
-        if not cleaned:
+        try:
+            # Merge payload and kwargs since we don't have _normalize_payload anymore
+            merged = dict(payload or {})
+            merged.update(kwargs)
+            data = RegionDragPayload.model_validate(merged)
+        except pydantic.ValidationError:
             return
 
         full_payload = self._payload_for_region(
             self._state.active_region or ActiveRegion.CAPTURE,
-            cleaned,
+            data,
         )
         if self._state.active_region is not None:
             self._pending_region_payloads[self._state.active_region] = full_payload
@@ -92,13 +99,16 @@ class EditModeService(BaseService):
         if not self._state.is_edit_mode:
             return
 
-        cleaned = self._coerce_int_payload(self._normalize_payload(payload, kwargs))
-        if not cleaned:
+        try:
+            merged = dict(payload or {})
+            merged.update(kwargs)
+            data = RegionDragPayload.model_validate(merged)
+        except pydantic.ValidationError:
             return
 
         full_payload = self._payload_for_region(
             self._state.active_region or ActiveRegion.CAPTURE,
-            cleaned,
+            data,
         )
         if self._state.active_region is not None:
             self._pending_region_payloads[self._state.active_region] = full_payload
@@ -128,7 +138,7 @@ class EditModeService(BaseService):
 
         final_payload = self._pending_region_payloads.get(
             self._state.active_region,
-            self._payload_for_region(self._state.active_region, {}),
+            self._payload_for_region(self._state.active_region, RegionDragPayload()),
         )
         self._publish_region_config_action(self._state.active_region, final_payload)
         region_committed.send(self, active_region=self._state.active_region)
@@ -142,14 +152,18 @@ class EditModeService(BaseService):
         if not self._state.is_edit_mode:
             return
 
-        region_name = self._region_name_from_payload(
-            self._normalize_payload(payload, kwargs),
-        )
-        if region_name is None:
+        try:
+            merged = dict(payload or {})
+            merged.update(kwargs)
+            data = RegionSelectPayload.model_validate(merged)
+        except pydantic.ValidationError:
+            return
+
+        if data.region is None:
             return
 
         try:
-            active_region = ActiveRegion(region_name)
+            active_region = ActiveRegion(data.region)
         except ValueError:
             return
 
@@ -173,46 +187,38 @@ class EditModeService(BaseService):
         self._publish_region_config_action(self._state.active_region, original_payload)
         edit_mode_changed.send(self, state=self._state)
 
-    def _normalize_payload(
-        self,
-        payload: dict[str, object] | None,
-        kwargs: dict[str, object],
-    ) -> dict[str, object]:
-        normalized: dict[str, object] = {}
-        if payload:
-            normalized.update(payload)
-        normalized.update(kwargs)
-        return normalized
-
-    def _coerce_int_payload(self, payload: dict[str, object] | None) -> dict[str, int]:
-        if not payload:
-            return {}
-        return {k: int(v) for k, v in payload.items() if isinstance(v, (int, float))}
-
-    def _region_name_from_payload(self, payload: dict[str, object] | None) -> str | None:
-        if not payload:
-            return None
-        value = payload.get("region")
-        return value if isinstance(value, str) else None
-
-    def _payload_for_region(self, region: ActiveRegion, payload: dict[str, int]) -> dict[str, int]:
+    def _payload_for_region(self, region: ActiveRegion, data: "RegionDragPayload") -> dict[str, object]:
         if region == ActiveRegion.CAPTURE or region == ActiveRegion.ANCHOR:
-            source = manager.config.capture_region if region == ActiveRegion.CAPTURE else manager.config.anchor_template
-            left = int(payload.get("left", source.left)) + int(payload.get("delta_left", 0))
-            top = int(payload.get("top", source.top)) + int(payload.get("delta_top", 0))
-            width = int(payload.get("width", source.width)) + int(payload.get("delta_width", 0))
-            height = int(payload.get("height", source.height)) + int(payload.get("delta_height", 0))
+            source_region = (
+                manager.config.capture_region if region == ActiveRegion.CAPTURE else manager.config.anchor_template
+            )
+            left = (data.left if data.left is not None else source_region.left) + (
+                data.delta_left if data.delta_left is not None else 0
+            )
+            top = (data.top if data.top is not None else source_region.top) + (
+                data.delta_top if data.delta_top is not None else 0
+            )
+            width = (data.width if data.width is not None else source_region.width) + (
+                data.delta_width if data.delta_width is not None else 0
+            )
+            height = (data.height if data.height is not None else source_region.height) + (
+                data.delta_height if data.delta_height is not None else 0
+            )
             return {"left": left, "top": top, "width": max(1, width), "height": max(1, height)}
 
         if region == ActiveRegion.INFO:
-            source = manager.config.overlay_config.info_offset
-            x = int(payload.get("x", source.x)) + int(payload.get("delta_x", payload.get("delta_left", 0)))
-            y = int(payload.get("y", source.y)) + int(payload.get("delta_y", payload.get("delta_top", 0)))
+            source_offset = manager.config.overlay_config.info_offset
+            x = (data.x if data.x is not None else source_offset.x) + (
+                data.delta_x if data.delta_x is not None else (data.delta_left if data.delta_left is not None else 0)
+            )
+            y = (data.y if data.y is not None else source_offset.y) + (
+                data.delta_y if data.delta_y is not None else (data.delta_top if data.delta_top is not None else 0)
+            )
             return {"x": x, "y": y}
 
         return {}
 
-    def _capture_original_region_payloads(self) -> dict[ActiveRegion, dict[str, int]]:
+    def _capture_original_region_payloads(self) -> dict[ActiveRegion, dict[str, object]]:
         capture_region = manager.config.capture_region
         anchor_template = manager.config.anchor_template
         info_offset = manager.config.overlay_config.info_offset
@@ -238,7 +244,7 @@ class EditModeService(BaseService):
     def _publish_region_config_action(
         self,
         active_region: ActiveRegion | None,
-        payload: dict[str, int],
+        payload: dict[str, object],
     ) -> None:
         if active_region is None:
             return
