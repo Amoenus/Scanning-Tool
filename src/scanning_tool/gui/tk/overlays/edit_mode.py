@@ -289,7 +289,7 @@ class EditModeOverlayManager(EditModeRenderer):
         payload = self._build_drag_payload(session, dx, dy)
         publish_ui_action(EditModeAction.DRAG_REGION, payload)
 
-    def _build_drag_payload(self, session: _DragSession, dx: int, dy: int) -> dict[str, int]:
+    def _build_drag_payload(self, session: _DragSession, dx: int, dy: int) -> dict[str, object]:
         if session.region in (ActiveRegion.CAPTURE, ActiveRegion.ANCHOR):
             original = session.original_values
             left = original["left"]
@@ -588,7 +588,7 @@ class EditModeOverlayManager(EditModeRenderer):
         height: int,
         dx: int,
         dy: int,
-    ) -> dict[str, int]:
+    ) -> dict[str, object]:
         new_left = left
         new_top = top
         new_width = width
