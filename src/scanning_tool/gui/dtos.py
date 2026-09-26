@@ -25,3 +25,20 @@ class OllamaModelPayload(BaseModel):
 
 class OllamaHostPayload(BaseModel):
     host: str | None = None
+
+class RegionDragPayload(BaseModel):
+    left: int | None = None
+    top: int | None = None
+    width: int | None = None
+    height: int | None = None
+    delta_left: int = 0
+    delta_top: int = 0
+    delta_width: int = 0
+    delta_height: int = 0
+    x: int | None = None
+    y: int | None = None
+    delta_x: int = 0
+    delta_y: int = 0
+
+class RegionSelectPayload(BaseModel):
+    region: str | None = None
