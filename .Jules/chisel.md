@@ -17,3 +17,7 @@
 ## 2026-05-31 - Pydantic Boundaries for Action Handler Payloads
 **Learning:** GUI action handlers widely used unstructured `dict[str, object]` payloads requiring `.get()` and type coercion, bypassing static type checking and making the expected data shapes opaque.
 **Action:** Replaced unstructured dictionaries with explicit Pydantic domain models (`TogglePayload`, `RegionUpdatePayload`, etc.) at the system boundary to enforce validation, type safety, and clear schema declarations.
+
+## 2024-09-27 - DTO Validation at System Boundaries
+**Learning:** Internal service UI action listeners (like `EditModeService` listening to `DRAG_REGION` or `SELECT_REGION`) were relying on unstructured `dict[str, Any]` payloads passed from GUI overlays, using manual/unsafe dictionary updates and explicit string keys. This leads to untraceable state bugs and runtime TypeErrors when payload definitions drift between GUI publishers and Service subscribers.
+**Action:** Enforce strict DTO models (`RegionDragPayload`, `RegionSelectPayload` using Pydantic) directly in event handler entry points (`_on_drag_region`, `_on_select_region`) to parse loose payload dictionaries immediately into strict domain objects before processing, maintaining defensive boundaries within services.
