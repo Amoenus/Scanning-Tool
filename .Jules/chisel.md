@@ -17,3 +17,7 @@
 ## 2026-05-31 - Pydantic Boundaries for Action Handler Payloads
 **Learning:** GUI action handlers widely used unstructured `dict[str, object]` payloads requiring `.get()` and type coercion, bypassing static type checking and making the expected data shapes opaque.
 **Action:** Replaced unstructured dictionaries with explicit Pydantic domain models (`TogglePayload`, `RegionUpdatePayload`, etc.) at the system boundary to enforce validation, type safety, and clear schema declarations.
+
+## 2024-05-24 - Typed Payloads for Dynamic Event Handlers
+**Learning:** Raw dictionaries used in generic UI action handlers (like `payload: dict[str, Any], **kwargs`) cause brittle and complex logic, especially when doing mathematical derivations (e.g. `int(payload.get("delta_x", payload.get("delta_left", 0)))`). Moving to strict Pydantic models (e.g., `RegionDragPayload`) encapsulates this structural complexity and allows for safer fallback logic at the domain boundary via `try/except pydantic.ValidationError` when wrapping generic dictionaries.
+**Action:** When handling generic events from a frontend/UI layer, immediately validate `dict` payloads into Pydantic models at the service boundary.
