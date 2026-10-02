@@ -17,3 +17,7 @@
 ## 2026-05-31 - Pydantic Boundaries for Action Handler Payloads
 **Learning:** GUI action handlers widely used unstructured `dict[str, object]` payloads requiring `.get()` and type coercion, bypassing static type checking and making the expected data shapes opaque.
 **Action:** Replaced unstructured dictionaries with explicit Pydantic domain models (`TogglePayload`, `RegionUpdatePayload`, etc.) at the system boundary to enforce validation, type safety, and clear schema declarations.
+
+## 2024-05-18 - Replacing `dict` Payloads with Pydantic Boundaries in UI Events
+**Learning:** Found a recurring pattern in `EditModeService` where unstructured dictionaries (`dict[str, object]`) and `**kwargs` were passed through signal actions (e.g. dragging/selecting regions). This led to fragile inline validation (like custom `_coerce_int_payload` loops).
+**Action:** Always create explicitly typed `pydantic.BaseModel` DTOs (e.g., `RegionDragPayload`) for signal event payloads. Wrap `.model_validate()` at the entry points of services catching these UI signals, dropping manual coercions and ensuring type safety before domain logic executes. Also caught and fixed legacy Python 2 exception syntax (`except TypeError, ValueError:`) that mypy flagged during this refactoring phase.
