@@ -121,7 +121,7 @@ class GlassScaleController:
     def _coerce_value(self, raw_value: str) -> float:
         try:
             return float(raw_value)
-        except TypeError, ValueError:
+        except (TypeError, ValueError):
             return self._value_var.get()
 
     def _snap_value(self, value: float) -> float:
