@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import pydantic
 from typing import Any
 
+from scanning_tool.gui.dtos import RegionDragPayload, RegionNudgePayload, RegionSelectPayload
 from scanning_tool.services.base_service import BaseService
 from scanning_tool.state import manager
 from scanning_tool.state.actions.config import ConfigAction
@@ -64,19 +66,27 @@ class EditModeService(BaseService):
     def _on_drag_region(
         self,
         sender: object,
-        payload: dict[str, object] | None = None,
+        payload: RegionDragPayload | dict[str, object] | None = None,
         **kwargs: Any,
     ) -> None:
         if not self._state.is_edit_mode:
             return
 
-        cleaned = self._coerce_int_payload(self._normalize_payload(payload, kwargs))
-        if not cleaned:
+        merged_payload = dict((payload or {}) if isinstance(payload, dict) else (payload.model_dump() if payload else {}))
+        merged_payload.update(kwargs)
+
+        try:
+            data = RegionDragPayload.model_validate(merged_payload)
+        except pydantic.ValidationError:
+            return
+
+        # check if it is completely empty
+        if all(v is None for v in data.model_dump().values()):
             return
 
         full_payload = self._payload_for_region(
             self._state.active_region or ActiveRegion.CAPTURE,
-            cleaned,
+            data,
         )
         if self._state.active_region is not None:
             self._pending_region_payloads[self._state.active_region] = full_payload
@@ -86,19 +96,27 @@ class EditModeService(BaseService):
     def _on_nudge_region(
         self,
         sender: object,
-        payload: dict[str, object] | None = None,
+        payload: RegionNudgePayload | dict[str, object] | None = None,
         **kwargs: Any,
     ) -> None:
         if not self._state.is_edit_mode:
             return
 
-        cleaned = self._coerce_int_payload(self._normalize_payload(payload, kwargs))
-        if not cleaned:
+        merged_payload = dict((payload or {}) if isinstance(payload, dict) else (payload.model_dump() if payload else {}))
+        merged_payload.update(kwargs)
+
+        try:
+            data = RegionNudgePayload.model_validate(merged_payload)
+        except pydantic.ValidationError:
+            return
+
+        # check if it is completely empty
+        if all(v is None for v in data.model_dump().values()):
             return
 
         full_payload = self._payload_for_region(
             self._state.active_region or ActiveRegion.CAPTURE,
-            cleaned,
+            data,
         )
         if self._state.active_region is not None:
             self._pending_region_payloads[self._state.active_region] = full_payload
@@ -128,7 +146,7 @@ class EditModeService(BaseService):
 
         final_payload = self._pending_region_payloads.get(
             self._state.active_region,
-            self._payload_for_region(self._state.active_region, {}),
+            self._payload_for_region(self._state.active_region, None),
         )
         self._publish_region_config_action(self._state.active_region, final_payload)
         region_committed.send(self, active_region=self._state.active_region)
@@ -136,15 +154,21 @@ class EditModeService(BaseService):
     def _on_select_region(
         self,
         sender: object,
-        payload: dict[str, object] | None = None,
+        payload: RegionSelectPayload | dict[str, object] | None = None,
         **kwargs: Any,
     ) -> None:
         if not self._state.is_edit_mode:
             return
 
-        region_name = self._region_name_from_payload(
-            self._normalize_payload(payload, kwargs),
-        )
+        merged_payload = dict((payload or {}) if isinstance(payload, dict) else (payload.model_dump() if payload else {}))
+        merged_payload.update(kwargs)
+
+        try:
+            data = RegionSelectPayload.model_validate(merged_payload)
+        except pydantic.ValidationError:
+            return
+
+        region_name = data.region
         if region_name is None:
             return
 
@@ -173,42 +197,42 @@ class EditModeService(BaseService):
         self._publish_region_config_action(self._state.active_region, original_payload)
         edit_mode_changed.send(self, state=self._state)
 
-    def _normalize_payload(
-        self,
-        payload: dict[str, object] | None,
-        kwargs: dict[str, object],
-    ) -> dict[str, object]:
-        normalized: dict[str, object] = {}
-        if payload:
-            normalized.update(payload)
-        normalized.update(kwargs)
-        return normalized
+    def _payload_for_region(self, region: ActiveRegion, payload: RegionDragPayload | RegionNudgePayload | None) -> dict[str, int]:
 
-    def _coerce_int_payload(self, payload: dict[str, object] | None) -> dict[str, int]:
-        if not payload:
-            return {}
-        return {k: int(v) for k, v in payload.items() if isinstance(v, (int, float))}
+        def _val(val: float | int | None, fallback: float | int) -> float | int:
+            return val if val is not None else fallback
 
-    def _region_name_from_payload(self, payload: dict[str, object] | None) -> str | None:
-        if not payload:
-            return None
-        value = payload.get("region")
-        return value if isinstance(value, str) else None
-
-    def _payload_for_region(self, region: ActiveRegion, payload: dict[str, int]) -> dict[str, int]:
         if region == ActiveRegion.CAPTURE or region == ActiveRegion.ANCHOR:
             source = manager.config.capture_region if region == ActiveRegion.CAPTURE else manager.config.anchor_template
-            left = int(payload.get("left", source.left)) + int(payload.get("delta_left", 0))
-            top = int(payload.get("top", source.top)) + int(payload.get("delta_top", 0))
-            width = int(payload.get("width", source.width)) + int(payload.get("delta_width", 0))
-            height = int(payload.get("height", source.height)) + int(payload.get("delta_height", 0))
-            return {"left": left, "top": top, "width": max(1, width), "height": max(1, height)}
+            if isinstance(payload, RegionDragPayload):
+                left = int(_val(payload.left, source.left))
+                top = int(_val(payload.top, source.top))
+                width = int(_val(payload.width, source.width))
+                height = int(_val(payload.height, source.height))
+                return {"left": left, "top": top, "width": max(1, width), "height": max(1, height)}
+            elif isinstance(payload, RegionNudgePayload):
+                left = int(source.left) + int(_val(payload.delta_left, 0))
+                top = int(source.top) + int(_val(payload.delta_top, 0))
+                width = int(source.width) + int(_val(payload.delta_width, 0))
+                height = int(source.height) + int(_val(payload.delta_height, 0))
+                return {"left": left, "top": top, "width": max(1, width), "height": max(1, height)}
+            else:
+                return {"left": int(source.left), "top": int(source.top), "width": int(source.width), "height": int(source.height)}
 
         if region == ActiveRegion.INFO:
-            source = manager.config.overlay_config.info_offset
-            x = int(payload.get("x", source.x)) + int(payload.get("delta_x", payload.get("delta_left", 0)))
-            y = int(payload.get("y", source.y)) + int(payload.get("delta_y", payload.get("delta_top", 0)))
-            return {"x": x, "y": y}
+            info_source = manager.config.overlay_config.info_offset
+            if isinstance(payload, RegionDragPayload):
+                x = int(_val(payload.x, info_source.x))
+                y = int(_val(payload.y, info_source.y))
+                return {"x": x, "y": y}
+            elif isinstance(payload, RegionNudgePayload):
+                delta_x = _val(payload.delta_x, _val(payload.delta_left, 0))
+                delta_y = _val(payload.delta_y, _val(payload.delta_top, 0))
+                x = int(info_source.x) + int(delta_x)
+                y = int(info_source.y) + int(delta_y)
+                return {"x": x, "y": y}
+            else:
+                return {"x": int(info_source.x), "y": int(info_source.y)}
 
         return {}
 
