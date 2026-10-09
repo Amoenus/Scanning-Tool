@@ -50,24 +50,11 @@ class OreAnalyzer:
             An OreAnalysisResult with ore type, confidence, value estimate, and match error.
 
         """
-        best_match: str | None = None
-        min_density_diff = float("inf")
-
-        for ore_type, properties in self.known_ores.items():
-            density_diff = abs(sample_data.density - properties.density)
-            if density_diff < min_density_diff:
-                min_density_diff = density_diff
-                best_match = ore_type
-
-        if best_match is None:
-            raise ValueError("No known ores to match against.")
-
+        best_match, min_density_diff = self._find_closest_match(sample_data.density)
         matched = self.known_ores[best_match]
-        confidence = max(
-            0.0,
-            1.0 - (min_density_diff / max(matched.density, sample_data.density)),
-        )
-        is_valuable = matched.value > self.MIN_VALUE_FOR_VALUABLE and confidence > self.MIN_CONFIDENCE_FOR_VALUABLE
+
+        confidence = self._calculate_confidence(min_density_diff, matched.density, sample_data.density)
+        is_valuable = self._is_sample_valuable(matched.value, confidence)
 
         return OreAnalysisResult(
             ore_type=best_match,
@@ -76,3 +63,28 @@ class OreAnalyzer:
             estimated_value=matched.value * sample_data.mass * confidence,
             density_match_error=round(min_density_diff, 3),
         )
+
+    def _find_closest_match(self, sample_density: float) -> tuple[str, float]:
+        best_match: str | None = None
+        min_density_diff = float("inf")
+
+        for ore_type, properties in self.known_ores.items():
+            density_diff = abs(sample_density - properties.density)
+            if density_diff < min_density_diff:
+                min_density_diff = density_diff
+                best_match = ore_type
+
+        if best_match is None:
+            msg = "No known ores to match against."
+            raise ValueError(msg)
+
+        return best_match, min_density_diff
+
+    def _calculate_confidence(self, min_density_diff: float, matched_density: float, sample_density: float) -> float:
+        return max(
+            0.0,
+            1.0 - (min_density_diff / max(matched_density, sample_density)),
+        )
+
+    def _is_sample_valuable(self, matched_value: int, confidence: float) -> bool:
+        return matched_value > self.MIN_VALUE_FOR_VALUABLE and confidence > self.MIN_CONFIDENCE_FOR_VALUABLE
