@@ -17,3 +17,7 @@
 ## 2026-05-31 - Pydantic Boundaries for Action Handler Payloads
 **Learning:** GUI action handlers widely used unstructured `dict[str, object]` payloads requiring `.get()` and type coercion, bypassing static type checking and making the expected data shapes opaque.
 **Action:** Replaced unstructured dictionaries with explicit Pydantic domain models (`TogglePayload`, `RegionUpdatePayload`, etc.) at the system boundary to enforce validation, type safety, and clear schema declarations.
+
+## 2024-10-12 - Replacing Unstructured Dicts with Pydantic in Event Handlers
+**Learning:** When refactoring event action handlers that previously used loose `dict[str, Any]` and merged `**kwargs`, converting to strict Pydantic DTOs improves traceability. However, if multiple enum types are merged into a single dictionary like `ACTION_HANDLERS`, the type signature should use `dict[Any, Handler]` to satisfy mypy's `SupportsKeysAndGetItem` requirements during dict unpacking.
+**Action:** Use `dict[Any, Handler]` when unpacking multiple enums into a single handler map. In payload validation, use `try/except Exception` around `Model.model_validate(combined_payload)` and check for an empty payload via `if not dto.model_dump(exclude_none=True): return` to mimic legacy "empty dict" short-circuiting.
