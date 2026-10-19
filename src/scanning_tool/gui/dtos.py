@@ -1,4 +1,40 @@
-from pydantic import BaseModel
+from typing import Any
+
+from pydantic import BaseModel, model_validator
+
+
+class RegionDragPayload(BaseModel):
+    left: int | None = None
+    top: int | None = None
+    width: int | None = None
+    height: int | None = None
+    x: int | None = None
+    y: int | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def _coerce_numbers(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            return {k: int(v) for k, v in data.items() if isinstance(v, (int, float))}
+        return data
+
+class RegionNudgePayload(BaseModel):
+    delta_left: int = 0
+    delta_top: int = 0
+    delta_width: int = 0
+    delta_height: int = 0
+    delta_x: int = 0
+    delta_y: int = 0
+
+    @model_validator(mode="before")
+    @classmethod
+    def _coerce_numbers(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            return {k: int(v) for k, v in data.items() if isinstance(v, (int, float))}
+        return data
+
+class RegionSelectPayload(BaseModel):
+    region: str | None = None
 
 class TogglePayload(BaseModel):
     visible: bool | None = None
