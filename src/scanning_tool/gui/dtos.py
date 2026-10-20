@@ -1,4 +1,6 @@
-from pydantic import BaseModel
+from typing import Any
+
+from pydantic import BaseModel, model_validator
 
 class TogglePayload(BaseModel):
     visible: bool | None = None
@@ -25,3 +27,36 @@ class OllamaModelPayload(BaseModel):
 
 class OllamaHostPayload(BaseModel):
     host: str | None = None
+
+class RegionDragPayload(BaseModel):
+    left: int | None = None
+    top: int | None = None
+    width: int | None = None
+    height: int | None = None
+    delta_left: int | None = None
+    delta_top: int | None = None
+    delta_width: int | None = None
+    delta_height: int | None = None
+    x: int | None = None
+    y: int | None = None
+    delta_x: int | None = None
+    delta_y: int | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def coerce_numeric(cls, data: Any) -> Any:
+        if not isinstance(data, dict):
+            return data
+        cleaned = {}
+        for k, v in data.items():
+            if isinstance(v, (int, float)):
+                cleaned[k] = int(v)
+            elif isinstance(v, str):
+                try:
+                    cleaned[k] = int(float(v))
+                except ValueError:
+                    pass
+        return cleaned
+
+class RegionSelectPayload(BaseModel):
+    region: str | None = None
