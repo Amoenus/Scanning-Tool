@@ -1,0 +1,19 @@
+1. Read `src/scanning_tool/services/edit_mode_service.py` entirely to understand current ad-hoc payload parsing. (Done via `read_file`).
+2. Read `src/scanning_tool/gui/dtos.py` to identify missing DTO models for edit mode actions.
+3. Edit `src/scanning_tool/gui/dtos.py` using `replace_with_git_merge_diff` to add `RegionSelectPayload` and `RegionDragPayload` Pydantic models.
+   - `RegionSelectPayload` should validate the `region` string.
+   - `RegionDragPayload` should have optional integer fields (`left`, `top`, `width`, `height`, `x`, `y`, and deltas for each) and include a `@model_validator(mode='before')` to coerce int-like strings/floats to `int` and ignore invalid types, as required by legacy handlers and memory context.
+4. Verify `dtos.py` changes by reading the file `src/scanning_tool/gui/dtos.py` via `read_file`.
+5. Edit `src/scanning_tool/services/edit_mode_service.py` using `replace_with_git_merge_diff`:
+   - Import the newly created Pydantic models and Pydantic's `ValidationError`.
+   - Update `_on_select_region` to use `RegionSelectPayload.model_validate(payload)`.
+   - Update `_on_drag_region` and `_on_nudge_region` to use `RegionDragPayload.model_validate(payload)`.
+   - Refactor `_payload_for_region` to process `RegionDragPayload` instead of raw `dict[str, int]`.
+   - Remove `_normalize_payload`, `_coerce_int_payload`, and `_region_name_from_payload` since Pydantic now handles validation and normalization.
+6. Verify `edit_mode_service.py` changes by reading the file `src/scanning_tool/services/edit_mode_service.py` via `read_file`.
+7. Test the changes using `uv run --managed-python --with-requirements requirements-dev.txt -- pytest tests/test_edit_mode_service.py`.
+8. Type check using the repository's mypy pipeline `find src -name "*.py" -print0 | xargs -0 uv run --managed-python --with-requirements requirements-dev.txt -- mypy`.
+9. Format code with `uv run --managed-python --with-requirements requirements-dev.txt -- ruff format ./src` and lint with `uv run --managed-python --with-requirements requirements-dev.txt -- ruff check ./src`.
+10. Complete pre-commit steps to ensure proper testing, verification, review, and reflection are done.
+11. Journal the architectural insight in `.Jules/chisel.md` reflecting the elimination of `dict[str, Any]` and ad-hoc parsing at the `EditModeService` boundary in favor of strict Pydantic DTOs.
+12. Create a PR.
