@@ -8,6 +8,7 @@ from scanning_tool.services.base_service import BaseService
 from scanning_tool.state import manager
 from scanning_tool.state.actions.config import ConfigAction
 from scanning_tool.state.actions.edit_mode import EditModeAction
+from scanning_tool.gui.dtos import RegionDragPayload, RegionSelectPayload
 from scanning_tool.state.read_models.edit_mode import ActiveRegion, EditModeReadModel
 from scanning_tool.state.signals import UI_ACTION_SIGNALS
 from scanning_tool.state.signals.edit_mode import edit_mode_changed, region_committed
@@ -70,13 +71,13 @@ class EditModeService(BaseService):
         if not self._state.is_edit_mode:
             return
 
-        cleaned = self._coerce_int_payload(self._normalize_payload(payload, kwargs))
-        if not cleaned:
+        dto = RegionDragPayload.model_validate(dict(payload or {}, **kwargs))
+        if not dto.model_dump(exclude_none=True):
             return
 
         full_payload = self._payload_for_region(
             self._state.active_region or ActiveRegion.CAPTURE,
-            cleaned,
+            dto,
         )
         if self._state.active_region is not None:
             self._pending_region_payloads[self._state.active_region] = full_payload
@@ -92,13 +93,13 @@ class EditModeService(BaseService):
         if not self._state.is_edit_mode:
             return
 
-        cleaned = self._coerce_int_payload(self._normalize_payload(payload, kwargs))
-        if not cleaned:
+        dto = RegionDragPayload.model_validate(dict(payload or {}, **kwargs))
+        if not dto.model_dump(exclude_none=True):
             return
 
         full_payload = self._payload_for_region(
             self._state.active_region or ActiveRegion.CAPTURE,
-            cleaned,
+            dto,
         )
         if self._state.active_region is not None:
             self._pending_region_payloads[self._state.active_region] = full_payload
@@ -128,7 +129,7 @@ class EditModeService(BaseService):
 
         final_payload = self._pending_region_payloads.get(
             self._state.active_region,
-            self._payload_for_region(self._state.active_region, {}),
+            self._payload_for_region(self._state.active_region, RegionDragPayload()),
         )
         self._publish_region_config_action(self._state.active_region, final_payload)
         region_committed.send(self, active_region=self._state.active_region)
@@ -142,14 +143,12 @@ class EditModeService(BaseService):
         if not self._state.is_edit_mode:
             return
 
-        region_name = self._region_name_from_payload(
-            self._normalize_payload(payload, kwargs),
-        )
-        if region_name is None:
+        dto = RegionSelectPayload.model_validate(dict(payload or {}, **kwargs))
+        if not dto.region:
             return
 
         try:
-            active_region = ActiveRegion(region_name)
+            active_region = ActiveRegion(dto.region)
         except ValueError:
             return
 
@@ -173,41 +172,33 @@ class EditModeService(BaseService):
         self._publish_region_config_action(self._state.active_region, original_payload)
         edit_mode_changed.send(self, state=self._state)
 
-    def _normalize_payload(
-        self,
-        payload: dict[str, object] | None,
-        kwargs: dict[str, object],
-    ) -> dict[str, object]:
-        normalized: dict[str, object] = {}
-        if payload:
-            normalized.update(payload)
-        normalized.update(kwargs)
-        return normalized
-
-    def _coerce_int_payload(self, payload: dict[str, object] | None) -> dict[str, int]:
-        if not payload:
-            return {}
-        return {k: int(v) for k, v in payload.items() if isinstance(v, (int, float))}
-
-    def _region_name_from_payload(self, payload: dict[str, object] | None) -> str | None:
-        if not payload:
-            return None
-        value = payload.get("region")
-        return value if isinstance(value, str) else None
-
-    def _payload_for_region(self, region: ActiveRegion, payload: dict[str, int]) -> dict[str, int]:
+    def _payload_for_region(self, region: ActiveRegion, dto: RegionDragPayload) -> dict[str, int]:
         if region == ActiveRegion.CAPTURE or region == ActiveRegion.ANCHOR:
             source = manager.config.capture_region if region == ActiveRegion.CAPTURE else manager.config.anchor_template
-            left = int(payload.get("left", source.left)) + int(payload.get("delta_left", 0))
-            top = int(payload.get("top", source.top)) + int(payload.get("delta_top", 0))
-            width = int(payload.get("width", source.width)) + int(payload.get("delta_width", 0))
-            height = int(payload.get("height", source.height)) + int(payload.get("delta_height", 0))
+
+            left_val = dto.left if dto.left is not None else source.left
+            top_val = dto.top if dto.top is not None else source.top
+            width_val = dto.width if dto.width is not None else source.width
+            height_val = dto.height if dto.height is not None else source.height
+
+            left = int(left_val) + (dto.delta_left or 0)
+            top = int(top_val) + (dto.delta_top or 0)
+            width = int(width_val) + (dto.delta_width or 0)
+            height = int(height_val) + (dto.delta_height or 0)
+
             return {"left": left, "top": top, "width": max(1, width), "height": max(1, height)}
 
         if region == ActiveRegion.INFO:
             source = manager.config.overlay_config.info_offset
-            x = int(payload.get("x", source.x)) + int(payload.get("delta_x", payload.get("delta_left", 0)))
-            y = int(payload.get("y", source.y)) + int(payload.get("delta_y", payload.get("delta_top", 0)))
+
+            x_val = dto.x if dto.x is not None else source.x
+            y_val = dto.y if dto.y is not None else source.y
+
+            delta_x = dto.delta_x if dto.delta_x is not None else (dto.delta_left or 0)
+            delta_y = dto.delta_y if dto.delta_y is not None else (dto.delta_top or 0)
+
+            x = int(x_val) + delta_x
+            y = int(y_val) + delta_y
             return {"x": x, "y": y}
 
         return {}
