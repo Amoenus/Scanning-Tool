@@ -17,3 +17,7 @@
 ## 2026-05-31 - Pydantic Boundaries for Action Handler Payloads
 **Learning:** GUI action handlers widely used unstructured `dict[str, object]` payloads requiring `.get()` and type coercion, bypassing static type checking and making the expected data shapes opaque.
 **Action:** Replaced unstructured dictionaries with explicit Pydantic domain models (`TogglePayload`, `RegionUpdatePayload`, etc.) at the system boundary to enforce validation, type safety, and clear schema declarations.
+
+## 2026-06-18 - Replacing ad-hoc dict operations with DTO models in state management
+**Learning:** Legacy UI event handlers often perform ad-hoc dictionary validation using dynamic `isinstance` and `.get()` operations, which hides parameter requirements from static analysis and introduces brittle default logic.
+**Action:** Consistently replace arbitrary dictionary logic on handler boundaries (like `EditModeService`'s coordinate payload processing) with typed Pydantic models (e.g. `RegionDragPayload`) implementing a unified `@model_validator` to encapsulate coercion rules explicitly.
